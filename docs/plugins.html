@@ -492,7 +492,7 @@ plugins.extendAll();
 <li><strong>outputSchema</strong> { <span class="type"><a href="dataTypes.html#datatypes_object">Object</a></span> } - 结果格式 (可能不存在)</li>
 <li><strong>risk</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 风险等级: <code>readonly</code>, <code>write</code>, <code>destructive</code> 或 <code>network</code></li>
 <li><strong>timeoutMs</strong> { <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> } - 单次调用的时限 (毫秒)</li>
-<li><strong>outputs</strong> { <span class="type"><a href="dataTypes.html#datatypes_object">Object</a><a href="dataTypes.html#datatypes_array">[]</a></span> } - 工具可产生的文件, 每项包含 <code>name</code> 与 <code>mimeType</code></li>
+<li><strong>outputs</strong> { <span class="type"><a href="dataTypes.html#datatypes_object">Object</a><a href="dataTypes.html#datatypes_array">[]</a></span> } - 工具可产生的输出, 每项包含 <code>name</code>, <code>kind</code> (<code>file</code> 为文件, <code>directory</code> 为目录, 例如解压结果) 与 <code>mimeType</code> (目录为 <code>inode/directory</code>)</li>
 <li><strong>imageParameters</strong> / <strong>fileParameters</strong> / <strong>directoryParameters</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a><a href="dataTypes.html#datatypes_array">[]</a></span> } - 图片参数, 文件参数与目录参数的名称</li>
 <li><strong>provider</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 提供工具的插件包名</li>
 <li><strong>trust</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 插件的信任级别: <code>official</code>, <code>trusted</code> 或 <code>user_granted</code></li>
@@ -514,8 +514,8 @@ plugins.extendAll();
 <li><strong>[ args = {} ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_object">Object</a></span> } - 工具参数</li>
 <li><strong>[ options ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_object">Object</a></span> } - 调用选项<ul>
 <li><strong>[ timeoutMs ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> } - 时限 (毫秒), 只能比工具声明的时限更短</li>
-<li><strong>[ outputs ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_object">Object</a></span> } - 以工具声明的文件名称为键, 以写入路径为值</li>
-<li><strong>[ overwrite = false ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> } - 输出路径已存在文件时是否覆盖</li>
+<li><strong>[ outputs ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_object">Object</a></span> } - 以工具声明的输出名称为键, 以写入路径为值; 目录输出的值是文件夹路径, 文件夹可以已存在, 其中已有的文件默认保留</li>
+<li><strong>[ overwrite = false ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> } - 输出路径已存在文件时是否覆盖; 对目录输出则决定是否覆盖文件夹中的同名文件</li>
 </ul>
 </li>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_object">Object</a></span> }</li>
@@ -524,7 +524,7 @@ plugins.extendAll();
 <ul>
 <li><strong>result</strong> { <span class="type"><a href="dataTypes.html#datatypes_any">any</a></span> } - 工具返回的结果</li>
 <li><strong>text</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 结果的简短文字说明 (可能不存在)</li>
-<li><strong>outputs</strong> { <span class="type"><a href="dataTypes.html#datatypes_object">Object</a><a href="dataTypes.html#datatypes_array">[]</a></span> } - 已写入的文件, 每项包含 <code>name</code>, <code>path</code>, <code>bytes</code> 与 <code>mimeType</code></li>
+<li><strong>outputs</strong> { <span class="type"><a href="dataTypes.html#datatypes_object">Object</a><a href="dataTypes.html#datatypes_array">[]</a></span> } - 已写入的输出, 每项包含 <code>name</code>, <code>path</code>, <code>bytes</code> 与 <code>mimeType</code>; 目录输出另含 <code>kind</code> (<code>directory</code>), <code>files</code> (写入的文件数), 以及有文件保留未动时的 <code>conflicts</code> (至多 20 个路径) 与 <code>conflictCount</code></li>
 <li><strong>tool</strong> / <strong>provider</strong> / <strong>invocationId</strong> / <strong>durationMs</strong> - 工具名称, 插件包名, 调用标识与耗时 (毫秒)</li>
 </ul>
 <p>参数不符合格式, 工具不存在, 插件报告错误或超过时限时抛出异常, 异常消息包含原因. 同步形态阻塞当前脚本线程直至完成, 停止脚本会取消调用.</p>

@@ -211,7 +211,7 @@ plugins.extendAllBut('Mathx'); /* 加载除 Math 外的全部内置扩展插件.
 - **outputSchema** { [Object](dataTypes#object) } - 结果格式 (可能不存在)
 - **risk** { [string](dataTypes#string) } - 风险等级: `readonly`, `write`, `destructive` 或 `network`
 - **timeoutMs** { [number](dataTypes#number) } - 单次调用的时限 (毫秒)
-- **outputs** { [Object](dataTypes#object)[[]](dataTypes#array) } - 工具可产生的文件, 每项包含 `name` 与 `mimeType`
+- **outputs** { [Object](dataTypes#object)[[]](dataTypes#array) } - 工具可产生的输出, 每项包含 `name`, `kind` (`file` 为文件, `directory` 为目录, 例如解压结果) 与 `mimeType` (目录为 `inode/directory`)
 - **imageParameters** / **fileParameters** / **directoryParameters** { [string](dataTypes#string)[[]](dataTypes#array) } - 图片参数, 文件参数与目录参数的名称
 - **provider** { [string](dataTypes#string) } - 提供工具的插件包名
 - **trust** { [string](dataTypes#string) } - 插件的信任级别: `official`, `trusted` 或 `user_granted`
@@ -240,15 +240,15 @@ plugins.tools.list().forEach(t => console.log(t.name, t.risk));
 - **[ args = {} ]** { [Object](dataTypes#object) } - 工具参数
 - **[ options ]** { [Object](dataTypes#object) } - 调用选项
   - **[ timeoutMs ]** { [number](dataTypes#number) } - 时限 (毫秒), 只能比工具声明的时限更短
-  - **[ outputs ]** { [Object](dataTypes#object) } - 以工具声明的文件名称为键, 以写入路径为值
-  - **[ overwrite = false ]** { [boolean](dataTypes#boolean) } - 输出路径已存在文件时是否覆盖
+  - **[ outputs ]** { [Object](dataTypes#object) } - 以工具声明的输出名称为键, 以写入路径为值; 目录输出的值是文件夹路径, 文件夹可以已存在, 其中已有的文件默认保留
+  - **[ overwrite = false ]** { [boolean](dataTypes#boolean) } - 输出路径已存在文件时是否覆盖; 对目录输出则决定是否覆盖文件夹中的同名文件
 - <ins>**returns**</ins> { [Object](dataTypes#object) }
 
 调用一个 [插件工具](#插件工具) 并等待结果. 返回对象包含:
 
 - **result** { [any](dataTypes#any) } - 工具返回的结果
 - **text** { [string](dataTypes#string) } - 结果的简短文字说明 (可能不存在)
-- **outputs** { [Object](dataTypes#object)[[]](dataTypes#array) } - 已写入的文件, 每项包含 `name`, `path`, `bytes` 与 `mimeType`
+- **outputs** { [Object](dataTypes#object)[[]](dataTypes#array) } - 已写入的输出, 每项包含 `name`, `path`, `bytes` 与 `mimeType`; 目录输出另含 `kind` (`directory`), `files` (写入的文件数), 以及有文件保留未动时的 `conflicts` (至多 20 个路径) 与 `conflictCount`
 - **tool** / **provider** / **invocationId** / **durationMs** - 工具名称, 插件包名, 调用标识与耗时 (毫秒)
 
 参数不符合格式, 工具不存在, 插件报告错误或超过时限时抛出异常, 异常消息包含原因. 同步形态阻塞当前脚本线程直至完成, 停止脚本会取消调用.
