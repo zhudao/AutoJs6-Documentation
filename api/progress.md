@@ -270,3 +270,5 @@
 | [OpenCVRect](opencvRectType) | √ |
 | [OpenCVSize](opencvSizeType) | √ |
 | [OpenCCConversion](openCCConversionType) | √ |
+
+2026-10-17: Node.js 主线程与 CJS/ESM/嵌套 Worker 补齐 screen_recorder, 录屏音频和并行截图, Worker 同步提供 media_projection 与 recorder. 参数, 权限和退出清理语义见 runtimeApis.

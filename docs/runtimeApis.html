@@ -299,6 +299,7 @@
 <li><span class="stability_undefined"><a href="#runtimeapis_1">图像句柄与处理</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_bun">Bun 截图与录屏授权</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_bun_1">Bun 视频录制与文件输出</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_node_js_3">Node.js 录屏与音频</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_node_js_worker">Node.js Worker 模块</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_bun_2">Bun 客户端</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_ace">声明与 Ace 智能提示</a></span></li>
@@ -335,7 +336,7 @@
 </tr>
 <tr>
 <td>Node.js Worker</td>
-<td><code>opencc</code> / <code>autojs6:opencc</code>, <code>image</code> / <code>images</code>, <code>pinyin</code>, <code>pinyin4j</code>, <code>console</code>, <code>screen_metrics</code> 及其 <code>autojs6:</code> 入口; 其他能力可经 <code>autojs6:bridge</code> 转发</td>
+<td><code>opencc</code> / <code>autojs6:opencc</code>, <code>image</code> / <code>images</code>, <code>pinyin</code>, <code>pinyin4j</code>, <code>console</code>, <code>screen_metrics</code>, <code>media_projection</code>, <code>screen_recorder</code>, <code>recorder</code> 及其 <code>autojs6:</code> 入口; 其他能力可经 <code>autojs6:bridge</code> 转发</td>
 <td>支持 CJS, ESM 和嵌套 Worker; 异步操作复用父线程封装, 仍受本次执行授权约束</td>
 </tr>
 <tr>
@@ -749,6 +750,67 @@ try {
 }
 </code></pre>
 <p>目标文件名应保持唯一. 较长录制须同时配置足够的 <code>bun.timeoutMillis</code>; 编码期间不占用一条长时间宿主调用, 开始和停止仍受普通调用超时约束. 音视频按同一单调时钟写入一个 MP4, 停止时无需重新合并整段文件. frameRate 是目标帧率; 高频大尺寸截图的像素读回会占用图形处理时间.</p>
+<h2>Node.js 录屏与音频<span><a class="mark" href="#runtimeapis_node_js_3" id="runtimeapis_node_js_3">#</a></span></h2>
+<p><strong><code>Async</code></strong></p>
+<p><code>screen_recorder</code> / <code>autojs6:screen_recorder</code> 在主线程和 CJS/ESM/嵌套 Worker 中提供同一组方法. 先通过 <code>images.requestScreenCapture()</code> 或 <code>media_projection.requestScreenCapture()</code> 完成 Android 授权. <code>screen_capture</code> 是必要的执行能力; 有声录屏另需 <code>media</code> 和 <code>media.recording</code>, 并要求宿主具有 Android RECORD_AUDIO 权限. 原始 <code>autojs6:bridge</code> 调用同样执行这些检查.</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>返回值</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>start(path, options?)</code></td>
+<td><code>Promise&lt;ActiveRecording&gt;</code></td>
+<td>启动本次执行唯一的录屏, 拒绝覆盖已有文件</td>
+</tr>
+<tr>
+<td><code>stop(options?)</code></td>
+<td>`Promise&lt;RecordingResult \</td>
+<td>null&gt;`</td>
+<td>完成并保存 MP4, 空闲时返回 null</td>
+</tr>
+<tr>
+<td><code>cancel(options?)</code></td>
+<td><code>Promise&lt;boolean&gt;</code></td>
+<td>丢弃未保存文件, 保留截图授权; 空闲时返回 false</td>
+</tr>
+<tr>
+<td><code>getStatus(options?)</code></td>
+<td><code>Promise&lt;Status&gt;</code></td>
+<td>返回 idle 或 recording/failed 状态及活动录制信息</td>
+</tr>
+</tbody>
+</table>
+<p><code>start</code> 的 width/height 是 2..8192 内的偶数, 默认采用授权会话尺寸; frameRate 为 1..120, 默认 30; bitRate 默认 8000000. <code>audio</code> 可为 <code>none</code>, <code>microphone</code>, <code>playback</code> 或 <code>mixed</code>; 省略或 false 表示无声, 不接受 true. 有声模式输出 AAC-LC 48 kHz 单声道, 目标 128 kbit/s. mixed 对两路音源等比例混合. playback/mixed 要求 Android 10+, 尊重源应用的播放捕获策略; 音轨存在不代表音轨内必有声音. 麦克风模式受 Android 前台服务和使用中权限约束, 并显示可停止录制的通知.</p>
+<p>活动结果含 id/path/width/height/frameRate/bitRate/elapsedMs/audio/audioSource/error, state 为 recording 或 failed. <code>stop</code> 的非空结果含 id/path/size/durationMs/width/height/mimeType/videoCodec/audio/audioSource/audioCodec/audioSampleRate/audioChannels. 视频为 H.264/MP4; 无声音轨时最后三个音频格式字段为 null.</p>
+<p><code>stop</code> / <code>cancel</code> 的 options 可含 <code>id</code>, 仅操作指定录制; ID 已失效时返回 null/false, 不影响新录制. 所有方法接受 timeoutMs/signal. <code>start</code> 在取消与编码器启动同时发生时会等待启动结果并清理该录制. 主线程与 Worker 共享会话, 可以跨线程停止或取消. Worker 退出会丢弃它及其后代启动而尚未保存的录屏; 整次执行结束或系统撤回授权也会清理. 保存文件必须显式等待 stop, 再退出 Worker.</p>
+<pre><code class="lang-js">&quot;nodejs&quot;;
+
+let images = require(&#39;autojs6:images&#39;);
+let recorder = require(&#39;autojs6:screen_recorder&#39;);
+
+(async () =&gt; {
+    await images.requestScreenCapture();
+    try {
+        let active = await recorder.start(`/sdcard/Movies/node-${Date.now()}.mp4`, {
+            width: 720, height: 1280, audio: &#39;playback&#39;,
+        });
+        let image = await images.captureScreen();
+        try { console.log(images.getSize(image)); } finally { await images.recycle(image); }
+        await new Promise(resolve =&gt; setTimeout(resolve, 2000));
+        console.log(await recorder.stop({ id: active.id }));
+    } finally {
+        await recorder.cancel();
+        await images.stopScreenCapture();
+    }
+})();
+</code></pre>
+<p>录制期间, 主线程和 Worker 都可调用 images.captureScreen 或 ScreenCapturer.nextImage. 截图尺寸随授权会话和方向变化, 视频保持 start 时的输出尺寸. 二者共用一次 MediaProjection, 不重复弹出授权. Worker 的 media_projection 返回对象保留可调用的 nextImage/stop 方法; 整个对象含方法, 不应直接 postMessage, 可以传递其产生的图像句柄.</p>
+<p>原有 <code>recorder</code> / <code>autojs6:recorder</code> 是单独的音频录制模块, 现在也支持 Worker 的 start/getStatus/stop. 它仍要求 media + media.recording 与 Android RECORD_AUDIO, 按原有 maxDurationMs 和执行生命周期管理, 不使用 screen_recorder 的 Worker 退出丢弃规则. 不承诺设备支持同时启动多个麦克风采集器.</p>
 <h2>Node.js Worker 模块<span><a class="mark" href="#runtimeapis_node_js_worker" id="runtimeapis_node_js_worker">#</a></span></h2>
 <p>Worker 可直接 <code>require(&#39;autojs6:opencc&#39;)</code> / <code>require(&#39;images&#39;)</code>, 也可使用对应 ESM 导入. OpenCC 的可调用入口和 33 个成员, 以及图像模块的 41 个函数, 使用与主线程相同的参数和返回契约. 裸名 <code>opencc</code> 仍优先解析已安装的同名 npm 包.</p>
 <p>异步图像操作由父线程执行, 因而大图上传仍使用既有 PFD 通道. 返回 Worker 的字节经过 Node 结构化克隆, 是该 Worker 独立持有的 Buffer, 不承诺跨线程零复制. <code>getSize</code>, <code>getWidth</code>, <code>getHeight</code> 和 <code>isRecycled</code> 同步读取本地信息.</p>
