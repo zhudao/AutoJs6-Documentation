@@ -126,7 +126,7 @@ PCM 采用单声道 PCM16 LE, `sampleRate` 默认 16000, 可为 8000..192000. `p
 
 - **text** { [string](dataTypes#string) } - 要播放的文本.
 - **[ options ]** { [object](dataTypes#object) } - `model`, `speaker`, `speed` 及允许的 [TTS 选项](tts).
-- <ins>**returns**</ins> { Promise } - 与 `tts()` 相同的播放结果.
+- <ins>**returns**</ins> { [Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise) } - 与 `tts()` 相同的 [TtsResult](tts#ttsresult) 播放结果.
 
 该调用使用 3-Macaw Speech 的系统 TTS 引擎. 不接受 `engine`, `voice`, `rate`, `speechRate`; 用 `model` / `speaker` 选择声音, 用 `speed` 选择语速. `speaker` 需要同时指定 `model`. 缺少插件时 Promise 以 `PLUGIN_UNAVAILABLE` 拒绝.
 

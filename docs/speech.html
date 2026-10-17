@@ -497,7 +497,7 @@ session.on(&#39;end&#39;, event =&gt; console.log(event.reason, session.result()
 <ul>
 <li><strong>text</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 要播放的文本.</li>
 <li><strong>[ options ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_object">object</a></span> } - <code>model</code>, <code>speaker</code>, <code>speed</code> 及允许的 <a href="tts.html">TTS 选项</a>.</li>
-<li><ins><strong>returns</strong></ins> { <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">Promise</a> } - 与 <code>tts()</code> 相同的播放结果.</li>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a></span> } - 与 <code>tts()</code> 相同的 <a href="tts.html#tts_ttsresult">TtsResult</a> 播放结果.</li>
 </ul>
 <p>该调用使用 3-Macaw Speech 的系统 TTS 引擎. 不接受 <code>engine</code>, <code>voice</code>, <code>rate</code>, <code>speechRate</code>; 用 <code>model</code> / <code>speaker</code> 选择声音, 用 <code>speed</code> 选择语速. <code>speaker</code> 需要同时指定 <code>model</code>. 缺少插件时 Promise 以 <code>PLUGIN_UNAVAILABLE</code> 拒绝.</p>
 <h2>[p+] models<span><a class="mark" href="#speech_p_models" id="speech_p_models">#</a></span></h2>
