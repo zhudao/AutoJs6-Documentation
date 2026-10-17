@@ -344,7 +344,7 @@
 </tr>
 </tbody>
 </table>
-<p>独立脚本可以在首条字符串语句中使用 <code>&quot;nodejs&quot;;</code> 或 <code>&quot;bun&quot;;</code>. Node 也支持 <code>node</code> 标记. Node 的 <code>.node.js</code>, <code>.cjs</code>, <code>.mjs</code>, <code>.mts</code>, <code>.cts</code> 后缀和 Bun 的 <code>.bun.js</code>, <code>.bun.ts</code>, <code>.bun.tsx</code> 后缀用于选择对应环境. 普通 <code>.ts</code> / <code>.tsx</code> 默认仍按 Rhino 的 TypeScript 路径处理, 项目的 <code>type</code> / <code>projectType</code> 可以选择 Node 或 Bun.</p>
+<p>独立脚本可以在首条字符串语句中使用 <code>&quot;nodejs&quot;;</code> 或 <code>&quot;bun&quot;;</code>. Node 也支持 <code>node</code> 标记. Node 的 <code>.node.js</code>, <code>.cjs</code>, <code>.mjs</code>, <code>.mts</code>, <code>.cts</code> 后缀和 Bun 的 <code>.bun.js</code>, <code>.bun.ts</code>, <code>.bun.tsx</code> 后缀用于选择对应环境. 普通 <code>.ts</code> / <code>.tsx</code> 默认仍按 Rhino 的 TypeScript 路径处理; 项目的 <code>type</code> / <code>projectType</code> 为 <code>node</code> 时可选择 Node. 当前 <code>type: &#39;bun&#39;</code> 元数据本身不选择 Bun 引擎, 应使用 Bun 标记或后缀. 标记不能与固定引擎后缀冲突. 作为 Bun 入口的相对依赖导入的 <code>.mjs</code> 文件由 Bun 解释, 将该文件单独运行则按其后缀选择 Node.</p>
 <h2>Node.js 拼音<span><a class="mark" href="#runtimeapis_node_js" id="runtimeapis_node_js">#</a></span></h2>
 <p><strong><code>Async</code></strong></p>
 <pre><code class="lang-js">&quot;nodejs&quot;;
