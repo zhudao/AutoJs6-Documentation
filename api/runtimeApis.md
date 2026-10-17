@@ -173,11 +173,75 @@ Node.js 通过 `require('images')` 或 `require('image')` 使用图像接口; Bu
 
 Bun 的 `readPixels` 每次最多返回 16,384 个像素, 可使用 `region: [x, y, width, height]` 缩小区域; Node 的公开 `readPixels` 经二进制通道读取, 不受该 JSON 像素上限影响. 两端的 `findAllPointsForColor` 最多返回 4,096 个点, 超限时拒绝而不是截断. 颜色搜索返回图像自身的像素坐标, 不应用屏幕换算基数. `detectsColor` 默认使用 `diff` 算法, 还支持 `rgb`, `rgb+`, `hs`, `h`, `equal`, `oklab`; `findColor` 和 `findAllPointsForColor` 则按 RGB 各通道阈值匹配不透明像素.
 
-编解码, 像素读取, 复制, 裁剪, 旋转, 翻转及 `detectsColor` 不依赖 OpenCV. 缩放, 滤镜, 模板和颜色搜索需要可用的 OpenCV 插件. Node 额外提供 `read` / `save`, `findColorEquals`, `findPointByColor` / `findPointByColors`, `getWidth` / `getHeight` 和 `isRecycled` 等便捷入口. `isRecycled` 只跟踪当前线程客户端的回收操作, 不跟踪其他线程或绕过封装的原始桥接调用.
+编解码, 像素读取, 复制, 裁剪, 旋转, 翻转及 `detectsColor` 不依赖 OpenCV. 缩放, 滤镜, 模板和颜色搜索需要可用的 OpenCV 插件. 两端也提供 `read` / `save`, `findColorEquals`, `findPointByColor` / `findPointByColors`, `getWidth` / `getHeight` 和 `isRecycled` 等便捷入口. `isRecycled` 只跟踪当前线程客户端的回收操作, 不跟踪其他线程或绕过封装的原始桥接调用.
 
 Node 的 `toBytes` 保留原有 PFD 字节传输和 Buffer 生命周期, `format: 'rgba'` 表示紧密排列的直通 alpha sRGB RGBA8, 与 PNG 等编码格式不同. Bun 的 `fromBytes` / `toBytes` 使用 Base64 JSON 通道与 `Uint8Array`, 不提供 PFD 或原始 RGBA 输出. Bun 继续受 64 KiB 请求和 256 KiB 响应上限约束, Base64 膨胀也计入限制. 大图宜使用已授权的宿主文件读取/保存路径, 不能据 Node 的字节能力推断 Bun 的上限.
 
-Bun 将 `image.process` (默认启用), `image.files` (默认关闭) 与 `screen.capture` (默认关闭) 分开授权. 它们分别控制图像处理, 宿主文件读写和请求 Android 录屏授权. 这些常用接口不表示已经覆盖 Rhino 的全部高级 OpenCV API.
+Bun 将 `image.process` (默认启用), `image.files` (默认关闭) 与 `screen.capture` (默认关闭) 分开授权. 它们分别控制图像处理, 宿主文件读写和请求 Android 录屏授权. 下列高级接口也使用这些授权, 不向运行时直接暴露 Java Bitmap 或 Mat 对象.
+
+## 高级图像 API
+
+**`Async`**
+
+Node.js 的 `image` / `images` 与 Bun 的 `host.images` 已提供宿主 images 注册的 81 个函数入口, 另提供 `readImage` 别名和 `ObjectFrame` 构造器. Node.js Worker 使用相同入口, 支持 CJS/ESM/嵌套执行. 这表示函数入口和下述可传输参数已覆盖, 不表示 Java 对象原型, Java 枚举及所有 Rhino 自动转换重载完全相同.
+
+除 `getSize`, `getWidth`, `getHeight`, `isRecycled`, `buildRegion`, `__buildRegion` 和 `ObjectFrame` 构造器外, 下列宿主操作均返回 Promise. 参数中的区域和坐标使用图像自身的整数像素, 不自动应用屏幕基数或 Rhino 的比例区域重载. OpenCV 枚举参数可使用常量名字符串或数值; 颜色使用 ARGB 数值或颜色字符串.
+
+| 操作 | 接口与返回值 |
+| --- | --- |
+| 初始化与载入 | `initOpenCvIfNeeded()`; `load(url)` / `loadAsync(url)` 返回图像或 null; HTTP/HTTPS/file URL 均可使用, 无法解码的响应返回 null |
+| 矩阵桥接 | `imread(path)` 返回带 id/width/height/channels/depth 的 Mat 句柄; `matToImage(mat)` 创建独立图像. imread 使用 OpenCV 默认的 BGR 文件解码, matToImage 转换为 RGB 图像 |
+| 颜色与滤镜 | `isGrayscale(image)`; `inRange(image, lower, upper)`; `interval(image, color, threshold)`; `adaptiveThreshold(image, options)`; `bilateralFilter(image, options)`; `cvtColor(image, code, dstCn?)` |
+| 几何 | `findCircles(image, options?)` 返回 `{ x, y, radius }[]`; `concat(a, b, direction?)` 返回新图像; 方向为 left/right/start/end/top/bottom, 默认 right |
+| 多点颜色 | `detectMultiColors` / `detectsMultiColors(image, color, points, x, y, options?)` 返回 boolean; `findPointsByColors(image, color, points, options?)` 返回点数组; `countPointsByColor` 返回数量; `getMeanColor` 返回平均 ARGB32 |
+| 查找别名 | `findPointByColorExactly`, `findColorInRegion`, `findPointByImage`, `findImageInRegion`; 区域形式接受 x/y/width/height/threshold, 未提供的宽高延伸到图像边缘 |
+| 区域辅助 | `buildRegion(image, region?)` 返回 `{ x, y, width, height }`; `__buildRegion(region?, width?, height?)` 在缺少图像尺寸时返回 null; 数组可省略后部字段 |
+| 相似度 | `psnr`, `ssim`, `mssim`, `hist`, `mse`, `ncc` 返回 number; `isEqual` 返回 boolean; `getSimilarity(a, b, { metric })` 默认 mssim, 兼容 type 和 pnsr 拼写别名 |
+| 压缩 | `compress(image, format?, quality?)` 返回新图像; `compressToBytes(...)` 返回独立编码字节; 默认 PNG/quality 60; PNG quality 非 100 时使用量化插件 |
+| 下采样 | `downsample(source, width, height, withAlpha?)` 返回新图像, source 可为图像句柄, 路径/URL 或编码字节; withAlpha 默认 true |
+| 截图辅助 | `requestScreenCaptureAsync` 是异步授权入口的别名; `getScreenCaptureOptions()` 返回当前 width/height/orientation, 无会话时返回 null |
+
+`adaptiveThreshold` 可使用 maxValue/adaptiveMethod/type/blockSize/C 选项, 也支持对应的位置参数. 默认值为 255/MEAN_C/BINARY/3/0; 输入先转换为灰度, blockSize 必须为大于 1 的奇数. `bilateralFilter` 支持 d/sigmaColor/sigmaSpace/borderType, 默认 0/40/20/DEFAULT, 同时支持位置参数. RGBA 输入会保留原 alpha. `cvtColor` 的结果保留原生通道信息, 例如 RGBA2RGB -> RGB2HSV -> HSV2RGB -> RGB2RGBA 可以连续调用. `findCircles` 支持 region/dp/minDst/param1/param2/minRadius/maxRadius, 返回原图坐标.
+
+相似度比较使用当前矩阵尺寸和通道, 比较前应统一尺寸及颜色空间. 部分指标可能返回 Infinity 或 NaN; 公开封装恢复这些数值, 不将其误记为 0 或 null. Mat, 特征描述符和普通图像共享已有的执行句柄上限. `recycle` 接受这些句柄, 也支持数组或多个句柄; 执行结束会统一释放.
+
+### 特征提取与匹配
+
+`detectAndComputeFeatures(image, options?)` 返回特征句柄, 含 id/count/method/scale/region. options 支持 `method: 'SIFT' | 'ORB'`, region, scale 和 maxFeatures. 默认 SIFT, 自动缩小大图; 显式 scale 不大于 8, maxFeatures 为非负整数. grayscale 选项用于兼容, 两种算法均在灰度强度上检测特征. 句柄不暴露 Java 对象或原生指针.
+
+`matchFeatures(scene, object, options?)` 可以接收两个特征句柄, 或直接接收图像/路径并临时提取特征. options 支持检测选项, matcher, threshold, ransacThreshold, minInliers 和 drawMatches 文件路径. 默认比例阈值为 SIFT 0.7 / ORB 0.8, RANSAC 阈值 3, 最少内点 4. 找不到有效单应矩阵时返回 null.
+
+非空结果为 `ObjectFrame`, 包含 topLeft/topRight/bottomLeft/bottomRight, center/centerX/centerY, width/height, angle, bounds, matches, inliers, points 和 summary 方法. 坐标已还原到场景原图, 包括检测时的区域偏移和缩放. Worker 会在本地恢复结果的方法与构造器. 可以显式使用 `new images.ObjectFrame(topLeft, topRight, bottomLeft, bottomRight, matches?, inliers?, points?)` 创建几何结果.
+
+```js
+"nodejs";
+let images = require('autojs6:images');
+
+(async () => {
+    let scene = await images.read('/sdcard/Pictures/scene.png');
+    let object = await images.read('/sdcard/Pictures/object.png');
+    let sceneFeatures;
+    let objectFeatures;
+    try {
+        sceneFeatures = await images.detectAndComputeFeatures(scene, { method: 'ORB', maxFeatures: 700 });
+        objectFeatures = await images.detectAndComputeFeatures(object, { method: 'ORB', maxFeatures: 700 });
+        let frame = await images.matchFeatures(sceneFeatures, objectFeatures, { minInliers: 6 });
+        if (frame) console.log(frame.center, frame.angle, frame.inliers);
+    } finally {
+        await images.recycle([sceneFeatures, objectFeatures, scene, object].filter(Boolean));
+    }
+})();
+```
+
+### PNG 量化与文件输出
+
+`quantize(image, options?)` 返回 `{ bytes, size, quality, quantizationError, peakWorkingMemoryBytes }`. Node 主线程与 Worker 的 bytes 是独立 Buffer, Bun 为 Uint8Array. 需要可用的 Image Quantization 插件及资源控制/取消 API. options 支持 quality/maxColors/speed/minQuality/maxQuality/ditheringLevel/posterizeBits/preserveAlpha/maxPixels/maxMemoryBytes, 延续宿主量化规则; 默认最多 256 色, speed 8, 最大质量 100, 保留 alpha, 1600 万像素和 256 MiB 额外原生工作内存上限.
+
+`quantizeToFile(image, path, options?)` 使用文件描述符输出 PNG, 返回相同度量和 path, 不返回 bytes. 完成后再替换目标文件; 量化失败时保留原文件并清理临时输出. `compress` / `compressToBytes` 的 PNG quality 也可使用量化选项对象. JPEG/WebP 仍按编码质量参数处理.
+
+Node 的 quantize/compressToBytes 使用 PFD, Worker 恢复 Buffer 类型. Bun 量化字节仍经过 Base64 JSON, 受既有请求/响应体积限制; 大图应使用 quantizeToFile. 质量不足, 资源预算不足, 插件不可用或 Android 拒绝文件访问时明确失败, 不返回未处理图像冒充成功.
+
+Node 的 load 需要 image + network 执行能力. Bun 的文件读取, URL 载入, imread, 保存, quantizeToFile 和 drawMatches 均需要 image.files; quantizeToFile 还需要 image.process. 只开启 image.files 时仍可回收读取的图像/Mat. 原始桥接同样检查这些边界, 内存图像处理授权不能绕过文件授权.
 
 ## Bun 截图与录屏授权
 
@@ -320,11 +384,11 @@ let recorder = require('autojs6:screen_recorder');
 
 ## Node.js Worker 模块
 
-Worker 可直接 `require('autojs6:opencc')` / `require('images')`, 也可使用对应 ESM 导入. OpenCC 的可调用入口和 33 个成员, 以及图像模块的 41 个函数, 使用与主线程相同的参数和返回契约. 裸名 `opencc` 仍优先解析已安装的同名 npm 包.
+Worker 可直接 `require('autojs6:opencc')` / `require('images')`, 也可使用对应 ESM 导入. OpenCC 的可调用入口和 33 个成员, 以及图像模块的 82 个函数和 ObjectFrame 构造器, 使用与主线程相同的参数和返回契约. 裸名 `opencc` 仍优先解析已安装的同名 npm 包.
 
 异步图像操作由父线程执行, 因而大图上传仍使用既有 PFD 通道. 返回 Worker 的字节经过 Node 结构化克隆, 是该 Worker 独立持有的 Buffer, 不承诺跨线程零复制. `getSize`, `getWidth`, `getHeight` 和 `isRecycled` 同步读取本地信息.
 
-图像句柄属于整个脚本执行, 可通过 `postMessage` 交接并在创建它的 Worker 退出后继续使用. 调用方应明确安排回收, 避免一个线程回收另一个线程正在使用的图像. Worker 已退出时才完成创建且无法交付的图像会回收, 整次执行结束也会清理剩余句柄. 其他未列出的主线程高级模块仍需单独核查.
+图像, Mat 和特征描述符句柄属于整个脚本执行, 可通过 `postMessage` 交接并在创建它的 Worker 退出后继续使用. 调用方应明确安排回收, 避免一个线程回收另一个线程正在使用的图像. Worker 已退出时才完成创建且无法交付的图像, Mat 和特征描述符会回收, 整次执行结束也会清理剩余句柄. 其他未列出的主线程高级模块仍需单独核查.
 
 Worker 还提供 `pinyin` / `autojs6:pinyin`, `pinyin4j` / `autojs6:pinyin4j`, `screen_metrics` / `autojs6:screen_metrics` 和 `console` / `node:console` / `autojs6:console`, 支持 CJS, ESM 和嵌套 Worker. 拼音常量保持数字值, 可调用入口等价于 convert/of; `await pinyin(...)` 的二维数组保留异步 `compact()` 方法. 文本在进入结构化克隆之前转换, Buffer 和自定义 toString 对象不会被误解释为字节列表或普通对象.
 

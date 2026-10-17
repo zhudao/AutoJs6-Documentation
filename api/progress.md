@@ -272,3 +272,5 @@
 | [OpenCCConversion](openCCConversionType) | √ |
 
 2026-10-17: Node.js 主线程与 CJS/ESM/嵌套 Worker 补齐 screen_recorder, 录屏音频和并行截图, Worker 同步提供 media_projection 与 recorder. 参数, 权限和退出清理语义见 runtimeApis.
+
+2026-10-17: Node.js/Bun/Worker 图像入口覆盖到 81 个宿主注册函数, 同步高级滤镜, 特征匹配, 相似度, Mat 句柄及 PNG 量化的参数, 返回类型和文件授权边界. 参阅 runtimeApis.
