@@ -2,6 +2,8 @@
 
 `images` 模块提供图像读取, 编解码, 截图, 图像处理, 找色, 找图, 特征匹配和相似度计算等功能.
 
+本页以 Rhino 的 `ImageWrapper` API 为基准. Node.js 与 Bun 的图像接口使用显式导入或客户端, 异步返回宿主图像句柄, 不提供 `ImageWrapper` / `Bitmap` 实例方法. 当前支持的操作, 字节传输与生命周期见 [运行时图像接口](runtimeApis#图像句柄与处理).
+
 从 AutoJs6 6.8.0 起, 依赖 OpenCV 的方法需要外部 OpenCV 插件. 调用这些方法前, 需在插件中心安装, 启用并授权兼容插件. 插件不可用时, 方法将抛出插件加载异常.
 
 本页多数名为 **image** 的参数同时接受 [ImageWrapper](imageWrapperType) 和图片路径 [string](dataTypes#string). 路径会按当前脚本的运行路径解析. 方法内部读取的临时图片会自动回收, 传入的普通 `ImageWrapper` 则不会自动回收, 除非它已通过 `oneShot()` 标记为一次性对象.

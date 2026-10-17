@@ -6,6 +6,8 @@ opencc 模块是一个中文简繁转换模块, 支持词汇级别的转换, 异
 
 从 AutoJs6 6.8.0 起, OpenCC 转换由外部 OpenCC 插件提供. 调用前需在插件中心安装, 启用并授权兼容插件; 插件不可用时转换方法会抛出插件加载异常.
 
+本页的全局对象与同步返回值描述 Rhino. Node.js 使用显式导入的异步模块, Bun 使用 `host.opencc` 客户端, 两者均调用真实宿主插件. 导入, Promise, 转换类型与授权说明见 [运行时 OpenCC](runtimeApis#opencc-转换).
+
 > 参阅:<br>
 > OpenCC 官方网站: https://opencc.byvoid.com<br>
 > OpenCC 官方文档: https://byvoid.github.io/OpenCC<br>

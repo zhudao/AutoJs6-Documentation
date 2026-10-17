@@ -1,5 +1,7 @@
 # 文档部署进度 (Progress)
 
+2026-10-17 OpenCC / 图像运行时接口: 补齐 Node.js 和 Bun 的 32 种 OpenCC 转换及常用图像操作, 说明异步句柄, ARGB32 / RGBA, Bun 独立文件授权和 JSON 上限. CJS, ESM 与 Bun 的转换, 像素, 变换, 编码及权限边界已在 Sony XQ-DQ72 (API 33) 真机验证. 本条对应配套开发源码, 不表示公开发行或 Rhino 全量图像 API 覆盖.
+
 2026-10-17 Speech: 补齐当前 Rhino `speech` / `$speech` 及嵌套 `speech.models` 的全部显式入口, 同步会话, 事件, 结果与选项声明. 修复覆盖提取器对内联嵌套挂载的识别, 不把 Rhino Speech 误列为 Node/Bun 能力. 此项验证为源码契约, 类型和补全检查, 不表示新增模型或音频真机运行验证.
 
 2026-10-17 运行时 API: 新增 Node.js / Bun 的独立 API 入口, 异步拼音, 宿主控制台与实时坐标换算说明, 同步类型声明和 Ace 的运行时隔离, Worker / 原生 CLI 限制以及 JSOX 提示边界. 文档对应本轮配套源码, 不表示旧插件或公开发行版本已具备这些能力.
