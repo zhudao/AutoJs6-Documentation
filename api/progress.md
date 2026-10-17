@@ -1,5 +1,7 @@
 # 文档部署进度 (Progress)
 
+2026-10-17 Bun 视频 / Worker 常用 API: 补充 screenRecorder 的无声 MP4 编码, 独立文件输出授权, 固定尺寸, 停止/取消和退出清理; Worker 补齐 pinyin, pinyin4j, 控制台及坐标换算. Android 13 Redmi 与 Android 15 小米已验证录制旋转, 文件轨道/时长/解码像素及 Worker 的三种执行方式和三组基数. 数字拼音常量在宿主中的解析问题已修正. 配套类型和 Ace 提示同步, 本条不表示音频录制或全部 Rhino API 已覆盖.
+
 2026-10-17 Bun 截图 / Node.js Worker: 补充 Bun 独立截图授权, 系统同意, 超时/取消及图像句柄生命周期; Worker 支持 OpenCC 和图像模块的 CJS/ESM/嵌套调用及二进制数据. Android 13 Redmi 与 Android 15 小米真机已验证授权等待, 横竖屏像素, 固定尺寸, 停止/重新申请和取消清理. 本条对应配套开发源码, 不表示公开发行或全部 Worker 高级模块覆盖.
 
 2026-10-17 OpenCC / 图像运行时接口: 补齐 Node.js 和 Bun 的 32 种 OpenCC 转换及常用图像操作, 说明异步句柄, ARGB32 / RGBA, Bun 独立文件授权和 JSON 上限. CJS, ESM 与 Bun 的转换, 像素, 变换, 编码及权限边界已在 Sony XQ-DQ72 (API 33) 真机验证. 本条对应配套开发源码, 不表示公开发行或 Rhino 全量图像 API 覆盖.

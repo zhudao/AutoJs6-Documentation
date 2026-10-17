@@ -298,8 +298,9 @@
 <li><span class="stability_undefined"><a href="#runtimeapis_opencc">OpenCC 转换</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_1">图像句柄与处理</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_bun">Bun 截图与录屏授权</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_bun_1">Bun 视频录制与文件输出</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_node_js_worker">Node.js Worker 模块</a></span></li>
-<li><span class="stability_undefined"><a href="#runtimeapis_bun_1">Bun 客户端</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_bun_2">Bun 客户端</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_ace">声明与 Ace 智能提示</a></span></li>
 </ul>
 </li>
@@ -334,7 +335,7 @@
 </tr>
 <tr>
 <td>Node.js Worker</td>
-<td><code>opencc</code> / <code>autojs6:opencc</code>, <code>image</code> / <code>images</code> 及其 <code>autojs6:</code> 入口; 其他能力可经 <code>autojs6:bridge</code> 转发</td>
+<td><code>opencc</code> / <code>autojs6:opencc</code>, <code>image</code> / <code>images</code>, <code>pinyin</code>, <code>pinyin4j</code>, <code>console</code>, <code>screen_metrics</code> 及其 <code>autojs6:</code> 入口; 其他能力可经 <code>autojs6:bridge</code> 转发</td>
 <td>支持 CJS, ESM 和嵌套 Worker; 异步操作复用父线程封装, 仍受本次执行授权约束</td>
 </tr>
 <tr>
@@ -654,13 +655,69 @@ try {
 </tbody>
 </table>
 <p><code>options</code> 支持 <code>orientation: &#39;auto&#39; | &#39;portrait&#39; | &#39;landscape&#39;</code>, 同时指定的 <code>width</code> / <code>height</code> (各为 1-8192), <code>requireExistingPermission</code> 以及 <code>timeoutMs</code> (1-120000 毫秒, 默认 120000). 默认方向为自动. <code>requireExistingPermission: true</code> 在本次执行没有有效会话时直接失败, 不显示授权对话框. 同一客户端的并发申请共用一个 Promise, 已生效的会话可复用; 停止或系统撤销后再次申请会重新经过 Android 授权流程.</p>
-<p>权限开关只允许请求系统授权, 不代替 Android 的明确同意. 关闭开关影响下一次执行. 运行结束或取消时会释放会话及待处理授权, 已产生的图像句柄仍按执行作用域清理. 此处提供连续取得屏幕帧的能力, 不包含视频编码或录屏文件输出.</p>
+<p>权限开关只允许请求系统授权, 不代替 Android 的明确同意. 关闭开关影响下一次执行. 运行结束或取消时会释放会话及待处理授权, 已产生的图像句柄仍按执行作用域清理. 视频文件使用下述 <code>host.screenRecorder</code> 接口, 另需 <code>screen.record</code> 授权.</p>
 <p>授权等待使用短状态调用, 不延长普通宿主调用的 10 秒上限. 整体脚本超时仍可提前结束等待; Bun 默认执行限时为 60 秒, 需要更长时间时应在执行配置中调整 <code>bun.timeoutMillis</code>. 截图返回句柄, 不把整张图片放入 JSON; 随后的字节和像素读取仍遵循前述传输上限.</p>
+<h2>Bun 视频录制与文件输出<span><a class="mark" href="#runtimeapis_bun_1" id="runtimeapis_bun_1">#</a></span></h2>
+<p><code>host.screenRecorder</code> 将已授权的屏幕录制为无声 H.264/MP4 视频. 需要同时启用 <code>screen.capture</code> 和 <code>screen.record</code> (均默认关闭), 并先完成 <code>host.images.requestScreenCapture()</code>. <code>screen.record</code> 允许宿主输出 MP4 文件, 不替代系统授权, 也不依赖图像文件的 <code>image.files</code> 开关.</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>返回值</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>start(path, options?)</code></td>
+<td><code>Promise&lt;ScreenRecordingActive&gt;</code></td>
+<td>开始录制, 路径必须以 <code>.mp4</code> 结尾, 已存在的目标文件会被拒绝</td>
+</tr>
+<tr>
+<td><code>getStatus()</code></td>
+<td><code>Promise&lt;ScreenRecordingStatus&gt;</code></td>
+<td><code>state</code> 为 idle, recording 或 failed; 活动状态包含 id, path, width, height, frameRate, bitRate, elapsedMs 和 error</td>
+</tr>
+<tr>
+<td><code>stop()</code></td>
+<td>`Promise&lt;ScreenRecordingResult \</td>
+<td>null&gt;`</td>
+<td>正常收尾并输出文件; 当前未录制时返回 null</td>
+</tr>
+<tr>
+<td><code>cancel()</code></td>
+<td><code>Promise&lt;boolean&gt;</code></td>
+<td>丢弃未完成视频并恢复截图; 当前未录制时返回 false</td>
+</tr>
+</tbody>
+</table>
+<p><code>options.width</code> 和 <code>options.height</code> 必须同时指定, 为 2..8192 内的偶数; 省略时使用截图会话尺寸. <code>frameRate</code> 为 1..120 的整数, 默认 30; <code>bitRate</code> 为正整数, 单位 bit/s, 默认 8000000. 尺寸, 帧率和码率还必须受到当前 Android H.264 编码器支持. 不支持的配置拒绝 Promise, 不自动降级. 本接口不录制麦克风或系统音频, 不接受 audio 选项.</p>
+<p>输出路径属于宿主, 相对路径按脚本工作目录解析, 仍受 Android 文件访问规则限制. 录制先写临时文件, <code>stop()</code> 成功后才生成目标文件. 结果包含 <code>id</code>, <code>path</code>, <code>size</code> (字节), <code>durationMs</code>, <code>width</code>, <code>height</code>, <code>mimeType: &#39;video/mp4&#39;</code>, <code>videoCodec: &#39;h264&#39;</code> 和 <code>audio: false</code>. 没有编码出有效视频帧时停止会失败, 不生成一个冒充成功的空视频.</p>
+<p>每次执行只允许一个活动录制. 录制期间 <code>captureScreen()</code> 会拒绝, 停止或取消录制后恢复截图, 仍可复用同一授权开始下一段录像. 视频输出尺寸在一段录像内保持固定, 横竖屏变化由 Android 等比缩放居中显示, 可能出现留边. 需要交换宽高时应停止当前录像后以新尺寸开始下一段. <code>stopScreenCapture()</code>, 执行结束/取消和系统撤销授权会丢弃未完成文件, 因此保留视频需要显式等待 <code>stop()</code> 完成.</p>
+<pre><code class="lang-js">&quot;bun&quot;;
+let { createHostClient } = await import(process.env.AUTOJS6_HOST_CLIENT_MODULE);
+let host = await createHostClient();
+await host.images.requestScreenCapture();
+try {
+    await host.screenRecorder.start(&#39;/sdcard/Movies/autojs6-demo.mp4&#39;, {
+        width: 720, height: 1280, frameRate: 30, bitRate: 4000000,
+    });
+    await Bun.sleep(3000);
+    let video = await host.screenRecorder.stop();
+    console.log(video.path, video.durationMs, video.size);
+} finally {
+    await host.screenRecorder.cancel();
+    await host.images.stopScreenCapture();
+}
+</code></pre>
+<p>目标文件名应保持唯一. 较长录制须同时配置足够的 <code>bun.timeoutMillis</code>; 编码期间不占用一条长时间宿主调用, 开始和停止仍受普通调用超时约束.</p>
 <h2>Node.js Worker 模块<span><a class="mark" href="#runtimeapis_node_js_worker" id="runtimeapis_node_js_worker">#</a></span></h2>
 <p>Worker 可直接 <code>require(&#39;autojs6:opencc&#39;)</code> / <code>require(&#39;images&#39;)</code>, 也可使用对应 ESM 导入. OpenCC 的可调用入口和 33 个成员, 以及图像模块的 41 个函数, 使用与主线程相同的参数和返回契约. 裸名 <code>opencc</code> 仍优先解析已安装的同名 npm 包.</p>
 <p>异步图像操作由父线程执行, 因而大图上传仍使用既有 PFD 通道. 返回 Worker 的字节经过 Node 结构化克隆, 是该 Worker 独立持有的 Buffer, 不承诺跨线程零复制. <code>getSize</code>, <code>getWidth</code>, <code>getHeight</code> 和 <code>isRecycled</code> 同步读取本地信息.</p>
-<p>图像句柄属于整个脚本执行, 可通过 <code>postMessage</code> 交接并在创建它的 Worker 退出后继续使用. 调用方应明确安排回收, 避免一个线程回收另一个线程正在使用的图像. Worker 已退出时才完成创建且无法交付的图像会回收, 整次执行结束也会清理剩余句柄. 其他主线程高级模块不会因这两个模块的补齐而自动出现在 Worker 中.</p>
-<h2>Bun 客户端<span><a class="mark" href="#runtimeapis_bun_1" id="runtimeapis_bun_1">#</a></span></h2>
+<p>图像句柄属于整个脚本执行, 可通过 <code>postMessage</code> 交接并在创建它的 Worker 退出后继续使用. 调用方应明确安排回收, 避免一个线程回收另一个线程正在使用的图像. Worker 已退出时才完成创建且无法交付的图像会回收, 整次执行结束也会清理剩余句柄. 其他未列出的主线程高级模块仍需单独核查.</p>
+<p>Worker 还提供 <code>pinyin</code> / <code>autojs6:pinyin</code>, <code>pinyin4j</code> / <code>autojs6:pinyin4j</code>, <code>screen_metrics</code> / <code>autojs6:screen_metrics</code> 和 <code>console</code> / <code>node:console</code> / <code>autojs6:console</code>, 支持 CJS, ESM 和嵌套 Worker. 拼音常量保持数字值, 可调用入口等价于 convert/of; <code>await pinyin(...)</code> 的二维数组保留异步 <code>compact()</code> 方法. 文本在进入结构化克隆之前转换, Buffer 和自定义 toString 对象不会被误解释为字节列表或普通对象.</p>
+<p>坐标换算每次读取当前屏幕信息, <code>cX/cY/cXy/cYx</code> 的重载与主线程一致. 基数属于整个执行, 主线程和所有 Worker 共享同一个状态, 每个轴仍只能设置一次. 原生 Worker stdout/stderr 和自定义 Console 流保持在线程内运行; 窗口控制方法异步作用于父执行的控制台, 全局日志配置方法仍影响宿主全局. Worker 的全局 console 同样提供这些控制方法, 不把普通日志输出转为异步宿主调用. Rhino 的 input/rawInput/build 仍明确报不支持.</p>
+<h2>Bun 客户端<span><a class="mark" href="#runtimeapis_bun_2" id="runtimeapis_bun_2">#</a></span></h2>
 <p><strong><code>Async</code></strong></p>
 <pre><code class="lang-js">&quot;bun&quot;;
 
@@ -722,6 +779,11 @@ console.log(await host.coordinates.getInfo());
 <td><code>screen.capture</code></td>
 <td><code>host.images.requestScreenCapture/captureScreen/stopScreenCapture</code></td>
 <td>默认关闭, 另需 Android 录屏授权</td>
+</tr>
+<tr>
+<td><code>screen.record</code></td>
+<td><code>host.screenRecorder.start/stop/cancel/getStatus</code></td>
+<td>默认关闭, 另需 screen.capture 与系统授权, 输出无声 MP4 文件</td>
 </tr>
 <tr>
 <td><code>screen.metrics</code></td>
