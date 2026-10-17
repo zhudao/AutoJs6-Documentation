@@ -12,7 +12,7 @@ AutoJs6 的 Rhino, Node.js Runtime 和 Bun Runtime 使用独立的执行环境. 
 | --- | --- | --- |
 | Rhino | 全局模块, 如 `pinyin`, `console`, `cX` | 按各模块页的同步或异步签名使用 |
 | Node.js 主线程 | `require('pinyin')`, `require('screen_metrics')` 等公开模块, 或对应 ESM 导入 | 宿主调用通常返回 Promise; 不自动注入 Rhino 全局 |
-| Node.js Worker | `autojs6:bridge` 经父线程转发 | 不自动提供主线程的全部高级模块; 使用明确允许的桥接方法 |
+| Node.js Worker | `opencc` / `autojs6:opencc`, `image` / `images` 及其 `autojs6:` 入口; 其他能力可经 `autojs6:bridge` 转发 | 支持 CJS, ESM 和嵌套 Worker; 异步操作复用父线程封装, 仍受本次执行授权约束 |
 | 原生终端 `node` / `npm` | 原生 Node.js 入口 | 不加载 AutoJs6 脚本执行器的模块与兼容全局 |
 | Bun | 从 `process.env.AUTOJS6_HOST_CLIENT_MODULE` 导入客户端, 再调用 `createHostClient()` | 显式客户端, 异步调用, 按当前执行协商能力 |
 
@@ -173,11 +173,58 @@ Node.js 通过 `require('images')` 或 `require('image')` 使用图像接口; Bu
 
 Bun 的 `readPixels` 每次最多返回 16,384 个像素, 可使用 `region: [x, y, width, height]` 缩小区域; Node 的公开 `readPixels` 经二进制通道读取, 不受该 JSON 像素上限影响. 两端的 `findAllPointsForColor` 最多返回 4,096 个点, 超限时拒绝而不是截断. 颜色搜索返回图像自身的像素坐标, 不应用屏幕换算基数. `detectsColor` 默认使用 `diff` 算法, 还支持 `rgb`, `rgb+`, `hs`, `h`, `equal`, `oklab`; `findColor` 和 `findAllPointsForColor` 则按 RGB 各通道阈值匹配不透明像素.
 
-编解码, 像素读取, 复制, 裁剪, 旋转, 翻转及 `detectsColor` 不依赖 OpenCV. 缩放, 滤镜, 模板和颜色搜索需要可用的 OpenCV 插件. Node 额外提供 `read` / `save`, `findColorEquals`, `findPointByColor` / `findPointByColors`, `getWidth` / `getHeight` 和 `isRecycled` 等便捷入口. `isRecycled` 只跟踪当前 Node 客户端的回收操作, 不跟踪绕过封装的原始桥接调用.
+编解码, 像素读取, 复制, 裁剪, 旋转, 翻转及 `detectsColor` 不依赖 OpenCV. 缩放, 滤镜, 模板和颜色搜索需要可用的 OpenCV 插件. Node 额外提供 `read` / `save`, `findColorEquals`, `findPointByColor` / `findPointByColors`, `getWidth` / `getHeight` 和 `isRecycled` 等便捷入口. `isRecycled` 只跟踪当前线程客户端的回收操作, 不跟踪其他线程或绕过封装的原始桥接调用.
 
 Node 的 `toBytes` 保留原有 PFD 字节传输和 Buffer 生命周期, `format: 'rgba'` 表示紧密排列的直通 alpha sRGB RGBA8, 与 PNG 等编码格式不同. Bun 的 `fromBytes` / `toBytes` 使用 Base64 JSON 通道与 `Uint8Array`, 不提供 PFD 或原始 RGBA 输出. Bun 继续受 64 KiB 请求和 256 KiB 响应上限约束, Base64 膨胀也计入限制. 大图宜使用已授权的宿主文件读取/保存路径, 不能据 Node 的字节能力推断 Bun 的上限.
 
-Bun 将 `image.process` (默认启用) 与 `image.files` (默认关闭) 分开授权. 前者用于图像编解码, 像素, 变换, 搜索和回收, 后者用于宿主路径上的 `readImage` / `saveImage`. 本批 Bun 不开放截图和录屏授权接口. 这些常用接口不表示已经覆盖 Rhino 的全部高级 OpenCV API.
+Bun 将 `image.process` (默认启用), `image.files` (默认关闭) 与 `screen.capture` (默认关闭) 分开授权. 它们分别控制图像处理, 宿主文件读写和请求 Android 录屏授权. 这些常用接口不表示已经覆盖 Rhino 的全部高级 OpenCV API.
+
+## Bun 截图与录屏授权
+
+**`Async`**
+
+在插件中心启用 Bun 的屏幕截图能力后, 使用显式客户端:
+
+```js
+"bun";
+
+/** @type {typeof import('autojs6:bun-host')} */
+let sdk = await import(process.env.AUTOJS6_HOST_CLIENT_MODULE);
+let host = await sdk.createHostClient();
+
+await host.images.requestScreenCapture({ timeoutMs: 45000 });
+try {
+    let image = await host.images.captureScreen();
+    try {
+        console.log(host.images.getSize(image));
+        console.log(await host.images.pixel(image, 0, 0));
+    } finally {
+        await host.images.recycle(image);
+    }
+} finally {
+    await host.images.stopScreenCapture();
+}
+```
+
+| 方法 | 返回值与行为 |
+| --- | --- |
+| `requestScreenCapture(options?)` | `Promise<boolean>`, Android 同意后返回 `true`; 拒绝, 超时或未授予 `screen.capture` 时拒绝 Promise |
+| `captureScreen()` | `Promise<ImageHandle>`, 从本次执行已授权的屏幕会话取得一帧; 不会静默弹出授权或改用其他截图来源 |
+| `stopScreenCapture()` | `Promise<boolean>`, 停止已授权会话或取消待处理授权; 没有持有请求/会话时返回 `false` |
+
+`options` 支持 `orientation: 'auto' | 'portrait' | 'landscape'`, 同时指定的 `width` / `height` (各为 1-8192), `requireExistingPermission` 以及 `timeoutMs` (1-120000 毫秒, 默认 120000). 默认方向为自动. `requireExistingPermission: true` 在本次执行没有有效会话时直接失败, 不显示授权对话框. 同一客户端的并发申请共用一个 Promise, 已生效的会话可复用; 停止或系统撤销后再次申请会重新经过 Android 授权流程.
+
+权限开关只允许请求系统授权, 不代替 Android 的明确同意. 关闭开关影响下一次执行. 运行结束或取消时会释放会话及待处理授权, 已产生的图像句柄仍按执行作用域清理. 此处提供连续取得屏幕帧的能力, 不包含视频编码或录屏文件输出.
+
+授权等待使用短状态调用, 不延长普通宿主调用的 10 秒上限. 整体脚本超时仍可提前结束等待; Bun 默认执行限时为 60 秒, 需要更长时间时应在执行配置中调整 `bun.timeoutMillis`. 截图返回句柄, 不把整张图片放入 JSON; 随后的字节和像素读取仍遵循前述传输上限.
+
+## Node.js Worker 模块
+
+Worker 可直接 `require('autojs6:opencc')` / `require('images')`, 也可使用对应 ESM 导入. OpenCC 的可调用入口和 33 个成员, 以及图像模块的 41 个函数, 使用与主线程相同的参数和返回契约. 裸名 `opencc` 仍优先解析已安装的同名 npm 包.
+
+异步图像操作由父线程执行, 因而大图上传仍使用既有 PFD 通道. 返回 Worker 的字节经过 Node 结构化克隆, 是该 Worker 独立持有的 Buffer, 不承诺跨线程零复制. `getSize`, `getWidth`, `getHeight` 和 `isRecycled` 同步读取本地信息.
+
+图像句柄属于整个脚本执行, 可通过 `postMessage` 交接并在创建它的 Worker 退出后继续使用. 调用方应明确安排回收, 避免一个线程回收另一个线程正在使用的图像. Worker 已退出时才完成创建且无法交付的图像会回收, 整次执行结束也会清理剩余句柄. 其他主线程高级模块不会因这两个模块的补齐而自动出现在 Worker 中.
 
 ## Bun 客户端
 
@@ -207,12 +254,13 @@ console.log(await host.coordinates.getInfo());
 | `text.opencc` | `host.opencc` 的 `convert` 与 32 个转换方法 | 默认启用, 需要可用 OpenCC 插件 |
 | `image.process` | `host.images` 的内存图像操作 | 默认启用, 受 JSON 传输上限约束 |
 | `image.files` | `host.images.readImage/saveImage` | 默认关闭, 宿主文件访问独立授权 |
+| `screen.capture` | `host.images.requestScreenCapture/captureScreen/stopScreenCapture` | 默认关闭, 另需 Android 录屏授权 |
 | `screen.metrics` | `host.coordinates` 的四个换算及基数成员 | 默认启用, 与 Node 坐标语义相同 |
 | `console.control` | `host.console` 的窗口与配置方法 | 默认关闭, 需要明确授权 |
 
 先通过 `host.capabilities` 或 `host.hasCapability(name)` 检查当前执行是否协商到所需能力. Bun 的基数 setter 和控制台命令返回 `Promise<void>`. 普通 `console.log` 等仍由 Bun 原生控制台处理, `host.console` 是显式宿主窗口控制入口.
 
-Bun 不自动获得 Node 的全部模块, 无障碍选择器, 截图授权, Java 互操作或 `rhino.run`. SDK 的图像句柄也不是 Rhino 图片对象, 不自动注入 `cX`, `pinyin`, `opencc` 或 Rhino 的对象图.
+Bun 不自动获得 Node 的全部模块, 无障碍选择器, Java 互操作或 `rhino.run`. 截图需要独立能力开关及 Android 同意. SDK 的图像句柄也不是 Rhino 图片对象, 不自动注入 `cX`, `pinyin`, `opencc` 或 Rhino 的对象图.
 
 ## 声明与 Ace 智能提示
 

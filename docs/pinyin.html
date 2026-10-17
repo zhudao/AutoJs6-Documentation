@@ -671,7 +671,7 @@ let pinyin = require(&#39;pinyin&#39;);
 </tr>
 </tbody>
 </table>
-<p>Node.js 的 <code>convert</code> 支持相同的 <code>customDictionary</code> 格式和限制. 请求仍由宿主执行权限, JSON 大小和调用配额校验, 最终转换由当前选择的外置 Pinyin 插件完成. 缺少执行授权, 未安装兼容插件或词典超限时, Promise 会以对应的 bridge 错误拒绝. 旧版 Node 小字典的同步行为不再保留; 请增加 <code>await</code>, 不要把异步 <code>compare</code> 直接传入 <code>Array#sort</code>. 通用 <code>autojs6:bridge</code> 仍可调用相同 provider, 但不会绕过权限校验. Bun 对应 <code>host.pinyin</code>, 见 <a href="runtimeApis.html#runtimeapis_bun">Bun 客户端</a>.</p>
+<p>Node.js 的 <code>convert</code> 支持相同的 <code>customDictionary</code> 格式和限制. 请求仍由宿主执行权限, JSON 大小和调用配额校验, 最终转换由当前选择的外置 Pinyin 插件完成. 缺少执行授权, 未安装兼容插件或词典超限时, Promise 会以对应的 bridge 错误拒绝. 旧版 Node 小字典的同步行为不再保留; 请增加 <code>await</code>, 不要把异步 <code>compare</code> 直接传入 <code>Array#sort</code>. 通用 <code>autojs6:bridge</code> 仍可调用相同 provider, 但不会绕过权限校验. Bun 对应 <code>host.pinyin</code>, 见 <a href="runtimeApis.html#runtimeapis_bun_1">Bun 客户端</a>.</p>
 <h2>PinyinStyle<span><a class="mark" href="#pinyin_pinyinstyle" id="pinyin_pinyinstyle">#</a></span></h2>
 <p>pinyin 模块公开的拼音风格枚举类型. 可通过 <code>STYLE_NORMAL</code>, <code>STYLE_TONE</code>, <code>STYLE_TONE2</code>, <code>STYLE_TO3NE</code>, <code>STYLE_INITIALS</code> 和 <code>STYLE_FIRST_LETTER</code> 常量取得.</p>
 <h2>PinyinMode<span><a class="mark" href="#pinyin_pinyinmode" id="pinyin_pinyinmode">#</a></span></h2>

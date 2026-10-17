@@ -297,7 +297,9 @@
 <li><span class="stability_undefined"><a href="#runtimeapis_node_js_2">Node.js 坐标换算</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_opencc">OpenCC 转换</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_1">图像句柄与处理</a></span></li>
-<li><span class="stability_undefined"><a href="#runtimeapis_bun">Bun 客户端</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_bun">Bun 截图与录屏授权</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_node_js_worker">Node.js Worker 模块</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_bun_1">Bun 客户端</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_ace">声明与 Ace 智能提示</a></span></li>
 </ul>
 </li>
@@ -332,8 +334,8 @@
 </tr>
 <tr>
 <td>Node.js Worker</td>
-<td><code>autojs6:bridge</code> 经父线程转发</td>
-<td>不自动提供主线程的全部高级模块; 使用明确允许的桥接方法</td>
+<td><code>opencc</code> / <code>autojs6:opencc</code>, <code>image</code> / <code>images</code> 及其 <code>autojs6:</code> 入口; 其他能力可经 <code>autojs6:bridge</code> 转发</td>
+<td>支持 CJS, ESM 和嵌套 Worker; 异步操作复用父线程封装, 仍受本次执行授权约束</td>
 </tr>
 <tr>
 <td>原生终端 <code>node</code> / <code>npm</code></td>
@@ -604,10 +606,61 @@ let opencc = require(&#39;autojs6:opencc&#39;);
 </table>
 <p><code>readPixels</code> 返回 <code>{ data, width, height }</code>, <code>data</code> 是按行排列的有符号 ARGB32 数值数组. 单个像素与编码字节不是同一种数据: 像素整数描述颜色, PNG/JPEG/WebP 字节描述编码后的文件.</p>
 <p>Bun 的 <code>readPixels</code> 每次最多返回 16,384 个像素, 可使用 <code>region: [x, y, width, height]</code> 缩小区域; Node 的公开 <code>readPixels</code> 经二进制通道读取, 不受该 JSON 像素上限影响. 两端的 <code>findAllPointsForColor</code> 最多返回 4,096 个点, 超限时拒绝而不是截断. 颜色搜索返回图像自身的像素坐标, 不应用屏幕换算基数. <code>detectsColor</code> 默认使用 <code>diff</code> 算法, 还支持 <code>rgb</code>, <code>rgb+</code>, <code>hs</code>, <code>h</code>, <code>equal</code>, <code>oklab</code>; <code>findColor</code> 和 <code>findAllPointsForColor</code> 则按 RGB 各通道阈值匹配不透明像素.</p>
-<p>编解码, 像素读取, 复制, 裁剪, 旋转, 翻转及 <code>detectsColor</code> 不依赖 OpenCV. 缩放, 滤镜, 模板和颜色搜索需要可用的 OpenCV 插件. Node 额外提供 <code>read</code> / <code>save</code>, <code>findColorEquals</code>, <code>findPointByColor</code> / <code>findPointByColors</code>, <code>getWidth</code> / <code>getHeight</code> 和 <code>isRecycled</code> 等便捷入口. <code>isRecycled</code> 只跟踪当前 Node 客户端的回收操作, 不跟踪绕过封装的原始桥接调用.</p>
+<p>编解码, 像素读取, 复制, 裁剪, 旋转, 翻转及 <code>detectsColor</code> 不依赖 OpenCV. 缩放, 滤镜, 模板和颜色搜索需要可用的 OpenCV 插件. Node 额外提供 <code>read</code> / <code>save</code>, <code>findColorEquals</code>, <code>findPointByColor</code> / <code>findPointByColors</code>, <code>getWidth</code> / <code>getHeight</code> 和 <code>isRecycled</code> 等便捷入口. <code>isRecycled</code> 只跟踪当前线程客户端的回收操作, 不跟踪其他线程或绕过封装的原始桥接调用.</p>
 <p>Node 的 <code>toBytes</code> 保留原有 PFD 字节传输和 Buffer 生命周期, <code>format: &#39;rgba&#39;</code> 表示紧密排列的直通 alpha sRGB RGBA8, 与 PNG 等编码格式不同. Bun 的 <code>fromBytes</code> / <code>toBytes</code> 使用 Base64 JSON 通道与 <code>Uint8Array</code>, 不提供 PFD 或原始 RGBA 输出. Bun 继续受 64 KiB 请求和 256 KiB 响应上限约束, Base64 膨胀也计入限制. 大图宜使用已授权的宿主文件读取/保存路径, 不能据 Node 的字节能力推断 Bun 的上限.</p>
-<p>Bun 将 <code>image.process</code> (默认启用) 与 <code>image.files</code> (默认关闭) 分开授权. 前者用于图像编解码, 像素, 变换, 搜索和回收, 后者用于宿主路径上的 <code>readImage</code> / <code>saveImage</code>. 本批 Bun 不开放截图和录屏授权接口. 这些常用接口不表示已经覆盖 Rhino 的全部高级 OpenCV API.</p>
-<h2>Bun 客户端<span><a class="mark" href="#runtimeapis_bun" id="runtimeapis_bun">#</a></span></h2>
+<p>Bun 将 <code>image.process</code> (默认启用), <code>image.files</code> (默认关闭) 与 <code>screen.capture</code> (默认关闭) 分开授权. 它们分别控制图像处理, 宿主文件读写和请求 Android 录屏授权. 这些常用接口不表示已经覆盖 Rhino 的全部高级 OpenCV API.</p>
+<h2>Bun 截图与录屏授权<span><a class="mark" href="#runtimeapis_bun" id="runtimeapis_bun">#</a></span></h2>
+<p><strong><code>Async</code></strong></p>
+<p>在插件中心启用 Bun 的屏幕截图能力后, 使用显式客户端:</p>
+<pre><code class="lang-js">&quot;bun&quot;;
+
+/** @type {typeof import(&#39;autojs6:bun-host&#39;)} */
+let sdk = await import(process.env.AUTOJS6_HOST_CLIENT_MODULE);
+let host = await sdk.createHostClient();
+
+await host.images.requestScreenCapture({ timeoutMs: 45000 });
+try {
+    let image = await host.images.captureScreen();
+    try {
+        console.log(host.images.getSize(image));
+        console.log(await host.images.pixel(image, 0, 0));
+    } finally {
+        await host.images.recycle(image);
+    }
+} finally {
+    await host.images.stopScreenCapture();
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>返回值与行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>requestScreenCapture(options?)</code></td>
+<td><code>Promise&lt;boolean&gt;</code>, Android 同意后返回 <code>true</code>; 拒绝, 超时或未授予 <code>screen.capture</code> 时拒绝 Promise</td>
+</tr>
+<tr>
+<td><code>captureScreen()</code></td>
+<td><code>Promise&lt;ImageHandle&gt;</code>, 从本次执行已授权的屏幕会话取得一帧; 不会静默弹出授权或改用其他截图来源</td>
+</tr>
+<tr>
+<td><code>stopScreenCapture()</code></td>
+<td><code>Promise&lt;boolean&gt;</code>, 停止已授权会话或取消待处理授权; 没有持有请求/会话时返回 <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>options</code> 支持 <code>orientation: &#39;auto&#39; | &#39;portrait&#39; | &#39;landscape&#39;</code>, 同时指定的 <code>width</code> / <code>height</code> (各为 1-8192), <code>requireExistingPermission</code> 以及 <code>timeoutMs</code> (1-120000 毫秒, 默认 120000). 默认方向为自动. <code>requireExistingPermission: true</code> 在本次执行没有有效会话时直接失败, 不显示授权对话框. 同一客户端的并发申请共用一个 Promise, 已生效的会话可复用; 停止或系统撤销后再次申请会重新经过 Android 授权流程.</p>
+<p>权限开关只允许请求系统授权, 不代替 Android 的明确同意. 关闭开关影响下一次执行. 运行结束或取消时会释放会话及待处理授权, 已产生的图像句柄仍按执行作用域清理. 此处提供连续取得屏幕帧的能力, 不包含视频编码或录屏文件输出.</p>
+<p>授权等待使用短状态调用, 不延长普通宿主调用的 10 秒上限. 整体脚本超时仍可提前结束等待; Bun 默认执行限时为 60 秒, 需要更长时间时应在执行配置中调整 <code>bun.timeoutMillis</code>. 截图返回句柄, 不把整张图片放入 JSON; 随后的字节和像素读取仍遵循前述传输上限.</p>
+<h2>Node.js Worker 模块<span><a class="mark" href="#runtimeapis_node_js_worker" id="runtimeapis_node_js_worker">#</a></span></h2>
+<p>Worker 可直接 <code>require(&#39;autojs6:opencc&#39;)</code> / <code>require(&#39;images&#39;)</code>, 也可使用对应 ESM 导入. OpenCC 的可调用入口和 33 个成员, 以及图像模块的 41 个函数, 使用与主线程相同的参数和返回契约. 裸名 <code>opencc</code> 仍优先解析已安装的同名 npm 包.</p>
+<p>异步图像操作由父线程执行, 因而大图上传仍使用既有 PFD 通道. 返回 Worker 的字节经过 Node 结构化克隆, 是该 Worker 独立持有的 Buffer, 不承诺跨线程零复制. <code>getSize</code>, <code>getWidth</code>, <code>getHeight</code> 和 <code>isRecycled</code> 同步读取本地信息.</p>
+<p>图像句柄属于整个脚本执行, 可通过 <code>postMessage</code> 交接并在创建它的 Worker 退出后继续使用. 调用方应明确安排回收, 避免一个线程回收另一个线程正在使用的图像. Worker 已退出时才完成创建且无法交付的图像会回收, 整次执行结束也会清理剩余句柄. 其他主线程高级模块不会因这两个模块的补齐而自动出现在 Worker 中.</p>
+<h2>Bun 客户端<span><a class="mark" href="#runtimeapis_bun_1" id="runtimeapis_bun_1">#</a></span></h2>
 <p><strong><code>Async</code></strong></p>
 <pre><code class="lang-js">&quot;bun&quot;;
 
@@ -666,6 +719,11 @@ console.log(await host.coordinates.getInfo());
 <td>默认关闭, 宿主文件访问独立授权</td>
 </tr>
 <tr>
+<td><code>screen.capture</code></td>
+<td><code>host.images.requestScreenCapture/captureScreen/stopScreenCapture</code></td>
+<td>默认关闭, 另需 Android 录屏授权</td>
+</tr>
+<tr>
 <td><code>screen.metrics</code></td>
 <td><code>host.coordinates</code> 的四个换算及基数成员</td>
 <td>默认启用, 与 Node 坐标语义相同</td>
@@ -678,7 +736,7 @@ console.log(await host.coordinates.getInfo());
 </tbody>
 </table>
 <p>先通过 <code>host.capabilities</code> 或 <code>host.hasCapability(name)</code> 检查当前执行是否协商到所需能力. Bun 的基数 setter 和控制台命令返回 <code>Promise&lt;void&gt;</code>. 普通 <code>console.log</code> 等仍由 Bun 原生控制台处理, <code>host.console</code> 是显式宿主窗口控制入口.</p>
-<p>Bun 不自动获得 Node 的全部模块, 无障碍选择器, 截图授权, Java 互操作或 <code>rhino.run</code>. SDK 的图像句柄也不是 Rhino 图片对象, 不自动注入 <code>cX</code>, <code>pinyin</code>, <code>opencc</code> 或 Rhino 的对象图.</p>
+<p>Bun 不自动获得 Node 的全部模块, 无障碍选择器, Java 互操作或 <code>rhino.run</code>. 截图需要独立能力开关及 Android 同意. SDK 的图像句柄也不是 Rhino 图片对象, 不自动注入 <code>cX</code>, <code>pinyin</code>, <code>opencc</code> 或 Rhino 的对象图.</p>
 <h2>声明与 Ace 智能提示<span><a class="mark" href="#runtimeapis_ace" id="runtimeapis_ace">#</a></span></h2>
 <p><code>AutoJs6-TypeScript-Declarations</code> 提供三个独立入口:</p>
 <ul>
