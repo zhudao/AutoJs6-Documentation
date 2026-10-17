@@ -639,6 +639,16 @@
     },
     {
       "type": "text",
+      "text": "[Speech - 语音](speech)"
+    },
+    {
+      "type": "list_item_end"
+    },
+    {
+      "type": "list_item_start"
+    },
+    {
+      "type": "text",
       "text": "[SQLite - 数据库](sqlite)"
     },
     {

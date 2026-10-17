@@ -1,5 +1,7 @@
 # 文档部署进度 (Progress)
 
+2026-10-17 Speech: 补齐当前 Rhino `speech` / `$speech` 及嵌套 `speech.models` 的全部显式入口, 同步会话, 事件, 结果与选项声明. 修复覆盖提取器对内联嵌套挂载的识别, 不把 Rhino Speech 误列为 Node/Bun 能力. 此项验证为源码契约, 类型和补全检查, 不表示新增模型或音频真机运行验证.
+
 2026-10-17 运行时 API: 新增 Node.js / Bun 的独立 API 入口, 异步拼音, 宿主控制台与实时坐标换算说明, 同步类型声明和 Ace 的运行时隔离, Worker / 原生 CLI 限制以及 JSOX 提示边界. 文档对应本轮配套源码, 不表示旧插件或公开发行版本已具备这些能力.
 
 2026-10-16 Android XML 属性 (UI Android Attributes): 新增页面, 说明原生 Android XML 布局中属性的应用顺序 (处理器, 创建期属性, 公开方法, 布局参数), 取值转换与书写顺序, 不支持与未知属性的跳过与警告, 命名空间与 AppCompat 别名, Material 组件的主题补齐, ConstraintLayout 辅助类, 以及 110 个视图类与 11 个容器的属性表 (由 AutoJs6 的 .python/generate_android_attrs.py --docs 从属性表与 API 37 覆盖矩阵生成, 勿手改). [UI](ui) 新增 "工程资源" 一节 (res 目录位置, 资源类型, vector 矢量图, 限定符目录与选取规则, 样式与主题), 修订 "布局转换模式"; [UI Attributes](uiAttributes) 补充 RelativeLayout 的 layout_toStartOf / layout_toEndOf / layout_alignBaseline, scrollbars 与 requiresFadingEdge 的 none 及关闭语义, 修正 style 的查找范围. 依据为 AutoJs6 6.8.0 本地提交 (宿主路线图 docs/dev/android-xml-attributes-roadmap.md A1 - A9) 与 2026-10-16 在 API 24 / 30 / 33 / 35 / 37 模拟器上的设备测试, 此条不表示官方发布.

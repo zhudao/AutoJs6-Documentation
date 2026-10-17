@@ -65,6 +65,7 @@
 * [Settings - 应用设置](settings)
 * [Shell](shell)
 * [Shizuku](shizuku)
+- [Speech - 语音](speech)
 * [SQLite - 数据库](sqlite)
 * [Standardization - 标准化](s13n)
 * [Storages - 存储](storages)
