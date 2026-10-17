@@ -658,7 +658,7 @@ try {
 <p>权限开关只允许请求系统授权, 不代替 Android 的明确同意. 关闭开关影响下一次执行. 运行结束或取消时会释放会话及待处理授权, 已产生的图像句柄仍按执行作用域清理. 视频文件使用下述 <code>host.screenRecorder</code> 接口, 另需 <code>screen.record</code> 授权.</p>
 <p>授权等待使用短状态调用, 不延长普通宿主调用的 10 秒上限. 整体脚本超时仍可提前结束等待; Bun 默认执行限时为 60 秒, 需要更长时间时应在执行配置中调整 <code>bun.timeoutMillis</code>. 截图返回句柄, 不把整张图片放入 JSON; 随后的字节和像素读取仍遵循前述传输上限.</p>
 <h2>Bun 视频录制与文件输出<span><a class="mark" href="#runtimeapis_bun_1" id="runtimeapis_bun_1">#</a></span></h2>
-<p><code>host.screenRecorder</code> 将已授权的屏幕录制为无声 H.264/MP4 视频. 需要同时启用 <code>screen.capture</code> 和 <code>screen.record</code> (均默认关闭), 并先完成 <code>host.images.requestScreenCapture()</code>. <code>screen.record</code> 允许宿主输出 MP4 文件, 不替代系统授权, 也不依赖图像文件的 <code>image.files</code> 开关.</p>
+<p><code>host.screenRecorder</code> 将已授权的屏幕录制为 H.264/MP4 视频, 默认无声. 需要同时启用 <code>screen.capture</code> 和 <code>screen.record</code> (均默认关闭), 并先完成 <code>host.images.requestScreenCapture()</code>. <code>screen.record</code> 允许宿主输出 MP4 文件, 不替代系统授权, 也不依赖图像文件的 <code>image.files</code> 开关.</p>
 <table>
 <thead>
 <tr>
@@ -676,7 +676,7 @@ try {
 <tr>
 <td><code>getStatus()</code></td>
 <td><code>Promise&lt;ScreenRecordingStatus&gt;</code></td>
-<td><code>state</code> 为 idle, recording 或 failed; 活动状态包含 id, path, width, height, frameRate, bitRate, elapsedMs 和 error</td>
+<td><code>state</code> 为 idle, recording 或 failed; 活动状态包含 id, path, width, height, frameRate, bitRate, elapsedMs, audio, audioSource 和 error</td>
 </tr>
 <tr>
 <td><code>stop()</code></td>
@@ -687,21 +687,59 @@ try {
 <tr>
 <td><code>cancel()</code></td>
 <td><code>Promise&lt;boolean&gt;</code></td>
-<td>丢弃未完成视频并恢复截图; 当前未录制时返回 false</td>
+<td>丢弃未完成视频, 保持截图会话; 当前未录制时返回 false</td>
 </tr>
 </tbody>
 </table>
-<p><code>options.width</code> 和 <code>options.height</code> 必须同时指定, 为 2..8192 内的偶数; 省略时使用截图会话尺寸. <code>frameRate</code> 为 1..120 的整数, 默认 30; <code>bitRate</code> 为正整数, 单位 bit/s, 默认 8000000. 尺寸, 帧率和码率还必须受到当前 Android H.264 编码器支持. 不支持的配置拒绝 Promise, 不自动降级. 本接口不录制麦克风或系统音频, 不接受 audio 选项.</p>
-<p>输出路径属于宿主, 相对路径按脚本工作目录解析, 仍受 Android 文件访问规则限制. 录制先写临时文件, <code>stop()</code> 成功后才生成目标文件. 结果包含 <code>id</code>, <code>path</code>, <code>size</code> (字节), <code>durationMs</code>, <code>width</code>, <code>height</code>, <code>mimeType: &#39;video/mp4&#39;</code>, <code>videoCodec: &#39;h264&#39;</code> 和 <code>audio: false</code>. 没有编码出有效视频帧时停止会失败, 不生成一个冒充成功的空视频.</p>
-<p>每次执行只允许一个活动录制. 录制期间 <code>captureScreen()</code> 会拒绝, 停止或取消录制后恢复截图, 仍可复用同一授权开始下一段录像. 视频输出尺寸在一段录像内保持固定, 横竖屏变化由 Android 等比缩放居中显示, 可能出现留边. 需要交换宽高时应停止当前录像后以新尺寸开始下一段. <code>stopScreenCapture()</code>, 执行结束/取消和系统撤销授权会丢弃未完成文件, 因此保留视频需要显式等待 <code>stop()</code> 完成.</p>
+<p><code>options.width</code> 和 <code>options.height</code> 必须同时指定, 为 2..8192 内的偶数; 省略时使用截图会话尺寸. <code>frameRate</code> 为 1..120 的整数, 默认 30; <code>bitRate</code> 为正整数, 单位 bit/s, 默认 8000000. 尺寸, 帧率和码率还必须受到当前 Android H.264 编码器支持. 不支持的配置拒绝 Promise, 不自动降级. 音频通过 audio 选项单独启用.</p>
+<p><code>options.audio</code> 选择音频来源, 默认 <code>&quot;none&quot;</code>, 也可用 false 表示不录音:</p>
+<table>
+<thead>
+<tr>
+<th>audio</th>
+<th>音频</th>
+<th>额外能力授权</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;none&quot;</code> / false</td>
+<td>无音轨</td>
+<td>无</td>
+</tr>
+<tr>
+<td><code>&quot;microphone&quot;</code></td>
+<td>麦克风</td>
+<td>screen.record.microphone</td>
+</tr>
+<tr>
+<td><code>&quot;playback&quot;</code></td>
+<td>允许捕获的应用播放声音</td>
+<td>screen.record.playback</td>
+</tr>
+<tr>
+<td><code>&quot;mixed&quot;</code></td>
+<td>麦克风和应用播放声音, 每路 0.5 增益混合</td>
+<td>上述两项</td>
+</tr>
+</tbody>
+</table>
+<p>两个音频开关默认关闭, 修改对下一次执行生效. 所有有声模式都需要宿主的 Android <code>RECORD_AUDIO</code> 运行时权限, 包括只捕获应用播放声音的模式. 缺少权限会明确拒绝, 不偷偷降级为无声录制; 可在 Android 的 AutoJs6 应用权限设置中授权. 麦克风模式还使用带停止按钮的麦克风前台服务; Android 14+ 的使用中权限规则要求从允许的前台状态启动, 不能用插件能力开关绕过后台限制. 通知中的停止按钮会取消使用该服务的录制并丢弃未完成视频.</p>
+<p>音轨采用 AAC-LC, 48 kHz, 单声道, 128 kbit/s. 播放捕获使用 Android AudioPlaybackCapture, 只包含同一用户配置下允许捕获的 MEDIA/GAME/UNKNOWN 用途音频. 来源应用禁止捕获时, 该来源保持静音; 系统麦克风隐私开关或音频共享规则也可能静音输入. <code>audio: true</code> 的结果字段表示文件存在音轨, 不表示一定有可听见的声音. 参阅 <a href="https://developer.android.com/media/platform/av-capture">Android 音视频捕获规则</a> 与 <a href="https://developer.android.com/develop/background-work/services/fgs/service-types#microphone">麦克风前台服务要求</a>.</p>
+<p>输出路径属于宿主, 相对路径按脚本工作目录解析, 仍受 Android 文件访问规则限制. 录制先写临时文件, <code>stop()</code> 成功后才生成目标文件. 结果包含 <code>id</code>, <code>path</code>, <code>size</code> (字节), <code>durationMs</code>, <code>width</code>, <code>height</code>, <code>mimeType: &#39;video/mp4&#39;</code>, <code>videoCodec: &#39;h264&#39;</code>, <code>audio</code> 和 <code>audioSource</code>. 有声录制还返回 <code>audioCodec: &#39;aac&#39;</code>, <code>audioSampleRate: 48000</code> 和 <code>audioChannels: 1</code>; 无声时这三个字段为 null. 没有编码出有效视频帧时停止会失败, 不生成一个冒充成功的空视频.</p>
+<p>每次执行只允许一个活动录制. 录制期间可以继续调用 <code>host.images.captureScreen()</code>, 截图和编码从同一投影帧输入取得数据, 不额外申请授权或暂停录制. 截图尺寸遵循 requestScreenCapture 的设置: 自动方向跟随当前屏幕, 固定尺寸保持指定值, 不被视频输出尺寸替换. 停止或取消录制后截图仍然可用, 也可复用同一授权开始下一段录像. 视频输出尺寸在一段录像内保持固定, 横竖屏变化由 Android 等比缩放居中显示, 可能出现留边. 需要交换宽高时应停止当前录像后以新尺寸开始下一段. <code>stopScreenCapture()</code>, 执行结束/取消和系统撤销授权会丢弃未完成文件, 因此保留视频需要显式等待 <code>stop()</code> 完成.</p>
 <pre><code class="lang-js">&quot;bun&quot;;
 let { createHostClient } = await import(process.env.AUTOJS6_HOST_CLIENT_MODULE);
 let host = await createHostClient();
 await host.images.requestScreenCapture();
 try {
-    await host.screenRecorder.start(&#39;/sdcard/Movies/autojs6-demo.mp4&#39;, {
+    await host.screenRecorder.start(`/sdcard/Movies/autojs6-${Date.now()}.mp4`, {
         width: 720, height: 1280, frameRate: 30, bitRate: 4000000,
+        audio: &#39;playback&#39;, // 需要额外授权和 Android 录音权限.
     });
+    let frame = await host.images.captureScreen();
+    try { console.log(host.images.getSize(frame)); }
+    finally { await host.images.recycle(frame); }
     await Bun.sleep(3000);
     let video = await host.screenRecorder.stop();
     console.log(video.path, video.durationMs, video.size);
@@ -710,7 +748,7 @@ try {
     await host.images.stopScreenCapture();
 }
 </code></pre>
-<p>目标文件名应保持唯一. 较长录制须同时配置足够的 <code>bun.timeoutMillis</code>; 编码期间不占用一条长时间宿主调用, 开始和停止仍受普通调用超时约束.</p>
+<p>目标文件名应保持唯一. 较长录制须同时配置足够的 <code>bun.timeoutMillis</code>; 编码期间不占用一条长时间宿主调用, 开始和停止仍受普通调用超时约束. 音视频按同一单调时钟写入一个 MP4, 停止时无需重新合并整段文件. frameRate 是目标帧率; 高频大尺寸截图的像素读回会占用图形处理时间.</p>
 <h2>Node.js Worker 模块<span><a class="mark" href="#runtimeapis_node_js_worker" id="runtimeapis_node_js_worker">#</a></span></h2>
 <p>Worker 可直接 <code>require(&#39;autojs6:opencc&#39;)</code> / <code>require(&#39;images&#39;)</code>, 也可使用对应 ESM 导入. OpenCC 的可调用入口和 33 个成员, 以及图像模块的 41 个函数, 使用与主线程相同的参数和返回契约. 裸名 <code>opencc</code> 仍优先解析已安装的同名 npm 包.</p>
 <p>异步图像操作由父线程执行, 因而大图上传仍使用既有 PFD 通道. 返回 Worker 的字节经过 Node 结构化克隆, 是该 Worker 独立持有的 Buffer, 不承诺跨线程零复制. <code>getSize</code>, <code>getWidth</code>, <code>getHeight</code> 和 <code>isRecycled</code> 同步读取本地信息.</p>
@@ -783,7 +821,17 @@ console.log(await host.coordinates.getInfo());
 <tr>
 <td><code>screen.record</code></td>
 <td><code>host.screenRecorder.start/stop/cancel/getStatus</code></td>
-<td>默认关闭, 另需 screen.capture 与系统授权, 输出无声 MP4 文件</td>
+<td>默认关闭, 另需 screen.capture 与系统授权, 输出 MP4 文件</td>
+</tr>
+<tr>
+<td><code>screen.record.microphone</code></td>
+<td>audio: microphone / mixed</td>
+<td>默认关闭, 另需 Android 录音权限和麦克风前台服务</td>
+</tr>
+<tr>
+<td><code>screen.record.playback</code></td>
+<td>audio: playback / mixed</td>
+<td>默认关闭, 另需 Android 录音权限, 遵循来源应用捕获策略</td>
 </tr>
 <tr>
 <td><code>screen.metrics</code></td>

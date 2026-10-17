@@ -1,5 +1,7 @@
 # 文档部署进度 (Progress)
 
+2026-10-17 Bun 录屏音频 / 并行截图: screenRecorder 的 audio 选项提供 none, microphone, playback 和 mixed, 同步独立音频授权, Android 权限与来源应用捕获策略, AAC 元数据和录制期间 captureScreen 的尺寸契约. Android 13/15 真机已验证真实麦克风/播放/混合音轨, 来源禁止捕获, 四象限截图和旋转后的帧分发. 类型声明与 Ace 的音源取值提示同步, 不表示绕过 Android 音频隐私或捕获限制.
+
 2026-10-17 Bun 视频 / Worker 常用 API: 补充 screenRecorder 的无声 MP4 编码, 独立文件输出授权, 固定尺寸, 停止/取消和退出清理; Worker 补齐 pinyin, pinyin4j, 控制台及坐标换算. Android 13 Redmi 与 Android 15 小米已验证录制旋转, 文件轨道/时长/解码像素及 Worker 的三种执行方式和三组基数. 数字拼音常量在宿主中的解析问题已修正. 配套类型和 Ace 提示同步, 本条不表示音频录制或全部 Rhino API 已覆盖.
 
 2026-10-17 Bun 截图 / Node.js Worker: 补充 Bun 独立截图授权, 系统同意, 超时/取消及图像句柄生命周期; Worker 支持 OpenCC 和图像模块的 CJS/ESM/嵌套调用及二进制数据. Android 13 Redmi 与 Android 15 小米真机已验证授权等待, 横竖屏像素, 固定尺寸, 停止/重新申请和取消清理. 本条对应配套开发源码, 不表示公开发行或全部 Worker 高级模块覆盖.
