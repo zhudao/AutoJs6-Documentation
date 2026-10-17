@@ -30,6 +30,7 @@
 
 <ul>
 <li><a class="nav-manual" href="manual.html">Manual - AutoJs6 使用手册</a></li>
+<li><a class="nav-runtimeApis" href="runtimeApis.html">Runtime APIs - 运行时 API</a></li>
 <li><a class="nav-qa" href="qa.html">Q &amp; A - 疑难解答</a></li>
 <li><a class="nav-suspicious" href="suspicious.html">Suspicious - 存疑内容</a></li>
 </ul>
@@ -779,6 +780,7 @@
 此处的全局 &quot;对象&quot; 包括 [ 变量 / 方法 / 构造器 ] 等.<br>
 全局对象随处可用, 包括 ECMA 标准内置对象 (如 [ Number / RegExp / String ] 等).</p>
 <p>AutoJs6 的内置模块均支持全局使用, 如 <code>app</code>, <code>images</code>, <code>device</code> 等.</p>
+<p>本页描述 Rhino 全局环境. Node.js / Bun 不自动注入这些对象; <code>cX/cY/cXy/cYx</code> 的异步模块入口见 <a href="runtimeApis.html#runtimeapis_node_js_2">运行时坐标换算</a>.</p>
 <p>为便于使用, 一些 AutoJs6 模块中的方法也被全局化,<br>
 如 <code>images.captureScreen()</code>, <code>dialogs.alert()</code>, <code>app.launch()</code> 等.<br>
 全局化方法均以 <code>Global</code> 标签标注.</p>

@@ -6,6 +6,7 @@
 * - - - - - - - - - - - - - - - -
 
 * [Manual - AutoJs6 使用手册](manual)
+- [Runtime APIs - 运行时 API](runtimeApis)
 * [Q & A - 疑难解答](qa)
 * [Suspicious - 存疑内容](suspicious)
 

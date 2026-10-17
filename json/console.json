@@ -4,7 +4,7 @@
     {
       "textRaw": "控制台 (Console)",
       "name": "控制台_(console)",
-      "desc": "<p>AutoJs6 的控制台类似 Web 浏览器的调试控制台, 用于信息输出或辅助代码调试.</p>\n",
+      "desc": "<p>AutoJs6 的控制台类似 Web 浏览器的调试控制台, 用于信息输出或辅助代码调试.</p>\n<p>本页以 Rhino API 为基准. Node.js 的窗口和配置方法返回 <code>Promise&lt;void&gt;</code>, Bun 使用 <code>host.console</code> 显式客户端. 相关异步迁移, 权限与未实现入口见 <a href=\"runtimeApis#nodejs-控制台\">运行时控制台</a>.</p>\n",
       "modules": [
         {
           "textRaw": "显示控制台",

@@ -6,7 +6,7 @@ pinyin4j 模块用于将中文转换为拼音字符串, 查询逐 Unicode 码点
 
 自 AutoJs6 6.8.0 起, pinyin4j 转换由外置 Pinyin4j 插件提供. 调用转换方法前, 必须安装并启用与当前 AutoJs6 版本兼容的 Pinyin4j 插件. 未发现可用插件引擎时, 调用将抛出异常.
 
-同版本起, Node.js Runtime 可通过公开的 `autojs6:bridge` facade 调用相同的插件能力, 详见 [Node.js Runtime](#nodejs-runtime).
+Node.js Runtime 的公开 `pinyin4j` 模块通过宿主调用相同插件能力, 返回 Promise. Bun 使用显式客户端, 详见 [运行时 API](runtimeApis).
 
 ---
 
@@ -204,25 +204,21 @@ Hanyu Pinyin 的韵母 `v` 输出格式. 别名和可选值与 [Pinyin4jOptions#
 
 **`6.8.0`**
 
-Node.js 脚本不注入 Rhino 的 `pinyin4j` 全局对象. 请通过 Node.js Runtime 内置的公开 `autojs6:bridge` facade 调用宿主 provider, 并为每次请求显式声明 `pinyin4j` capability:
+Node.js 脚本不自动注入 Rhino 的 `pinyin4j` 全局对象. 使用 `require('pinyin4j')` 或对应 ESM 导入, 并等待宿主插件转换结果:
 
 ```js
-const { callAutoJs } = require('autojs6:bridge');
+"nodejs";
+let pinyin4j = require('pinyin4j');
 
 (async () => {
-    const result = await callAutoJs(
-        'pinyin4j',
-        'readings',
-        [ '重A𠀀', { system: 'HANYU' } ],
-        { permissions: [ 'pinyin4j' ] },
-    );
+    let result = await pinyin4j.readings('重A𠀀', { system: 'HANYU' });
 
     console.log(result);
     // [ [ 'zhong4', 'chong2' ], [ 'A' ], [ '𠀀' ] ]
 })();
 ```
 
-`pinyin4j` provider 开放下列异步桥接方法. `args` 数组中的位置参数与同名 Rhino 方法一致, 返回值会从严格 JSON 解码为普通 Node.js 值:
+`pinyin4j` 模块公开下列异步方法. 下表 `args` 表示位置参数, `result` 表示等待 Promise 后的普通 Node.js 值:
 
 | method | args | result |
 | --- | --- | --- |
@@ -230,4 +226,4 @@ const { callAutoJs } = require('autojs6:bridge');
 | `as` | `[ source ]` | `string` |
 | `readings` | `[ source, options? ]` | `string[][]` |
 
-请求由宿主执行 capability, JSON 大小和调用配额校验, 最终转换由当前选择的外置 Pinyin4j 插件完成. 未声明 `pinyin4j` capability, 未安装兼容插件, 参数不合法或矩阵超限时, Promise 会以对应的 bridge 错误拒绝.
+请求由宿主执行 capability, JSON 大小和调用配额校验, 最终转换由当前选择的外置 Pinyin4j 插件完成. 缺少执行授权, 未安装兼容插件, 参数不合法或矩阵超限时, Promise 会以对应的 bridge 错误拒绝. 旧版 Node 小字典的同步调用需要改为 `await`. 通用 `autojs6:bridge` 仍可调用相同 provider. Bun 对应 `host.pinyin4j`, 见 [Bun 客户端](runtimeApis#bun-客户端).

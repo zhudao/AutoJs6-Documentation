@@ -6,7 +6,7 @@ pinyin 模块用于将汉字转换为拼音, 并支持声调格式, 姓氏模式
 
 自 AutoJs6 6.8.0 起, pinyin 转换由外置 Pinyin 插件提供. 调用转换方法前, 必须安装并启用与当前 AutoJs6 版本兼容的 Pinyin 插件. 未发现可用插件引擎时, 调用将抛出异常.
 
-同版本起, Node.js Runtime 可通过公开的 `autojs6:bridge` facade 调用相同的插件能力, 详见 [Node.js Runtime](#nodejs-runtime).
+Node.js Runtime 的公开 `pinyin` 模块通过宿主调用相同插件能力, 返回 Promise. Bun 使用显式客户端, 详见 [运行时 API](runtimeApis).
 
 ---
 
@@ -356,25 +356,21 @@ console.log(combinations);
 
 **`6.8.0`**
 
-Node.js 脚本不注入 Rhino 的 `pinyin` 全局对象. 请通过 Node.js Runtime 内置的公开 `autojs6:bridge` facade 调用宿主 provider, 并为每次请求显式声明 `pinyin` capability:
+Node.js 脚本不自动注入 Rhino 的 `pinyin` 全局对象. 使用 `require('pinyin')` 或对应 ESM 导入, 并等待宿主插件转换结果:
 
 ```js
-const { callAutoJs } = require('autojs6:bridge');
+"nodejs";
+let pinyin = require('pinyin');
 
 (async () => {
-    const result = await callAutoJs(
-        'pinyin',
-        'convert',
-        [ '中心', { style: 'TONE2' } ],
-        { permissions: [ 'pinyin' ] },
-    );
+    let result = await pinyin.convert('中心', { style: 'TONE2' });
 
     console.log(result);
     // [ [ 'zhong1' ], [ 'xin1' ] ]
 })();
 ```
 
-`pinyin` provider 开放下列异步桥接方法. `args` 数组中的位置参数与同名 Rhino 方法一致, 返回值会从严格 JSON 解码为普通 Node.js 值:
+`pinyin` 模块公开下列异步方法. 下表 `args` 表示位置参数, `result` 表示等待 Promise 后的值. 转换结果是普通数组, `convert` 和模块直接调用的结果另附异步 `compact()` 方法:
 
 | method | args | result |
 | --- | --- | --- |
@@ -385,7 +381,7 @@ const { callAutoJs } = require('autojs6:bridge');
 | `fromCodePoint` | `[ codePoint ]` | `string \| null` |
 | `fromPhrase` | `[ phrase ]` | `string[][]` |
 
-Node.js 的 `convert` 支持相同的 `customDictionary` 格式和限制. 请求仍由宿主执行权限, JSON 大小和调用配额校验, 最终转换由当前选择的外置 Pinyin 插件完成. 未声明 `pinyin` capability, 未安装兼容插件或词典超限时, Promise 会以对应的 bridge 错误拒绝.
+Node.js 的 `convert` 支持相同的 `customDictionary` 格式和限制. 请求仍由宿主执行权限, JSON 大小和调用配额校验, 最终转换由当前选择的外置 Pinyin 插件完成. 缺少执行授权, 未安装兼容插件或词典超限时, Promise 会以对应的 bridge 错误拒绝. 旧版 Node 小字典的同步行为不再保留; 请增加 `await`, 不要把异步 `compare` 直接传入 `Array#sort`. 通用 `autojs6:bridge` 仍可调用相同 provider, 但不会绕过权限校验. Bun 对应 `host.pinyin`, 见 [Bun 客户端](runtimeApis#bun-客户端).
 
 ## PinyinStyle
 

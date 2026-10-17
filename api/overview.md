@@ -20,7 +20,7 @@
 - 使用 PC (个人计算机) 开发
   - [AutoJs6 VSCode Extension](http://vscext-project.autojs6.com)
 - 使用 Node.js 开发
-  - [Auto.js Pro](https://pro.autojs.org/)
+  - [Node.js / Bun 运行时 API](runtimeApis)
 - 使用 TypeScript 开发
   - [Auto.js DevTools](https://github.com/pboymt/autojs-dev/)
 

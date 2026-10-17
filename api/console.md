@@ -2,6 +2,8 @@
 
 AutoJs6 的控制台类似 Web 浏览器的调试控制台, 用于信息输出或辅助代码调试.
 
+本页以 Rhino API 为基准. Node.js 的窗口和配置方法返回 `Promise<void>`, Bun 使用 `host.console` 显式客户端. 相关异步迁移, 权限与未实现入口见 [运行时控制台](runtimeApis#nodejs-控制台).
+
 ## 显示控制台
 
 AutoJs6 支持以下几种方式显示控制台:

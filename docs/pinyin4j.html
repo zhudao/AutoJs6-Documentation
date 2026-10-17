@@ -30,6 +30,7 @@
 
 <ul>
 <li><a class="nav-manual" href="manual.html">Manual - AutoJs6 使用手册</a></li>
+<li><a class="nav-runtimeApis" href="runtimeApis.html">Runtime APIs - 运行时 API</a></li>
 <li><a class="nav-qa" href="qa.html">Q &amp; A - 疑难解答</a></li>
 <li><a class="nav-suspicious" href="suspicious.html">Suspicious - 存疑内容</a></li>
 </ul>
@@ -331,7 +332,7 @@
 <p>pinyin4j 模块用于将中文转换为拼音字符串, 查询逐 Unicode 码点的全部读音, 并控制分隔符, 大小写, 声调和 <code>v</code> 字符格式.</p>
 <p>此模块自 AutoJs6 6.6.1 起提供. <code>pinyin4j</code> 与 <code>$pinyin4j</code> 指向同一个可调用模块对象.</p>
 <p>自 AutoJs6 6.8.0 起, pinyin4j 转换由外置 Pinyin4j 插件提供. 调用转换方法前, 必须安装并启用与当前 AutoJs6 版本兼容的 Pinyin4j 插件. 未发现可用插件引擎时, 调用将抛出异常.</p>
-<p>同版本起, Node.js Runtime 可通过公开的 <code>autojs6:bridge</code> facade 调用相同的插件能力, 详见 <a href="#pinyin4j_node_js_runtime">Node.js Runtime</a>.</p>
+<p>Node.js Runtime 的公开 <code>pinyin4j</code> 模块通过宿主调用相同插件能力, 返回 Promise. Bun 使用显式客户端, 详见 <a href="runtimeApis.html">运行时 API</a>.</p>
 <hr>
 <p style="font: bold 2em sans-serif; color: #FF7043">pinyin4j</p>
 
@@ -479,22 +480,18 @@ console.log(pinyin4j.readings(&#39;间&#39;, {
 <hr>
 <h2>Node.js Runtime<span><a class="mark" href="#pinyin4j_node_js_runtime" id="pinyin4j_node_js_runtime">#</a></span></h2>
 <p><strong><code>6.8.0</code></strong></p>
-<p>Node.js 脚本不注入 Rhino 的 <code>pinyin4j</code> 全局对象. 请通过 Node.js Runtime 内置的公开 <code>autojs6:bridge</code> facade 调用宿主 provider, 并为每次请求显式声明 <code>pinyin4j</code> capability:</p>
-<pre><code class="lang-js">const { callAutoJs } = require(&#39;autojs6:bridge&#39;);
+<p>Node.js 脚本不自动注入 Rhino 的 <code>pinyin4j</code> 全局对象. 使用 <code>require(&#39;pinyin4j&#39;)</code> 或对应 ESM 导入, 并等待宿主插件转换结果:</p>
+<pre><code class="lang-js">&quot;nodejs&quot;;
+let pinyin4j = require(&#39;pinyin4j&#39;);
 
 (async () =&gt; {
-    const result = await callAutoJs(
-        &#39;pinyin4j&#39;,
-        &#39;readings&#39;,
-        [ &#39;重A𠀀&#39;, { system: &#39;HANYU&#39; } ],
-        { permissions: [ &#39;pinyin4j&#39; ] },
-    );
+    let result = await pinyin4j.readings(&#39;重A𠀀&#39;, { system: &#39;HANYU&#39; });
 
     console.log(result);
     // [ [ &#39;zhong4&#39;, &#39;chong2&#39; ], [ &#39;A&#39; ], [ &#39;𠀀&#39; ] ]
 })();
 </code></pre>
-<p><code>pinyin4j</code> provider 开放下列异步桥接方法. <code>args</code> 数组中的位置参数与同名 Rhino 方法一致, 返回值会从严格 JSON 解码为普通 Node.js 值:</p>
+<p><code>pinyin4j</code> 模块公开下列异步方法. 下表 <code>args</code> 表示位置参数, <code>result</code> 表示等待 Promise 后的普通 Node.js 值:</p>
 <table>
 <thead>
 <tr>
@@ -521,7 +518,7 @@ console.log(pinyin4j.readings(&#39;间&#39;, {
 </tr>
 </tbody>
 </table>
-<p>请求由宿主执行 capability, JSON 大小和调用配额校验, 最终转换由当前选择的外置 Pinyin4j 插件完成. 未声明 <code>pinyin4j</code> capability, 未安装兼容插件, 参数不合法或矩阵超限时, Promise 会以对应的 bridge 错误拒绝.</p>
+<p>请求由宿主执行 capability, JSON 大小和调用配额校验, 最终转换由当前选择的外置 Pinyin4j 插件完成. 缺少执行授权, 未安装兼容插件, 参数不合法或矩阵超限时, Promise 会以对应的 bridge 错误拒绝. 旧版 Node 小字典的同步调用需要改为 <code>await</code>. 通用 <code>autojs6:bridge</code> 仍可调用相同 provider. Bun 对应 <code>host.pinyin4j</code>, 见 <a href="runtimeApis.html#runtimeapis_bun">Bun 客户端</a>.</p>
 
         </div>
     </div>

@@ -6,6 +6,8 @@
 
 AutoJs6 的内置模块均支持全局使用, 如 `app`, `images`, `device` 等.
 
+本页描述 Rhino 全局环境. Node.js / Bun 不自动注入这些对象; `cX/cY/cXy/cYx` 的异步模块入口见 [运行时坐标换算](runtimeApis#nodejs-坐标换算).
+
 为便于使用, 一些 AutoJs6 模块中的方法也被全局化,<br>
 如 `images.captureScreen()`, `dialogs.alert()`, `app.launch()` 等.<br>
 全局化方法均以 `Global` 标签标注.
