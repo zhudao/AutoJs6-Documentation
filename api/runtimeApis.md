@@ -443,9 +443,9 @@ Bun 不自动获得 Node 的全部模块, 无障碍选择器, Java 互操作或 
 
 Node.js 主线程和 CJS/ESM/嵌套 Worker 可使用 `require('ui')` / `require('compose')`, 也可从 `autojs6:ui` / `autojs6:compose` 导入. 两个模块使用 `ui` 能力声明. Bun 使用 `host.ui` / `host.compose`, 在插件设置中分别开启 `ui.layout` / `ui.compose`, 默认均关闭. Compose 还需要已安装, 启用并授权且契约兼容的 3-Block Compose 插件. Android 悬浮窗权限仍由系统判断.
 
-`ui.showLayout(descriptor)` 返回 Promise, 完成后取得窗口句柄. 描述树支持 Text, Button, Input, Image, Column/Row, ScrollView, List, Switch, Checkbox, Progress 和 Tabs 等现有原生布局组件. `ui.state(initial)` 与 `ui.bind(state, key)` 在运行时本地创建状态和绑定. 窗口提供 `on/once/off`, `update`, `batchUpdate`, `close` 和 `closed`; 更新和关闭返回 Promise. 事件回调在创建窗口的 JavaScript 线程执行. 此入口使用 JSON 布局, 不接受 Rhino E4X/XML 或 Java View.
+`ui.showLayout(descriptor)` 返回 Promise, 完成后取得窗口句柄. 描述树支持 Text, Button, Input, Image, Column/Row, ScrollView, List, Switch, Checkbox, Progress 和 Tabs 等现有原生布局组件. `ui.state(initial)` 与 `ui.bind(state, key)` 在运行时本地创建状态和绑定. 窗口提供 `on/once/off`, `update`, `batchUpdate`, `close` 和 `closed`; 更新和关闭返回 Promise. 事件回调在创建窗口的 JavaScript 线程执行. 此入口支持 JSON 描述树, XML 字符串或本次执行的 View 句柄; E4X 语法和 Java View 对象不跨运行时传输.
 
-`compose` 提供 54 个 V1/V2 数据组件构造器, 包括 Text, Button, Column, TextField, LazyColumn, Scaffold, DatePicker, TimePicker 和 NavigationBar. 组件, `state`, `ref`, `modifier`, `batch`, `memo`, `theme` 都在本地处理. `isAvailable()` 与 `version()` 返回 Promise; `sessions` 是当前打开会话的快照. `mount`, `dialog`, `floaty` 和直接调用 `compose(root)` 都返回 `Promise<Session>`, 并等待窗口实际接入渲染器. 每个窗口有独立 Activity 或悬浮窗口生命周期.
+`compose` 提供 54 个 V1/V2 数据组件构造器及 AndroidView 互操作构造器, 包括 Text, Button, Column, TextField, LazyColumn, Scaffold, DatePicker, TimePicker 和 NavigationBar. 组件, `state`, `ref`, `modifier`, `batch`, `memo`, `theme` 都在本地处理. `isAvailable()` 与 `version()` 返回 Promise; `sessions` 是当前打开会话的快照. `mount`, `dialog`, `floaty` 和直接调用 `compose(root)` 都返回 `Promise<Session>`, 并等待窗口实际接入渲染器. 每个窗口有独立 Activity 或悬浮窗口生命周期.
 
 ```js
 // Node.js 主线程或 Worker; Bun 改为 let compose = host.compose.
@@ -468,9 +468,61 @@ let window = await compose.mount(() => compose.Column({ padding: 16 },
 
 会话 `showSnackbar(message, options?)` 返回 Promise, 要求树中有使用默认 snackbarHost 的 Scaffold. options 支持 actionLabel, duration (short/long/indefinite), onAction 和 onDismiss, 每条消息至多触发一次终态回调. 悬浮会话还提供异步 `setPosition`, `setSize`, `getX/getY/getWidth/getHeight`, `requestFocus`, `disableFocus`, `setTouchable`; `session` 指向同一会话. 窗口旋转重建会保留组件状态, 已输入文本及事件路由.
 
-该覆盖是可传输数据 API. Rhino 的 AndroidView, Java View/Context 工厂, XML compose 容器 attach, 原生对象属性代理和原生悬浮窗调整框仍未纳入, 不应按同名模块推断这些入口可用. 未定义入口不会被模拟为成功. Node/Bun 仍不注入 Rhino 全局 `ui` / `compose`.
+该覆盖是可传输数据 API. Java View/Context 对象, 任意 Java 类构造器, 原生对象属性代理和原生悬浮窗调整框仍未纳入, 不应按同名模块推断这些入口可用. 未定义入口不会被模拟为成功. Node/Bun 仍不注入 Rhino 全局 `ui` / `compose`.
 
 窗口及回调属于创建它们的执行. Worker 终止时关闭该 Worker 创建的窗口, 包括终止后才返回的创建结果, 主线程的其他窗口继续使用. 脚本结束关闭全部所属窗口. Bun 仍遵守 64 KiB 请求, 256 KiB 返回, 4 个并发请求和每次执行 1024 次调用的桥接限制; UI 事件读取也计入调用次数. 长时间界面脚本应观察失败事件并显式关闭, 不能把此次 API 扩展理解为取消现有运行时配额.
+
+### 原生 View 与 XML compose 容器
+
+以下互操作接口需要宿主构建 5562 及配套 Node.js 1.8.0/Bun 0.2.7 客户端. Bun 的 AndroidView 工厂和 XML attach 同时需要 ui.layout 与 ui.compose.
+
+| 方法 | 异步结果与用途 |
+| --- | --- |
+| ui.context() | Promise<UiContext>, 包含执行标识, density/scaledDensity, packageName, runtimeVersionCode/applicationVersionCode |
+| ui.inflate(layout, context?) | Promise<NativeViewHandle>, 从 XML 字符串或 JSON 描述树创建未显示的原生 View |
+| ui.createView(type, props?, context?) | Promise<NativeViewHandle>, 创建受支持的原生组件, 可使用 TextView, Button, FrameLayout 和 Compose 等别名 |
+| ui.findView(root, id) | Promise<NativeViewHandle \| null>, root 是 View 句柄或窗口 ID |
+| ui.view(token) | 当前线程的句柄包装, 用于恢复 Worker structuredClone 传回的纯数据标识 |
+| compose.AndroidView({ view }) | 本地组件; view 是句柄或返回句柄/Promise 的工厂函数 |
+| compose.attach(container, root, options?) | Promise<Session>, container 必须是本次执行的 XML compose/Compose 容器 |
+
+UiContext 提供异步 inflate/createView. View 句柄提供 get(), get(name), set(patch), findView(id), dispose() 和本地 on/once/off 监听. get 返回快照, 包含 id/type, width/height, enabled/visible/attached, contentDescription, 文本组件的 text 和勾选组件的 checked. set 不替换 type 或 children. XML 接受 vertical/horizontal/frame/compose/text/button/input 等受支持标签; w/h, layout_width/layout_height 和 android: 属性名会规范化. 尺寸默认 dp, px 后缀表示物理像素, `*`/match_parent 表示填满, auto/wrap_content 表示按内容计算. XML 不接受 DTD/实体, 最大 64 KiB, 深度 16, 节点 5000, 每层子节点 128.
+
+AndroidView 工厂在创建组件的 JavaScript 线程执行, 接收数据 context, 通过其异步 inflate/createView 返回原始句柄标识. 可用 ui.view 包装该标识后读写属性. 工厂不是 Android Context 或 Android 主线程回调. 同一个组件节点保留工厂结果; 重新创建节点会重新调用工厂, 需要稳定身份时使用已有 View 句柄或 memo.
+
+```js
+// Node.js 主线程或 Worker; Bun 改为 let ui = host.ui, compose = host.compose.
+let ui = require('ui'), compose = require('compose');
+(async () => {
+    let root = await ui.inflate('<vertical><text text="XML"/><compose id="content" h="300"/></vertical>');
+    let window = await ui.showLayout(root);
+    let native = await ui.createView('Button', { text: 'Native button' });
+    let container = await root.findView('content');
+    let session = await compose.attach(container, compose.AndroidView({ view: native }));
+    native.on('click', event => console.log(event.type));
+    // 完成后依次 await session.close(), native.dispose(), window.close(), root.dispose().
+})().catch(error => console.error(error));
+```
+
+View 属于本次脚本执行, 可在 Node 主线程及 Worker 间传递标识, 但事件队列只允许一个读取者. AndroidView 借用 View; 关闭会话后 View 仍可复用. 有父节点或已被其他会话借用的 View 会被拒绝, 不能将包含容器的 View 再借给该容器. 只有 inflate 的根句柄能 dispose, 子句柄是别名. dispose 前须关闭借用会话; 释放容器会关闭其附着会话, 包括尚未显示的容器. attach 在同一容器成功接入新会话后关闭旧会话; 若要复用旧会话借用的同一个 View, 应先关闭旧会话. 旋转后重新连接生命周期, 保留 View 身份和状态.
+
+Worker 退出只关闭它创建的窗口和附着会话; 已传回的 View 属于整个执行, 仍可由主线程使用和释放. 未交付的异步 View 创建结果会在 Worker 退出后释放. ui.showLayout(XML) 创建的根由窗口管理; ui.showLayout(handle) 借用已有根, 关闭窗口后由调用方 dispose. 整次脚本结束释放全部 View.
+
+### 打包项目
+
+Node.js/Bun 项目 APK 使用已安装的外部 Runtime 插件和 3-Block Compose 插件, 自己的应用版本号可以从 1 开始. runtimeVersionCode 表示内置宿主运行库版本, applicationVersionCode 表示应用声明版本. APK Builder 需要匹配的 Runtime Kit (本批为 6.8.0+5562).
+
+Node 项目通过 node.permissions 声明 ui. Bun 项目使用 projectType=bun 或 bun 入口标记, 并在 project.json 明确声明 bun.hostCapabilities, 例如:
+
+```json
+{
+  "projectType": "bun",
+  "main": "main.bun.js",
+  "bun": { "hostCapabilities": ["ui.layout", "ui.compose"] }
+}
+```
+
+示例只列出运行时相关字段, 应合并到完整的项目配置. Bun 打包应用不读取 AutoJs6 应用的授权开关, 未列出的能力不提供. 能力名称必须有效且不重复. 本批没有新增打包配置界面; 通过 project.json 配置. SDK 模块应随项目打包, 可从配套插件源码的 app/src/main/assets/autojs6/host-client.mjs 复制并相对导入. 普通宿主仍使用原有受保护服务; 打包应用通过独立的普通权限服务调用外部 Bun, 执行及取消按调用方 UID 隔离. 运行时代码仍是插件 UID 下的可信代码, 不是不受信任脚本沙箱. Android 权限及插件自身的运行条件仍需满足.
 
 ## 声明与 Ace 智能提示
 

@@ -276,3 +276,5 @@
 2026-10-17: Node.js/Bun/Worker 图像入口覆盖到 81 个宿主注册函数, 同步高级滤镜, 特征匹配, 相似度, Mat 句柄及 PNG 量化的参数, 返回类型和文件授权边界. 参阅 runtimeApis.
 
 - 2026-10-18: runtimeApis 补充 Node.js/Bun/Worker 的 UI 与 Compose 数据 API, 异步返回, 回调, 生命周期, 独立授权及原生互操作边界.
+
+- 2026-10-18: runtimeApis 补充 Node.js/Bun/Worker 的 View 句柄, AndroidView 工厂, XML compose attach, 所有权和打包项目能力声明.
