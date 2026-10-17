@@ -419,6 +419,8 @@ console.log(await host.coordinates.getInfo());
 | `device.info` | `host.device.info()` | Build 品牌, 型号, 系统与 ABI 信息 |
 | `text.pinyin` | `host.pinyin.convert/simple/compare/compact/fromCodePoint/fromPhrase` | 默认启用, 需要可用 Pinyin 插件 |
 | `text.pinyin4j` | `host.pinyin4j.of/as/readings` | 默认启用, 需要可用 Pinyin4j 插件 |
+| `ui.layout` | `host.ui` 原生 JSON 布局与窗口事件 | 默认关闭 |
+| `ui.compose` | `host.compose` 数据组件, 窗口与状态更新 | 默认关闭, 另需 Compose 插件 |
 | `text.opencc` | `host.opencc` 的 `convert` 与 32 个转换方法 | 默认启用, 需要可用 OpenCC 插件 |
 | `image.process` | `host.images` 的内存图像操作 | 默认启用, 受 JSON 传输上限约束 |
 | `image.files` | `host.images.readImage/saveImage` | 默认关闭, 宿主文件访问独立授权 |
@@ -432,6 +434,43 @@ console.log(await host.coordinates.getInfo());
 先通过 `host.capabilities` 或 `host.hasCapability(name)` 检查当前执行是否协商到所需能力. Bun 的基数 setter 和控制台命令返回 `Promise<void>`. 普通 `console.log` 等仍由 Bun 原生控制台处理, `host.console` 是显式宿主窗口控制入口.
 
 Bun 不自动获得 Node 的全部模块, 无障碍选择器, Java 互操作或 `rhino.run`. 截图需要独立能力开关及 Android 同意. SDK 的图像句柄也不是 Rhino 图片对象, 不自动注入 `cX`, `pinyin`, `opencc` 或 Rhino 的对象图.
+
+## UI 与 Compose
+
+**`Async`**
+
+以下接口对应当前工作区的开发版本.
+
+Node.js 主线程和 CJS/ESM/嵌套 Worker 可使用 `require('ui')` / `require('compose')`, 也可从 `autojs6:ui` / `autojs6:compose` 导入. 两个模块使用 `ui` 能力声明. Bun 使用 `host.ui` / `host.compose`, 在插件设置中分别开启 `ui.layout` / `ui.compose`, 默认均关闭. Compose 还需要已安装, 启用并授权且契约兼容的 3-Block Compose 插件. Android 悬浮窗权限仍由系统判断.
+
+`ui.showLayout(descriptor)` 返回 Promise, 完成后取得窗口句柄. 描述树支持 Text, Button, Input, Image, Column/Row, ScrollView, List, Switch, Checkbox, Progress 和 Tabs 等现有原生布局组件. `ui.state(initial)` 与 `ui.bind(state, key)` 在运行时本地创建状态和绑定. 窗口提供 `on/once/off`, `update`, `batchUpdate`, `close` 和 `closed`; 更新和关闭返回 Promise. 事件回调在创建窗口的 JavaScript 线程执行. 此入口使用 JSON 布局, 不接受 Rhino E4X/XML 或 Java View.
+
+`compose` 提供 54 个 V1/V2 数据组件构造器, 包括 Text, Button, Column, TextField, LazyColumn, Scaffold, DatePicker, TimePicker 和 NavigationBar. 组件, `state`, `ref`, `modifier`, `batch`, `memo`, `theme` 都在本地处理. `isAvailable()` 与 `version()` 返回 Promise; `sessions` 是当前打开会话的快照. `mount`, `dialog`, `floaty` 和直接调用 `compose(root)` 都返回 `Promise<Session>`, 并等待窗口实际接入渲染器. 每个窗口有独立 Activity 或悬浮窗口生命周期.
+
+```js
+// Node.js 主线程或 Worker; Bun 改为 let compose = host.compose.
+let compose = require('autojs6:compose');
+(async () => {
+let count = compose.state(0);
+let window = await compose.mount(() => compose.Column({ padding: 16 },
+    compose.Text({ text: 'Count: ' + count.value }),
+    compose.Button({ onClick() { count.value++; } }, compose.Text({ text: 'Add' }))
+));
+// 完成后: await window.close().
+})().catch(error => console.error(error));
+```
+
+组件参数遵循宿主组件目录, 颜色使用字符串或 ARGB 数字, 尺寸使用 dp/sp 数字或相应后缀字符串. Image.src 接受本次执行的图像句柄或 `@drawable/name`; 渲染器持有独立像素副本. 悬浮窗口选项 x/y/width/height 使用物理像素, width/height 的 -1/-2 表示 match_parent/wrap_content. `dialog` 的 type 为 alert 或 bottomSheet, cancelable 默认 true.
+
+事件使用一个数据对象, 例如 `onValueChange(event)` 中的 `event.text`, `event.selectionStart`, `event.selectionEnd`, `event.editSeq`, `event.value`, 或 `onCheckedChange(event)` 中的 `event.checked`, 具体字段由组件决定. 回调中的 this 为对应组件. 跨渲染期间仍然有效的节点事件路由到当前已接受树的处理器. 文本框状态更新使用带原生编辑序号的编辑命令, 不直接覆盖原生输入缓冲区.
+
+会话提供 `root`, `isClosed`, `update(callback)`, `post`, `on/off`, `render(root)`, `flush`, `setTheme` 和 `close`. `render`, `flush`, `setTheme`, `close` 返回 Promise; `flush` 等待当前排队的状态更新被宿主接受. `ref.current` 在帧接受后设置, 移除节点或关闭窗口时清空. 组件提供 `get/set`, `append/insert/remove/replace/clear/slot`, `on/off` 和异步 `focus/blur/scrollTo/edit`. 读写组件属性使用 get/set; 原生对象的属性代理不属于此契约.
+
+会话 `showSnackbar(message, options?)` 返回 Promise, 要求树中有使用默认 snackbarHost 的 Scaffold. options 支持 actionLabel, duration (short/long/indefinite), onAction 和 onDismiss, 每条消息至多触发一次终态回调. 悬浮会话还提供异步 `setPosition`, `setSize`, `getX/getY/getWidth/getHeight`, `requestFocus`, `disableFocus`, `setTouchable`; `session` 指向同一会话. 窗口旋转重建会保留组件状态, 已输入文本及事件路由.
+
+该覆盖是可传输数据 API. Rhino 的 AndroidView, Java View/Context 工厂, XML compose 容器 attach, 原生对象属性代理和原生悬浮窗调整框仍未纳入, 不应按同名模块推断这些入口可用. 未定义入口不会被模拟为成功. Node/Bun 仍不注入 Rhino 全局 `ui` / `compose`.
+
+窗口及回调属于创建它们的执行. Worker 终止时关闭该 Worker 创建的窗口, 包括终止后才返回的创建结果, 主线程的其他窗口继续使用. 脚本结束关闭全部所属窗口. Bun 仍遵守 64 KiB 请求, 256 KiB 返回, 4 个并发请求和每次执行 1024 次调用的桥接限制; UI 事件读取也计入调用次数. 长时间界面脚本应观察失败事件并显式关闭, 不能把此次 API 扩展理解为取消现有运行时配额.
 
 ## 声明与 Ace 智能提示
 
