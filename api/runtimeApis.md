@@ -718,9 +718,9 @@ Android 必须同步决定导航, 资源和按键处理. 这些决策通过 setW
 
 onJsAlert/onJsConfirm/onJsBeforeUnload 返回 boolean, onJsPrompt 返回 string 或 null. 未配置处理器时, 已显示的 WebView 使用原生对话框. HTTP 认证返回 {username,password} 或 null; SSL 默认取消, 只有显式 'proceed' 才继续. 客户端证书可返回已授权 KeyChain 的 {alias}; Web 权限只允许请求资源的子集, 并仍须拥有 Android 摄像头/麦克风/定位权限. onCreateWindow 可返回新的空白执行内 WebView 或 null; 关闭借用窗口后再 dispose. 全屏可通过 fullscreen:false 禁用.
 
-默认 HTML 文件输入使用系统文档选择器. chooseFiles 的 acceptTypes 是 MIME/扩展名数组, multiple 控制多选, initialUri 是 Android 8+ 的可选初始目录提示. onShowFileChooser 可 await this.chooseFiles(event), 或返回已有读取授权的 content URI 数组/null. 仅接受其他提供器的可读 content URI, 不接受任意路径或本应用私有提供器. 新获得的持久读取授权在 View 释放时回收, 已有用户授权保留. 自定义回调提供的临时授权按 Android 生命周期生效. 默认支持 open/multiple, 不实现拍照, 保存文件和目录选择; captureEnabled 等信息仍传给自定义回调.
+默认 HTML 文件输入使用系统文档选择器. chooseFiles 的 acceptTypes 是 MIME/扩展名数组, multiple 控制多选, initialUri 是 Android 8+ 的可选初始目录提示. onShowFileChooser 可 await this.chooseFiles(event), 或返回已有读取授权的 content URI 数组/null. 仅接受其他提供器的可读 content URI, 不接受任意路径或本应用私有提供器. 新获得的持久读取授权在 View 释放时回收, 已有用户授权保留. 自定义回调提供的临时授权按 Android 生命周期生效. 宿主 5565 支持 open/multiple; 5566 扩展拍照, 保存和目录选择, 详见下一节. captureEnabled 等信息传给自定义回调.
 
-下载通知包括 url, userAgent, contentDisposition, mimeType, contentLength 和 Android 推断的 suggestedFileName. download 仅接受 HTTP(S), 文件保存到公共 Downloads; fileName 只能是文件名. 可配置 headers, mimeType, title, userAgent, includeCookies (默认 false). 任务在 View 关闭后保留, 通过 getDownload/readDownload/cancelDownload 管理. readDownload 的 offset 默认 0, length 为 1..32768. blob:/data: 下载尚无对应实现.
+下载通知包括 url, userAgent, contentDisposition, mimeType, contentLength 和 Android 推断的 suggestedFileName. HTTP(S) 默认下载由 DownloadManager 保存到公共 Downloads; fileName 只能是文件名. 可配置 headers, mimeType, title, userAgent, includeCookies (默认 false). 任务在 View 关闭后保留, 通过 getDownload/readDownload/cancelDownload 管理. readDownload 的 offset 默认 0, length 为 1..32768. 宿主 5566 扩展 blob:/data: 及所选文档来源和目标, 详见下一节.
 
 ```js
 let ui = require('ui'); // Bun 使用 host.ui.
@@ -742,22 +742,96 @@ let ui = require('ui'); // Bun 使用 host.ui.
 
 窗口/会话关闭会取消待处理的原生 UI 请求, View 释放还会回收文件授权. Worker 退出清理自己注册的客户端和任务, 不覆盖其他线程的新注册; 共享句柄仍只有一个事件队列读取者. 原始 Java View/Bitmap 返回值, 已废弃数据库/配额回调及任意 Java 子类不属于本契约. 原生语义可参阅 Android 的 [WebViewClient](https://developer.android.com/reference/android/webkit/WebViewClient) 和 [WebChromeClient](https://developer.android.com/reference/android/webkit/WebChromeClient).
 
+### WebView 拍照, 保存/目录选择与 blob/data 下载
+
+以下能力需要宿主 5566, Node.js Runtime 1.12.0 或 Bun Runtime 0.2.11, 包括 Node CJS/ESM/嵌套 Worker.
+
+#### view.chooseFiles(options?) 的扩展选项
+
+**`Async`**
+
+- **[ options.mode ]** { [string](dataTypes#string) | [number](dataTypes#number) } - open/0, multiple/1, directory/2, save/3. 未指定时根据 multiple 选择 open 或 multiple.
+- **[ options.captureEnabled = false ]** { [boolean](dataTypes#boolean) } - image 接受类型优先调用系统相机拍摄完整图片, 其他媒体仍使用文档选择器.
+- **[ options.fileName ]** { [string](dataTypes#string) } - 保存模式的建议文件名, 其次使用原生 filenameHint, 默认 download.
+- **[ options.writable ]** { [boolean](dataTypes#boolean) } - 目录默认请求读写权限, 可显式设为 false; 保存模式始终请求读写权限.
+- **[ options.permissionMode ]** { [number](dataTypes#number) } - Android 37+ 原生回调提供的 0 (读取) 或 1 (读写), 未显式指定 writable 时采用此值.
+- <ins>**returns**</ins> { [Promise](dataTypes#promise)<[string](dataTypes#string)[] | [null](dataTypes#null)> } - 所选文档/目录树 URI, 拍照 URI, 或取消结果.
+
+save 使用系统创建文档流程, 同名文件由提供器处理为新的文件, 不覆盖原文件. directory 返回一个目录树 URI. initialUri 只是初始位置提示, 系统或提供器可以忽略它; Android 对存储根目录, Download 根目录和 Android/data/obb 的限制仍适用. 网页是否发出原生保存/目录请求取决于 WebView 版本, 显式 chooseFiles 不依赖该网页能力.
+
+拍照使用系统相机和专用临时 JPEG 输出 URI, 不取缩略图. 如果应用已声明 CAMERA 权限却尚未获得授权, 会请求系统授权; 拒绝或取消返回 null. 拍照文件在所属 View 和使用它的下载任务释放后删除, 不自动发布到相册. 除此类登记过的拍照结果, 本应用其他私有提供器 URI 仍不接受. 自定义处理器可继续使用 `onShowFileChooser(e) { return this.chooseFiles(e); }`.
+
+#### view.readDocument(uri, offset?, length?)
+
+**`Async`**
+
+- **uri** { [string](dataTypes#string) } - 有效读取授权的 content URI, 或尚未释放的拍照结果.
+- **[ offset = 0 ]** { [number](dataTypes#number) } - 非负字节偏移.
+- **[ length = 32768 ]** { [number](dataTypes#number) } - 本次最多读取的字节数, 1..32768.
+- <ins>**returns**</ins> { [Promise](dataTypes#promise)<Uint8Array> } - 实际读取的字节. 继续读取时增加实际返回长度, 返回空数组表示文件结尾.
+
+#### view.download(options) 的扩展来源和目标
+
+**`Async`**
+
+- **options.url** { [string](dataTypes#string) } - HTTP(S), data:, 当前页面可读取的 blob:, 或有读取授权的 content: URI.
+- **[ options.destinationUri ]** { [string](dataTypes#string) } - 可写的空文档 URI, 通常来自 save 模式.
+- **[ options.directoryUri ]** { [string](dataTypes#string) } - 可写目录树 URI, 在其中用 fileName 创建子文档. 与 destinationUri 互斥.
+- **[ options.timeoutMs = 120000 ]** { [number](dataTypes#number) } - 页面/本地/SAF 传输的总时限, 100..2147483647 毫秒; 不改变 DownloadManager 的超时策略.
+- <ins>**returns**</ins> { [Promise](dataTypes#promise) } - 下载任务 {id, url, fileName}.
+
+任务 id 现在可能是 DownloadManager 的数字或以 web: 开头的不透明字符串. 将收到的 id 原样传给 getDownload/readDownload/cancelDownload, 不自行计算. 本地传输失败时状态额外包含 error, reason 保持数字; managed=false 表示已完成的所选 SAF 输出由用户保留.
+
+blob 由来源页面按最多 32 KiB 分块读取, 有背压, 不注入 Java 接口. 需要启用 JavaScript 并保留来源页面; 导航或关闭来源页面会取消未完成的 blob 读取. data URL 支持百分号编码的二进制内容和 base64, 字面加号不变为空格. 大型内联 data URL 仍受运行时请求大小限制, 大数据应使用页面 blob URL.
+
+传输先写入宿主临时文件, 完成后发布到公共 Downloads 或所选位置. destinationUri 已有内容时拒绝且保持原内容. 取消未完成任务会清理临时/不完整输出; 取消已完成的默认下载会删除其受管文件, 已完成的显式 SAF 文件则保留. 新持久读写授权按 View/传输引用回收, 既有授权保持不变. SAF 文件在 View 释放后的读取仍须拥有有效 Android 授权.
+
+HTTP(S) 默认目标继续使用 DownloadManager; 其他本地/页面/SAF 传输由宿主进程执行, 不支持进程终止后续传. 已完成文件不会因来源 View 关闭而删除. Worker 使用相同的参数, 任务标识和字节结果; Worker 退出会关闭其所属窗口, 从而取消依赖该页面的未完成 blob 读取.
+
+```js
+let ui = require('ui'); // Bun 使用 host.ui.
+(async () => {
+    let web = await ui.createView('WebView', { javaScriptEnabled: true });
+    let window = await ui.showLayout(web);
+    try {
+        let files = await web.chooseFiles({ mode: 'save', fileName: 'report.txt', acceptTypes: ['text/plain'] });
+        if (!files) return;
+        let job = await web.download({ url: 'data:text/plain;charset=UTF-8,' + encodeURIComponent('Hello'), destinationUri: files[0] });
+        while (true) {
+            let state = await web.getDownload(job.id);
+            if (state.status === 'failed') throw Error(state.error || state.reason);
+            if (state.status === 'successful') break;
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        console.log(new TextDecoder().decode(await web.readDocument(files[0])));
+        await web.cancelDownload(job.id); // 清理任务记录, 已保存的 SAF 文档保留.
+    } finally {
+        await window.close();
+        await web.dispose();
+    }
+})().catch(console.error);
+```
+
+参阅 Android [存储访问框架](https://developer.android.com/training/data-storage/shared/documents-files) 和 [FileChooserParams](https://developer.android.com/reference/android/webkit/WebChromeClient.FileChooserParams). 视频/音频录制捕获与任意文件系统路径不属于本批文件选择扩展.
+
 ### 打包项目
 
-Node.js/Bun 项目 APK 使用已安装的外部 Runtime 插件和 3-Block Compose 插件, 自己的应用版本号可以从 1 开始. runtimeVersionCode 表示内置宿主运行库版本, applicationVersionCode 表示应用声明版本. APK Builder 需要匹配的 Runtime Kit (本批为 6.8.0+5565).
+宿主 5566 起, Bun 项目可在 project.json 设置 bun.timeoutMs, 默认 60000 毫秒, 按现有运行时范围限制为 1..600000 毫秒. 显式执行参数 bun.timeoutMillis 优先于项目设置. 打包应用采用同一设置; 拍照/文件选择和下载的等待时限不会延长整个项目的执行预算.
+
+Node.js/Bun 项目 APK 使用已安装的外部 Runtime 插件和 3-Block Compose 插件, 自己的应用版本号可以从 1 开始. runtimeVersionCode 表示内置宿主运行库版本, applicationVersionCode 表示应用声明版本. APK Builder 需要匹配的 Runtime Kit (本批为 6.8.0+5566).
 
 Node 项目通过 node.permissions 声明 ui. Bun 项目使用 projectType=bun 或 bun 入口标记, 并在 project.json 明确声明 bun.hostCapabilities, 例如:
 
 WebView 网络加载和下载还需要打包项目的 Android INTERNET 权限. 在项目的 permissions 数组中保留 android.permission.INTERNET; Runtime 插件自身的联网权限不能替代打包应用的权限. HTTPS/明文流量仍遵循应用的 Android 网络安全配置.
 
-Node 项目的执行总预算与 WebView 回调超时相互独立. 需要等待用户选择文件或操作界面时, 在 node 配置中显式设置足够的 timeoutMs, 例如 `"node": {"permissions": ["ui"], "timeoutMs": 120000}`. 默认项目预算可能先于 WebView 的等待期限耗尽; evaluateJavascript 的 timeoutMs 不会延长整个项目的执行预算.
+Node.js/Bun 项目的执行总预算与 WebView 回调超时相互独立. 需要等待用户选择文件或操作界面时, 在 node 配置中显式设置足够的 timeoutMs, 例如 `"node": {"permissions": ["ui"], "timeoutMs": 120000}`. 默认项目预算可能先于 WebView 的等待期限耗尽; evaluateJavascript 的 timeoutMs 不会延长整个项目的执行预算.
 
 ```json
 {
   "projectType": "bun",
   "main": "main.bun.js",
   "permissions": ["android.permission.INTERNET"],
-  "bun": { "hostCapabilities": ["ui.layout", "ui.compose"] }
+  "bun": { "hostCapabilities": ["ui.layout", "ui.compose"], "timeoutMs": 180000 }
 }
 ```
 
