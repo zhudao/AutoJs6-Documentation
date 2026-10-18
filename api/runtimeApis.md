@@ -527,7 +527,7 @@ Worker 退出只关闭它创建的窗口和附着会话; 已传回的 View 属�
 | checkedtext | CheckedTextView | text, checked |
 | numberpicker | NumberPicker | min, max, value, wrapSelectorWheel, displayedValues |
 
-这些标签及原生类名可用于 ui.inflate 的 XML/JSON 描述和 ui.createView. img 对应 ImageView, linear 对应线性布局. 原有 vertical/horizontal/frame/compose/text/button/input/image/scroll/list/switch/checkbox/progressbar 等标签继续可用. 相对布局规则只引用同一父容器中具有唯一 id 的兄弟组件, 同时接受 layout_below 等 layout_ 前缀. XML id 不可重复. 子项的宽高, 间距与 weight 会保留; weight 要求线性布局父容器, layoutGravity 要求线性/Frame 父容器.
+这些标签及原生类名可用于 ui.inflate 的 XML/JSON 描述和 ui.createView. img 对应 ImageView, linear 对应线性布局. 原有 vertical/horizontal/frame/compose/text/button/input/image/scroll/list/switch/checkbox/progressbar 等标签继续可用. 相对布局规则只引用同一父容器中具有唯一 id 的兄弟组件, 同时接受 layout_below 等 layout_ 前缀. XML id 不可重复. 子项的宽高, 间距与 weight 会保留; weight 要求线性布局父容器, layoutGravity 要求线性/Frame/Drawer/Toolbar 父容器.
 
 View 句柄现在支持直接属性赋值, 读取返回 Promise:
 
@@ -569,11 +569,94 @@ ImageView.src 支持本次执行的图像句柄, @drawable/name, @android:drawab
 
 Spinner 通过 select 事件报告 selectedIndex/text. SeekBar 的 change 事件包含 progress/value/fromUser, 另有 startTracking/stopTracking. RatingBar 的 change 包含 rating/value/fromUser. RadioGroup 通过 change 报告 checkedId; ToggleButton/CheckedTextView 使用 checked/value; NumberPicker 使用 value/oldValue. Spinner 的初始化及程序设置也可能产生选择事件. ToggleButton 保留脚本提供文字的大小写.
 
-Ace 默认运行时模式下会提示属性的 Promise 读取类型, 以及 ui.inflate 的普通 XML 字符串和无插值模板字符串中的标签/属性名. 其他对象的同名 inflate 方法不启用该提示. 这些扩展仍使用显式组件和属性目录, 任意 Java 反射, WebView, Drawer/Toolbar/ViewPager 等更大原生模块及完整 Rhino XML 表达式绑定仍需后续实现.
+Ace 默认运行时模式下会提示属性的 Promise 读取类型, 以及 ui.inflate 的普通 XML 字符串和无插值模板字符串中的标签/属性名. 其他对象的同名 inflate 方法不启用该提示. 这些扩展仍使用显式组件和属性目录, 任意 Java 反射及完整 Rhino XML 表达式绑定仍需后续实现.
+
+### WebView, Drawer, Toolbar 与 ViewPager
+
+本节需要宿主构建 5564, Node.js Runtime 1.10.0/Bun Runtime 0.2.9 及配套客户端. Node.js 主线程与 CJS/ESM/嵌套 Worker 使用同一 View 句柄方法, Bun 使用 host.ui, 需要 ui.layout. 所有方法返回 Promise, 与同一包装对象的属性赋值按调用顺序提交.
+
+| XML 标签 / JSON 类型 | 属性与操作 |
+| --- | --- |
+| webview / WebView | url, html, javaScriptEnabled, domStorageEnabled; loadUrl/loadHtml, evaluateJavascript, goBack/goForward, reload/stopLoading |
+| drawer / Drawer / DrawerLayout | drawerLockMode; openDrawer/closeDrawer; 子项使用 layout_gravity="start" 或 "end" |
+| toolbar / Toolbar | title, subtitle, navigationIcon, navigationContentDescription, menu; showOverflowMenu/hideOverflowMenu |
+| viewpager / ViewPager | currentItem, offscreenPageLimit; setCurrentItem |
+
+这批增加 12 个可写属性, 合计 58 个. canGoBack/canGoForward, drawerOpenStart/drawerOpenEnd 和 pageCount 是新增的只读 Promise 属性. title 对 Toolbar 可写, 对 WebView 只读; progress 对 WebView 只读, 不改变原有 ProgressBar/SeekBar 的可写契约. 不支持的组件/操作组合会拒绝 Promise.
+
+#### view.loadUrl(url)
+
+**`Async`**
+
+- **url** { [string](dataTypes#string) } - 交给 Android WebView 加载的地址.
+- <ins>**returns**</ins> { [Promise](dataTypes#promise) } - 加载请求已提交.
+
+完成页面加载应监听 pageFinished, 不能把本方法的完成当作页面加载完成. WebView 的网络, 明文 HTTP, 文件和内容访问由当前应用的 Android 权限, 网络安全配置及系统 WebView 决定. 不添加 Java 对象桥, 不自动批准网页摄像头/麦克风权限或绕过证书检查. 下载, 文件选择和自定义同步 WebViewClient/WebChromeClient 回调不属于本批接口.
+
+#### view.loadHtml(html, baseUrl?)
+
+**`Async`**
+
+- **html** { [string](dataTypes#string) } - HTML 文本, MIME 为 text/html, 编码为 UTF-8.
+- **[ baseUrl = null ]** { [string](dataTypes#string) | [null](dataTypes#null) } - 相对资源的基准地址.
+- <ins>**returns**</ins> { [Promise](dataTypes#promise) } - 加载请求已提交.
+
+html 属性赋值等同于不指定 baseUrl 的加载. url 与 html 不能在同一次 set 中同时出现. html 读取最后提交的 HTML 文本, 不读取当前 DOM; 页面导航后可为 null. url/title 读取当前 WebView 状态, 页面未准备好时可为 null.
+
+#### view.evaluateJavascript(source)
+
+**`Async`**
+
+- **source** { [string](dataTypes#string) } - 在当前页面执行的 JavaScript.
+- <ins>**returns**</ins> { [Promise](dataTypes#promise) } - WebView 返回值解码后的 JSON 值.
+
+javaScriptEnabled 默认 false, 需先显式赋值 true. domStorageEnabled 默认 false. 返回对象/数组/字符串等 JSON 值, 不返回包着 JSON 的字符串. 页面异常和不可序列化值遵循系统 WebView 的返回语义, 此接口不把网页 Promise 自动转换为宿主 Promise. 原生回调超过 10 秒或 View 已销毁时拒绝. goBack/goForward/reload/stopLoading 无参数, 返回 Promise; 无可用历史时遵循 WebView 行为.
+
+WebView 事件包括 pageStarted/pageFinished (url), titleChanged (title), progressChanged (progress), webError (message, 可含 url/mainFrame/errorCode/didCrash) 和 httpError (url/mainFrame/statusCode). 根 View 释放或执行结束会停止并销毁所有 WebView, 包括 ViewPager 中未显示的页面; 渲染进程退出时报告 webError 并释放该 View.
+
+#### view.openDrawer(side?, animate?) / view.closeDrawer(side?, animate?)
+
+**`Async`**
+
+- **[ side = 'start' ]** { [string](dataTypes#string) } - start 或 end, 遵循布局方向.
+- **[ animate = true ]** { [boolean](dataTypes#boolean) } - 是否播放开合动画.
+- <ins>**returns**</ins> { [Promise](dataTypes#promise) } - 开合请求已提交.
+
+Drawer 要求恰好一个不带侧栏 gravity 的内容子项, 两侧各至多一个侧栏子项. drawerLockMode 为 unlocked/lockedClosed/lockedOpen, 默认 unlocked. drawerOpenStart/drawerOpenEnd 读取原生开合状态. drawerOpened/drawerClosed 事件含 drawerId/side, drawerSlide 另含 offset, drawerStateChanged 含原生 state (0 空闲, 1 拖动, 2 动画中).
+
+#### Toolbar 菜单与导航
+
+navigationIcon 接受 @drawable/name, @android:drawable/name 或 null. menu 是数组, 每项必须有唯一非空 id 与 title; 可含 icon, enabled/visible (默认 true) 和 showAsAction (never/ifRoom/always, 默认 never). 赋值会替换原菜单. navigationClick 表示导航图标点击, menuClick 包含 itemId/title. showOverflowMenu()/hideOverflowMenu() 返回 Promise<boolean>, 由 Android 报告是否接受操作; 菜单需要已附着的可见 Toolbar. Toolbar 也接受普通子 View, layoutGravity 决定位置. 它不会自动成为 Activity 的 ActionBar.
+
+#### view.setCurrentItem(index, smoothScroll?)
+
+**`Async`**
+
+- **index** { [number](dataTypes#number) } - 从 0 开始的页面索引, 必须小于 pageCount.
+- **[ smoothScroll = true ]** { [boolean](dataTypes#boolean) } - 是否平滑滚动.
+- <ins>**returns**</ins> { [Promise](dataTypes#promise) } - 切换请求已提交.
+
+ViewPager 的直接子项组成固定页面集合, 页面填满容器. currentItem 赋值使用无动画切换, offscreenPageLimit 默认为 1, 可设为 1..128. findView 可查找未显示页面及其后代; set 不动态替换页面集合. pageSelected 包含 position/pageId, pageScrolled 包含 position/offset/offsetPixels, pageScrollStateChanged 包含 state. 通过 ui.showLayout(XML/handle) 显示的受管窗口在旋转时保留页面, WebView DOM 和事件路由.
+
+```js
+let ui = require('ui'); // Bun 改为 host.ui.
+(async () => {
+    let root = await ui.inflate('<vertical><toolbar id="bar" title="Pages"/><viewpager id="pages" h="180"><text text="One"/><webview id="web" javaScriptEnabled="true"/></viewpager></vertical>');
+    let window = await ui.showLayout(root);
+    let bar = await root.findView('bar'), pages = await root.findView('pages'), web = await root.findView('web');
+    bar.menu = [{ id: 'next', title: 'Next', showAsAction: 'always' }];
+    bar.on('menuClick', () => pages.setCurrentItem(1).catch(console.error));
+    web.on('pageFinished', () => web.evaluateJavascript('document.title').then(console.log).catch(console.error));
+    await web.loadHtml('<title>Portable WebView</title><p>Hello</p>');
+    // 完成后依次 await window.close(), root.dispose().
+})().catch(console.error);
+```
+
+Ace 同步提供上述方法, 属性, XML 标签与属性名提示. 这些组件不要求 JSOX 原型扩展.
 
 ### 打包项目
 
-Node.js/Bun 项目 APK 使用已安装的外部 Runtime 插件和 3-Block Compose 插件, 自己的应用版本号可以从 1 开始. runtimeVersionCode 表示内置宿主运行库版本, applicationVersionCode 表示应用声明版本. APK Builder 需要匹配的 Runtime Kit (本批为 6.8.0+5563).
+Node.js/Bun 项目 APK 使用已安装的外部 Runtime 插件和 3-Block Compose 插件, 自己的应用版本号可以从 1 开始. runtimeVersionCode 表示内置宿主运行库版本, applicationVersionCode 表示应用声明版本. APK Builder 需要匹配的 Runtime Kit (本批为 6.8.0+5564).
 
 Node 项目通过 node.permissions 声明 ui. Bun 项目使用 projectType=bun 或 bun 入口标记, 并在 project.json 明确声明 bun.hostCapabilities, 例如:
 
