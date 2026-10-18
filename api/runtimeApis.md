@@ -464,11 +464,11 @@ let window = await compose.mount(() => compose.Column({ padding: 16 },
 
 事件使用一个数据对象, 例如 `onValueChange(event)` 中的 `event.text`, `event.selectionStart`, `event.selectionEnd`, `event.editSeq`, `event.value`, 或 `onCheckedChange(event)` 中的 `event.checked`, 具体字段由组件决定. 回调中的 this 为对应组件. 跨渲染期间仍然有效的节点事件路由到当前已接受树的处理器. 文本框状态更新使用带原生编辑序号的编辑命令, 不直接覆盖原生输入缓冲区.
 
-会话提供 `root`, `isClosed`, `update(callback)`, `post`, `on/off`, `render(root)`, `flush`, `setTheme` 和 `close`. `render`, `flush`, `setTheme`, `close` 返回 Promise; `flush` 等待当前排队的状态更新被宿主接受. `ref.current` 在帧接受后设置, 移除节点或关闭窗口时清空. 组件提供 `get/set`, `append/insert/remove/replace/clear/slot`, `on/off` 和异步 `focus/blur/scrollTo/edit`. 读写组件属性使用 get/set; 原生对象的属性代理不属于此契约.
+会话提供 `root`, `isClosed`, `update(callback)`, `post`, `on/off`, `render(root)`, `flush`, `setTheme` 和 `close`. `render`, `flush`, `setTheme`, `close` 返回 Promise; `flush` 等待当前排队的状态更新被宿主接受. `ref.current` 在帧接受后设置, 移除节点或关闭窗口时清空. 组件提供 `get/set`, `append/insert/remove/replace/clear/slot`, `on/off` 和异步 `focus/blur/scrollTo/edit`. 读写 Compose 数据组件属性使用 get/set; 下文另列原生 View 句柄的异步属性代理.
 
 会话 `showSnackbar(message, options?)` 返回 Promise, 要求树中有使用默认 snackbarHost 的 Scaffold. options 支持 actionLabel, duration (short/long/indefinite), onAction 和 onDismiss, 每条消息至多触发一次终态回调. 悬浮会话还提供异步 `setPosition`, `setSize`, `getX/getY/getWidth/getHeight`, `requestFocus`, `disableFocus`, `setTouchable`; `session` 指向同一会话. 窗口旋转重建会保留组件状态, 已输入文本及事件路由.
 
-该覆盖是可传输数据 API. Java View/Context 对象, 任意 Java 类构造器, 原生对象属性代理和原生悬浮窗调整框仍未纳入, 不应按同名模块推断这些入口可用. 未定义入口不会被模拟为成功. Node/Bun 仍不注入 Rhino 全局 `ui` / `compose`.
+该覆盖是可传输数据 API. Java View/Context 对象, 任意 Java 类构造器, 任意 Java 属性反射和原生悬浮窗调整框仍未纳入, 不应按同名模块推断这些入口可用. 未定义入口不会被模拟为成功. Node/Bun 仍不注入 Rhino 全局 `ui` / `compose`.
 
 窗口及回调属于创建它们的执行. Worker 终止时关闭该 Worker 创建的窗口, 包括终止后才返回的创建结果, 主线程的其他窗口继续使用. 脚本结束关闭全部所属窗口. Bun 仍遵守 64 KiB 请求, 256 KiB 返回, 4 个并发请求和每次执行 1024 次调用的桥接限制; UI 事件读取也计入调用次数. 长时间界面脚本应观察失败事件并显式关闭, 不能把此次 API 扩展理解为取消现有运行时配额.
 
@@ -508,9 +508,72 @@ View 属于本次脚本执行, 可在 Node 主线程及 Worker 间传递标识, 
 
 Worker 退出只关闭它创建的窗口和附着会话; 已传回的 View 属于整个执行, 仍可由主线程使用和释放. 未交付的异步 View 创建结果会在 Worker 退出后释放. ui.showLayout(XML) 创建的根由窗口管理; ui.showLayout(handle) 借用已有根, 关闭窗口后由调用方 dispose. 整次脚本结束释放全部 View.
 
+### 常用 XML 组件与 View 属性代理
+
+本节对应宿主构建 5563, Node.js Runtime 1.9.0/Bun Runtime 0.2.8 及配套客户端. Node.js 主线程与 CJS/ESM/嵌套 Worker 使用同一接口; Bun 通过 host.ui 调用, 仍需 ui.layout 授权. Compose 混合布局另需 ui.compose.
+
+| XML 标签 | 原生组件 | 常用属性 |
+| --- | --- | --- |
+| hscroll | HorizontalScrollView | width, height, padding |
+| space | Space | width, height |
+| relative | RelativeLayout | 子项的 below/above, toLeftOf/toRightOf/toStartOf/toEndOf, alignTop/alignBottom/alignStart/alignEnd 和 alignParent/center 规则 |
+| card | CardView | cardCornerRadius, cardElevation, backgroundColor |
+| spinner | Spinner | entries/items, selectedIndex |
+| seekbar | SeekBar | min, max, progress |
+| ratingbar | RatingBar | numStars, stepSize, rating, isIndicator |
+| radiogroup | RadioGroup | orientation, checkedId/checkedButton |
+| radio | RadioButton | text, checked |
+| toggle | ToggleButton | checked, textOn, textOff |
+| checkedtext | CheckedTextView | text, checked |
+| numberpicker | NumberPicker | min, max, value, wrapSelectorWheel, displayedValues |
+
+这些标签及原生类名可用于 ui.inflate 的 XML/JSON 描述和 ui.createView. img 对应 ImageView, linear 对应线性布局. 原有 vertical/horizontal/frame/compose/text/button/input/image/scroll/list/switch/checkbox/progressbar 等标签继续可用. 相对布局规则只引用同一父容器中具有唯一 id 的兄弟组件, 同时接受 layout_below 等 layout_ 前缀. XML id 不可重复. 子项的宽高, 间距与 weight 会保留; weight 要求线性布局父容器, layoutGravity 要求线性/Frame 父容器.
+
+View 句柄现在支持直接属性赋值, 读取返回 Promise:
+
+```js
+// 位于 async 函数中; Node.js 使用 let ui = require('ui'), Bun 使用 let ui = host.ui.
+let root = await ui.inflate('<vertical><spinner id="choice" entries="One|Two"/><seekbar id="level" max="100"/><text id="label" text="Ready"/></vertical>');
+let window = await ui.showLayout(root);
+let choice = await root.findView('choice');
+let label = await root.findView('label');
+choice.items = ['Alpha', 'Beta', 'Gamma'];
+choice.selectedIndex = 2;
+label.text = 'Queued';
+label.text = 'Ready';
+await choice.flush();
+console.log(await choice.selectedIndex); // 2.
+console.log(await label.text); // Ready, 等待此前该句柄的赋值完成.
+// 完成后依次 await window.close(), root.dispose().
+```
+
+属性代理覆盖 46 个可写名称:
+
+| 类别 | 属性 |
+| --- | --- |
+| 通用状态 | enabled, visible, visibility, alpha, contentDescription, clickable, focusable, backgroundColor |
+| 布局 | width, height, padding, margin, gravity, layoutGravity, weight, orientation |
+| 文本与输入 | text, hint, textSize, textColor, textStyle, singleLine, maxLines, inputType |
+| 选择与数值 | checked, min, max, progress, indeterminate, rating, numStars, stepSize, isIndicator, items, selectedIndex, checkedId, textOn, textOff, value, wrapSelectorWheel, displayedValues |
+| 卡片与图像 | cardCornerRadius, cardElevation, src, scaleType, adjustViewBounds |
+
+另外提供 attached, layoutWidth, layoutHeight, drawableWidth, drawableHeight, xmlId 六个只读 Promise 属性. 原有 id/type/context 是同步句柄元数据; id 是执行所属句柄标识, xmlId 是 XML 中声明的 id. 属性是否适用取决于原生组件, 例如 text 属于文本控件, checked 属于 Checkable 控件, selectedIndex 属于 Spinner/ListView. 在不支持的组件上读写会拒绝, 不会模拟成功. get()/get(name)/set(patch) 继续可用, set 拒绝未知属性及身份/子树修改.
+
+赋值依 JavaScript 线程内该句柄的顺序提交. 对象与数组在赋值时复制. `await view.flush()` 或下一次 await 属性读取会等待此前写入, 并抛出待报告的原生赋值错误; 报告后仍可继续修正属性. set(patch) 本身返回 Promise, 直接 await 即可接收错误. 非 JSON 值会同步拒绝. dispose 会先等待已排队写入, 即使某次赋值失败也会尝试释放原生根, 然后报告错误. flush 表示属性已提交, 不等于 Android 已完成下一次布局/绘制. 多个 Worker 同时操作同一个句柄时, 需要由调用方协调顺序和事件读取.
+
+width/height/padding/margin/cardCornerRadius/cardElevation 的数字或 dp 字符串按 dp 写入, px 后缀表示物理像素; width/height 支持 match_parent/-1 和 wrap_content/-2. 几何, 间距及卡片尺寸的读取值是物理像素. textSize 按 sp 写入和读取, 写入也可指定 px. padding/margin 支持 1 项, 2 项 (水平/垂直) 或 4 项 (左/上/右/下). visibility 取 visible/invisible/gone; visible=false 等价于 gone. 颜色写入接受 Android 颜色字符串或 ARGB 数字, 读取返回 ARGB 整数; 非纯色背景可返回 null. textStyle 取 normal/bold/italic/bold|italic. inputType 支持原生整数及 text/textPassword/number/numberDecimal/phone/textEmailAddress. scaleType 接受 fitCenter/centerCrop 等 ImageView 缩放名称或原生大写名称.
+
+entries 字符串使用 `|` 分隔; items 也可使用数组. selectedIndex 从 0 开始, 无选择时原生读取可能为 -1. ProgressBar/SeekBar 的 min 写入要求 Android API 26 及以上. NumberPicker 的 displayedValues 为 null 或长度等于 max-min+1 的字符串数组. 原生 widget 约束仍决定最终显示状态. 数值必须有限, alpha 为 0..1, numStars 为 1..100, stepSize 为 0.01..100, textSize 为 0..1000, maxLines 为 1..10000, 布局尺寸不超过 1000000, items 不超过 1024 项; 仍受桥接字节预算限制. 不合法的属性值在变更前校验.
+
+ImageView.src 支持本次执行的图像句柄, @drawable/name, @android:drawable/name 或 null. 图像句柄使用独立像素副本, 原图释放后 View 仍可显示. 此入口不隐式打开宿主文件或 URL. 资源名称不存在及非图像句柄对象会被拒绝.
+
+Spinner 通过 select 事件报告 selectedIndex/text. SeekBar 的 change 事件包含 progress/value/fromUser, 另有 startTracking/stopTracking. RatingBar 的 change 包含 rating/value/fromUser. RadioGroup 通过 change 报告 checkedId; ToggleButton/CheckedTextView 使用 checked/value; NumberPicker 使用 value/oldValue. Spinner 的初始化及程序设置也可能产生选择事件. ToggleButton 保留脚本提供文字的大小写.
+
+Ace 默认运行时模式下会提示属性的 Promise 读取类型, 以及 ui.inflate 的普通 XML 字符串和无插值模板字符串中的标签/属性名. 其他对象的同名 inflate 方法不启用该提示. 这些扩展仍使用显式组件和属性目录, 任意 Java 反射, WebView, Drawer/Toolbar/ViewPager 等更大原生模块及完整 Rhino XML 表达式绑定仍需后续实现.
+
 ### 打包项目
 
-Node.js/Bun 项目 APK 使用已安装的外部 Runtime 插件和 3-Block Compose 插件, 自己的应用版本号可以从 1 开始. runtimeVersionCode 表示内置宿主运行库版本, applicationVersionCode 表示应用声明版本. APK Builder 需要匹配的 Runtime Kit (本批为 6.8.0+5562).
+Node.js/Bun 项目 APK 使用已安装的外部 Runtime 插件和 3-Block Compose 插件, 自己的应用版本号可以从 1 开始. runtimeVersionCode 表示内置宿主运行库版本, applicationVersionCode 表示应用声明版本. APK Builder 需要匹配的 Runtime Kit (本批为 6.8.0+5563).
 
 Node 项目通过 node.permissions 声明 ui. Bun 项目使用 projectType=bun 或 bun 入口标记, 并在 project.json 明确声明 bun.hostCapabilities, 例如:
 

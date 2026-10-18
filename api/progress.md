@@ -278,3 +278,5 @@
 - 2026-10-18: runtimeApis 补充 Node.js/Bun/Worker 的 UI 与 Compose 数据 API, 异步返回, 回调, 生命周期, 独立授权及原生互操作边界.
 
 - 2026-10-18: runtimeApis 补充 Node.js/Bun/Worker 的 View 句柄, AndroidView 工厂, XML compose attach, 所有权和打包项目能力声明.
+
+- 2026-10-18: runtimeApis 补充 12 个常用原生 XML 组件, 46 个可写属性代理与六个只读属性, 包括 Worker/打包应用的异步顺序, 验证和 Ace XML 提示.
