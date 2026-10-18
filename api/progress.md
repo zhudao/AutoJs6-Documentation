@@ -1,5 +1,7 @@
 # 文档部署进度 (Progress)
 
+2026-10-18 WebView 流式媒体: 等待网页 Promise, 显式请求 Android 摄像头/麦克风权限, 录制分片读取及 Worker 生命周期说明已同步.
+
 2026-10-18 WebView 媒体捕获: Node.js/Bun/Worker 支持系统视频拍摄和前台 AAC/M4A 录音, 可选时长/大小/等待时限, 并同步原生授权, 取消及临时文件生命周期说明.
 
 2026-10-18 WebView 文件能力: Node.js/Bun/Worker 增加完整照片捕获, SAF 保存和目录选择, 文档字节读取, blob/data 下载及所选目标输出. 运行条件, 授权生命周期和任务标识说明已同步.

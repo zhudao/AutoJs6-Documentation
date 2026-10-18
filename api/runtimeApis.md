@@ -614,6 +614,23 @@ javaScriptEnabled 默认 false, 需先显式赋值 true. domStorageEnabled 默�
 
 WebView 事件包括 pageStarted/pageFinished (url), titleChanged (title), progressChanged (progress), webError (message, 可含 url/mainFrame/errorCode/didCrash) 和 httpError (url/mainFrame/statusCode). 根 View 释放或执行结束会停止并销毁所有 WebView, 包括 ViewPager 中未显示的页面; 渲染进程退出时报告 webError 并释放该 View.
 
+#### view.evaluateJavascriptAsync(source, options?)
+
+**`Async`**
+
+- **source** { [string](dataTypes#string) } - 在当前页面求值的表达式, 可返回 Promise.
+- **[ options ]** { [Object](dataTypes#object) } - timeoutMs 默认 30000 毫秒, 范围 100..2147483647.
+- <ins>**returns**</ins> { [Promise](dataTypes#promise) } - 等待表达式及其 Promise 完成后的 JSON 值, undefined 转为 null.
+
+需要 AutoJs6 build 5568, Node.js Runtime 1.14.0 或 Bun Runtime 0.2.13, 并启用 javaScriptEnabled. Node.js 主线程, CJS/ESM/嵌套 Worker 和 Bun 使用相同接口. 页面异常保留错误名称和信息; BigInt/循环引用等 JSON 序列化错误也会拒绝. DOM 对象, MediaStream 和 MediaRecorder 留在网页中, 只传递 JSON 数据或 blob URL.
+
+等待页面结果不会阻塞 UI 命令队列, 因而权限回调, 暂停/停止录制和其他求值可以并行进行. 导航, 销毁 View, Worker 退出或超时会结束对应等待并清理结果槽. 普通 Promise 不具备通用取消能力: 超时不会撤销页面已执行的副作用, 应在 finally 中停止 MediaStreamTrack/MediaRecorder, 或销毁属于当前执行的 WebView. Worker 在借用其他线程的 View 时也应显式管理网页资源的生命周期. 关闭承载已获媒体授权网页的窗口时, WebView 导航到 about:blank 以释放摄像头/麦克风; 句柄仍可复用, 再次显示时需重新加载页面. Worker 退出关闭其窗口时也执行这一清理, 不关闭其他线程的窗口.
+
+```js
+let value = await web.evaluateJavascriptAsync('Promise.resolve({ answer: 42 })');
+console.log(value.answer);
+```
+
 #### view.openDrawer(side?, animate?) / view.closeDrawer(side?, animate?)
 
 **`Async`**
@@ -702,7 +719,7 @@ WebViewClient 回调如下. 通知回调无需返回值; 请求回调可直接�
 | onConsoleMessage | 通知 message/sourceId/lineNumber/level |
 | onJsAlert, onJsConfirm, onJsBeforeUnload | 接收 url/title/message/defaultValue, 返回 boolean/null |
 | onJsPrompt | 接收同上, 返回 string/null |
-| onPermissionRequest | 接收 origin/resources, 返回允许的资源数组/null |
+| onPermissionRequest | 接收 origin/resources, 返回允许的资源数组, `{ resources, requestAndroidPermissions? }` 或 null; 仅对象的显式选项会申请缺少的 Android 媒体权限 |
 | onPermissionRequestCanceled | 通知已取消的 origin/resources |
 | onGeolocationPermissionsShowPrompt | 接收 origin, 返回 boolean/{allow,retain?}/null |
 | onGeolocationPermissionsHidePrompt | 通知定位请求已隐藏 |
@@ -899,3 +916,92 @@ Node.js/Bun 项目的执行总预算与 WebView 回调超时相互独立. 需要
 Ace 在默认设置下根据脚本标记, 文件名和项目类型加载独立声明. Node 的 `require` / ESM 导入以及 Bun 示例中的 JSDoc / TypeScript 类型注解可获得成员提示. Node/Bun 不再混入 Rhino 的 `selector`, `ui.layout` 或 Java 全局; 已启用的 Android 声明选项也不会改变该边界.
 
 Rhino 的 `jsox.extendAll()` 可按既有规则启用原型扩展提示. Node 使用 `require('jsox.mathx')` 等模块成员, 向显式目标安装扩展不等于修改全局 `Math` / `Array` / `Number`. Bun 客户端没有 JSOX 扩展入口.
+
+### WebView getUserMedia / MediaRecorder 流式音视频
+
+这组能力运行在系统 WebView 网页内. Node.js/Bun/Worker 通过 `evaluateJavascriptAsync` 控制网页的原生 `navigator.mediaDevices.getUserMedia` 和 `MediaRecorder`, 并通过已有的 `download` / `readDownload` 接收录制分片或最终文件. Node.js/Bun 全局没有因此增加 DOM 或 MediaRecorder 构造器.
+
+前提是网页处于安全上下文 (可信 HTTPS 或本机 loopback), javaScriptEnabled 已启用, 系统 WebView 支持相应接口/编解码器, 宿主应用或打包应用已声明 CAMERA/RECORD_AUDIO. 打包应用需在项目权限中显式选择这两项. Chromium 麦克风采集还需要 MODIFY_AUDIO_SETTINGS 普通权限; APK Builder 1.2.6 起在选择 RECORD_AUDIO 时自动保留此配套权限, 使用其他打包器时需自行声明. 仅麦克风流不需要 CAMERA. MODIFY_AUDIO_SETTINGS 不替代 RECORD_AUDIO 的系统授权. Web 权限与 Android 权限分别裁决; 不安装信任证书, 不绕过 TLS 错误或安全上下文检查.
+
+`onPermissionRequest` 返回数组时沿用只使用已有 Android 权限的行为. 返回 `{ resources, requestAndroidPermissions: true }` 时, 会为所选音频/视频资源申请缺少的 Android 权限. resources 必须是本次请求的子集; 请先核对 origin, 再明确选择需要的资源. 空数组/null, 未注册回调, 系统拒绝或清单缺少权限均不能取得流. 系统授权默认等待 120000 毫秒, 可通过 Chrome client 的 callbackTimeoutMs 调整; 导航, View 释放和客户端替换会取消尚未完成的授权. 已取得的流需调用 track.stop() 结束, 更换回调不撤回已经授予网页的权限.
+
+下例假设 web 已加载自己的可信网页并收到 pageFinished. Node.js 使用 `require('ui')`, Bun 使用 `host.ui`; Worker 使用同一 ui 接口. `trustedOrigin` 必须来自脚本的可信配置, 不能无条件接受任意网页报告的 origin.
+
+```js
+let trustedOrigin = 'https://your-media-site.example';
+await web.setWebChromeClient({
+    onPermissionRequest(event) {
+        if (new URL(event.origin).origin !== trustedOrigin) return null;
+        return {
+            resources: event.resources.filter(resource =>
+                resource === 'android.webkit.resource.AUDIO_CAPTURE' ||
+                resource === 'android.webkit.resource.VIDEO_CAPTURE'),
+            requestAndroidPermissions: true,
+        };
+    },
+}, { callbackTimeoutMs: 120000 });
+
+try {
+    await web.evaluateJavascriptAsync(`(async () => {
+        if (!isSecureContext || !navigator.mediaDevices || !window.MediaRecorder) {
+            throw new Error('Web media is unavailable');
+        }
+        window.stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+        window.parts = [];
+        window.recorder = new MediaRecorder(stream);
+        recorder.ondataavailable = event => { if (event.data.size) parts.push(event.data); };
+        window.stopped = new Promise((resolve, reject) => {
+            recorder.onstop = resolve;
+            recorder.onerror = event => reject(event.error);
+        });
+        recorder.start(1000);
+        return true;
+    })()`, { timeoutMs: 120000 });
+
+    // 录制过程中取得一个分片, 可循环读取更多分片.
+    let part = await web.evaluateJavascriptAsync(`new Promise(resolve => {
+        let timer = setInterval(() => {
+            if (parts.length) {
+                clearInterval(timer);
+                resolve({ url: URL.createObjectURL(parts[0]), size: parts[0].size });
+            }
+        }, 50);
+    })`);
+    let job = await web.download({ url: part.url, fileName: 'part.webm' });
+    try {
+        while (true) {
+            let status = await web.getDownload(job.id);
+            if (status.status === 'successful') break;
+            if (status.status === 'failed') throw new Error(status.error || String(status.reason));
+            await new Promise(resolve => setTimeout(resolve, 50));
+        }
+        let bytes = await web.readDownload(job.id, 0, 32768);
+        console.log(bytes.length); // Uint8Array; 大分片按 offset 继续读取.
+    } finally {
+        await web.cancelDownload(job.id);
+        await web.evaluateJavascript('URL.revokeObjectURL(' + JSON.stringify(part.url) + ')');
+    }
+
+    await web.evaluateJavascriptAsync('new Promise(r => { recorder.onpause = () => r(true); recorder.pause(); })');
+    await web.evaluateJavascriptAsync('new Promise(r => { recorder.onresume = () => r(true); recorder.resume(); })');
+    let recorded = await web.evaluateJavascriptAsync(`(async () => {
+        recorder.requestData();
+        recorder.stop();
+        await stopped;
+        stream.getTracks().forEach(track => track.stop());
+        let blob = new Blob(parts, { type: recorder.mimeType });
+        return { url: URL.createObjectURL(blob), size: blob.size, mimeType: blob.type };
+    })()`);
+    // 使用 download({url: recorded.url, destinationUri}) 输出到已获授权的保存位置.
+    console.log(recorded);
+} finally {
+    await web.evaluateJavascript(`
+        if (window.stream) stream.getTracks().forEach(track => track.stop());
+        if (window.recorder && recorder.state !== 'inactive') recorder.stop();
+    `).catch(() => {});
+}
+```
+
+`timeslice` 是目标分片间隔, 不是精确计时保证. `requestData()` 产生分片, `pause()`/`resume()` 控制录制, 最终 `stop` 事件发生在最后的 dataavailable 之后. 多个分片可能只有合并后才能独立播放, 应按产生顺序拼接并保留实际 mimeType; 扩展名应匹配该类型, 不应假设系统一定输出 MP4. 需要固定格式时先使用 `MediaRecorder.isTypeSupported()` 检查, 再传入 mimeType. 这些行为由 [MediaStream Recording 标准](https://www.w3.org/TR/mediastream-recording/) 和设备 WebView 实现决定.
+
+持续录制应及时读取/上传分片并释放不再需要的 Blob 引用和 object URL. 示例为便于最终合并而保留 parts, 会随录制时长占用内存. 编码后的分片走 blob 下载, 每次 readDownload 最多 32768 字节, 不把整段录音/视频塞入一次 JSON 结果. 下载仍需在源网页有效期间完成. 页面跳转/销毁结束其媒体流及未完成的页面下载; 已完成输出沿用下载接口的保留规则. 不保证后台录制, getDisplayMedia, 特定设备的编解码器或远端 WebRTC 通话兼容性.

@@ -71,6 +71,7 @@ generator\auto-generate-for-autojs6.bat
 
 ### v6.8.0
 
+- `新機能` WebView の getUserMedia/MediaRecorder による音声と動画のストリーミング, ページの Promise 待機, Android メディア権限の明示的な要求と Worker のライフサイクル管理
 - `新機能` [ファイル (Files)](https://docs.autojs6.com/#/files?id=m-batchrename) の files.batchRename. Batch Rename プラグインが提供する一括リネーム: プランのプレビューと項目ごとの除外, 実行, 元に戻す操作, バッチ履歴の参照と消去, ファイルにアクセスしない名前の試算, 名前付きプリセット, オプションと置換変数 (カウンター, 日付と時刻, ランダム値, 写真のメタデータ, 漢字のピンイン変換), 競合ポリシー, 結果オブジェクトとエラーコードを説明します
 - `新機能` [ギャラリー (Gallery)](https://docs.autojs6.com/#/gallery) と [GalleryViewSession](https://docs.autojs6.com/#/galleryViewSessionType). 3-Maple Image プラグインが提供する画像選択, ビューアーセッション, 編集, 画面を表示しない変換, ファイルの読み書きを AutoJs6 自身が行う境界, 写真へのアクセス権限とエラーコードを説明します
 - `更新` [API リファレンス](https://docs.autojs6.com/#/documentation): Files と RootAutomator の不足メンバー, 色の結果配列, WebView コンテキストと省略可能な引数のオーバーロードを補完し, バイト追記とスワイプの引数, 座標スケーリングの説明を修正, setScaleBases の失敗時に基準値を変更せず設定機会も消費しないことと, 基準値 setter の整数変換規則を説明

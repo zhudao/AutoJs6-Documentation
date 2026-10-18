@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "WebView getUserMedia/MediaRecorder streaming audio and video, awaited page Promises, explicit Android media permission requests and Worker lifecycle support"
+        },
+        {
+          "category": "feature",
           "text": "files.batchRename in [Files](https://docs.autojs6.com/#/files?id=m-batchrename), covering batch renaming provided by the Batch Rename plugin: plan preview and per-item exclusion, applying, undo, querying and clearing the batch history, name previews without files, named presets, options and replacement variables (counters, date and time, random values, photo metadata, Chinese to pinyin), conflict policies, result objects and error codes"
         },
         {
