@@ -603,14 +603,14 @@ Ace 默认运行时模式下会提示属性的 Promise 读取类型, 以及 ui.i
 
 html 属性赋值等同于不指定 baseUrl 的加载. url 与 html 不能在同一次 set 中同时出现. html 读取最后提交的 HTML 文本, 不读取当前 DOM; 页面导航后可为 null. url/title 读取当前 WebView 状态, 页面未准备好时可为 null.
 
-#### view.evaluateJavascript(source)
+#### view.evaluateJavascript(source, options?)
 
 **`Async`**
 
 - **source** { [string](dataTypes#string) } - 在当前页面执行的 JavaScript.
 - <ins>**returns**</ins> { [Promise](dataTypes#promise) } - WebView 返回值解码后的 JSON 值.
 
-javaScriptEnabled 默认 false, 需先显式赋值 true. domStorageEnabled 默认 false. 返回对象/数组/字符串等 JSON 值, 不返回包着 JSON 的字符串. 页面异常和不可序列化值遵循系统 WebView 的返回语义, 此接口不把网页 Promise 自动转换为宿主 Promise. 原生回调超过 10 秒或 View 已销毁时拒绝. goBack/goForward/reload/stopLoading 无参数, 返回 Promise; 无可用历史时遵循 WebView 行为.
+javaScriptEnabled 默认 false, 需先显式赋值 true. domStorageEnabled 默认 false. 返回对象/数组/字符串等 JSON 值, 不返回包着 JSON 的字符串. 页面异常和不可序列化值遵循系统 WebView 的返回语义, 此接口不把网页 Promise 自动转换为宿主 Promise. 配套 Node 1.11.0/Bun 0.2.10 客户端使用异步原生任务, options.timeoutMs 默认 30000, 可设为 100..120000 毫秒; 超时或 View 销毁时拒绝. 用户等待对话框不会占住 Bun 的单次 RPC. goBack/goForward/reload/stopLoading 无参数, 返回 Promise; 无可用历史时遵循 WebView 行为.
 
 WebView 事件包括 pageStarted/pageFinished (url), titleChanged (title), progressChanged (progress), webError (message, 可含 url/mainFrame/errorCode/didCrash) 和 httpError (url/mainFrame/statusCode). 根 View 释放或执行结束会停止并销毁所有 WebView, 包括 ViewPager 中未显示的页面; 渲染进程退出时报告 webError 并释放该 View.
 
@@ -654,16 +654,109 @@ let ui = require('ui'); // Bun 改为 host.ui.
 
 Ace 同步提供上述方法, 属性, XML 标签与属性名提示. 这些组件不要求 JSOX 原型扩展.
 
+### WebView 下载, 文件选择与客户端回调
+
+需要宿主构建 5565, Node.js Runtime 1.11.0/Bun Runtime 0.2.10. Node 主线程, CJS/ESM/嵌套 Worker 和 Bun host.ui 使用相同的 NativeViewHandle 方法. 本批提供 19 个 WebViewClient 回调, 20 个 WebChromeClient 回调及 onDownloadStart, 具体字段和答复类型见配套声明.
+
+| 方法 | 返回值与用途 |
+| --- | --- |
+| setWebViewClient(client, options?) | Promise<void>; 设置页面, 导航, 资源, 认证和安全回调; null 移除 |
+| setWebChromeClient(client, options?) | Promise<void>; 设置标题, 对话框, 文件, 权限, 弹窗和全屏回调; null 移除 |
+| setDownloadListener(callback) | Promise<void>; 设置下载通知; null 移除, 不自动开始下载 |
+| chooseFiles(options?) | Promise<string[] \| null>; 系统文件选择, 取消返回 null |
+| cancelFileChooser() | Promise<void>; 取消当前选择 |
+| exitFullscreen() | Promise<boolean>; 退出受管 WebView 全屏 |
+| download(options) | Promise<{id, url, fileName}>; 显式提交 Android DownloadManager 下载 |
+| getDownload(id) | Promise<DownloadState \| null>; 查询当前应用的下载任务 |
+| readDownload(id, offset?, length?) | Promise<Uint8Array>; 读取已下载文件, 默认最多 32768 字节 |
+| cancelDownload(id) | Promise<boolean>; 移除任务和对应文件 |
+
+回调接收 JSON 数据, this 是本地 View 包装器. 设置客户端会替换同类回调, 取消其尚未答复的请求. 自定义答复支持 Promise; 普通回调超时默认 15 秒, onShowFileChooser 默认 120 秒, callbackTimeoutMs 可设为 100..120000 毫秒. 异常, 无效答复, 超时和取消会采用拒绝/取消结果; 异常和超时通过 webCallbackError 报告. 过期答复不会影响后续请求.
+
+WebViewClient 回调如下. 通知回调无需返回值; 请求回调可直接返回表中的答复或相应 Promise.
+
+| 回调 | 主要数据或答复 |
+| --- | --- |
+| onPageStarted, onPageFinished, onPageCommitVisible, onLoadResource | 通知 url/title |
+| doUpdateVisitedHistory | 通知 url/title/reload |
+| onScaleChanged | 通知 oldScale/newScale |
+| onReceivedError | 通知请求信息, errorCode/message |
+| onReceivedHttpError | 通知请求信息, statusCode/reasonPhrase/mimeType/responseHeaders |
+| onReceivedLoginRequest | 通知 realm/account/args |
+| shouldOverrideUrlLoading, shouldInterceptRequest | 通知请求信息与 blocked/intercepted |
+| shouldOverrideKeyEvent, onUnhandledKeyEvent | 通知 keyCode/action, 前者另含 blocked |
+| onFormResubmission | 返回 boolean/null, true 重新提交 |
+| onReceivedHttpAuthRequest | 接收 host/realm, 返回 {username,password}/null |
+| onReceivedSslError | 接收 url/primaryError, 返回 cancel/proceed/null |
+| onReceivedClientCertRequest | 接收 host/port/keyTypes/principals, 返回 {alias}/ignore/cancel/null |
+| onSafeBrowsingHit | 接收请求信息/threatType, 返回 backToSafety/proceed/showInterstitial/null |
+| onRenderProcessGone | 通知 didCrash/rendererPriorityAtExit, 宿主释放该 WebView |
+
+请求信息包含 url, method, mainFrame, hasGesture, redirect 和 headers. 设备未提供请求头时 headers 为空对象. 资源响应的数据流不跨进程传给回调.
+
+| WebChromeClient 回调 | 主要数据或答复 |
+| --- | --- |
+| onProgressChanged, onReceivedTitle | 通知 progress 或 title |
+| onReceivedIcon | 通知最多 64x64 的 PNG 缩略图 pngBase64/width/height |
+| onReceivedTouchIconUrl | 通知 url/precomposed |
+| onConsoleMessage | 通知 message/sourceId/lineNumber/level |
+| onJsAlert, onJsConfirm, onJsBeforeUnload | 接收 url/title/message/defaultValue, 返回 boolean/null |
+| onJsPrompt | 接收同上, 返回 string/null |
+| onPermissionRequest | 接收 origin/resources, 返回允许的资源数组/null |
+| onPermissionRequestCanceled | 通知已取消的 origin/resources |
+| onGeolocationPermissionsShowPrompt | 接收 origin, 返回 boolean/{allow,retain?}/null |
+| onGeolocationPermissionsHidePrompt | 通知定位请求已隐藏 |
+| onShowFileChooser | 接收 acceptTypes/multiple/mode/captureEnabled/title/filenameHint, 返回 URI 数组/null |
+| onCreateWindow | 接收 url/dialog/userGesture, 返回空白 WebView 句柄/null |
+| onCloseWindow, onRequestFocus | 通知网页请求关闭/聚焦 |
+| onShowCustomView, onHideCustomView | 通知全屏开始/结束, 原生 View 由宿主管理 |
+| getVisitedHistory | 返回已访问 URL 数组/null |
+
+setDownloadListener 对应 Android 的 onDownloadStart, 仅接收通知数据.
+
+Android 必须同步决定导航, 资源和按键处理. 这些决策通过 setWebViewClient 的 navigationRules, resourceRules 和 blockedKeyCodes 预先提交. 规则按顺序匹配 url/urlPrefix, 可进一步限定 method/mainFrame, 首条命中生效. 导航 action 为 allow/block; 资源 response 可提供 mimeType, encoding, statusCode, reasonPhrase, headers, body 或 bodyBase64. shouldOverrideUrlLoading/shouldInterceptRequest/shouldOverrideKeyEvent 只通知实际决策, 不能通过回调返回值改变它. onConsoleMessage 同样只通知, 使用 consumeConsoleMessages 选项控制原生返回值. 桥接不会为等待 JavaScript 而取消导航再调用 loadUrl.
+
+onJsAlert/onJsConfirm/onJsBeforeUnload 返回 boolean, onJsPrompt 返回 string 或 null. 未配置处理器时, 已显示的 WebView 使用原生对话框. HTTP 认证返回 {username,password} 或 null; SSL 默认取消, 只有显式 'proceed' 才继续. 客户端证书可返回已授权 KeyChain 的 {alias}; Web 权限只允许请求资源的子集, 并仍须拥有 Android 摄像头/麦克风/定位权限. onCreateWindow 可返回新的空白执行内 WebView 或 null; 关闭借用窗口后再 dispose. 全屏可通过 fullscreen:false 禁用.
+
+默认 HTML 文件输入使用系统文档选择器. chooseFiles 的 acceptTypes 是 MIME/扩展名数组, multiple 控制多选, initialUri 是 Android 8+ 的可选初始目录提示. onShowFileChooser 可 await this.chooseFiles(event), 或返回已有读取授权的 content URI 数组/null. 仅接受其他提供器的可读 content URI, 不接受任意路径或本应用私有提供器. 新获得的持久读取授权在 View 释放时回收, 已有用户授权保留. 自定义回调提供的临时授权按 Android 生命周期生效. 默认支持 open/multiple, 不实现拍照, 保存文件和目录选择; captureEnabled 等信息仍传给自定义回调.
+
+下载通知包括 url, userAgent, contentDisposition, mimeType, contentLength 和 Android 推断的 suggestedFileName. download 仅接受 HTTP(S), 文件保存到公共 Downloads; fileName 只能是文件名. 可配置 headers, mimeType, title, userAgent, includeCookies (默认 false). 任务在 View 关闭后保留, 通过 getDownload/readDownload/cancelDownload 管理. readDownload 的 offset 默认 0, length 为 1..32768. blob:/data: 下载尚无对应实现.
+
+```js
+let ui = require('ui'); // Bun 使用 host.ui.
+(async () => {
+    let web = await ui.createView('WebView', { javaScriptEnabled: true });
+    let window = await ui.showLayout(web);
+    await web.setWebViewClient({
+        onPageFinished(e) { console.log(e.url); },
+        shouldOverrideUrlLoading(e) { console.log(e.url, e.blocked); }
+    }, { navigationRules: [{ urlPrefix: 'https://example.invalid/blocked', action: 'block' }] });
+    await web.setWebChromeClient({
+        onJsConfirm(e) { return e.message === 'Continue?'; },
+        onShowFileChooser(e) { return this.chooseFiles(e); }
+    });
+    await web.loadHtml('<title>Files</title><input type="file" multiple>');
+    // 完成后 await window.close(); await web.dispose().
+})().catch(console.error);
+```
+
+窗口/会话关闭会取消待处理的原生 UI 请求, View 释放还会回收文件授权. Worker 退出清理自己注册的客户端和任务, 不覆盖其他线程的新注册; 共享句柄仍只有一个事件队列读取者. 原始 Java View/Bitmap 返回值, 已废弃数据库/配额回调及任意 Java 子类不属于本契约. 原生语义可参阅 Android 的 [WebViewClient](https://developer.android.com/reference/android/webkit/WebViewClient) 和 [WebChromeClient](https://developer.android.com/reference/android/webkit/WebChromeClient).
+
 ### 打包项目
 
-Node.js/Bun 项目 APK 使用已安装的外部 Runtime 插件和 3-Block Compose 插件, 自己的应用版本号可以从 1 开始. runtimeVersionCode 表示内置宿主运行库版本, applicationVersionCode 表示应用声明版本. APK Builder 需要匹配的 Runtime Kit (本批为 6.8.0+5564).
+Node.js/Bun 项目 APK 使用已安装的外部 Runtime 插件和 3-Block Compose 插件, 自己的应用版本号可以从 1 开始. runtimeVersionCode 表示内置宿主运行库版本, applicationVersionCode 表示应用声明版本. APK Builder 需要匹配的 Runtime Kit (本批为 6.8.0+5565).
 
 Node 项目通过 node.permissions 声明 ui. Bun 项目使用 projectType=bun 或 bun 入口标记, 并在 project.json 明确声明 bun.hostCapabilities, 例如:
+
+WebView 网络加载和下载还需要打包项目的 Android INTERNET 权限. 在项目的 permissions 数组中保留 android.permission.INTERNET; Runtime 插件自身的联网权限不能替代打包应用的权限. HTTPS/明文流量仍遵循应用的 Android 网络安全配置.
+
+Node 项目的执行总预算与 WebView 回调超时相互独立. 需要等待用户选择文件或操作界面时, 在 node 配置中显式设置足够的 timeoutMs, 例如 `"node": {"permissions": ["ui"], "timeoutMs": 120000}`. 默认项目预算可能先于 WebView 的等待期限耗尽; evaluateJavascript 的 timeoutMs 不会延长整个项目的执行预算.
 
 ```json
 {
   "projectType": "bun",
   "main": "main.bun.js",
+  "permissions": ["android.permission.INTERNET"],
   "bun": { "hostCapabilities": ["ui.layout", "ui.compose"] }
 }
 ```
