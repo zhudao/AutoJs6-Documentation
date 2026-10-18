@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Адаптер демонстрации экрана WebView, запись звука через foreground service и нативная фоновая запись камеры для Node.js/Bun и Node Worker"
+        },
+        {
+          "category": "feature",
           "text": "Потоковое аудио и видео WebView getUserMedia/MediaRecorder, ожидание Promise страницы, явные запросы разрешений Android и управление жизненным циклом Worker"
         },
         {

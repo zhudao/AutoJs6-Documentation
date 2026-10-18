@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "مهايئ مشاركة شاشة WebView وتسجيل الصوت عبر خدمة أمامية وتسجيل الكاميرا الأصلي في الخلفية في Node.js/Bun مع دعم Node Worker"
+        },
+        {
+          "category": "feature",
           "text": "بث الصوت والفيديو عبر WebView getUserMedia/MediaRecorder, وانتظار Promise للصفحة, وطلب أذونات الوسائط في Android صراحة, وإدارة دورة حياة Worker"
         },
         {

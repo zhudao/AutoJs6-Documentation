@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Adaptador para compartir pantalla WebView, captura de audio mediante servicio en primer plano y grabacion de camara nativa en segundo plano para Node.js/Bun y Node Worker"
+        },
+        {
+          "category": "feature",
           "text": "Audio y video en directo con WebView getUserMedia/MediaRecorder, espera de Promise de pagina, solicitudes explicitas de permisos multimedia Android y ciclo de vida de Worker"
         },
         {

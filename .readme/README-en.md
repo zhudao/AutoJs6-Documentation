@@ -71,6 +71,7 @@ Documentation may change at any time, and some descriptions may differ from actu
 
 ### v6.8.0
 
+- `Feature` WebView screen sharing adapter, foreground-service audio capture and native background camera recording in Node.js/Bun, including Node Workers
 - `Feature` WebView getUserMedia/MediaRecorder streaming audio and video, awaited page Promises, explicit Android media permission requests and Worker lifecycle support
 - `Feature` files.batchRename in [Files](https://docs.autojs6.com/#/files?id=m-batchrename), covering batch renaming provided by the Batch Rename plugin: plan preview and per-item exclusion, applying, undo, querying and clearing the batch history, name previews without files, named presets, options and replacement variables (counters, date and time, random values, photo metadata, Chinese to pinyin), conflict policies, result objects and error codes
 - `Feature` [Gallery](https://docs.autojs6.com/#/gallery) and [GalleryViewSession](https://docs.autojs6.com/#/galleryViewSessionType), covering picking, viewer sessions, editing and headless conversion provided by the 3-Maple Image plugin, the boundary that AutoJs6 reads and writes the files itself, photo access and error codes

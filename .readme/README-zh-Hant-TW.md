@@ -71,6 +71,7 @@ generator\auto-generate-for-autojs6.bat
 
 ### v6.8.0
 
+- `新增` Node.js/Bun 的 WebView 螢幕共享適配, 前景服務背景錄音及原生背景攝影機錄影, 包括 Node Worker 封裝
 - `新增` WebView getUserMedia/MediaRecorder 串流音訊與影片, 支援等待網頁 Promise, 明確申請 Android 媒體權限及 Worker 生命週期管理
 - `新增` [檔案 (Files)](https://docs.autojs6.com/#/files?id=m-batchrename) 的 files.batchRename, 說明 Batch Rename 外掛提供的批次重新命名: 方案預覽與逐項排除, 執行, 復原, 歷史批次的查詢與清理, 不存取檔案的名稱試算, 命名預設, 選項與替換變數 (計數器, 日期時間, 隨機值, 相片中繼資料, 漢字轉拼音), 衝突策略, 結果物件及錯誤代碼
 - `新增` [相簿 (Gallery)](https://docs.autojs6.com/#/gallery) 與 [GalleryViewSession](https://docs.autojs6.com/#/galleryViewSessionType), 說明 3-Maple Image 外掛提供的選圖, 檢視器工作階段, 編輯與無介面轉換, 檔案由 AutoJs6 讀寫的邊界, 相片存取權限與錯誤代碼

@@ -71,6 +71,7 @@ Les documents peuvent changer à tout moment et diverger du comportement réel. 
 
 ### v6.8.0
 
+- `Fonctionnalité` Adaptateur de partage ecran WebView, capture audio par service de premier plan et enregistrement camera natif en arriere-plan pour Node.js/Bun et Node Worker
 - `Fonctionnalité` Flux audio et video WebView getUserMedia/MediaRecorder, attente des Promise de page, demandes explicites de permissions multimedia Android et cycle de vie des Worker
 - `Fonctionnalité` files.batchRename dans [Fichiers (Files)](https://docs.autojs6.com/#/files?id=m-batchrename), décrivant le renommage par lots fourni par le plugin Batch Rename: aperçu du plan et exclusion par élément, application, annulation, consultation et effacement de l'historique des lots, essai de noms sans accès aux fichiers, préréglages nommés, options et variables de remplacement (compteurs, date et heure, valeurs aléatoires, métadonnées des photos, conversion des caractères chinois en pinyin), politiques de conflit, objets de résultat et codes d'erreur
 - `Fonctionnalité` [Galerie (Gallery)](https://docs.autojs6.com/#/gallery) et [GalleryViewSession](https://docs.autojs6.com/#/galleryViewSessionType), décrivant la sélection d'images, les sessions de visionneuse, l'édition et la conversion sans interface fournies par le plugin 3-Maple Image, la limite selon laquelle AutoJs6 lit et écrit lui-même les fichiers, l'accès aux photos et les codes d'erreur
