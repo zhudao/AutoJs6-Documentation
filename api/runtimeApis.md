@@ -563,7 +563,7 @@ console.log(await label.text); // Ready, 等待此前该句柄的赋值完成.
 
 width/height/padding/margin/cardCornerRadius/cardElevation 的数字或 dp 字符串按 dp 写入, px 后缀表示物理像素; width/height 支持 match_parent/-1 和 wrap_content/-2. 几何, 间距及卡片尺寸的读取值是物理像素. textSize 按 sp 写入和读取, 写入也可指定 px. padding/margin 支持 1 项, 2 项 (水平/垂直) 或 4 项 (左/上/右/下). visibility 取 visible/invisible/gone; visible=false 等价于 gone. 颜色写入接受 Android 颜色字符串或 ARGB 数字, 读取返回 ARGB 整数; 非纯色背景可返回 null. textStyle 取 normal/bold/italic/bold|italic. inputType 支持原生整数及 text/textPassword/number/numberDecimal/phone/textEmailAddress. scaleType 接受 fitCenter/centerCrop 等 ImageView 缩放名称或原生大写名称.
 
-entries 字符串使用 `|` 分隔; items 也可使用数组. selectedIndex 从 0 开始, 无选择时原生读取可能为 -1. ProgressBar/SeekBar 的 min 写入要求 Android API 26 及以上. NumberPicker 的 displayedValues 为 null 或长度等于 max-min+1 的字符串数组. 原生 widget 约束仍决定最终显示状态. 数值必须有限, alpha 为 0..1, numStars 为 1..100, stepSize 为 0.01..100, textSize 为 0..1000, maxLines 为 1..10000, 布局尺寸不超过 1000000, items 不超过 1024 项; 仍受桥接字节预算限制. 不合法的属性值在变更前校验.
+entries 字符串使用 `|` 分隔; items 也可使用数组. selectedIndex 从 0 开始, 同时接受表示无选择的 -1, 原生读取也可能为 -1. ProgressBar/SeekBar 的 min 写入要求 Android API 26 及以上. NumberPicker 的 displayedValues 为 null 或长度等于 max-min+1 的字符串数组. 原生 widget 约束仍决定最终显示状态. 数值必须有限, alpha 为 0..1, numStars 为 1..100, stepSize 为 0.01..100, textSize 为 0..1000, maxLines 为 1..10000, 布局尺寸不超过 1000000, items 不超过 1024 项; 仍受桥接字节预算限制. 不合法的属性值在变更前校验.
 
 ImageView.src 支持本次执行的图像句柄, @drawable/name, @android:drawable/name 或 null. 图像句柄使用独立像素副本, 原图释放后 View 仍可显示. 此入口不隐式打开宿主文件或 URL. 资源名称不存在及非图像句柄对象会被拒绝.
 
