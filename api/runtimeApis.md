@@ -671,7 +671,7 @@ Ace 同步提供上述方法, 属性, XML 标签与属性名提示. 这些组件
 | readDownload(id, offset?, length?) | Promise<Uint8Array>; 读取已下载文件, 默认最多 32768 字节 |
 | cancelDownload(id) | Promise<boolean>; 移除任务和对应文件 |
 
-回调接收 JSON 数据, this 是本地 View 包装器. 设置客户端会替换同类回调, 取消其尚未答复的请求. 自定义答复支持 Promise; 普通回调超时默认 15 秒, onShowFileChooser 默认 120 秒, callbackTimeoutMs 可设为 100..120000 毫秒. 异常, 无效答复, 超时和取消会采用拒绝/取消结果; 异常和超时通过 webCallbackError 报告. 过期答复不会影响后续请求.
+回调接收 JSON 数据, this 是本地 View 包装器. 设置客户端会替换同类回调, 取消其尚未答复的请求. 自定义答复支持 Promise; 普通回调超时默认 15 秒, onShowFileChooser 默认 120 秒, callbackTimeoutMs 自宿主 5567 起可设为 100..2147483647 毫秒. 异常, 无效答复, 超时和取消会采用拒绝/取消结果; 异常和超时通过 webCallbackError 报告. 过期答复不会影响后续请求.
 
 WebViewClient 回调如下. 通知回调无需返回值; 请求回调可直接返回表中的答复或相应 Promise.
 
@@ -706,7 +706,7 @@ WebViewClient 回调如下. 通知回调无需返回值; 请求回调可直接�
 | onPermissionRequestCanceled | 通知已取消的 origin/resources |
 | onGeolocationPermissionsShowPrompt | 接收 origin, 返回 boolean/{allow,retain?}/null |
 | onGeolocationPermissionsHidePrompt | 通知定位请求已隐藏 |
-| onShowFileChooser | 接收 acceptTypes/multiple/mode/captureEnabled/title/filenameHint, 返回 URI 数组/null |
+| onShowFileChooser | 接收 acceptTypes/multiple/mode/captureEnabled/title/filenameHint/timeoutMs, 返回 URI 数组/null |
 | onCreateWindow | 接收 url/dialog/userGesture, 返回空白 WebView 句柄/null |
 | onCloseWindow, onRequestFocus | 通知网页请求关闭/聚焦 |
 | onShowCustomView, onHideCustomView | 通知全屏开始/结束, 原生 View 由宿主管理 |
@@ -718,7 +718,7 @@ Android 必须同步决定导航, 资源和按键处理. 这些决策通过 setW
 
 onJsAlert/onJsConfirm/onJsBeforeUnload 返回 boolean, onJsPrompt 返回 string 或 null. 未配置处理器时, 已显示的 WebView 使用原生对话框. HTTP 认证返回 {username,password} 或 null; SSL 默认取消, 只有显式 'proceed' 才继续. 客户端证书可返回已授权 KeyChain 的 {alias}; Web 权限只允许请求资源的子集, 并仍须拥有 Android 摄像头/麦克风/定位权限. onCreateWindow 可返回新的空白执行内 WebView 或 null; 关闭借用窗口后再 dispose. 全屏可通过 fullscreen:false 禁用.
 
-默认 HTML 文件输入使用系统文档选择器. chooseFiles 的 acceptTypes 是 MIME/扩展名数组, multiple 控制多选, initialUri 是 Android 8+ 的可选初始目录提示. onShowFileChooser 可 await this.chooseFiles(event), 或返回已有读取授权的 content URI 数组/null. 仅接受其他提供器的可读 content URI, 不接受任意路径或本应用私有提供器. 新获得的持久读取授权在 View 释放时回收, 已有用户授权保留. 自定义回调提供的临时授权按 Android 生命周期生效. 宿主 5565 支持 open/multiple; 5566 扩展拍照, 保存和目录选择, 详见下一节. captureEnabled 等信息传给自定义回调.
+默认 HTML 文件输入使用系统文档选择器. chooseFiles 的 acceptTypes 是 MIME/扩展名数组, multiple 控制多选, initialUri 是 Android 8+ 的可选初始目录提示. onShowFileChooser 可 await this.chooseFiles(event), 或返回已有读取授权的 content URI 数组/null. 仅接受其他提供器的可读 content URI, 不接受任意路径或本应用任意私有提供器 URI, 下文专门登记的临时媒体捕获结果除外. 新获得的持久读取授权在 View 释放时回收, 已有用户授权保留. 自定义回调提供的临时授权按 Android 生命周期生效. 宿主 5565 支持 open/multiple; 5566 扩展拍照, 保存和目录选择, 详见下一节. captureEnabled 等信息传给自定义回调.
 
 下载通知包括 url, userAgent, contentDisposition, mimeType, contentLength 和 Android 推断的 suggestedFileName. HTTP(S) 默认下载由 DownloadManager 保存到公共 Downloads; fileName 只能是文件名. 可配置 headers, mimeType, title, userAgent, includeCookies (默认 false). 任务在 View 关闭后保留, 通过 getDownload/readDownload/cancelDownload 管理. readDownload 的 offset 默认 0, length 为 1..32768. 宿主 5566 扩展 blob:/data: 及所选文档来源和目标, 详见下一节.
 
@@ -751,7 +751,7 @@ let ui = require('ui'); // Bun 使用 host.ui.
 **`Async`**
 
 - **[ options.mode ]** { [string](dataTypes#string) | [number](dataTypes#number) } - open/0, multiple/1, directory/2, save/3. 未指定时根据 multiple 选择 open 或 multiple.
-- **[ options.captureEnabled = false ]** { [boolean](dataTypes#boolean) } - image 接受类型优先调用系统相机拍摄完整图片, 其他媒体仍使用文档选择器.
+- **[ options.captureEnabled = false ]** { [boolean](dataTypes#boolean) } - image 接受类型优先调用系统相机拍摄完整图片. 宿主 5567 起扩展 video/audio 捕获, 详见下一节.
 - **[ options.fileName ]** { [string](dataTypes#string) } - 保存模式的建议文件名, 其次使用原生 filenameHint, 默认 download.
 - **[ options.writable ]** { [boolean](dataTypes#boolean) } - 目录默认请求读写权限, 可显式设为 false; 保存模式始终请求读写权限.
 - **[ options.permissionMode ]** { [number](dataTypes#number) } - Android 37+ 原生回调提供的 0 (读取) 或 1 (读写), 未显式指定 writable 时采用此值.
@@ -812,13 +812,62 @@ let ui = require('ui'); // Bun 使用 host.ui.
 })().catch(console.error);
 ```
 
-参阅 Android [存储访问框架](https://developer.android.com/training/data-storage/shared/documents-files) 和 [FileChooserParams](https://developer.android.com/reference/android/webkit/WebChromeClient.FileChooserParams). 视频/音频录制捕获与任意文件系统路径不属于本批文件选择扩展.
+参阅 Android [存储访问框架](https://developer.android.com/training/data-storage/shared/documents-files) 和 [FileChooserParams](https://developer.android.com/reference/android/webkit/WebChromeClient.FileChooserParams). 视频/音频捕获见下一节. 任意文件系统路径不属于文件选择接口.
+
+### WebView 视频拍摄与录音捕获
+
+宿主 5567 配套 Node.js Runtime 1.13.0/Bun Runtime 0.2.12, Node.js 主线程和 CJS/ESM/嵌套 Worker 使用相同接口.
+
+#### view.chooseFiles(options?) 的媒体选项
+
+**`Async`**
+
+- **[ options.captureEnabled = false ]** { [boolean](dataTypes#boolean) } - 启用媒体捕获. acceptTypes 属于单一 image/video/audio MIME 家族时自动选择对应流程.
+- **[ options.captureKind ]** { [string](dataTypes#string) } - image/video/audio, 在 captureEnabled 为 true 时明确选择捕获类型, 可用于混合或通配 acceptTypes. save/directory 模式仍使用 SAF.
+- **[ options.videoQuality ]** { [number](dataTypes#number) } - 视频相机提示: 0 为低画质, 1 为高画质. 未指定时采用相机默认值.
+- **[ options.durationLimitSeconds ]** { [number](dataTypes#number) } - 正整数秒, 1..2147483. 视频传给系统相机, 录音用于停止录制并等待确认.
+- **[ options.sizeLimitBytes ]** { [number](dataTypes#number) } - 正安全整数字节数. 视频传给系统相机, 录音按原生编码器限制停止; 最后编码帧和容器开销可略超出该值.
+- **[ options.timeoutMs = 120000 ]** { [number](dataTypes#number) } - 文件选择等待时限, 100..2147483647 毫秒. 到期取消选择并清理未确认的录制.
+- <ins>**returns**</ins> { [Promise](dataTypes#promise)<[string](dataTypes#string)[] | [null](dataTypes#null)> } - 已确认的临时媒体 URI 数组, 或取消结果.
+
+视频调用系统相机, 提供应用私有临时输出 URI. 画质/时长/大小均为相机提示, 各厂商处理方式可能不同. 相机若返回单独的可读 content URI, 宿主将内容复制为临时捕获结果; 不删除外部相机保存的原件. 本应用声明 CAMERA 而尚未获授权时, 先请求系统授权.
+
+录音使用宿主前台界面, 提供开始, 停止, 使用录音和取消操作, 输出 AAC/M4A (audio/mp4, 48 kHz 单声道), acceptTypes 不用于选择其他音频编码. 不依赖系统是否安装录音 Intent 处理程序. 点击开始后才打开麦克风, 离开前台即停止录制, 返回后可确认已录内容; 旋转时保留同一录制并重建界面. 打包项目需要在 permissions 中声明 android.permission.RECORD_AUDIO, 并取得 Android 授权. Node 使用 ui 权限, Bun 使用 ui.layout 授权; 这是用户操作的文件捕获流程.
+
+默认 HTML video/audio 文件输入和自定义 onShowFileChooser 均支持此能力. WebChromeClientOptions.callbackTimeoutMs 的范围为 100..2147483647 毫秒, 文件选择默认 120000, 其他异步回调默认 15000. 原生文件请求携带 timeoutMs, 可通过 this.chooseFiles(event) 转发. 调长文件选择等待时, 还应按需调整 Node/Bun 项目的总执行期限.
+
+确认结果后, 可用 readDocument 分段读取, 或用 download 的 content 来源复制到 Downloads/已选 SAF 位置. 临时文件随 View 和正在使用它的传输引用释放. 取消, 页面跳转, 窗口关闭及 Worker 退出会关闭未完成的捕获; 录音不会转为隐藏的后台任务.
+
+```js
+let ui = require('ui'); // Bun 使用 host.ui.
+(async () => {
+    let web = await ui.createView('WebView', { javaScriptEnabled: true });
+    let window = await ui.showLayout(web);
+    try {
+        let video = await web.chooseFiles({
+            captureEnabled: true, captureKind: 'video',
+            acceptTypes: ['video/*'], videoQuality: 1,
+            durationLimitSeconds: 30, timeoutMs: 180000,
+        });
+        let audio = await web.chooseFiles({
+            captureEnabled: true, captureKind: 'audio',
+            acceptTypes: ['audio/*'], durationLimitSeconds: 15,
+        });
+        if (audio) console.log(await web.readDocument(audio[0], 0, 1024));
+    } finally {
+        await window.close();
+        await web.dispose();
+    }
+})().catch(console.error);
+```
+
+参阅 Android [视频捕获 Intent](https://developer.android.com/reference/android/provider/MediaStore#ACTION_VIDEO_CAPTURE) 和 [MediaRecorder](https://developer.android.com/media/platform/mediarecorder). 这组文件捕获接口与网页 getUserMedia/MediaRecorder 流式 API 及屏幕录制接口分别使用各自的契约.
 
 ### 打包项目
 
 宿主 5566 起, Bun 项目可在 project.json 设置 bun.timeoutMs, 默认 60000 毫秒, 按现有运行时范围限制为 1..600000 毫秒. 显式执行参数 bun.timeoutMillis 优先于项目设置. 打包应用采用同一设置; 拍照/文件选择和下载的等待时限不会延长整个项目的执行预算.
 
-Node.js/Bun 项目 APK 使用已安装的外部 Runtime 插件和 3-Block Compose 插件, 自己的应用版本号可以从 1 开始. runtimeVersionCode 表示内置宿主运行库版本, applicationVersionCode 表示应用声明版本. APK Builder 需要匹配的 Runtime Kit (本批为 6.8.0+5566).
+Node.js/Bun 项目 APK 使用已安装的外部 Runtime 插件和 3-Block Compose 插件, 自己的应用版本号可以从 1 开始. runtimeVersionCode 表示内置宿主运行库版本, applicationVersionCode 表示应用声明版本. APK Builder 需要匹配的 Runtime Kit (本批为 6.8.0+5567).
 
 Node 项目通过 node.permissions 声明 ui. Bun 项目使用 projectType=bun 或 bun 入口标记, 并在 project.json 明确声明 bun.hostCapabilities, 例如:
 

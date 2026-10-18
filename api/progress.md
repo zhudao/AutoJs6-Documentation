@@ -1,5 +1,7 @@
 # 文档部署进度 (Progress)
 
+2026-10-18 WebView 媒体捕获: Node.js/Bun/Worker 支持系统视频拍摄和前台 AAC/M4A 录音, 可选时长/大小/等待时限, 并同步原生授权, 取消及临时文件生命周期说明.
+
 2026-10-18 WebView 文件能力: Node.js/Bun/Worker 增加完整照片捕获, SAF 保存和目录选择, 文档字节读取, blob/data 下载及所选目标输出. 运行条件, 授权生命周期和任务标识说明已同步.
 
 2026-10-18 Node.js/Bun WebView 客户端: 补充下载任务, 系统文件选择, WebViewClient/WebChromeClient 回调, 同步导航/资源规则与异步答复语义. 主线程/Worker, 声明, Ace 和打包 Runtime Kit 同步; 实机范围见宿主 runtime-webview-callbacks-2026-10-18 报告.
