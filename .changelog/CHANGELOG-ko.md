@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `추가` Bun 접근성, 앱 작업 및 클립보드 API를 Node.js 인터페이스에 맞추고 개별 권한과 패키징 앱 지원
 - `추가` Node.js/Bun WebView 화면 공유 어댑터, 포그라운드 서비스 녹음 및 네이티브 백그라운드 카메라 녹화, Node Worker 지원
 - `추가` WebView getUserMedia/MediaRecorder 오디오 및 비디오 스트리밍, 페이지 Promise 대기, 명시적 Android 미디어 권한 요청 및 Worker 수명 주기 관리
 - `추가` [파일 (Files)](https://docs.autojs6.com/#/files?id=m-batchrename) 의 files.batchRename. Batch Rename 플러그인이 제공하는 일괄 이름 바꾸기: 계획 미리 보기와 항목별 제외, 실행, 실행 취소, 배치 기록 조회와 삭제, 파일에 접근하지 않는 이름 미리 계산, 이름 있는 프리셋, 옵션과 치환 변수 (카운터, 날짜와 시간, 임의 값, 사진 메타데이터, 한자 병음 변환), 충돌 정책, 결과 객체와 오류 코드를 설명합니다

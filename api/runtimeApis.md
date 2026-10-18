@@ -433,7 +433,81 @@ console.log(await host.coordinates.getInfo());
 
 先通过 `host.capabilities` 或 `host.hasCapability(name)` 检查当前执行是否协商到所需能力. Bun 的基数 setter 和控制台命令返回 `Promise<void>`. 普通 `console.log` 等仍由 Bun 原生控制台处理, `host.console` 是显式宿主窗口控制入口.
 
-Bun 不自动获得 Node 的全部模块, 无障碍选择器, Java 互操作或 `rhino.run`. 截图需要独立能力开关及 Android 同意. SDK 的图像句柄也不是 Rhino 图片对象, 不自动注入 `cX`, `pinyin`, `opencc` 或 Rhino 的对象图.
+Bun 不自动获得 Node 的全部模块, Java 互操作或 `rhino.run`. 无障碍选择器通过下述显式 `host.accessibility` 接口使用. 截图需要独立能力开关及 Android 同意. SDK 的图像句柄也不是 Rhino 图片对象, 不自动注入 `cX`, `pinyin`, `opencc` 或 Rhino 的对象图.
+
+## Bun 无障碍, 应用与剪贴板
+
+配套 Bun Runtime 0.3.0 和宿主 Android build 5572, 显式客户端提供 `host.accessibility`, `host.app`, `host.clipboard`. 参数转换, 选择器描述符, Intent 构造及公开别名与 Node.js 对应模块保持一致; Android 操作复用同一宿主实现. 不注入 Rhino 全局对象.
+
+| 执行能力 | 默认值 | 范围 |
+| --- | --- | --- |
+| `app.control` | 关闭 | 应用查询, 启动页面/服务, 发送广播, 文件查看/编辑和宿主应用信息 |
+| `accessibility.control` | 关闭 | 无障碍状态, 节点查找, 点击/长按, 输入, 滚动和系统导航 |
+| `accessibility.gesture` | 关闭 | 在 `accessibility.control` 之外单独允许 `swipe` 和 `gesture` |
+| `clipboard.control` | 关闭 | 读取, 判断和替换系统剪贴板文本 |
+
+在插件中心的 Bun 能力桥设置中分别开启. 撤销影响下一次执行. 打包项目需在 `bun.hostCapabilities` 中显式声明相同 ID; 无障碍服务还需要在 Android 设置中启用, 每个打包应用独立授权. 系统剪贴板访问受 Android 前台窗口等条件限制, 不因脚本运行于 Bun 插件进程而改用插件的剪贴板身份.
+
+```js
+"bun";
+let { createHostClient } = await import(process.env.AUTOJS6_HOST_CLIENT_MODULE);
+let host = await createHostClient();
+let enabled = await host.accessibility.isEnabled();
+if (!enabled) throw Error('请先开启运行此脚本的应用的 Android 无障碍服务.');
+let target = host.accessibility.text('示例按钮');
+let node = await host.accessibility.findOne(target);
+if (node) await host.accessibility.click(target);
+```
+
+### host.accessibility
+
+| 方法 | 返回值 | 说明 |
+| --- | --- | --- |
+| `isEnabled(options?)` / `ensureEnabled(options?)` | `Promise<boolean>` | 查询或等待宿主服务可用. `ensureEnabled` 不替代 Android 授权 |
+| `findByText(text, options?)` / `findOne(selector, options?)` | `Promise<UiNodeSnapshot \| null>` | 返回节点数据快照, 不返回 Java 节点对象 |
+| `findAll(selector, options?)` | `Promise<readonly UiNodeSnapshot[]>` | 返回匹配节点快照 |
+| `click(selector, options?)` / `clickText(text, options?)` / `longClick(selector, options?)` | `Promise<boolean>` | 操作匹配节点 |
+| `setText(selector, text, options?)` | `Promise<boolean>` | 设置可编辑节点文本 |
+| `scrollForward(selector, options?)` / `scrollBackward(selector, options?)` | `Promise<boolean>` | 对目标执行滚动操作 |
+| `back(options?)` / `home(options?)` / `recentApps(options?)` | `Promise<boolean>` | 请求系统导航动作 |
+| `swipe(x1, y1, x2, y2, durationMs?, options?)` | `Promise<boolean>` | 坐标滑动, 需独立手势授权 |
+| `gesture(durationMs, points, options?)` | `Promise<boolean>` | 按 `[x, y]` 数组执行手势, 需独立手势授权 |
+
+本地选择器构造器包含 `text`, `desc`, `id`, `className`, `textContains`, `descContains`, `textMatches`, `descMatches`, `idMatches`, `classNameMatches`, `clickable`, `enabled`, `scrollable`, `depth`, `boundsInside`, `boundsContains`. 正则参数可用字符串, `RegExp` 或 `{pattern, flags}`. 可通过对象展开组合描述符; 构造器本身不访问 Android, 不需要授权.
+
+当前宿主的 `click` 实际操作支持选择器目标. 坐标点击可使用相同起终点的短 `swipe` 或 `gesture`, 需要 `accessibility.gesture`. 与 Node.js 相同, 此接口不提供 Rhino 的链式 Java 节点对象或任意节点反射. 手势时长最多 10000 ms; 返回值表示完成或取消结果. 查找操作查询当时的节点树, 不把 `timeoutMs` 解释为持续重试直到节点出现.
+
+### host.app
+
+`packageName`, `versionName`, `versionCode` 为当前宿主应用或打包应用的只读信息, 通过 `app.control` 授权获取, 不表示 Bun 插件自身的包信息.
+
+| 方法组 | 说明 |
+| --- | --- |
+| `getPackageName`, `getAppName`, `isInstalled`, `getInstalledApps`, `getPackageInfo` | 查询 Android 对当前应用可见的包信息. `getInstalledApps({includeSystem:false})` 排除系统应用 |
+| `launchPackage`, `launchApp`, `launch` | 启动应用. `launch` 为 `launchPackage` 别名 |
+| `openAppSetting`, `openAppSettings`, `launchSettings`, `launchAppDetailsSettings` | 打开应用详情设置, 缺省目标为当前宿主/打包应用 |
+| `startActivity`, `openUrl` | 请求页面或 URI. Intent 可指定 action, data/type, packageName/className, categories, flags 和 JSON extras |
+| `sendBroadcast`, `startService` | 发送广播或启动普通服务, 仍受 Android 导出规则和后台限制约束 |
+| `sendEmail`, `uninstall` | 请求邮件编辑页或系统卸载确认页, 不自动发送邮件或确认卸载 |
+| `viewFile`, `editFile` | 使用宿主允许的路径与文件授权请求查看/编辑 |
+| `intent`, `parseUri`, `intentToShell` | 同步构造 JSON 描述符, 检查 URI 或生成命令文本. `intentToShell` 不执行命令 |
+
+宿主操作返回 Promise. `getUriForFile`, `kill`, root/Shizuku 和双开相关入口继续明确拒绝, 不返回伪造的成功值. `startService` 不自动升级为前台服务. 包查询遵循 Android 包可见性, 大结果也遵循 Bun 返回体积上限.
+
+### host.clipboard
+
+| 方法 | 返回值 |
+| --- | --- |
+| `getText(options?)` | `Promise<string>` |
+| `setText(text, options?)` | `Promise<void>` |
+| `hasText(options?)` | `Promise<boolean>` |
+
+读取与写入均使用宿主/打包应用的 `ClipboardManager`. `hasText` 判断读到的文本是否非空. Android 拒绝后台读取时, 可能读不到文本; 不能用一次空结果证明剪贴板本来为空.
+
+### 等待, 取消与限额
+
+调用选项支持 `timeoutMs` (整数, 1..120000) 和 `signal` (`AbortSignal`). 默认等待时间沿用 Node.js 对应方法, 通常为 5000 或 10000 ms; `ensureEnabled` 为 30000 ms. 长手势和服务等待通过短轮询完成, 不扩大 Bun 的 10 秒单次 RPC 上限. 同时最多四项操作, SDK 会排队后续调用. 取消停止等待和回收任务记录, 无法撤回已经交给 Android 的点击, Intent 或手势. 原有单次执行 1024 次桥调用及 JSON 体积限制仍适用, 轮询也计入调用次数.
+
 
 ## UI 与 Compose
 
@@ -504,7 +578,7 @@ let ui = require('ui'), compose = require('compose');
 })().catch(error => console.error(error));
 ```
 
-View 属于本次脚本执行, 可在 Node 主线程及 Worker 间传递标识, 但事件队列只允许一个读取者. AndroidView 借用 View; 关闭会话后 View 仍可复用. 有父节点或已被其他会话借用的 View 会被拒绝, 不能将包含容器的 View 再借给该容器. 只有 inflate 的根句柄能 dispose, 子句柄是别名. dispose 前须关闭借用会话; 释放容器会关闭其附着会话, 包括尚未显示的容器. attach 在同一容器成功接入新会话后关闭旧会话; 若要复用旧会话借用的同一个 View, 应先关闭旧会话. 旋转后重新连接生命周期, 保留 View 身份和状态.
+View 属于本次脚本执行, 可在 Node 主线程及 Worker 间传递标识, 配套宿主 build 5569 及客户端支持独立事件订阅, 主线程与 Worker 可分别读取事件. AndroidView 借用 View; 关闭会话后 View 仍可复用. 有父节点或已被其他会话借用的 View 会被拒绝, 不能将包含容器的 View 再借给该容器. 只有 inflate 的根句柄能 dispose, 子句柄是别名. dispose 前须关闭借用会话; 释放容器会关闭其附着会话, 包括尚未显示的容器. attach 在同一容器成功接入新会话后关闭旧会话; 若要复用旧会话借用的同一个 View, 应先关闭旧会话. 旋转后重新连接生命周期, 保留 View 身份和状态.
 
 Worker 退出只关闭它创建的窗口和附着会话; 已传回的 View 属于整个执行, 仍可由主线程使用和释放. 未交付的异步 View 创建结果会在 Worker 退出后释放. ui.showLayout(XML) 创建的根由窗口管理; ui.showLayout(handle) 借用已有根, 关闭窗口后由调用方 dispose. 整次脚本结束释放全部 View.
 
@@ -757,7 +831,7 @@ let ui = require('ui'); // Bun 使用 host.ui.
 })().catch(console.error);
 ```
 
-窗口/会话关闭会取消待处理的原生 UI 请求, View 释放还会回收文件授权. Worker 退出清理自己注册的客户端和任务, 不覆盖其他线程的新注册; 共享句柄仍只有一个事件队列读取者. 原始 Java View/Bitmap 返回值, 已废弃数据库/配额回调及任意 Java 子类不属于本契约. 原生语义可参阅 Android 的 [WebViewClient](https://developer.android.com/reference/android/webkit/WebViewClient) 和 [WebChromeClient](https://developer.android.com/reference/android/webkit/WebChromeClient).
+窗口/会话关闭会取消待处理的原生 UI 请求, View 释放还会回收文件授权. Worker 退出清理自己注册的客户端和任务, 不覆盖其他线程的新注册; 配套宿主 build 5569 及客户端为共享句柄提供独立事件订阅. 原始 Java View/Bitmap 返回值, 已废弃数据库/配额回调及任意 Java 子类不属于本契约. 原生语义可参阅 Android 的 [WebViewClient](https://developer.android.com/reference/android/webkit/WebViewClient) 和 [WebChromeClient](https://developer.android.com/reference/android/webkit/WebChromeClient).
 
 ### WebView 拍照, 保存/目录选择与 blob/data 下载
 

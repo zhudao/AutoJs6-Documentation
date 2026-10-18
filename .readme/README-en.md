@@ -71,6 +71,7 @@ Documentation may change at any time, and some descriptions may differ from actu
 
 ### v6.8.0
 
+- `Feature` Bun accessibility, app operations and clipboard APIs aligned with the Node.js interfaces, with independent grants and packaged-app support
 - `Feature` WebView screen sharing adapter, foreground-service audio capture and native background camera recording in Node.js/Bun, including Node Workers
 - `Feature` WebView getUserMedia/MediaRecorder streaming audio and video, awaited page Promises, explicit Android media permission requests and Worker lifecycle support
 - `Feature` files.batchRename in [Files](https://docs.autojs6.com/#/files?id=m-batchrename), covering batch renaming provided by the Batch Rename plugin: plan preview and per-item exclusion, applying, undo, querying and clearing the batch history, name previews without files, named presets, options and replacement variables (counters, date and time, random values, photo metadata, Chinese to pinyin), conflict policies, result objects and error codes

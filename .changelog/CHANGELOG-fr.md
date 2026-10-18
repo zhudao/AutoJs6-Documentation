@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `Fonctionnalité` API Bun pour accessibilité, applications et presse-papiers alignées sur Node.js, avec autorisations distinctes et applications empaquetées
 - `Fonctionnalité` Adaptateur de partage ecran WebView, capture audio par service de premier plan et enregistrement camera natif en arriere-plan pour Node.js/Bun et Node Worker
 - `Fonctionnalité` Flux audio et video WebView getUserMedia/MediaRecorder, attente des Promise de page, demandes explicites de permissions multimedia Android et cycle de vie des Worker
 - `Fonctionnalité` files.batchRename dans [Fichiers (Files)](https://docs.autojs6.com/#/files?id=m-batchrename), décrivant le renommage par lots fourni par le plugin Batch Rename: aperçu du plan et exclusion par élément, application, annulation, consultation et effacement de l'historique des lots, essai de noms sans accès aux fichiers, préréglages nommés, options et variables de remplacement (compteurs, date et heure, valeurs aléatoires, métadonnées des photos, conversion des caractères chinois en pinyin), politiques de conflit, objets de résultat et codes d'erreur

@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "API de accesibilidad, aplicaciones y portapapeles de Bun alineadas con Node.js, con permisos independientes y aplicaciones empaquetadas"
+        },
+        {
+          "category": "feature",
           "text": "Adaptador para compartir pantalla WebView, captura de audio mediante servicio en primer plano y grabacion de camara nativa en segundo plano para Node.js/Bun y Node Worker"
         },
         {
