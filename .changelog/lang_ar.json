@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "ردود نداء Java وإنشاء الأصناف الفرعية وتحميل JAR/DEX في Node.js وBun وWorkers مع نتائج Promise واستدعاءات الصنف الأب والتنظيف عند انتهاء التنفيذ"
+        },
+        {
+          "category": "feature",
           "text": "تكامل Java/Android في Node.js وBun وWorkers مع المنشئات والأعضاء العامة والمصفوفات وقيم long الدقيقة والتحميل الزائد الصريح ومراجع Context للتطبيق"
         },
         {

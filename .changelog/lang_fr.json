@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Callbacks Java, sous-classes générées et chargement JAR/DEX pour Node.js, Bun et Workers, avec retours Promise, appels de la superclasse et libération en fin de session"
+        },
+        {
+          "category": "feature",
           "text": "Interopérabilité Java/Android pour Node.js, Bun et Workers, avec constructeurs et membres publics, tableaux, valeurs long exactes, surcharges explicites et handles Context"
         },
         {

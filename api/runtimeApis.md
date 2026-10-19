@@ -1782,4 +1782,112 @@ let java = require('autojs6:java');
 
 Bun 中把入口替换为 `const { createHostClient } = await import(process.env.AUTOJS6_HOST_CLIENT_MODULE); const java = (await createHostClient()).java;`. 文档示例只创建未附加的 TextView; 将 View 显示在窗口中仍需对应 UI 操作和系统条件.
 
-对象句柄属于一次执行; Node Worker 创建的句柄在该 Worker 退出时释放, 父线程句柄保持有效. 取消后的迟到对象结果也会释放. release 只释放桥引用, 不自动调用未知 Java 对象的 close/recycle, 文件流等资源应先显式关闭. Context 句柄不能代替运行时权限申请. 专门的 JS 回调/子类生成, loadDex/loadJar 便利接口和 Rhino 式同步包全局仍未实现. Bun 继续受 1024 次调用, 4 个并行请求和 JSON 大小上限约束; 本次没有修改原生 Bun 二进制或其兼容范围.
+对象句柄属于一次执行; Node Worker 创建的句柄在该 Worker 退出时释放, 父线程句柄保持有效. 取消后的迟到对象结果也会释放. release 只释放桥引用, 不自动调用未知 Java 对象的 close/recycle, 文件流等资源应先显式关闭. Context 句柄不能代替运行时权限申请. Java 回调/子类生成和 loadDex/loadJar 入口见下一节; Rhino 式同步包全局仍未实现. Bun 继续受 1024 次调用, 4 个并行请求和 JSON 大小上限约束; 本次没有修改原生 Bun 二进制或其兼容范围.
+
+## Java 回调, 子类与代码加载
+
+**`Async`**
+
+配套宿主 build 5592, Node Runtime 1.23.0 与 Bun Runtime 0.12.0 增加下列接口. Node 主线程和 CJS/ESM/嵌套 Worker 使用 `java` / `autojs6:java`, Bun 使用 `host.java`. 继续使用 Node 的 `java_interop` 与 Bun 默认关闭的 `java.interop` 授权. `$autojs.java` 也提供 proxy/defineClass/loadDex/loadJar/wrap 等入口.
+
+| 方法 | 返回值及用途 |
+| --- | --- |
+| `proxy(interfaces, implementation, options?)` | `Promise<ObjectHandle>`; 创建实现公开接口的生成代理对象 |
+| `wrap(callback, interfaceName?, options?)` | `Promise<ObjectHandle>`; 默认实现 java.lang.Runnable, 也可指定其他单抽象方法接口 |
+| `defineClass(definition, options?)` | `Promise<GeneratedClass>`; 生成真实 Java 子类 |
+| `loadJar(paths, options?)` | `Promise<ClassLoaderHandle>`; 用宿主现有本地编译器把 JAR 中的 Java class 转成 DEX 并加载 |
+| `loadDex(paths, options?)` | `Promise<ClassLoaderHandle>`; 加载标准 DEX 或含 classes.dex 的 ZIP/JAR/APK 代码容器 |
+| `retain(handle, options?)` / `handle.retain(options?)` | `Promise<ObjectHandle>`; 为临时回调参数保留独立引用 |
+| `closeCallbacks()` | `Promise<void>`; 关闭当前 java 对象建立的回调注册并停止轮询 |
+
+### 接口代理与返回值
+
+interfaces 接受完整类名, ClassDescriptor 或它们的数组. implementation 可为方法名到函数的对象; 单抽象方法接口可直接传函数. 代理通过生成类实现接口, 并非 java.lang.reflect.Proxy 实例. 没有覆盖的接口默认方法由 Java 执行. 默认方法有冲突时应明确提供覆盖.
+
+```js
+"nodejs";
+let java = require('autojs6:java');
+
+(async () => {
+    let runnable = await java.wrap(async function () {
+        console.log(await this.java.callStatic('java.lang.Math', 'max', [3, 9]));
+    });
+    try {
+        await runnable.call('run');
+    } finally {
+        await runnable.release();
+    }
+})();
+```
+
+回调函数可返回普通值或 Promise. Java 等待它完成, 并按 Java 方法的返回类型转换结果. 转换规则包括精确 long/bigint, null 与 Java 对象句柄; 返回值不匹配时报告错误. methods 的键可用简单方法名覆盖同名重载, 或用 `compare(java.lang.Object,java.lang.Object)` 等完整参数签名选择一个重载. 所有抽象方法必须实现, static/final/private 方法不可覆盖.
+
+普通 function 和对象方法中的 this 是 CallbackContext:
+
+| 成员 | 含义 |
+| --- | --- |
+| `this.java` | 注册该回调的 java 封装 |
+| `this.receiver` | 正在执行方法的代理/子类对象的临时句柄 |
+| `this.method` / `this.signature` | 当前方法名与参数签名 |
+| `this.callSuper(...args)` | 调用当前覆盖方法的具体父类实现, 返回 Promise |
+
+箭头函数保持普通 JavaScript 的词法 this 规则. JavaScript 回调在注册它的 Node/Bun/Worker 中执行. 通过同一个 java 封装或回调对象句柄发起的 Java 调用会自动重入等待中的 Java 线程, 包括 Android 主线程. 有依赖的调用应依次 await; 不等待就返回的异步操作不保证在回调结束前完成. 通过其他客户端或 UI 模块发起的调用不属于这条 Java 重入通道.
+
+对象参数和 receiver 是临时句柄, 回调结束后自动释放. 数组参数也是临时 Java 数组句柄, 可用 toArray 读取副本, 或用 setArrayItem 修改原始数组. 如需在回调结束后继续使用参数, 先 `await java.retain(value)`, 用完再 release. 回调返回 Java 对象时, 完成回传会先保存原生引用, 再释放临时句柄.
+
+### 子类与构造器
+
+definition 支持 name, extends, interfaces 和 methods. name 省略时生成唯一名称; extends 默认 java.lang.Object, 必须是公开且非 final 的类. 可调用父类的 public/protected 构造器, 覆盖 public/protected 实例方法. 参数按普通 Java 重载规则处理; `ClassDescriptor.new(args, options)` 的参数不包含内部回调分发器.
+
+```js
+let Generated = await java.defineClass({
+    extends: 'java.lang.Object',
+    methods: {
+        toString: async function () {
+            return '[JavaScript] ' + await this.callSuper();
+        },
+    },
+});
+let object = await Generated.new();
+try {
+    console.log(await object.call('toString'));
+} finally {
+    await object.release();
+    await Generated.release();
+}
+```
+
+父类构造器调用被覆盖的方法时, 回调已经可用. 需要 Android 主线程的构造或方法调用, 使用 `Generated.new(args, { thread: 'main' })` 或对应 call 选项. callSuper 仅适用于有具体父类实现的方法; 抽象方法和接口默认方法不提供这个快捷入口. 生成类可使用 ClassDescriptor 的构造, 静态访问与 describe 方法, 也带 release/dispose 和可克隆的句柄信息.
+
+### JAR/DEX 与类加载范围
+
+paths 接受一个路径或路径数组. 它们是宿主执行应用可读取的文件路径, 相对路径以宿主执行目录为基准, 不是运行时插件私有目录. 相互依赖的文件应在同一次调用中传入. loadJar/loadDex 与代理/子类创建的 timeoutMs 默认 120000; 回调本身的等待预算是另一项 callbackTimeoutMs.
+
+```js
+let loader = await java.loadJar(['lib/base.jar', 'lib/helper.jar']);
+try {
+    let Helper = loader.type('example.Helper');
+    let helper = await Helper.new();
+    try {
+        console.log(await helper.call('toString'));
+    } finally {
+        await helper.release();
+    }
+} finally {
+    await loader.release();
+}
+```
+
+ClassLoaderHandle 提供 paths 和 type/findClass. paths 是私有只读代码副本的位置. 未指定加载器的 java.type/describe/new 也能查找本次执行已经加载的类. 加载器采用 parent-first 规则; 已加载同名类不会被后来文件热替换. release 释放加载器句柄, 不承诺 JVM 卸载类. 代码目录在执行退出且在途操作结束后清理, 不修改源文件. 不同执行不共享这些类定义.
+
+加载过程遵循 Android 14 起的动态代码只读要求, 在打开目标文件后, 写入内容前将其设为只读. 参阅 [Android 动态代码加载要求](https://developer.android.com/about/versions/14/behavior-changes-14). JAR 必须与 Android 及宿主现有 D8/dx 编译器兼容; 本批未扩大旧 Android 的 Java 字节码兼容范围. 此入口仅加载代码, 不部署 APK/AAR 资源或 JNI 库.
+
+### 错误与生命周期
+
+CallbackOptions 提供 timeoutMs, signal, callbackTimeoutMs 和 onError. callbackTimeoutMs 默认 5000 ms, 范围 1..120000. 处理函数及完成回传中的错误交给 onError; 缺省写入控制台. 主动 Java 调用会拒绝其 Promise. Android 自行触发的回调在失败时记录日志, 并以基本类型默认值或 null 返回, 避免把 JavaScript 异常直接抛出到 Android 事件线程.
+
+代理 release 会关闭该代理的回调. 生成类 release 会关闭其所有实例共用的回调定义. Worker 退出会关闭属于该 Worker 的回调并解除 Java 等待, 保留父线程的注册. retain 仅保留对象引用, 不转移回调所有权. 已关闭的残留原生监听器不会再执行 JavaScript; 使用后仍应从 Android 对象上解绑监听器. 已经开始执行的 JavaScript 函数或 Java 方法不承诺被强制中断.
+
+回调注册存续期间会保持事件接收, 应及时 release 或 closeCallbacks. Bun 继续使用原有每次执行 1024 次调用和 4 个并发请求等预算; 轮询与每次返回值回传都会消耗预算, 不适用于无限期或高频逐帧回调. 普通并发 Java 调用遵守对象自身的线程安全规则.
+
+对象快照的 value.string 使用对象标识, 避免序列化时隐式执行用户的 toString 并再次触发回调. 需要文字内容时明确 `await object.call('toString')`. 本批仍不注入 Rhino 的同步 Java 包全局, 不自动把任意函数实参转换为 Java 回调.

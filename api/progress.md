@@ -1,5 +1,7 @@
 # 文档部署进度 (Progress)
 
+2026-10-20 Java 回调, 子类生成和 JAR/DEX 加载已同步到 Node.js, Bun 及 Worker 文档.
+
 2026-10-20 Node.js/Bun/Worker 的 Java/Android 对象互操作, 精确数值, 数组及主线程调用文档已同步.
 
 2026-10-19 Node.js/Bun/Worker 的 Android 对象辅助接口, 日历和 IntentTask 调度文档已同步.

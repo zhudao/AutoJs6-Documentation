@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Java callbacks, generated subclasses and JAR/DEX loading for Node.js, Bun and Workers, with Promise results, superclass calls and execution cleanup"
+        },
+        {
+          "category": "feature",
           "text": "Java/Android object interop for Node.js, Bun and Workers, including public constructors and members, arrays, exact long values, explicit overloads and application Context handles"
         },
         {
