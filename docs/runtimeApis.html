@@ -1997,7 +1997,7 @@ main().catch(console.error);
 <p>android.parseUri(value, control?) 返回原生 Android URI 的只读快照, 包含 value, scheme, authority, host, port, path, query 和 fragment; 缺失的字符串字段为 null, 缺失端口为 -1. null/undefined 输入返回 null.</p>
 <p>android.getUriForFile(path, control?) 和 app.getUriForFile(path, control?) 返回 Promise<UriSnapshot>, 由当前应用的 FileProvider 为已存在路径生成 content URI. 相对路径以当前宿主执行目录解析. URI 本身不会授予其他应用读取权; 用 Intent 分享时仍需相应 URI 授权标志. app.parseUri 保留原有同步描述符接口.</p>
 <h3>持久日历任务<span><a class="mark" href="#runtimeapis_18" id="runtimeapis_18">#</a></span></h3>
-<p>tasks 使用宿主任务页面相同的数据库和调度器, 创建结果为只读 JSON 快照. 已确认的任务在 Worker/脚本退出后保留, 需使用删除接口移除. 被取消且尚未确认的注册请求会清理其创建结果. 目标脚本在新的执行中运行, 使用目标项目的运行时及权限配置.</p>
+<p>tasks 使用宿主任务页面相同的数据库和调度器, 创建结果为只读 JSON 快照. 已确认的任务在 Worker/脚本退出后保留, 需使用删除接口移除. 被取消且尚未确认的注册请求会清理其创建结果. 目标脚本在新的执行中运行, 使用目标项目的运行时及权限配置. 同一宿主进程的 Bun 调用在各自预算内排队, 等待可取消; 等待超时不会把尚未派发的调用标记为不确定执行.</p>
 <table>
 <thead>
 <tr>
@@ -2032,7 +2032,7 @@ main().catch(console.error);
 </tr>
 <tr>
 <td>addCountdownTask(options)</td>
-<td>path 与非负整数 delayMs</td>
+<td>path 与正整数 delayMs</td>
 </tr>
 </tbody>
 </table>

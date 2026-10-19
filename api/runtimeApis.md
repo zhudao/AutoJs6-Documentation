@@ -992,7 +992,7 @@ android.getUriForFile(path, control?) 和 app.getUriForFile(path, control?) 返�
 
 ### 持久日历任务
 
-tasks 使用宿主任务页面相同的数据库和调度器, 创建结果为只读 JSON 快照. 已确认的任务在 Worker/脚本退出后保留, 需使用删除接口移除. 被取消且尚未确认的注册请求会清理其创建结果. 目标脚本在新的执行中运行, 使用目标项目的运行时及权限配置.
+tasks 使用宿主任务页面相同的数据库和调度器, 创建结果为只读 JSON 快照. 已确认的任务在 Worker/脚本退出后保留, 需使用删除接口移除. 被取消且尚未确认的注册请求会清理其创建结果. 目标脚本在新的执行中运行, 使用目标项目的运行时及权限配置. 同一宿主进程的 Bun 调用在各自预算内排队, 等待可取消; 等待超时不会把尚未派发的调用标记为不确定执行.
 
 | 创建方法 | 主要参数 |
 |---|---|
@@ -1002,7 +1002,7 @@ tasks 使用宿主任务页面相同的数据库和调度器, 创建结果为只
 | addMonthlyTask(options) | path, time 与 dayOfMonth (1..31) |
 | addYearlyTask(options) | path, time, monthOfYear (1..12) 与 dayOfMonth |
 | addDisposableTask(options) | path 与 date |
-| addCountdownTask(options) | path 与非负整数 delayMs |
+| addCountdownTask(options) | path 与正整数 delayMs |
 
 这些方法返回 Promise<TimedTask>. path 可以是已有脚本文件或声明了 project.json 的项目目录; 相对路径以宿主执行目录解析. repeatMode 支持 disposable/once, daily, weekly, monthly, yearly, countdown, 或对应数值 0..5. addTask(options) 根据 action/kind 选择 IntentTask, 否则创建日历任务.
 
