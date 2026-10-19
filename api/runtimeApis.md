@@ -1891,3 +1891,5 @@ CallbackOptions 提供 timeoutMs, signal, callbackTimeoutMs 和 onError. callbac
 回调注册存续期间会保持事件接收, 应及时 release 或 closeCallbacks. Bun 继续使用原有每次执行 1024 次调用和 4 个并发请求等预算; 轮询与每次返回值回传都会消耗预算, 不适用于无限期或高频逐帧回调. 普通并发 Java 调用遵守对象自身的线程安全规则.
 
 对象快照的 value.string 使用对象标识, 避免序列化时隐式执行用户的 toString 并再次触发回调. 需要文字内容时明确 `await object.call('toString')`. 本批仍不注入 Rhino 的同步 Java 包全局, 不自动把任意函数实参转换为 Java 回调.
+
+Bun 打包应用隐藏启动页和日志页时, 与 Node 一样使用现有的 12 秒启动可见性窗口, 避免运行时尚在初始化就关闭启动 Activity. 实际脚本 UI 出现后由其窗口保持前台状态; 该启动窗口不承诺长期后台驻留.
