@@ -1,0 +1,63 @@
+{
+  "source": "..\\api\\speechRecognitionResultType.md",
+  "modules": [
+    {
+      "textRaw": "SpeechRecognitionResult",
+      "name": "speechrecognitionresult",
+      "desc": "<p>SpeechRecognitionResult 是 <a href=\"speech#m-recognize\">speech.recognize</a> 的返回值与 <a href=\"speech#m-recognizeasync\">speech.recognizeAsync</a> 的兑现值, 为普通 JavaScript 对象, 描述一段音频的识别结果. 麦克风或外部 PCM 会话的结果不使用此对象, 而是以 <a href=\"speechSessionType\">SpeechSession</a> 的 <code>final</code> 事件逐句到达.</p>\n<pre><code class=\"lang-js\">let result = speech.recognize(&#39;./meeting.wav&#39;);\nconsole.log(result.modelId, result.durationMillis, result.text);\nresult.segments.forEach((s) =&gt; {\n    console.log(`[${s.startMillis} - ${s.endMillis}]`, s.language || &#39;&#39;, s.text);\n});\nresult.warnings.forEach(w =&gt; console.warn(w.code, w.message));\n</code></pre>\n<hr>\n<p style=\"font: bold 2em sans-serif; color: #FF7043\">SpeechRecognitionResult</p>\n\n<hr>\n",
+      "modules": [
+        {
+          "textRaw": "[@] SpeechRecognitionResult",
+          "name": "[@]_speechrecognitionresult",
+          "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li>{{<ul>\n<li>text: <a href=\"dataTypes#string\">string</a>;</li>\n<li>segments: {{<ul>\n<li>startMillis: <a href=\"dataTypes#number\">number</a>;</li>\n<li>endMillis: <a href=\"dataTypes#number\">number</a>;</li>\n<li>text: <a href=\"dataTypes#string\">string</a>;</li>\n<li>language?: <a href=\"dataTypes#string\">string</a>;</li>\n<li>tags?: {{ emotion?: <a href=\"dataTypes#string\">string</a>; event?: <a href=\"dataTypes#string\">string</a> }};</li>\n</ul>\n</li>\n<li>}}[];</li>\n<li>language?: <a href=\"dataTypes#string\">string</a>;</li>\n<li>durationMillis: <a href=\"dataTypes#number\">number</a>;</li>\n<li>modelId: <a href=\"dataTypes#string\">string</a>;</li>\n<li>warnings: {{ code: <a href=\"dataTypes#string\">string</a>; message: <a href=\"dataTypes#string\">string</a> }}[];</li>\n</ul>\n</li>\n<li>}}</li>\n</ul>\n",
+          "type": "module",
+          "displayName": "[@] SpeechRecognitionResult"
+        },
+        {
+          "textRaw": "[p] text",
+          "name": "[p]_text",
+          "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li>{ <a href=\"dataTypes#string\">string</a> }</li>\n</ul>\n<p>整段音频的识别文字. <code>punctuation</code> 为 <code>true</code> (默认) 时保留模型输出的标点.</p>\n",
+          "type": "module",
+          "displayName": "[p] text"
+        },
+        {
+          "textRaw": "[p] segments",
+          "name": "[p]_segments",
+          "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li>{{ startMillis: <a href=\"dataTypes#number\">number</a>; endMillis: <a href=\"dataTypes#number\">number</a>; text: <a href=\"dataTypes#string\">string</a>; language?: <a href=\"dataTypes#string\">string</a>; tags?: <a href=\"dataTypes#object\">object</a> }}[]</li>\n</ul>\n<p>按时间排列的语音段. <code>vad</code> 为 <code>true</code> (默认) 时先按语音活动检测切段再逐段识别.</p>\n<ul>\n<li><strong>startMillis</strong> / <strong>endMillis</strong> - 语音段在音频中的起止时间, 单位为毫秒</li>\n<li><strong>text</strong> - 该段的文字</li>\n<li><strong>language</strong> - 识别出的语种, 如 <code>&#39;zh&#39;</code>, <code>&#39;en&#39;</code>; 只有能识别语种的模型 (SenseVoice) 提供</li>\n<li><strong>tags</strong> - SenseVoice 的附加标签: <code>emotion</code> (情感) 与 <code>event</code> (声音事件), 只在模型给出时存在</li>\n</ul>\n<p>结果对象过大 (超过 256 KiB) 时, 插件省略各段的文字以保持在协议上限内 (此时各段 <code>text</code> 为空字符串, 整段文字仍在 <code>text</code> 中), 并在 <code>warnings</code> 中加入 <code>LIMIT_EXCEEDED</code>.</p>\n",
+          "type": "module",
+          "displayName": "[p] segments"
+        },
+        {
+          "textRaw": "[p] language",
+          "name": "[p]_language",
+          "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li>{ <a href=\"dataTypes#string\">string</a> | <a href=\"dataTypes#undefined\">undefined</a> }</li>\n</ul>\n<p>整段音频的语种, 只在模型给出时存在.</p>\n",
+          "type": "module",
+          "displayName": "[p] language"
+        },
+        {
+          "textRaw": "[p] durationMillis",
+          "name": "[p]_durationmillis",
+          "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li>{ <a href=\"dataTypes#number\">number</a> }</li>\n</ul>\n<p>音频总时长, 单位为毫秒.</p>\n",
+          "type": "module",
+          "displayName": "[p] durationMillis"
+        },
+        {
+          "textRaw": "[p] modelId",
+          "name": "[p]_modelid",
+          "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li>{ <a href=\"dataTypes#string\">string</a> }</li>\n</ul>\n<p>实际使用的识别模型 ID.</p>\n",
+          "type": "module",
+          "displayName": "[p] modelId"
+        },
+        {
+          "textRaw": "[p] warnings",
+          "name": "[p]_warnings",
+          "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li>{{ code: <a href=\"dataTypes#string\">string</a>; message: <a href=\"dataTypes#string\">string</a> }}[]</li>\n</ul>\n<p>非致命问题, 没有时为空数组. 常见情形:</p>\n<ul>\n<li><code>INVALID_OPTIONS</code> - 模型不支持热词而忽略了 <code>hotwords</code>, 或 SenseVoice 不认识 <code>language</code> 而改为自动识别.</li>\n<li><code>LIMIT_EXCEEDED</code> - 结果过大, 省略了各段文字.</li>\n</ul>\n",
+          "type": "module",
+          "displayName": "[p] warnings"
+        }
+      ],
+      "type": "module",
+      "displayName": "SpeechRecognitionResult"
+    }
+  ]
+}

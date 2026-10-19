@@ -1018,6 +1018,26 @@
     },
     {
       "type": "text",
+      "text": "[SpeechSession - 听写会话](speechSessionType)"
+    },
+    {
+      "type": "list_item_end"
+    },
+    {
+      "type": "list_item_start"
+    },
+    {
+      "type": "text",
+      "text": "[SpeechWakeSession - 唤醒会话](speechWakeSessionType)"
+    },
+    {
+      "type": "list_item_end"
+    },
+    {
+      "type": "list_item_start"
+    },
+    {
+      "type": "text",
       "text": "[ImageWrapper - 包装图像类](imageWrapperType)"
     },
     {
@@ -1318,7 +1338,7 @@
     {
       "type": "html",
       "pre": false,
-      "text": "<details>\n\n<summary style=\"padding-left: 1em\">Other Types - 其他类型</summary>\n\n* [AndroidBundle](androidBundleType)\n- [AgentRun](agentRunType)\n- [AgentRunOptions](agentRunOptionsType)\n- [AgentResult](agentResultType)\n- [AgentScriptEntry](agentScriptEntryType)\n- [AgentEvent](agentEventType)\n* [AndroidRect](androidRectType)\n* [CryptoCipherOptions](cryptoCipherOptionsType)\n* [CryptoKey](cryptoKeyType)\n* [CryptoKeyPair](cryptoKeyPairType)\n* [ConsoleBuildOptions](consoleBuildOptionsType)\n* [EpubLocator](epubLocatorType)\n* [HttpRequestBuilderOptions](httpRequestBuilderOptionsType)\n* [HttpRequestHeaders](httpRequestHeadersType)\n* [HttpResponseBody](httpResponseBodyType)\n* [HttpResponseHeaders](httpResponseHeadersType)\n* [HttpResponse](httpResponseType)\n* [InjectableWebClient](injectableWebClientType)\n* [InjectableWebView](injectableWebViewType)\n* [MailAccountOptions](mailAccountOptionsType)\n* [MailSearchQuery](mailSearchQueryType)\n* [NoticeOptions](noticeOptionsType)\n* [NoticeChannelOptions](noticeChannelOptionsType)\n* [NoticePresetConfiguration](noticePresetConfigurationType)\n* [NoticeBuilder](noticeBuilderType)\n* [Okhttp3HttpUrl](okhttp3HttpUrlType)\n* [OcrOptions](ocrOptionsType)\n* [Okhttp3Request](okhttp3RequestType)\n* [OpenCVPoint](opencvPointType)\n* [OpenCVRect](opencvRectType)\n* [OpenCVSize](opencvSizeType)\n* [OpenCCConversion](openCCConversionType)\n\n</details>\n\n"
+      "text": "<details>\n\n<summary style=\"padding-left: 1em\">Other Types - 其他类型</summary>\n\n* [AndroidBundle](androidBundleType)\n- [AgentRun](agentRunType)\n- [AgentRunOptions](agentRunOptionsType)\n- [AgentResult](agentResultType)\n- [AgentScriptEntry](agentScriptEntryType)\n- [AgentEvent](agentEventType)\n* [AndroidRect](androidRectType)\n* [CryptoCipherOptions](cryptoCipherOptionsType)\n* [CryptoKey](cryptoKeyType)\n* [CryptoKeyPair](cryptoKeyPairType)\n* [ConsoleBuildOptions](consoleBuildOptionsType)\n* [EpubLocator](epubLocatorType)\n* [HttpRequestBuilderOptions](httpRequestBuilderOptionsType)\n* [HttpRequestHeaders](httpRequestHeadersType)\n* [HttpResponseBody](httpResponseBodyType)\n* [HttpResponseHeaders](httpResponseHeadersType)\n* [HttpResponse](httpResponseType)\n* [InjectableWebClient](injectableWebClientType)\n* [InjectableWebView](injectableWebViewType)\n* [MailAccountOptions](mailAccountOptionsType)\n* [MailSearchQuery](mailSearchQueryType)\n* [NoticeOptions](noticeOptionsType)\n* [NoticeChannelOptions](noticeChannelOptionsType)\n* [NoticePresetConfiguration](noticePresetConfigurationType)\n* [NoticeBuilder](noticeBuilderType)\n* [Okhttp3HttpUrl](okhttp3HttpUrlType)\n* [OcrOptions](ocrOptionsType)\n* [Okhttp3Request](okhttp3RequestType)\n* [OpenCVPoint](opencvPointType)\n* [OpenCVRect](opencvRectType)\n* [OpenCVSize](opencvSizeType)\n* [OpenCCConversion](openCCConversionType)\n* [SpeechModelInfo](speechModelInfoType)\n* [SpeechRecognitionResult](speechRecognitionResultType)\n\n</details>\n\n"
     },
     {
       "type": "list_start",

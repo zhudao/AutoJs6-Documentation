@@ -130,6 +130,8 @@
 <li><a class="nav-galleryViewSessionType" href="galleryViewSessionType.html">GalleryViewSession - 查看器会话</a></li>
 <li><a class="nav-mailClientType" href="mailClientType.html">MailClient - 邮件客户端</a></li>
 <li><a class="nav-mailMessageType" href="mailMessageType.html">MailMessage - 邮件消息</a></li>
+<li><a class="nav-speechSessionType" href="speechSessionType.html">SpeechSession - 听写会话</a></li>
+<li><a class="nav-speechWakeSessionType" href="speechWakeSessionType.html">SpeechWakeSession - 唤醒会话</a></li>
 <li><a class="nav-webSocketType" href="webSocketType.html">WebSocket</a></li>
 <li><a class="nav-eventEmitterType" href="eventEmitterType.html">EventEmitter - 事件发射器</a></li>
 <li><a class="nav-imageWrapperType" href="imageWrapperType.html">ImageWrapper - 包装图像类</a></li>
@@ -199,6 +201,8 @@
 <li><a class="nav-opencvRectType" href="opencvRectType.html">OpenCVRect</a></li>
 <li><a class="nav-opencvSizeType" href="opencvSizeType.html">OpenCVSize</a></li>
 <li><a class="nav-openCCConversionType" href="openCCConversionType.html">OpenCCConversion</a></li>
+<li><a class="nav-speechModelInfoType" href="speechModelInfoType.html">SpeechModelInfo</a></li>
+<li><a class="nav-speechRecognitionResultType" href="speechRecognitionResultType.html">SpeechRecognitionResult</a></li>
 </ul>
 <div class="line"></div>
 
@@ -435,6 +439,12 @@
 <li><span class="stability_undefined"><a href="#tts_ttsaudioevent">TtsAudioEvent</a></span></li>
 <li><span class="stability_undefined"><a href="#tts_ttsstopevent">TtsStopEvent</a></span></li>
 <li><span class="stability_undefined"><a href="#tts_ttserror">TtsError</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#tts_3_macaw_speech">使用 3-Macaw Speech 引擎</a></span><ul>
+<li><span class="stability_undefined"><a href="#tts_2">语音名称</a></span></li>
+<li><span class="stability_undefined"><a href="#tts_3">语言与默认语音</a></span></li>
+<li><span class="stability_undefined"><a href="#tts_speech_speak">speech.speak 的语音选择</a></span></li>
 </ul>
 </li>
 </ul>
@@ -1069,6 +1079,64 @@ console.log(defaults.rate);
 <li><strong>reason</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> | <span class="type"><a href="dataTypes.html#datatypes_undefined">undefined</a></span> } - 中断原因</li>
 </ul>
 </div><p>只有中断错误包含 <code>reason</code>.</p>
+<h2>使用 3-Macaw Speech 引擎<span><a class="mark" href="#tts_3_macaw_speech" id="tts_3_macaw_speech">#</a></span></h2>
+<p>3-Macaw Speech 插件 (参阅 <a href="speech.html">语音 (Speech)</a>) 把已安装的合成模型注册为 Android 系统 TTS 引擎, 引擎包名为 <code>io.github.supermonster003.autojs6.plugin.three.macaw.speech</code>. 可以在系统的文字转语音设置中把它选为首选引擎, 也可以在本模块的调用中以 <code>engine</code> 选项指定. 引擎全部离线运行. 它是普通的 Android 引擎, 经 <code>TextToSpeech</code> 使用, 不受插件中心启用状态的影响; <a href="speech.html#speech_m_speak">speech.speak</a> 等价于固定该引擎的 <code>tts()</code>.</p>
+<pre><code class="lang-js">let engine = &#39;io.github.supermonster003.autojs6.plugin.three.macaw.speech&#39;;
+tts.voices({ engine: engine }).then((voices) =&gt; {
+    voices.slice(0, 5).forEach(v =&gt; console.log(v.name, v.locale, v.quality));
+});
+tts(&#39;你好, 世界&#39;, { engine: engine, voice: &#39;tts.vits.icefall.zh-aishell3/10&#39; });
+tts.synthesize(&#39;Hello&#39;, &#39;./hello.wav&#39;, { engine: engine, locale: &#39;en-US&#39; });
+</code></pre>
+<h3>语音名称<span><a class="mark" href="#tts_2" id="tts_2">#</a></span></h3>
+<p>每个已安装合成模型的每个说话人, 在模型支持的每种语言下各对应一个语音:</p>
+<ul>
+<li>在说话人的首要语言下, 语音名称为 <code>&lt;模型 ID&gt;/&lt;说话人编号&gt;</code>, 例如 <code>tts.vits.icefall.zh-aishell3/10</code>. <a href="speech.html#speech_m_speak">speech.speak</a> 的 <code>model</code> 与 <code>speaker</code> 选择的就是这个名称.</li>
+<li>在模型的其他语言下, 同一说话人的语音名称为 <code>&lt;模型 ID&gt;/&lt;说话人编号&gt;/&lt;语言标签&gt;</code>, 例如 <code>tts.vits.melo.zh-en/0/en-US</code>. 每个名称因此唯一, 按区域请求语言的应用也能找到双语模型的语音.</li>
+<li>区域由模型语言得出: <code>zh</code> 为 <code>zh-CN</code>, <code>en</code> 为 <code>en-US</code>. 说话人的首要语言为模型的第一种语言; 例外是 <code>tts.kokoro.multi-lang.v1_1</code> 的 0 - 2 号说话人首要语言为英文 (<code>en-US</code>, 其中文语音为 <code>/0/zh-CN</code> 等), 3 - 102 号为中文.</li>
+<li><a href="#tts_m_voices">voices</a> 只列出按编号命名的语音. 带说话人名称表的模型 (如 AISHELL-3 的 <code>SSB0005</code>) 还接受 <code>&lt;模型 ID&gt;/&lt;说话人名称&gt;</code>, 但该名称不在语音列表中, 而 <code>voice</code> 选项按列表精确匹配, 因此说话人名称只能经 <a href="speech.html#speech_m_speak">speech.speak</a> 的 <code>speaker</code> 使用.</li>
+<li>所有语音都不需要网络. 质量按采样率给出: 22.05 kHz 及以上为高, 16 kHz 为普通, 更低为低.</li>
+</ul>
+<h3>语言与默认语音<span><a class="mark" href="#tts_3" id="tts_3">#</a></span></h3>
+<div class="signature"><ul>
+<li><a href="#tts_m_languageavailability">languageAvailability</a> 的支持级别: 已安装模型的语言与国家一致时为 <code>language_and_country</code>, 语言一致而地区不同时为 <code>language</code>, 只有模型目录中尚未安装的模型支持该语言时为 <code>missing_data</code>, 其他为 <code>not_supported</code>.</li>
+<li>只指定语言时, 引擎依次按默认合成模型, 以该语言为首要语言的语音, 模型安装顺序, 模型的默认说话人选择语音.</li>
+<li>没有安装任何合成模型时, 合成失败, 系统设置中的试听也不可用. 在插件界面或通过 <a href="speech.html#speech_m_models_install">speech.models.install</a> 安装合成模型.</li>
+<li><code>rate</code> 由引擎换算为模型语速, 有效范围为 <code>0.25..4</code>; <code>pitch</code> 被忽略.</li>
+</ul>
+</div><h3>speech.speak 的语音选择<span><a class="mark" href="#tts_speech_speak" id="tts_speech_speak">#</a></span></h3>
+<p><a href="speech.html#speech_m_speak">speech.speak</a> 按下表选择语音:</p>
+<table>
+<thead>
+<tr>
+<th>speech.speak 选项</th>
+<th>使用的语音</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>不给 <code>model</code>, 给出 <code>language</code> (或 <code>locale</code> / <code>lang</code>)</td>
+<td>由 <code>tts</code> 按该语言选择引擎的语音</td>
+</tr>
+<tr>
+<td>不给 <code>model</code>, 也不给语言</td>
+<td>引擎在文本语言下的默认语音 (引擎支持该语言时), 否则为引擎的默认语音</td>
+</tr>
+<tr>
+<td><code>model</code> 与数字 <code>speaker</code></td>
+<td><code>&lt;model&gt;/&lt;speaker&gt;</code>, 须在语音列表中</td>
+</tr>
+<tr>
+<td><code>model</code> 与说话人名称</td>
+<td>直接设置 <code>&lt;model&gt;/&lt;名称&gt;</code>, 由引擎解析, 不认识的名称以 <code>CONFIGURATION</code> 拒绝</td>
+</tr>
+<tr>
+<td>只给 <code>model</code></td>
+<td>该模型中首要语言与 <code>language</code> (或 <code>locale</code> / <code>lang</code>) 一致的编号最小的语音, 未给语言时与文本语言一致; 都不一致时为编号最小的语音</td>
+</tr>
+</tbody>
+</table>
+<p>文本语言按字符判断: 含假名为 <code>ja</code>, 含谚文为 <code>ko</code>, 其他含汉字的文本 (包括中英混合) 为 <code>zh</code>, 只有拉丁字母为 <code>en</code>. 因此不给说话人时, <code>tts.kokoro.multi-lang.v1_1</code> 朗读中文或中英混合文本使用 3 号说话人, 朗读英文使用 0 号; 不给模型时, 设备语言为英文也会用中文语音朗读中文文本. 文本语言不受引擎支持时 (例如插件 1.0.0 的目录没有日语模型) 使用引擎的默认语音, 不会失败. 指定的模型未安装 (语音列表中没有它的语音) 时, Promise 以 <code>code</code> 为 <code>CONFIGURATION</code> 的 <a href="#tts_ttserror">TtsError</a> 拒绝.</p>
 
         </div>
     </div>

@@ -130,6 +130,8 @@
 <li><a class="nav-galleryViewSessionType" href="galleryViewSessionType.html">GalleryViewSession - 查看器会话</a></li>
 <li><a class="nav-mailClientType" href="mailClientType.html">MailClient - 邮件客户端</a></li>
 <li><a class="nav-mailMessageType" href="mailMessageType.html">MailMessage - 邮件消息</a></li>
+<li><a class="nav-speechSessionType" href="speechSessionType.html">SpeechSession - 听写会话</a></li>
+<li><a class="nav-speechWakeSessionType" href="speechWakeSessionType.html">SpeechWakeSession - 唤醒会话</a></li>
 <li><a class="nav-webSocketType" href="webSocketType.html">WebSocket</a></li>
 <li><a class="nav-eventEmitterType" href="eventEmitterType.html">EventEmitter - 事件发射器</a></li>
 <li><a class="nav-imageWrapperType" href="imageWrapperType.html">ImageWrapper - 包装图像类</a></li>
@@ -199,6 +201,8 @@
 <li><a class="nav-opencvRectType" href="opencvRectType.html">OpenCVRect</a></li>
 <li><a class="nav-opencvSizeType" href="opencvSizeType.html">OpenCVSize</a></li>
 <li><a class="nav-openCCConversionType" href="openCCConversionType.html">OpenCCConversion</a></li>
+<li><a class="nav-speechModelInfoType" href="speechModelInfoType.html">SpeechModelInfo</a></li>
+<li><a class="nav-speechRecognitionResultType" href="speechRecognitionResultType.html">SpeechRecognitionResult</a></li>
 </ul>
 <div class="line"></div>
 
@@ -292,10 +296,13 @@
             <h2>目录</h2>
 <ul>
 <li><span class="stability_undefined"><a href="#plugins_plugins">插件 (Plugins)</a></span><ul>
-<li><span class="stability_undefined"><a href="#plugins">应用插件</a></span></li>
-<li><span class="stability_undefined"><a href="#plugins_1">项目插件</a></span></li>
-<li><span class="stability_undefined"><a href="#plugins_2">内置扩展插件</a></span></li>
-<li><span class="stability_undefined"><a href="#plugins_3">插件工具</a></span></li>
+<li><span class="stability_undefined"><a href="#plugins">应用插件</a></span><ul>
+<li><span class="stability_undefined"><a href="#plugins_1">提供脚本模块的插件</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#plugins_2">项目插件</a></span></li>
+<li><span class="stability_undefined"><a href="#plugins_3">内置扩展插件</a></span></li>
+<li><span class="stability_undefined"><a href="#plugins_4">插件工具</a></span></li>
 <li><span class="stability_undefined"><a href="#plugins_m_load">[m] load</a></span><ul>
 <li><span class="stability_undefined"><a href="#plugins_load_apppluginpackagename">load(appPluginPackageName)</a></span></li>
 <li><span class="stability_undefined"><a href="#plugins_load_projectpluginname">load(projectPluginName)</a></span></li>
@@ -346,7 +353,7 @@
         <div id="apicontent">
             <h1>插件 (Plugins)<span><a class="mark" href="#plugins_plugins" id="plugins_plugins">#</a></span></h1>
 <p>在 AutoJs6 中, 插件分为 [ 应用插件 / 项目插件 / 内置扩展插件 ].</p>
-<p>plugins 模块主要用于插件及扩展模块的加载并使其功能生效. <a href="#plugins_3">plugins.tools</a> 用于调用 AutoJs6 插件自描述的工具.</p>
+<p>plugins 模块主要用于插件及扩展模块的加载并使其功能生效. <a href="#plugins_4">plugins.tools</a> 用于调用 AutoJs6 插件自描述的工具.</p>
 <h2>应用插件<span><a class="mark" href="#plugins" id="plugins">#</a></span></h2>
 <p>应用插件通常是一个由开发者编写的可安装的 APK 文件, 安装插件后可由 AutoJs6 通过 <a href="#plugins_m_load">plugins.load</a> 方法加载并使用插件.</p>
 <p>应用插件的使用步骤:</p>
@@ -360,7 +367,76 @@
 <pre><code class="lang-js">let { exp } = plugins.load(&#39;org.autojs.autojs.plugin.demo&#39;);
 exp.test(&#39;hello&#39;);
 </code></pre>
-<h2>项目插件<span><a class="mark" href="#plugins_1" id="plugins_1">#</a></span></h2>
+<h3>提供脚本模块的插件<span><a class="mark" href="#plugins_1" id="plugins_1">#</a></span></h3>
+<p>从 AutoJs6 6.8.0 起, 部分脚本模块由外置的官方应用插件提供. 这些插件不通过 plugins.load 加载: 在插件中心安装并启用兼容的插件后, 对应的全局模块即可使用; 插件缺失或不可用时, 模块方法抛出相应的插件错误, 具体条件见各模块文档.</p>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>提供功能的插件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="ai.html">AI - 人工智能</a></td>
+<td>3-Stone AI (文本生成与会话), 3-Stove Agent (<code>ai.agent</code>)</td>
+</tr>
+<tr>
+<td><a href="barcode.html">Barcode - 条码</a>, <a href="qrcode.html">QR Code - 二维码</a></td>
+<td>ML Kit Barcode</td>
+</tr>
+<tr>
+<td><a href="compose.html">3-Block Compose</a></td>
+<td>3-Block Compose</td>
+</tr>
+<tr>
+<td><a href="epub.html">EPUB - 电子书</a></td>
+<td>Readium EPUB Reader</td>
+</tr>
+<tr>
+<td><a href="files.html#files_m_batchrename">Files - 文件</a> 的 files.batchRename</td>
+<td>Batch Rename</td>
+</tr>
+<tr>
+<td><a href="gallery.html">Gallery - 相册</a></td>
+<td>3-Maple Image</td>
+</tr>
+<tr>
+<td><a href="installer.html">Installer - 安装器</a></td>
+<td>3-Setup Installer</td>
+</tr>
+<tr>
+<td><a href="mail.html">Mail - 邮件</a></td>
+<td>Angus Mail</td>
+</tr>
+<tr>
+<td><a href="ocr.html">OCR - 光学字符识别</a></td>
+<td>OCR 插件</td>
+</tr>
+<tr>
+<td><a href="opencc.html">OpenCC - 中文转换</a></td>
+<td>OpenCC 插件</td>
+</tr>
+<tr>
+<td><a href="pinyin.html">Pinyin - 拼音</a></td>
+<td>Pinyin 插件</td>
+</tr>
+<tr>
+<td><a href="speech.html">Speech - 语音</a></td>
+<td>3-Macaw Speech</td>
+</tr>
+<tr>
+<td><a href="terminal.html">Terminal - 终端</a></td>
+<td>3-Shell Terminal</td>
+</tr>
+<tr>
+<td><a href="yolo.html">YOLO - 目标检测</a></td>
+<td>YOLO Provider 插件</td>
+</tr>
+</tbody>
+</table>
+<p><a href="autojs4Runtime.html">AutoJs4 Runtime</a> 插件不提供脚本模块, 它为文件管理器增加 &quot;使用 AutoJs4 运行&quot; 入口.</p>
+<h2>项目插件<span><a class="mark" href="#plugins_2" id="plugins_2">#</a></span></h2>
 <p>项目插件是依附于项目的一组 JavaScript 模块, 它们位于项目根目录的 <code>plugins</code> 文件夹中, 由 AutoJs6 通过 <a href="#plugins_m_load">plugins.load</a> 方法加载并使用.</p>
 <p>例如项目结构 (部分) 如下:</p>
 <pre><code class="lang-text">┌ modules ┬ moduleA.js
@@ -374,7 +450,7 @@ exp.test(&#39;hello&#39;);
 <pre><code class="lang-js">plugins.load(&#39;pluginA&#39;);
 plugins.load(&#39;pluginA.js&#39;); /* 同上. */
 </code></pre>
-<h2>内置扩展插件<span><a class="mark" href="#plugins_2" id="plugins_2">#</a></span></h2>
+<h2>内置扩展插件<span><a class="mark" href="#plugins_3" id="plugins_3">#</a></span></h2>
 <p>内置扩展插件相当于内置的项目插件, 它们是内置于 AutoJs6 软件中的, 可通过调用 <a href="#plugins_m_extend">plugins.extend</a> 等方法选择性地启用部分或全部内置扩展插件, 也称作内置扩展模块.</p>
 <p>加载方式:</p>
 <pre><code class="lang-js">/* 启用 Array 内置扩展插件. */
@@ -389,7 +465,7 @@ plugins.extendAll();
 <li><a href="numberx.html">Numberx - Number 扩展</a></li>
 <li><a href="mathx.html">Mathx - Math 扩展</a></li>
 </ul>
-<h2>插件工具<span><a class="mark" href="#plugins_3" id="plugins_3">#</a></span></h2>
+<h2>插件工具<span><a class="mark" href="#plugins_4" id="plugins_4">#</a></span></h2>
 <p>部分 AutoJs6 插件会声明自己提供的工具 (名称, 说明, 参数格式与风险等级), 例如中文转换或目标检测. AutoJs6 汇总这些工具, 脚本通过 <a href="#plugins_m_tools_list">plugins.tools.list</a> 查看, 通过 <a href="#plugins_m_tools_call">plugins.tools.call</a> 调用; MCP Server 等插件也经同一途径使用它们.</p>
 <ul>
 <li>工具名称为 <code>&lt;插件短名&gt;_&lt;工具名&gt;</code>, 例如 <code>opencc_convert</code>.</li>
@@ -425,7 +501,7 @@ plugins.load(&#39;org.autojs.autojs.plugin.demo&#39;);
 <li><strong>packageName</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 项目插件名称</li>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_any">any</a></span> }</li>
 </ul>
-<p>加载 <a href="#plugins_1">项目插件</a>.</p>
+<p>加载 <a href="#plugins_2">项目插件</a>.</p>
 <h2>[m+] extend<span><a class="mark" href="#plugins_m_extend" id="plugins_m_extend">#</a></span></h2>
 <h3>extend(...moduleNames)<span><a class="mark" href="#plugins_extend_modulenames" id="plugins_extend_modulenames">#</a></span></h3>
 <p><strong><code>6.2.0</code></strong></p>
@@ -433,7 +509,7 @@ plugins.load(&#39;org.autojs.autojs.plugin.demo&#39;);
 <li><strong>moduleNames</strong> { <span class="type"><a href="documentation.html#documentation_9">...</a><a href="dataTypes.html#datatypes_extendmodulesnames">ExtendModulesNames</a><a href="documentation.html#documentation_9">[]</a></span> } - 内置扩展插件名称</li>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
-<p>加载指定的 <a href="#plugins_2">内置扩展插件</a>.</p>
+<p>加载指定的 <a href="#plugins_3">内置扩展插件</a>.</p>
 <pre><code class="lang-js">/* 启用 Array 内置扩展插件. */
 plugins.extend(&#39;Arrayx&#39;);
 
@@ -465,7 +541,7 @@ plugins.extendAll();
 <ul>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
-<p>加载所有的 <a href="#plugins_2">内置扩展插件</a>.</p>
+<p>加载所有的 <a href="#plugins_3">内置扩展插件</a>.</p>
 <pre><code class="lang-js">plugins.extendAll();
 </code></pre>
 <p>如需在所有脚本均自动加载所有内置扩展插件, 而无需每次使用 <code>plugins.extendAll()</code>, 可对 AutoJs6 进行如下设置:</p>
@@ -478,7 +554,7 @@ plugins.extendAll();
 <li><strong>moduleNames</strong> { <span class="type"><a href="documentation.html#documentation_9">...</a><a href="dataTypes.html#datatypes_extendmodulesnames">ExtendModulesNames</a><a href="documentation.html#documentation_9">[]</a></span> } - 内置扩展插件名称</li>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
-<p>加载所有的 <a href="#plugins_2">内置扩展插件</a>, 但排除指定的插件.</p>
+<p>加载所有的 <a href="#plugins_3">内置扩展插件</a>, 但排除指定的插件.</p>
 <pre><code class="lang-js">plugins.extendAllBut(&#39;Mathx&#39;); /* 加载除 Math 外的全部内置扩展插件. */
 </code></pre>
 <h2>[m] tools.list<span><a class="mark" href="#plugins_m_tools_list" id="plugins_m_tools_list">#</a></span></h2>
@@ -487,7 +563,7 @@ plugins.extendAll();
 <ul>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_object">Object</a><a href="dataTypes.html#datatypes_array">[]</a></span> }</li>
 </ul>
-<p>返回当前可用的 <a href="#plugins_3">插件工具</a>. 每个元素包含:</p>
+<p>返回当前可用的 <a href="#plugins_4">插件工具</a>. 每个元素包含:</p>
 <ul>
 <li><strong>name</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 工具名称 (<code>&lt;插件短名&gt;_&lt;工具名&gt;</code>)</li>
 <li><strong>description</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 工具说明 (英文, 由插件作者撰写)</li>
@@ -523,7 +599,7 @@ plugins.extendAll();
 </li>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_object">Object</a></span> }</li>
 </ul>
-<p>调用一个 <a href="#plugins_3">插件工具</a> 并等待结果. 返回对象包含:</p>
+<p>调用一个 <a href="#plugins_4">插件工具</a> 并等待结果. 返回对象包含:</p>
 <ul>
 <li><strong>result</strong> { <span class="type"><a href="dataTypes.html#datatypes_any">any</a></span> } - 工具返回的结果</li>
 <li><strong>text</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 结果的简短文字说明 (可能不存在)</li>

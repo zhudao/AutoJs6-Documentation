@@ -1,0 +1,160 @@
+{
+  "source": "..\\api\\speechWakeSessionType.md",
+  "modules": [
+    {
+      "textRaw": "唤醒会话 (SpeechWakeSession)",
+      "name": "唤醒会话_(speechwakesession)",
+      "desc": "<p>SpeechWakeSession 是 <a href=\"speech#m-wake\">speech.wake</a> 返回的唤醒词会话对象, 是 <a href=\"eventEmitterType\">EventEmitter</a> 的实例: 3-Macaw Speech 插件从麦克风持续检测关键词, 每次命中以 <code>wake</code> 事件在打开会话的脚本线程到达. 设置 <code>thenListen</code> 后, 每次命中自动转入一轮听写, 该轮的 <a href=\"speechSessionType\">SpeechSession</a> 由 <code>wake</code> 事件的 <code>listen</code> 字段交给脚本, 该轮结束后恢复关键词检测.</p>\n<p>会话打开期间脚本保持运行, 直至 <code>end</code> 事件; <code>end</code> 是唯一的终结事件, 各听写轮次的 <code>end</code> 只是普通事件. 脚本退出时未结束的会话被静默取消, 插件随即释放麦克风. 唤醒会话占用插件唯一的麦克风; 插件自己的听写入口 (数字助理, 系统语音输入, 系统识别服务, 试听试说) 收音期间, 唤醒会话保持打开但静默, 见 <a href=\"speech#唤醒会话的临时接管\">唤醒会话的临时接管</a>.</p>\n<p><code>on</code> / <code>once</code> 返回自身以便链式调用.</p>\n<pre><code class=\"lang-js\">let wake = speech.wake([&#39;小六小六&#39;, &#39;hey macaw&#39;], { thenListen: true });\nwake.on(&#39;wake&#39;, e =&gt; {\n    console.log(&#39;唤醒:&#39;, e.keyword);\n    e.listen.on(&#39;final&#39;, r =&gt; console.log(&#39;指令:&#39;, r.text));\n}).on(&#39;end&#39;, e =&gt; console.log(&#39;唤醒会话结束:&#39;, e.reason));\n</code></pre>\n<hr>\n<p style=\"font: bold 2em sans-serif; color: #FF7043\">SpeechWakeSession</p>\n\n<hr>\n",
+      "modules": [
+        {
+          "textRaw": "[@] SpeechWakeSession",
+          "name": "[@]_speechwakesession",
+          "desc": "<p><strong><code>6.8.0</code></strong></p>\n<p>会话对象. 不能用 <code>new</code> 构造, 只由 <a href=\"speech#m-wake\">speech.wake</a> 产生.</p>\n",
+          "type": "module",
+          "displayName": "[@] SpeechWakeSession"
+        },
+        {
+          "textRaw": "[p#] keywords",
+          "name": "[p#]_keywords",
+          "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li>{ <a href=\"dataTypes#string\">string</a><a href=\"dataTypes#array\">[]</a> }</li>\n</ul>\n<p>脚本所写的关键词原文 (对象形式取其 <code>keyword</code>), 顺序与调用时一致.</p>\n",
+          "type": "module",
+          "displayName": "[p#] keywords"
+        },
+        {
+          "textRaw": "[p#] id",
+          "name": "[p#]_id",
+          "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li>{ <a href=\"dataTypes#string\">string</a> | <a href=\"dataTypes#null\">null</a> }</li>\n</ul>\n<p>插件分配的会话 ID, 来自 <code>ready</code> 事件, 之前为 <code>null</code>.</p>\n",
+          "type": "module",
+          "displayName": "[p#] id"
+        },
+        {
+          "textRaw": "[p#] modelId",
+          "name": "[p#]_modelid",
+          "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li>{ <a href=\"dataTypes#string\">string</a> | <a href=\"dataTypes#null\">null</a> }</li>\n</ul>\n<p>唤醒词模型 ID, 来自 <code>ready</code> 事件, 之前为 <code>null</code>.</p>\n",
+          "type": "module",
+          "displayName": "[p#] modelId"
+        },
+        {
+          "textRaw": "[p#] startedAt",
+          "name": "[p#]_startedat",
+          "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li>{ <a href=\"dataTypes#number\">number</a> }</li>\n</ul>\n<p>请求打开会话时的时间戳 (自 1970-01-01 UTC 起的毫秒数).</p>\n",
+          "type": "module",
+          "displayName": "[p#] startedAt"
+        },
+        {
+          "textRaw": "[p#] state",
+          "name": "[p#]_state",
+          "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li>{ <code>&#39;pending&#39;</code> | <code>&#39;active&#39;</code> | <code>&#39;ended&#39;</code> }</li>\n</ul>\n<p><code>ready</code> 事件之前为 <code>&#39;pending&#39;</code>, 之后为 <code>&#39;active&#39;</code>, 结束后为 <code>&#39;ended&#39;</code>. 被临时接管期间仍为 <code>&#39;active&#39;</code>.</p>\n",
+          "type": "module",
+          "displayName": "[p#] state"
+        },
+        {
+          "textRaw": "[p#] reason",
+          "name": "[p#]_reason",
+          "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li>{ <a href=\"dataTypes#string\">string</a> | <a href=\"dataTypes#null\">null</a> }</li>\n</ul>\n<p>结束后为 <code>end</code> 事件的原因, 之前为 <code>null</code>; 脚本退出时的静默取消为 <code>&#39;script-exit&#39;</code>.</p>\n",
+          "type": "module",
+          "displayName": "[p#] reason"
+        },
+        {
+          "textRaw": "[p#] isEnded",
+          "name": "[p#]_isended",
+          "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li>{ <a href=\"dataTypes#boolean\">boolean</a> }</li>\n</ul>\n<p>会话是否已结束 (含脚本退出时的静默取消).</p>\n",
+          "type": "module",
+          "displayName": "[p#] isEnded"
+        },
+        {
+          "textRaw": "[m#] isActive",
+          "name": "[m#]_isactive",
+          "methods": [
+            {
+              "textRaw": "wakeSession.isActive()",
+              "type": "method",
+              "name": "isActive",
+              "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#boolean\">boolean</a> } - 会话是否尚未结束</li>\n</ul>\n",
+              "signatures": [
+                {
+                  "params": []
+                }
+              ]
+            }
+          ],
+          "type": "module",
+          "displayName": "[m#] isActive"
+        },
+        {
+          "textRaw": "[m#] stop",
+          "name": "[m#]_stop",
+          "methods": [
+            {
+              "textRaw": "wakeSession.stop()",
+              "type": "method",
+              "name": "stop",
+              "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li><ins><strong>returns</strong></ins> { <a href=\"#speechwakesession\">SpeechWakeSession</a> } - 自身</li>\n</ul>\n<p>结束唤醒会话及正在进行的听写轮次, <code>end</code> 的原因为 <code>&#39;stopped&#39;</code>. 重复调用或结束后调用无副作用. 只想结束当前听写轮次而继续检测关键词时, 对该轮的 <a href=\"speechSessionType\">SpeechSession</a> 调用 <code>stop</code> 或 <code>cancel</code>.</p>\n<p>唤醒会话没有听写会话的 <code>cancel</code>, <code>feed</code> 与 <code>result</code>.</p>\n",
+              "signatures": [
+                {
+                  "params": []
+                }
+              ]
+            }
+          ],
+          "type": "module",
+          "displayName": "[m#] stop"
+        },
+        {
+          "textRaw": "[m#] on",
+          "name": "[m#]_on",
+          "methods": [
+            {
+              "textRaw": "wakeSession.on(event, listener)",
+              "type": "method",
+              "name": "on",
+              "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li><strong>event</strong> { <a href=\"dataTypes#string\">string</a> } - 事件名</li>\n<li><strong>listener</strong> { <a href=\"dataTypes#function\">Function</a> } - 监听器</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"#speechwakesession\">SpeechWakeSession</a> } - 自身</li>\n</ul>\n<p>注册监听器. <code>once</code> 形态相同, 只触发一次. 其余成员见 <a href=\"eventEmitterType\">EventEmitter</a>.</p>\n",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "name": "event"
+                    },
+                    {
+                      "name": "listener"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "type": "module",
+          "displayName": "[m#] on"
+        },
+        {
+          "textRaw": "[m#] toString",
+          "name": "[m#]_tostring",
+          "methods": [
+            {
+              "textRaw": "wakeSession.toString()",
+              "type": "method",
+              "name": "toString",
+              "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#string\">string</a> } - 形如 <code>SpeechWakeSession { keywords: [小六小六], state: active }</code></li>\n</ul>\n",
+              "signatures": [
+                {
+                  "params": []
+                }
+              ]
+            }
+          ],
+          "type": "module",
+          "displayName": "[m#] toString"
+        },
+        {
+          "textRaw": "事件 (Events)",
+          "name": "事件_(events)",
+          "desc": "<table>\n<thead>\n<tr>\n<th>事件</th>\n<th>回调参数</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>ready</code></td>\n<td><code>({ sessionId, modelId })</code></td>\n<td>模型已加载, 开始检测</td>\n</tr>\n<tr>\n<td><code>wake</code></td>\n<td><code>({ keyword, score, timestampMillis, listen? })</code></td>\n<td>检测到关键词</td>\n</tr>\n<tr>\n<td><code>warning</code></td>\n<td><code>({ code, message })</code></td>\n<td>非致命问题, 会话继续</td>\n</tr>\n<tr>\n<td><code>error</code></td>\n<td><code>(err: SpeechError)</code></td>\n<td>会话失败, 随后以原因 <code>&#39;error&#39;</code> 触发 <code>end</code></td>\n</tr>\n<tr>\n<td><code>end</code></td>\n<td><code>({ reason })</code></td>\n<td>会话已结束, 不再有事件</td>\n</tr>\n</tbody>\n</table>\n<p><code>wake</code> 事件的字段:</p>\n<ul>\n<li><strong>keyword</strong> { <a href=\"dataTypes#string\">string</a> } - 命中的关键词, 与脚本所写的原文一致</li>\n<li><strong>score</strong> { <a href=\"dataTypes#number\">number</a> } - 3-Macaw Speech 使用的 sherpa-onnx 1.13.8 不报告命中置信度, 此值为该关键词的触发阈值 (其 <code>threshold</code>, 未指定时为模型默认值)</li>\n<li><strong>timestampMillis</strong> { <a href=\"dataTypes#number\">number</a> } - 插件报告命中时的时间戳 (自 1970-01-01 UTC 起的毫秒数)</li>\n<li><strong>[ listen ]</strong> { <a href=\"speechSessionType\">SpeechSession</a> } - 设置 <code>thenListen</code> 时为本次命中后的听写轮次, 其 <code>round</code> 从 <code>0</code> 递增</li>\n</ul>\n<p>使用 <code>thenListen</code> 时, 应在 <code>wake</code> 监听器中为 <code>listen</code> 注册事件: 该轮的事件在 <code>wake</code> 监听器返回后才开始投递, 因此不会错过 <code>ready</code> 等早期事件. 听写轮次进行期间不检测关键词, 也不会被插件自己的听写入口临时接管.</p>\n<ul>\n<li><code>warning</code> 的常见代码为 <code>PERMISSION_DENIED</code>, 含义同 <a href=\"speechSessionType#事件-events\">SpeechSession</a>.</li>\n<li><code>end</code> 的原因: <code>&#39;stopped&#39;</code>, <code>&#39;error&#39;</code> (插件侧失败或插件进程退出), <code>&#39;overflow&#39;</code> (脚本积压的事件超过 512 条或 8 MiB, 先触发 <code>code</code> 为 <code>LIMIT_EXCEEDED</code> 的 <code>error</code>).</li>\n<li>被临时接管期间不触发任何事件; 接管结束后自动恢复检测, 不会补发接管期间的命中.</li>\n</ul>\n<p>事件对象都是普通 JavaScript 对象, <code>error</code> 事件的参数为 <a href=\"speech#c-speecherror\">SpeechError</a>.</p>\n",
+          "type": "module",
+          "displayName": "事件 (Events)"
+        }
+      ],
+      "type": "module",
+      "displayName": "唤醒会话 (SpeechWakeSession)"
+    }
+  ]
+}

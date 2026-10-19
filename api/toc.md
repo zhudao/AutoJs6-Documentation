@@ -107,6 +107,8 @@
 * [GalleryViewSession - 查看器会话](galleryViewSessionType)
 * [MailClient - 邮件客户端](mailClientType)
 * [MailMessage - 邮件消息](mailMessageType)
+* [SpeechSession - 听写会话](speechSessionType)
+* [SpeechWakeSession - 唤醒会话](speechWakeSessionType)
 * [WebSocket](webSocketType)
 * [EventEmitter - 事件发射器](eventEmitterType)
 * [ImageWrapper - 包装图像类](imageWrapperType)
@@ -172,6 +174,8 @@
 * [OpenCVRect](opencvRectType)
 * [OpenCVSize](opencvSizeType)
 * [OpenCCConversion](openCCConversionType)
+* [SpeechModelInfo](speechModelInfoType)
+* [SpeechRecognitionResult](speechRecognitionResultType)
 
 <div class="line"></div>
 

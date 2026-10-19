@@ -733,3 +733,47 @@ TtsUtterance 表示一个可监听和停止的文本转语音任务. 它不能�
 - **reason** { [string](dataTypes#string) | [undefined](dataTypes#undefined) } - 中断原因
 
 只有中断错误包含 `reason`.
+
+## 使用 3-Macaw Speech 引擎
+
+3-Macaw Speech 插件 (参阅 [语音 (Speech)](speech)) 把已安装的合成模型注册为 Android 系统 TTS 引擎, 引擎包名为 `io.github.supermonster003.autojs6.plugin.three.macaw.speech`. 可以在系统的文字转语音设置中把它选为首选引擎, 也可以在本模块的调用中以 `engine` 选项指定. 引擎全部离线运行. 它是普通的 Android 引擎, 经 `TextToSpeech` 使用, 不受插件中心启用状态的影响; [speech.speak](speech#m-speak) 等价于固定该引擎的 `tts()`.
+
+```js
+let engine = 'io.github.supermonster003.autojs6.plugin.three.macaw.speech';
+tts.voices({ engine: engine }).then((voices) => {
+    voices.slice(0, 5).forEach(v => console.log(v.name, v.locale, v.quality));
+});
+tts('你好, 世界', { engine: engine, voice: 'tts.vits.icefall.zh-aishell3/10' });
+tts.synthesize('Hello', './hello.wav', { engine: engine, locale: 'en-US' });
+```
+
+### 语音名称
+
+每个已安装合成模型的每个说话人, 在模型支持的每种语言下各对应一个语音:
+
+- 在说话人的首要语言下, 语音名称为 `<模型 ID>/<说话人编号>`, 例如 `tts.vits.icefall.zh-aishell3/10`. [speech.speak](speech#m-speak) 的 `model` 与 `speaker` 选择的就是这个名称.
+- 在模型的其他语言下, 同一说话人的语音名称为 `<模型 ID>/<说话人编号>/<语言标签>`, 例如 `tts.vits.melo.zh-en/0/en-US`. 每个名称因此唯一, 按区域请求语言的应用也能找到双语模型的语音.
+- 区域由模型语言得出: `zh` 为 `zh-CN`, `en` 为 `en-US`. 说话人的首要语言为模型的第一种语言; 例外是 `tts.kokoro.multi-lang.v1_1` 的 0 - 2 号说话人首要语言为英文 (`en-US`, 其中文语音为 `/0/zh-CN` 等), 3 - 102 号为中文.
+- [voices](#m-voices) 只列出按编号命名的语音. 带说话人名称表的模型 (如 AISHELL-3 的 `SSB0005`) 还接受 `<模型 ID>/<说话人名称>`, 但该名称不在语音列表中, 而 `voice` 选项按列表精确匹配, 因此说话人名称只能经 [speech.speak](speech#m-speak) 的 `speaker` 使用.
+- 所有语音都不需要网络. 质量按采样率给出: 22.05 kHz 及以上为高, 16 kHz 为普通, 更低为低.
+
+### 语言与默认语音
+
+- [languageAvailability](#m-languageavailability) 的支持级别: 已安装模型的语言与国家一致时为 `language_and_country`, 语言一致而地区不同时为 `language`, 只有模型目录中尚未安装的模型支持该语言时为 `missing_data`, 其他为 `not_supported`.
+- 只指定语言时, 引擎依次按默认合成模型, 以该语言为首要语言的语音, 模型安装顺序, 模型的默认说话人选择语音.
+- 没有安装任何合成模型时, 合成失败, 系统设置中的试听也不可用. 在插件界面或通过 [speech.models.install](speech#m-modelsinstall) 安装合成模型.
+- `rate` 由引擎换算为模型语速, 有效范围为 `0.25..4`; `pitch` 被忽略.
+
+### speech.speak 的语音选择
+
+[speech.speak](speech#m-speak) 按下表选择语音:
+
+| speech.speak 选项 | 使用的语音 |
+| --- | --- |
+| 不给 `model`, 给出 `language` (或 `locale` / `lang`) | 由 `tts` 按该语言选择引擎的语音 |
+| 不给 `model`, 也不给语言 | 引擎在文本语言下的默认语音 (引擎支持该语言时), 否则为引擎的默认语音 |
+| `model` 与数字 `speaker` | `<model>/<speaker>`, 须在语音列表中 |
+| `model` 与说话人名称 | 直接设置 `<model>/<名称>`, 由引擎解析, 不认识的名称以 `CONFIGURATION` 拒绝 |
+| 只给 `model` | 该模型中首要语言与 `language` (或 `locale` / `lang`) 一致的编号最小的语音, 未给语言时与文本语言一致; 都不一致时为编号最小的语音 |
+
+文本语言按字符判断: 含假名为 `ja`, 含谚文为 `ko`, 其他含汉字的文本 (包括中英混合) 为 `zh`, 只有拉丁字母为 `en`. 因此不给说话人时, `tts.kokoro.multi-lang.v1_1` 朗读中文或中英混合文本使用 3 号说话人, 朗读英文使用 0 号; 不给模型时, 设备语言为英文也会用中文语音朗读中文文本. 文本语言不受引擎支持时 (例如插件 1.0.0 的目录没有日语模型) 使用引擎的默认语音, 不会失败. 指定的模型未安装 (语音列表中没有它的语音) 时, Promise 以 `code` 为 `CONFIGURATION` 的 [TtsError](#ttserror) 拒绝.

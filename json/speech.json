@@ -4,8 +4,38 @@
     {
       "textRaw": "语音 (Speech)",
       "name": "语音_(speech)",
-      "desc": "<p><strong><code>6.8.0</code></strong></p>\n<p><code>speech</code> 与 <code>$speech</code> 是同一 Rhino 全局对象, 由兼容且已启用的 3-Macaw Speech 插件提供离线语音识别, 语音活动检测, 唤醒词和神经网络合成. 相关模型存放在插件私有目录. 宿主不提供缺少插件时的替代识别引擎.</p>\n<p>本页对应当前宿主的 <code>Speech</code>, <code>SpeechModels</code>, <code>SpeechSession</code>, <code>SpeechWakeSession</code> 与协议 V1. Node.js 和 Bun 尚无对应的 <code>speech</code> 模块或全局对象, 不应根据 Rhino 的补全提示推断可用性.</p>\n<p>麦克风由插件采集, 需要插件获得麦克风权限. 文件路径相对脚本工作目录解析, 也可使用绝对路径; 不接受 <code>content://</code>, <code>file://</code>, <code>http://</code> 等 URI. 错误由 <code>SpeechError</code> 表示.</p>\n",
+      "desc": "<p><code>speech</code> 模块用于在脚本中使用 3-Macaw Speech 插件的离线语音能力: 麦克风听写, WAV 文件或 PCM 数据识别, 语音活动检测, 唤醒词检测, 神经网络语音合成, 以及插件模型的下载与管理. 全部识别与合成都在设备上完成, 音频不会上传.</p>\n<p>从 AutoJs6 6.8.0 起, 本模块由外置 3-Macaw Speech 插件 (AutoJs6-Plugin-Three-Macaw-Speech) 1.0.0 及以上版本提供, 宿主不保留任何识别或合成实现. 调用前需在插件中心安装并启用与当前 AutoJs6 兼容的插件. 插件缺失时方法抛出 (或以 Promise 拒绝) <code>code</code> 为 <code>PLUGIN_UNAVAILABLE</code> 的 <a href=\"#c-speecherror\">SpeechError</a>, 其消息为插件中心的本地化缺插件提示; 插件被禁用或未授权时为 <code>PLUGIN_DISABLED</code>; 插件版本或契约不兼容, 或插件未声明所需功能时为 <code>PLUGIN_INCOMPATIBLE</code>. <a href=\"#m-isavailable\">speech.isAvailable</a> 可预先探测.</p>\n<p>本模块注册为全局名称 <code>speech</code>, 并提供 <code>$speech</code> 别名, 二者指向同一对象. 本页描述 Rhino 脚本; Node.js 与 Bun 尚无对应的 <code>speech</code> 模块或全局对象, 不应根据 Rhino 的补全提示推断其可用性.</p>\n<p>音频文件以路径指定, 相对路径按脚本工作目录解析 (与 <a href=\"files#m-path\">files.path</a> 相同), 也可使用绝对路径; 不接受 <code>content://</code>, <code>file://</code>, <code>http://</code> 等 URI. 输入文件由 AutoJs6 以只读方式打开后交给插件, 合成输出由 AutoJs6 暂存, 检查后再改名为目标文件. 插件不会得到任何路径.</p>\n<p>传给插件的选项会像 <code>JSON.stringify</code> 一样序列化, 函数与 <code>undefined</code> 值被忽略 (<code>onProgress</code> 回调除外). 未知的选项键按名称以 <code>INVALID_OPTIONS</code> 拒绝, 类型或取值范围错误同样为 <code>INVALID_OPTIONS</code>; 会话时长, 热词, 关键词与文本长度等契约上限在调用到达插件前即以 <code>LIMIT_EXCEEDED</code> 拒绝. 可能等待较长时间的同步方法 (<a href=\"#m-recognize\">recognize</a>, <a href=\"#m-detectvoice\">detectVoice</a>, <a href=\"#m-synthesize\">synthesize</a>, <a href=\"#m-modelsinstall\">models.install</a>, <a href=\"#m-modelsimportfile\">models.importFile</a>, <a href=\"#m-modelsrefreshcatalog\">models.refreshCatalog</a>) 不能在 UI 线程调用 (抛出 <code>INVALID_OPTIONS</code>), UI 模式中请使用对应的 <code>Async</code> 形态. 停止脚本会取消尚未完成的调用. AutoJs6 不把识别出的文字写入日志.</p>\n<pre><code class=\"lang-js\">let session = speech.listen({ maxDurationMillis: 10000 });\nsession.on(&#39;final&#39;, e =&gt; console.log(e.text));\nsession.on(&#39;end&#39;, e =&gt; console.log(e.reason, session.result()));\n</code></pre>\n",
       "modules": [
+        {
+          "textRaw": "准备工作",
+          "name": "准备工作",
+          "desc": "<ol>\n<li>在插件中心安装并启用 3-Macaw Speech. 插件为每种 ABI 提供安装包, 另有适用于全部设备的 <code>universal</code> 安装包.</li>\n<li>打开插件界面, 在首页状态卡中授予麦克风权限. 录音在插件进程内完成, 因此麦克风权限由插件自己持有, AutoJs6 的麦克风权限不能代替. <a href=\"#m-capabilities\">speech.capabilities</a> 的 <code>microphoneGranted</code> 表示插件当前是否持有该权限.</li>\n<li>在插件界面或通过 <a href=\"#m-modelsinstall\">speech.models.install</a> 下载需要的识别, 唤醒词或合成模型. 语音活动检测模型随插件内置.</li>\n</ol>\n<p>插件缺少麦克风权限时, 打开麦克风会话会失败于 <code>PERMISSION_DENIED</code>, 其消息给出授权界面 <code>MicrophonePermissionActivity</code> 的组件名. 该界面受 AutoJs6 插件权限保护, 只能由 AutoJs6 打开, 脚本可以直接启动它弹出系统授权对话框:</p>\n<pre><code class=\"lang-js\">if (speech.capabilities().microphoneGranted === false) {\n    app.startActivity({\n        packageName: &#39;io.github.supermonster003.autojs6.plugin.three.macaw.speech&#39;,\n        className: &#39;io.github.supermonster003.autojs6.plugin.three.macaw.speech.service.MicrophonePermissionActivity&#39;,\n    });\n}\n</code></pre>\n",
+          "type": "module",
+          "displayName": "准备工作"
+        },
+        {
+          "textRaw": "模型目录与许可",
+          "name": "模型目录与许可",
+          "desc": "<p>模型分为四类 (<code>kind</code>): <code>asr</code> (语音识别), <code>kws</code> (唤醒词检测), <code>tts</code> (语音合成) 与 <code>vad</code> (语音活动检测). 语音活动检测模型 <code>vad.silero.v5</code> 随插件内置, 始终处于已安装状态且不能删除. 其他模型体积较大, 不随 APK 提供, 由插件从 AutoJs6 共享资源仓库 (AutoJs6-Shared-Assets) 的不可变发布下载, 镜像不可用时回退到 sherpa-onnx 的上游发布地址; 两条路径都要逐个文件校验 SHA-256 后才启用. 模型保存在插件私有存储中, 插件不申请存储权限. 模型目录带签名, 可通过 <a href=\"#m-modelsrefreshcatalog\">speech.models.refreshCatalog</a> 更新, 目录版本只增不减.</p>\n<p>每类模型有一个默认模型, 方法省略 <code>model</code> 选项时使用它. 默认模型依次取: 以 <a href=\"#m-modelssetdefault\">speech.models.setDefault</a> 或插件界面设定且仍完好安装的模型, 目录推荐的已安装模型, 目录顺序中第一个已安装模型, 按 ID 排序的第一个导入模型. 某类没有任何已安装模型时, 使用该类模型的调用失败于 <code>MODEL_MISSING</code>.</p>\n<p>插件 1.0.0 内置的模型目录 (目录版本 1) 如下. 实际可用的模型以 <a href=\"#m-modelslist\">speech.models.list</a> 的结果为准.</p>\n<table>\n<thead>\n<tr>\n<th>模型 ID</th>\n<th>类型</th>\n<th>语言</th>\n<th>安装后约</th>\n<th>许可</th>\n<th>可商用</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>asr.sense-voice.zh-en-ja-ko-yue.2024-07-17.int8</code></td>\n<td>asr, <code>sense-voice</code> (离线, 推荐)</td>\n<td>zh, en, ja, ko, yue</td>\n<td>229 MiB</td>\n<td>FunASR 模型许可 1.1</td>\n<td>是</td>\n</tr>\n<tr>\n<td><code>asr.zipformer-streaming.zh-en.2023-02-20.int8</code></td>\n<td>asr, <code>online-transducer</code> (流式, 推荐)</td>\n<td>zh, en</td>\n<td>190 MiB</td>\n<td>Apache-2.0</td>\n<td>是</td>\n</tr>\n<tr>\n<td><code>asr.zipformer-streaming.en.2023-06-26.int8</code></td>\n<td>asr, <code>online-transducer</code> (流式, 推荐)</td>\n<td>en</td>\n<td>67 MiB</td>\n<td>Apache-2.0</td>\n<td>是</td>\n</tr>\n<tr>\n<td><code>asr.zipformer-streaming.zh.2025-06-30.int8</code></td>\n<td>asr, <code>online-transducer</code> (流式)</td>\n<td>zh</td>\n<td>160 MiB</td>\n<td>未声明</td>\n<td>否</td>\n</tr>\n<tr>\n<td><code>kws.zipformer.zh-en.2025-12-20</code></td>\n<td>kws, <code>kws-transducer</code> (推荐)</td>\n<td>zh, en</td>\n<td>8 MiB</td>\n<td>Apache-2.0</td>\n<td>是</td>\n</tr>\n<tr>\n<td><code>tts.vits.melo.zh-en</code></td>\n<td>tts, <code>vits</code>, 1 个说话人, 44.1 kHz (推荐)</td>\n<td>zh, en</td>\n<td>169 MiB</td>\n<td>MIT</td>\n<td>是</td>\n</tr>\n<tr>\n<td><code>tts.vits.icefall.zh-aishell3</code></td>\n<td>tts, <code>vits</code>, 174 个说话人, 8 kHz (推荐)</td>\n<td>zh</td>\n<td>31 MiB</td>\n<td>未声明</td>\n<td>未知</td>\n</tr>\n<tr>\n<td><code>tts.kokoro.multi-lang.v1_1</code></td>\n<td>tts, <code>kokoro</code>, 103 个说话人, 24 kHz</td>\n<td>zh, en</td>\n<td>387 MiB</td>\n<td>Apache-2.0 与 GPL-3.0-or-later</td>\n<td>是</td>\n</tr>\n<tr>\n<td><code>tts.vits.piper.en-us-lessac-medium</code></td>\n<td>tts, <code>vits</code>, 1 个说话人, 22.05 kHz</td>\n<td>en</td>\n<td>77 MiB</td>\n<td>MIT 与 GPL-3.0-or-later</td>\n<td>否</td>\n</tr>\n<tr>\n<td><code>tts.matcha.icefall.zh-baker</code></td>\n<td>tts, <code>matcha</code>, 1 个说话人, 22.05 kHz</td>\n<td>zh</td>\n<td>77 MiB</td>\n<td>未声明与 MIT</td>\n<td>否</td>\n</tr>\n<tr>\n<td><code>vad.silero.v5</code></td>\n<td>vad, <code>silero</code> (内置)</td>\n<td>-</td>\n<td>2 MiB</td>\n<td>MIT</td>\n<td>是</td>\n</tr>\n</tbody>\n</table>\n<ul>\n<li><code>asr.zipformer-streaming.zh.2025-06-30.int8</code> 不经镜像分发, 只从 sherpa-onnx 的上游发布安装.</li>\n<li>流式模型 (<code>online-transducer</code>) 逐字给出部分结果; 离线模型 (<code>sense-voice</code>) 由语音活动检测切段后逐段识别, 部分结果按段给出. 两类模型在会话上触发同样的事件.</li>\n<li>热词 (<code>hotwords</code>) 只对带 <code>bpe.vocab</code> 的流式模型生效 (目录中为 <code>asr.zipformer-streaming.zh-en.2023-02-20.int8</code>), 其他模型收到热词时忽略并给出警告.</li>\n<li><code>tts.kokoro.multi-lang.v1_1</code> 的 0 - 2 号说话人为英文, 3 号及以后为中文, 默认说话人为 3 号; 其他模型的默认说话人为 0 号.</li>\n</ul>\n<p>每个模型对象的 <code>license</code> 给出许可表达式 (<code>spdx</code>) 与是否可商用 (<code>commercialUse</code>). 仅限非商业用途或未声明许可的模型 (目录中可商用一栏为 &quot;否&quot; 或 &quot;未知&quot; 的条目, 其 <code>commercialUse</code> 为 <code>false</code>) 须先接受许可才能安装: 脚本以 <code>acceptLicense: true</code> 调用 <a href=\"#m-modelsinstall\">speech.models.install</a> 或 <a href=\"#m-modelsimportfile\">speech.models.importFile</a>, 或者用户在插件界面的许可提示中确认. 接受记录按模型版本与许可表达式保存在插件中, 之后再次安装同一版本无需重复接受; 否则调用失败于 <code>MODEL_LICENSE_NOT_ACCEPTED</code>. <code>acceptLicense</code> 只表示接受许可条款, 不改变模型许可本身, 使用者需自行遵守.</p>\n<p>插件源码采用 MPL-2.0 许可. 插件内的语音运行时 sherpa-onnx (Apache-2.0) 静态链接了 eSpeak NG 等 GPL-3.0-or-later 组件, 因此插件 APK 整体按 GPL-3.0-or-later 传播. 第三方组件与许可全文见插件的 &quot;关于&quot; 页面.</p>\n",
+          "type": "module",
+          "displayName": "模型目录与许可"
+        },
+        {
+          "textRaw": "麦克风会话与后台收音",
+          "name": "麦克风会话与后台收音",
+          "desc": "<p>麦克风由插件在其自身进程中采集, 音频不经过 AutoJs6. AutoJs6 绑定插件时传递自身的前台能力, 插件在麦克风会话 (<a href=\"#m-listen\">speech.listen</a> 与 <a href=\"#m-wake\">speech.wake</a>) 期间还会启动带录音通知的麦克风前台服务, 会话结束即停止. 因此:</p>\n<ul>\n<li>在 AutoJs6 界面可见时 (或 AutoJs6 的无障碍服务已绑定时) 打开的会话, 之后 AutoJs6 退到后台或熄屏也能继续收音.</li>\n<li>AutoJs6 已在后台且没有麦克风能力时打开的会话, Android 不允许插件录音或启动麦克风前台服务. 会话仍会打开, 但触发 <code>code</code> 为 <code>PERMISSION_DENIED</code> 的 <code>warning</code> 事件, 并且收到的是静音; 会话不会因此结束, AutoJs6 重新回到前台等插件重新获得麦克风能力后恢复收音, 其间 <code>timeoutMillis</code> 可能先结束会话. 需要在后台收音的脚本应在 AutoJs6 可见时打开会话.</li>\n<li>Android 14 及以上, 插件在开始会话时会短暂显示一个透明界面以启动麦克风前台服务.</li>\n</ul>\n<p>插件只有一个麦克风. 整个插件同一时刻只运行一个麦克风会话 (听写或唤醒), 不论它由哪个脚本, 哪个应用 (例如 3-Stone AI 或 3-Stove Agent 的常驻监听) 或插件自己的界面打开; 第二个麦克风会话立即失败于 <code>SESSION_BUSY</code>, 不会排队等待. 以 <code>source: &#39;external&#39;</code> 打开的 PCM 会话与文件识别不占用麦克风, 外部 PCM 会话每个调用方应用最多同时 4 个.</p>\n<p>脚本退出时, 仍打开的会话被静默取消 (不再触发事件), 插件随即停止录音并释放麦克风.</p>\n",
+          "modules": [
+            {
+              "textRaw": "唤醒会话的临时接管",
+              "name": "唤醒会话的临时接管",
+              "desc": "<p>插件自己的听写入口, 即 <a href=\"#数字助理\">数字助理</a>, <a href=\"#系统语音输入\">系统语音输入</a> 弹层, <a href=\"#系统识别服务\">系统识别服务</a> 与插件界面的 &quot;试听试说&quot; 页, 开始收音时若麦克风正被唤醒会话占用 (脚本的 <a href=\"#m-wake\">speech.wake</a>, 或其他应用经插件打开的唤醒会话), 会临时接管麦克风:</p>\n<ul>\n<li>唤醒会话保持打开但静默: 接管期间不报告 <code>wake</code> 命中 (避免说话内容误触唤醒词), 不结束, 也不触发其他事件; 接管方结束后自动恢复检测.</li>\n<li>接管对脚本透明, 唤醒会话的状态与属性不变.</li>\n<li>唤醒命中后已按 <code>thenListen</code> 转入听写的轮次, 以及 <a href=\"#m-listen\">speech.listen</a> 的听写会话, 不会被接管; 此时这些入口显示 &quot;麦克风正被占用&quot; 的说明.</li>\n<li>接管期间打开新的麦克风会话同样失败于 <code>SESSION_BUSY</code>.</li>\n</ul>\n<hr>\n<p style=\"font: bold 2em sans-serif; color: #FF7043\">speech</p>\n\n<hr>\n",
+              "type": "module",
+              "displayName": "唤醒会话的临时接管"
+            }
+          ],
+          "type": "module",
+          "displayName": "麦克风会话与后台收音"
+        },
         {
           "textRaw": "[m] isAvailable",
           "name": "[m]_isavailable",
@@ -14,22 +44,12 @@
               "textRaw": "speech.isAvailable()",
               "type": "method",
               "name": "isAvailable",
+              "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#boolean\">boolean</a> } - 当前是否有兼容, 已启用且已授权的语音插件应答</li>\n</ul>\n<p>探测插件可用性, 不抛出插件错误. 返回 <code>true</code> 不表示所需模型已安装或插件已获得麦克风权限.</p>\n",
               "signatures": [
-                {
-                  "params": [
-                    {
-                      "textRaw": "<ins>**returns**</ins> { [boolean](dataTypes#boolean) } - 当前是否有兼容且已启用的插件应答. ",
-                      "name": "<ins>**returns**</ins>",
-                      "type": " [boolean](dataTypes#boolean) ",
-                      "desc": "当前是否有兼容且已启用的插件应答."
-                    }
-                  ]
-                },
                 {
                   "params": []
                 }
-              ],
-              "desc": "<p>该探测不抛出插件错误. 返回 <code>true</code> 不表示所有模型都已安装或麦克风权限已授予.</p>\n"
+              ]
             }
           ],
           "type": "module",
@@ -43,22 +63,12 @@
               "textRaw": "speech.capabilities()",
               "type": "method",
               "name": "capabilities",
+              "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li><ins><strong>returns</strong></ins> { <a href=\"#speechcapabilities\">SpeechCapabilities</a> } - 当前插件的能力快照</li>\n</ul>\n<p>返回所选插件声明的能力与实时查询结果的合并. 插件不可用时抛出 <code>PLUGIN_UNAVAILABLE</code>, <code>PLUGIN_DISABLED</code> 或 <code>PLUGIN_INCOMPATIBLE</code>.</p>\n<pre><code class=\"lang-js\">let caps = speech.capabilities();\nconsole.log(caps.versionName, caps.features.join(&#39;, &#39;));\nconsole.log(&#39;麦克风权限:&#39;, caps.microphoneGranted);\n</code></pre>\n",
               "signatures": [
-                {
-                  "params": [
-                    {
-                      "textRaw": "<ins>**returns**</ins> { [object](dataTypes#object) } - 当前插件能力快照. ",
-                      "name": "<ins>**returns**</ins>",
-                      "type": " [object](dataTypes#object) ",
-                      "desc": "当前插件能力快照."
-                    }
-                  ]
-                },
                 {
                   "params": []
                 }
-              ],
-              "desc": "<p>返回字段包括 <code>contractVersion</code>, <code>features</code>, <code>catalogVersion</code>, <code>engineName</code>, <code>engineVersion</code>, <code>ttsEnginePackage</code>, <code>microphoneGranted</code>, <code>packageName</code>, <code>versionName</code>, <code>versionCode</code>. 可选插件信息可以为 <code>null</code>. <code>features</code> 可能包含 <code>asr</code>, <code>asrStreaming</code>, <code>vad</code>, <code>kws</code>, <code>tts</code>, <code>ttsSystemEngine</code>, <code>models</code>, 应根据实际返回值判断能力.</p>\n"
+              ]
             }
           ],
           "type": "module",
@@ -72,22 +82,8 @@
               "textRaw": "speech.listen(options?)",
               "type": "method",
               "name": "listen",
+              "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li><strong>[ options ]</strong> { <a href=\"#speechlistenoptions\">SpeechListenOptions</a> } - 听写选项</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"speechSessionType\">SpeechSession</a> } - 听写会话</li>\n</ul>\n<p>打开一个听写会话. 插件打开会话后立即返回, 模型在插件中加载, 加载完成后会话触发 <code>ready</code> 事件; 识别结果以 <code>partial</code>, <code>final</code> 等事件在打开会话的脚本线程到达, <code>end</code> 是唯一的终结事件. 会话打开期间脚本保持运行, 直至 <code>end</code> 事件; 不需要也不应使用 <code>sleep</code> 循环等待.</p>\n<p>默认 (<code>source: &#39;mic&#39;</code>) 从插件的麦克风收音, 需要插件声明 <code>asrStreaming</code> 功能; <code>source: &#39;external&#39;</code> 打开外部 PCM 会话, 由脚本以 <a href=\"speechSessionType#m-feed\">session.feed</a> 输入音频, 需要 <code>asr</code> 功能.</p>\n<p>打开失败时同步抛出: <code>SESSION_BUSY</code> (麦克风正被另一个会话占用, 或外部 PCM 会话已达上限), <code>PERMISSION_DENIED</code> (插件没有麦克风权限), <code>MODEL_MISSING</code> (未安装所需模型; 也可能在打开后以 <code>error</code> 事件报告), 以及参数错误.</p>\n<pre><code class=\"lang-js\">let session = speech.listen({ silenceEndMillis: 1500, timeoutMillis: 10000 });\nsession.on(&#39;partial&#39;, e =&gt; console.log(&#39;...&#39;, e.text));\nsession.on(&#39;final&#39;, e =&gt; files.append(&#39;./dictation.txt&#39;, e.text + &#39;\\n&#39;));\nsession.on(&#39;warning&#39;, w =&gt; console.warn(w.code, w.message));\nsession.on(&#39;end&#39;, e =&gt; console.log(&#39;结束:&#39;, e.reason));\n</code></pre>\n",
               "signatures": [
-                {
-                  "params": [
-                    {
-                      "textRaw": "**[ options ]** { [object](dataTypes#object) } - 听写选项, 见下表. ",
-                      "name": "**[",
-                      "desc": "options ]** { [object](dataTypes#object) } - 听写选项, 见下表."
-                    },
-                    {
-                      "textRaw": "<ins>**returns**</ins> { SpeechSession } - 持续到 `end` 事件的会话. ",
-                      "name": "<ins>**returns**</ins>",
-                      "type": " SpeechSession ",
-                      "desc": "持续到 `end` 事件的会话."
-                    }
-                  ]
-                },
                 {
                   "params": [
                     {
@@ -95,8 +91,7 @@
                     }
                   ]
                 }
-              ],
-              "desc": "<table>\n<thead>\n<tr>\n<th>选项</th>\n<th>类型</th>\n<th>默认值与含义</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>model</code></td>\n<td>string</td>\n<td>省略时使用相应默认模型</td>\n</tr>\n<tr>\n<td><code>language</code></td>\n<td>string</td>\n<td>可选语言标签</td>\n</tr>\n<tr>\n<td><code>source</code></td>\n<td>`&#39;mic&#39; \\</td>\n<td>&#39;external&#39;`</td>\n<td><code>&#39;mic&#39;</code>, 麦克风或外部 PCM</td>\n</tr>\n<tr>\n<td><code>sampleRate</code></td>\n<td>number</td>\n<td>16000, 会话只接受此采样率</td>\n</tr>\n<tr>\n<td><code>vad</code></td>\n<td>boolean</td>\n<td><code>true</code>, 使用语音活动检测</td>\n</tr>\n<tr>\n<td><code>silenceEndMillis</code></td>\n<td>number</td>\n<td>1200, 范围 1..60000</td>\n</tr>\n<tr>\n<td><code>maxDurationMillis</code></td>\n<td>number</td>\n<td>300000, 正整数且不超过 1800000</td>\n</tr>\n<tr>\n<td><code>timeoutMillis</code></td>\n<td>number</td>\n<td>15000, 范围 0..1800000</td>\n</tr>\n<tr>\n<td><code>hotwords</code></td>\n<td>string[]</td>\n<td>空数组, 最多 200 项</td>\n</tr>\n<tr>\n<td><code>punctuation</code></td>\n<td>boolean</td>\n<td><code>true</code>, 启用标点处理</td>\n</tr>\n</tbody>\n</table>\n<pre><code class=\"lang-js\">let session = speech.listen({ language: &#39;zh&#39;, maxDurationMillis: 10000 });\nsession.on(&#39;final&#39;, event =&gt; console.log(event.text));\nsession.on(&#39;error&#39;, error =&gt; console.error(error.code, error.message));\nsession.on(&#39;end&#39;, event =&gt; console.log(event.reason, session.result()));\n</code></pre>\n"
+              ]
             }
           ],
           "type": "module",
@@ -110,7 +105,7 @@
               "textRaw": "speech.recognize(source, options?)",
               "type": "method",
               "name": "recognize",
-              "desc": "<p><strong><code>Non-UI</code></strong></p>\n<ul>\n<li><strong>source</strong> { <a href=\"dataTypes#string\">string</a> | ArrayBuffer | ArrayBufferView | Java byte[] } - WAV 路径或 PCM 数据.</li>\n<li><strong>[ options ]</strong> { <a href=\"dataTypes#object\">object</a> } - <code>model</code>, <code>language</code>, <code>hotwords</code>, <code>punctuation</code>, <code>vad</code>, <code>sampleRate</code>.</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#object\">object</a> } - 识别结果.</li>\n</ul>\n<p>PCM 采用单声道 PCM16 LE, <code>sampleRate</code> 默认 16000, 可为 8000..192000. <code>punctuation</code> 与 <code>vad</code> 默认 <code>true</code>. WAV 文件读取其文件头中的采样率. 不接受普通 JavaScript 数字数组代替 Java <code>byte[]</code>; 可传入 <code>Int16Array</code> 或 <code>files.readBytes</code> 得到的字节数组.</p>\n<p>结果包含 <code>text</code>, <code>segments</code>, <code>durationMillis</code>, <code>modelId</code>, <code>warnings</code>. 每个语音段含 <code>startMillis</code>, <code>endMillis</code>, <code>text</code>, 并可能带 <code>language</code> 与 <code>tags</code> (<code>emotion</code>, <code>event</code>). <code>warnings</code> 为 <code>{ code, message }</code> 数组.</p>\n",
+              "desc": "<p><strong><code>6.8.0</code></strong> <strong><code>Non-UI</code></strong></p>\n<ul>\n<li><strong>source</strong> { <a href=\"dataTypes#string\">string</a> | <a href=\"dataTypes#arraybuffer\">ArrayBuffer</a> | <a href=\"dataTypes#typedarray\">TypedArray</a> | <a href=\"dataTypes#bytearray\">ByteArray</a> } - WAV 文件路径或 PCM 数据</li>\n<li><strong>[ options ]</strong> { <a href=\"#speechrecognizeoptions\">SpeechRecognizeOptions</a> } - 识别选项</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"speechRecognitionResultType\">SpeechRecognitionResult</a> } - 识别结果</li>\n</ul>\n<p>识别一段音频, 阻塞当前脚本线程直至得到结果. 需要插件声明 <code>asr</code> 功能.</p>\n<ul>\n<li>文件路径须指向 WAV 文件: PCM 8 / 16 / 24 / 32 位整数或浮点采样, 任意采样率, 单声道或双声道, 由插件重采样并混为单声道. 文件不超过 200 MiB 且时长不超过 30 分钟. AutoJs6 先检查文件存在, 可读, 大小与 <code>RIFF</code> / <code>WAVE</code> 文件头; 其他容器 (MP3, AAC, OGG 等) 失败于 <code>UNSUPPORTED_FORMAT</code>.</li>\n<li>PCM 数据为单声道 PCM16 LE, 采样率由 <code>options.sampleRate</code> 指定. 可传入 <code>ArrayBuffer</code>, <code>Int16Array</code> 等类型化数组视图, 或 Java <code>byte[]</code> (例如 <code>files.readBytes</code> 的结果); 大端字节序的 <code>Int16Array</code> 会被转换为小端. 不接受普通 JavaScript 数字数组. AutoJs6 把 PCM 包装为临时 WAV 文件交给插件, 调用结束后删除.</li>\n<li>默认使用默认识别模型, 一次调用最多等待 10 分钟.</li>\n</ul>\n<pre><code class=\"lang-js\">let result = speech.recognize(&#39;./record.wav&#39;, { language: &#39;zh&#39; });\nconsole.log(result.text);\nresult.segments.forEach(s =&gt; console.log(s.startMillis, s.endMillis, s.text));\n</code></pre>\n",
               "signatures": [
                 {
                   "params": [
@@ -136,7 +131,7 @@
               "textRaw": "speech.recognizeAsync(source, options?)",
               "type": "method",
               "name": "recognizeAsync",
-              "desc": "<p><strong><code>Async</code></strong></p>\n<p>参数与 <code>recognize</code> 相同, 返回解析为相同结果对象的 Promise. 在 UI 线程上应使用此形式, 错误通过 Promise 拒绝传递.</p>\n",
+              "desc": "<p><strong><code>6.8.0</code></strong> <strong><code>Async</code></strong></p>\n<ul>\n<li><strong>source</strong> { <a href=\"dataTypes#string\">string</a> | <a href=\"dataTypes#arraybuffer\">ArrayBuffer</a> | <a href=\"dataTypes#typedarray\">TypedArray</a> | <a href=\"dataTypes#bytearray\">ByteArray</a> } - WAV 文件路径或 PCM 数据</li>\n<li><strong>[ options ]</strong> { <a href=\"#speechrecognizeoptions\">SpeechRecognizeOptions</a> } - 识别选项</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise\">Promise</a> } - 兑现值为 <a href=\"speechRecognitionResultType\">SpeechRecognitionResult</a></li>\n</ul>\n<p><a href=\"#m-recognize\">speech.recognize</a> 的异步形态, 参数与结果相同, 可在 UI 线程使用. 错误以 <a href=\"#c-speecherror\">SpeechError</a> 拒绝 Promise, 回调在脚本线程执行.</p>\n",
               "signatures": [
                 {
                   "params": [
@@ -162,7 +157,7 @@
               "textRaw": "speech.detectVoice(source, options?)",
               "type": "method",
               "name": "detectVoice",
-              "desc": "<p><strong><code>Non-UI</code></strong></p>\n<ul>\n<li><strong>source</strong> { <a href=\"dataTypes#string\">string</a> | ArrayBuffer | ArrayBufferView | Java byte[] } - 与 <code>recognize</code> 相同的音频来源.</li>\n<li><strong>[ options ]</strong> { <a href=\"dataTypes#object\">object</a> } - <code>model</code>, <code>sampleRate</code>, <code>threshold</code>, <code>minSpeechMillis</code>, <code>minSilenceMillis</code>.</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#object\">object</a> } - <code>{ segments, durationMillis }</code>, 每段含 <code>startMillis</code>, <code>endMillis</code>.</li>\n</ul>\n<p><code>threshold</code> 为 0..1, 两个最小时间为 0..1800000 毫秒. 省略时由所选模型使用默认值. 该方法同步执行, 当前没有 <code>detectVoiceAsync</code> 入口.</p>\n",
+              "desc": "<p><strong><code>6.8.0</code></strong> <strong><code>Non-UI</code></strong></p>\n<ul>\n<li><strong>source</strong> { <a href=\"dataTypes#string\">string</a> | <a href=\"dataTypes#arraybuffer\">ArrayBuffer</a> | <a href=\"dataTypes#typedarray\">TypedArray</a> | <a href=\"dataTypes#bytearray\">ByteArray</a> } - 与 <a href=\"#m-recognize\">recognize</a> 相同的音频来源</li>\n<li><strong>[ options ]</strong> { <a href=\"#speechvadoptions\">SpeechVadOptions</a> } - 语音活动检测选项</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"#speechvoicesegments\">SpeechVoiceSegments</a> } - 检测到的语音段</li>\n</ul>\n<p>检测一段音频中包含语音的时间段, 不做识别. 需要插件声明 <code>vad</code> 功能. 本方法同步执行, 没有 <code>Async</code> 形态.</p>\n<pre><code class=\"lang-js\">let { segments, durationMillis } = speech.detectVoice(&#39;./record.wav&#39;);\nconsole.log(`${segments.length} 段语音, 共 ${durationMillis} ms`);\n</code></pre>\n",
               "signatures": [
                 {
                   "params": [
@@ -188,28 +183,8 @@
               "textRaw": "speech.wake(keywords, options?)",
               "type": "method",
               "name": "wake",
+              "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li><strong>keywords</strong> { <a href=\"dataTypes#string\">string</a> | <a href=\"#speechkeyword\">SpeechKeyword</a> | (<a href=\"dataTypes#string\">string</a> | <a href=\"#speechkeyword\">SpeechKeyword</a>)<a href=\"dataTypes#array\">[]</a> } - 一个关键词, 或关键词数组</li>\n<li><strong>[ options ]</strong> { <a href=\"#speechwakeoptions\">SpeechWakeOptions</a> } - 唤醒选项</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"speechWakeSessionType\">SpeechWakeSession</a> } - 唤醒会话</li>\n</ul>\n<p>打开一个唤醒词会话, 从插件的麦克风持续检测关键词, 每次命中触发 <code>wake</code> 事件. 需要插件声明 <code>kws</code> 功能; 使用 <code>thenListen</code> 时还需要 <code>asrStreaming</code> 功能. 唤醒会话占用插件唯一的麦克风, 与 <a href=\"#m-listen\">listen</a> 的打开失败情形相同.</p>\n<p>关键词直接写原文, 无需训练模型: 1 - 50 个, 不能重复, 每个不超过 128 个字符. 中文按常用读音转换为拼音 (声母与带调韵母), 英文单词按模型自带的音素词典转换; 空白与标点分隔单词. 数字, 词典中没有的英文单词与无法转换的字符以 <code>INVALID_OPTIONS</code> 拒绝. 由空格分隔的模型 token 原样使用, 可借此为多音字指定读音, 例如 <code>&#39;x iǎo l iù&#39;</code>.</p>\n<p>设置 <code>thenListen</code> 后, 每次命中自动转入一轮听写: <code>wake</code> 事件的 <code>listen</code> 字段是该轮的 <a href=\"speechSessionType\">SpeechSession</a>, 在 <code>wake</code> 监听器中为它注册事件; 该轮结束后恢复关键词检测. 唤醒会话被插件自己的听写入口临时接管时保持静默, 见 <a href=\"#唤醒会话的临时接管\">唤醒会话的临时接管</a>.</p>\n<pre><code class=\"lang-js\">let wake = speech.wake([&#39;小六小六&#39;, { keyword: &#39;hey macaw&#39;, threshold: 0.3 }], {\n    thenListen: { silenceEndMillis: 1200 },\n});\nwake.on(&#39;wake&#39;, e =&gt; {\n    console.log(&#39;唤醒:&#39;, e.keyword);\n    e.listen.on(&#39;final&#39;, r =&gt; console.log(&#39;指令:&#39;, r.text));\n});\n</code></pre>\n",
               "signatures": [
-                {
-                  "params": [
-                    {
-                      "textRaw": "**keywords** { [string](dataTypes#string) | [object](dataTypes#object) | [Array](dataTypes#array) } - 一个关键词, 或由字符串及 `{ keyword, boost?, threshold? }` 组成的数组. ",
-                      "name": "**keywords**",
-                      "type": " [string](dataTypes#string) | [object](dataTypes#object) | [Array](dataTypes#array) ",
-                      "desc": "一个关键词, 或由字符串及 `{ keyword, boost?, threshold? }` 组成的数组."
-                    },
-                    {
-                      "textRaw": "**[ options ]** { [object](dataTypes#object) } - `model`, `minIntervalMillis`, `thenListen`. ",
-                      "name": "**[",
-                      "desc": "options ]** { [object](dataTypes#object) } - `model`, `minIntervalMillis`, `thenListen`."
-                    },
-                    {
-                      "textRaw": "<ins>**returns**</ins> { SpeechWakeSession } - 唤醒会话. ",
-                      "name": "<ins>**returns**</ins>",
-                      "type": " SpeechWakeSession ",
-                      "desc": "唤醒会话."
-                    }
-                  ]
-                },
                 {
                   "params": [
                     {
@@ -220,8 +195,7 @@
                     }
                   ]
                 }
-              ],
-              "desc": "<p>关键词为 1..50 个且不可重复. <code>boost</code> 范围 -100..100, <code>threshold</code> 范围 0..1. <code>minIntervalMillis</code> 默认 1500, 范围 0..600000.</p>\n<p><code>thenListen</code> 可以为布尔值或听写选项. 为 <code>true</code> 时使用默认听写设置; 使用对象时只能选择麦克风来源, 不能设为 <code>&#39;external&#39;</code>. 每次 <code>wake</code> 事件的 <code>listen</code> 字段携带该次命中后的听写会话. 停止唤醒会话也会结束正在进行的听写轮次.</p>\n"
+              ]
             }
           ],
           "type": "module",
@@ -235,7 +209,7 @@
               "textRaw": "speech.synthesize(text, path, options?)",
               "type": "method",
               "name": "synthesize",
-              "desc": "<p><strong><code>Non-UI</code></strong></p>\n<ul>\n<li><strong>text</strong> { <a href=\"dataTypes#string\">string</a> } - 非空文本, 最多 8000 字符.</li>\n<li><strong>path</strong> { <a href=\"dataTypes#string\">string</a> } - 输出 WAV 文件路径.</li>\n<li><strong>[ options ]</strong> { <a href=\"dataTypes#object\">object</a> } - <code>model</code>, <code>speaker</code>, <code>speed</code>, <code>format</code>.</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#object\">object</a> } - <code>{ path, sampleRate, durationMillis, modelId, speakerId, sizeBytes, warnings }</code>.</li>\n</ul>\n<p><code>speaker</code> 可以是说话人 ID 或名称; <code>speed</code> 范围 0.5..2, <code>format</code> 仅支持 <code>&#39;wav&#39;</code>. 插件负责合成, 宿主发布输出文件. <code>speakerId</code> 是数值 ID.</p>\n",
+              "desc": "<p><strong><code>6.8.0</code></strong> <strong><code>Non-UI</code></strong></p>\n<ul>\n<li><strong>text</strong> { <a href=\"dataTypes#string\">string</a> } - 待合成文本, 非空白, 最多 8000 个字符 (UTF-16 单元)</li>\n<li><strong>path</strong> { <a href=\"dataTypes#string\">string</a> } - 输出 WAV 文件路径</li>\n<li><strong>[ options ]</strong> { <a href=\"#speechsynthesizeoptions\">SpeechSynthesizeOptions</a> } - 合成选项</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"#speechsynthesisresult\">SpeechSynthesisResult</a> } - 合成结果</li>\n</ul>\n<p>把文本合成为 WAV 文件 (模型采样率的单声道 PCM16), 阻塞当前脚本线程直至完成. 需要插件声明 <code>tts</code> 功能.</p>\n<p>插件按句切分文本并逐句合成, 每句报告一次进度. AutoJs6 在目标文件夹中创建隐藏的暂存文件 (<code>.speech-&lt;uuid&gt;.wav.part</code>) 交给插件写入, 完成后检查大小与 WAV 文件头, 再改名为目标文件 (已存在时被替换); 缺失的父目录会被创建. 合成失败, 取消或超时时删除暂存文件, 目标路径不会留下半成品. 输出文件不超过 100 MiB, 否则失败于 <code>LIMIT_EXCEEDED</code>. AutoJs6 为每次进度及最终完成各等待 10 分钟, 不限制总时长; 10 分钟内没有进度时取消合成并失败于 <code>TIMEOUT</code>.</p>\n<p>单说话人模型收到其他说话人时忽略该选项, 并在结果的 <code>warnings</code> 中给出 <code>INVALID_OPTIONS</code> 警告.</p>\n<pre><code class=\"lang-js\">let r = speech.synthesize(&#39;任务已完成&#39;, &#39;./done.wav&#39;, { model: &#39;tts.vits.icefall.zh-aishell3&#39;, speaker: 10 });\nconsole.log(r.path, r.durationMillis, r.sampleRate);\nmedia.playMusic(r.path);\n</code></pre>\n",
               "signatures": [
                 {
                   "params": [
@@ -264,7 +238,7 @@
               "textRaw": "speech.synthesizeAsync(text, path, options?)",
               "type": "method",
               "name": "synthesizeAsync",
-              "desc": "<p><strong><code>Async</code></strong></p>\n<p>参数与 <code>synthesize</code> 相同, 返回解析为相同文件结果对象的 Promise, 可在 UI 线程使用.</p>\n",
+              "desc": "<p><strong><code>6.8.0</code></strong> <strong><code>Async</code></strong></p>\n<ul>\n<li><strong>text</strong> { <a href=\"dataTypes#string\">string</a> } - 待合成文本</li>\n<li><strong>path</strong> { <a href=\"dataTypes#string\">string</a> } - 输出 WAV 文件路径</li>\n<li><strong>[ options ]</strong> { <a href=\"#speechsynthesizeoptions\">SpeechSynthesizeOptions</a> } - 合成选项</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise\">Promise</a> } - 兑现值为 <a href=\"#speechsynthesisresult\">SpeechSynthesisResult</a></li>\n</ul>\n<p><a href=\"#m-synthesize\">speech.synthesize</a> 的异步形态, 参数与结果相同, 可在 UI 线程使用.</p>\n",
               "signatures": [
                 {
                   "params": [
@@ -293,7 +267,7 @@
               "textRaw": "speech.speak(text, options?)",
               "type": "method",
               "name": "speak",
-              "desc": "<p><strong><code>Async</code></strong></p>\n<ul>\n<li><strong>text</strong> { <a href=\"dataTypes#string\">string</a> } - 要播放的文本.</li>\n<li><strong>[ options ]</strong> { <a href=\"dataTypes#object\">object</a> } - <code>model</code>, <code>speaker</code>, <code>speed</code> 及允许的 <a href=\"tts\">TTS 选项</a>.</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise\">Promise</a> } - 与 <code>tts()</code> 相同的 <a href=\"tts#ttsresult\">TtsResult</a> 播放结果.</li>\n</ul>\n<p>该调用使用 3-Macaw Speech 的系统 TTS 引擎. 不接受 <code>engine</code>, <code>voice</code>, <code>rate</code>, <code>speechRate</code>; 用 <code>model</code> / <code>speaker</code> 选择声音, 用 <code>speed</code> 选择语速. <code>speaker</code> 需要同时指定 <code>model</code>. 缺少插件时 Promise 以 <code>PLUGIN_UNAVAILABLE</code> 拒绝.</p>\n",
+              "desc": "<p><strong><code>6.8.0</code></strong> <strong><code>Async</code></strong></p>\n<ul>\n<li><strong>text</strong> { <a href=\"dataTypes#string\">string</a> } - 待朗读文本, 非空白</li>\n<li><strong>[ options ]</strong> { <a href=\"#speechspeakoptions\">SpeechSpeakOptions</a> } - 朗读选项</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise\">Promise</a> } - 兑现值为 <a href=\"tts#ttsresult\">TtsResult</a></li>\n</ul>\n<p>使用 3-Macaw Speech 注册的系统 TTS 引擎朗读文本. 本方法等价于 <a href=\"tts\">tts(text, options)</a> 并把引擎固定为插件包名, 返回值即 <code>tts()</code> 返回的 Promise, 不返回 <a href=\"tts#ttsutterance\">TtsUtterance</a>.</p>\n<ul>\n<li>语音由 <code>model</code> 与 <code>speaker</code> 决定, 选择规则见 <a href=\"tts#使用-3-macaw-speech-引擎\">使用 3-Macaw Speech 引擎</a>; <code>speed</code> 转为 <code>tts</code> 的 <code>rate</code>.</li>\n<li>不接受 <code>engine</code>, <code>voice</code>, <code>rate</code> 与 <code>speechRate</code>, 也不接受不带 <code>model</code> 的 <code>speaker</code>; 说话人不能含 <code>/</code>. 这些参数错误同步抛出 <code>INVALID_OPTIONS</code>.</li>\n<li>给出 <code>model</code> 时, <code>language</code> / <code>locale</code> / <code>lang</code> 只用于在未给 <code>speaker</code> 时选择该模型的说话人, 不交给 <code>tts</code>. 其余选项 (如 <code>pitch</code>, <code>volume</code>, <code>queue</code>, <code>usage</code>) 原样交给 <code>tts</code> 并由其校验.</li>\n<li>插件包中没有 TTS 引擎服务 (插件未安装) 时, Promise 以 <code>PLUGIN_UNAVAILABLE</code> 的 <a href=\"#c-speecherror\">SpeechError</a> 拒绝. 该检查只查询包信息, 插件中心的启用状态不影响系统引擎.</li>\n<li>其他失败与 <code>tts()</code> 相同, 以 <a href=\"tts#ttserror\">TtsError</a> 拒绝, 例如指定的模型未安装时为 <code>CONFIGURATION</code>.</li>\n</ul>\n<pre><code class=\"lang-js\">speech.speak(&#39;任务已完成&#39;).then(r =&gt; console.log(r.voice));\nspeech.speak(&#39;Task completed&#39;, { model: &#39;tts.kokoro.multi-lang.v1_1&#39; });\nspeech.speak(&#39;你好&#39;, { model: &#39;tts.vits.icefall.zh-aishell3&#39;, speaker: &#39;SSB0005&#39;, speed: 1.2 });\n</code></pre>\n",
               "signatures": [
                 {
                   "params": [
@@ -314,163 +288,19 @@
         {
           "textRaw": "[p+] models",
           "name": "[p+]_models",
-          "desc": "<p><code>speech.models</code> 管理插件的模型目录和已安装模型. 模型类型为 <code>&#39;asr&#39;</code>, <code>&#39;tts&#39;</code>, <code>&#39;kws&#39;</code>, <code>&#39;vad&#39;</code>. 模型对象包含 <code>id</code>, <code>kind</code>, <code>modelType</code>, <code>name</code>, <code>languages</code>, <code>sizeBytes</code>, <code>installed</code>, <code>isDefault</code>, <code>recommended</code>, <code>version</code>, <code>source</code>, <code>license</code>; 已安装模型可带 <code>installedBytes</code>, TTS 模型可带 <code>speakers</code> 和 <code>sampleRate</code>.</p>\n",
-          "methods": [
-            {
-              "textRaw": "models.list(filter?)",
-              "type": "method",
-              "name": "list",
-              "desc": "<p>返回模型对象数组. 可按 <code>kind</code>, <code>language</code>, <code>installed</code> 过滤.</p>\n",
-              "signatures": [
-                {
-                  "params": [
-                    {
-                      "name": "filter?"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "textRaw": "models.install(id, options?)",
-              "type": "method",
-              "name": "install",
-              "desc": "<p><strong><code>Non-UI</code></strong></p>\n<p>下载并安装目录中的模型, 返回模型对象. 选项包括 <code>acceptLicense</code> (默认 <code>false</code>) 和 <code>onProgress(done, total)</code>. 非商用模型需要明确接受许可; 此选项不改变模型许可本身. 进度回调在脚本线程执行.</p>\n",
-              "signatures": [
-                {
-                  "params": [
-                    {
-                      "name": "id"
-                    },
-                    {
-                      "name": "options?"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "textRaw": "models.installAsync(id, options?)",
-              "type": "method",
-              "name": "installAsync",
-              "desc": "<p><strong><code>Async</code></strong></p>\n<p><code>install</code> 的 Promise 形式, 可在 UI 线程使用.</p>\n",
-              "signatures": [
-                {
-                  "params": [
-                    {
-                      "name": "id"
-                    },
-                    {
-                      "name": "options?"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "textRaw": "models.importFile(path, options?)",
-              "type": "method",
-              "name": "importFile",
-              "desc": "<p><strong><code>Non-UI</code></strong></p>\n<p>导入脚本可读取的本地模型归档, 返回模型对象. 选项包括 <code>id</code>, <code>kind</code>, <code>modelType</code>, <code>name</code>, <code>languages</code>, <code>acceptLicense</code>, <code>onProgress</code>. 不支持 URI 路径.</p>\n",
-              "signatures": [
-                {
-                  "params": [
-                    {
-                      "name": "path"
-                    },
-                    {
-                      "name": "options?"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "textRaw": "models.remove(id)",
-              "type": "method",
-              "name": "remove",
-              "desc": "<p>删除已安装模型, 返回是否实际删除的布尔值.</p>\n",
-              "signatures": [
-                {
-                  "params": [
-                    {
-                      "name": "id"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "textRaw": "models.setDefault(kind, id)",
-              "type": "method",
-              "name": "setDefault",
-              "desc": "<p>设置该类型的默认模型, 返回模型对象.</p>\n",
-              "signatures": [
-                {
-                  "params": [
-                    {
-                      "name": "kind"
-                    },
-                    {
-                      "name": "id"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "textRaw": "models.getDefault(kind)",
-              "type": "method",
-              "name": "getDefault",
-              "desc": "<p>返回已安装的默认模型对象, 没有时返回 <code>null</code>.</p>\n",
-              "signatures": [
-                {
-                  "params": [
-                    {
-                      "name": "kind"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "textRaw": "models.refreshCatalog()",
-              "type": "method",
-              "name": "refreshCatalog",
-              "desc": "<p><strong><code>Non-UI</code></strong></p>\n<p>刷新签名模型目录, 返回 <code>{ version, updated }</code>. 当前没有异步别名, 不应在 UI 线程调用.</p>\n",
-              "signatures": [
-                {
-                  "params": []
-                }
-              ]
-            }
-          ],
+          "desc": "<p><strong><code>6.8.0</code></strong></p>\n<p><code>speech.models</code> 管理插件的模型目录与已安装模型. 模型保存在插件中, AutoJs6 只转发调用并为 <a href=\"#m-modelsimportfile\">importFile</a> 读取脚本指定的归档. 模型对象见 <a href=\"speechModelInfoType\">SpeechModelInfo</a>. 下载, 导入, 删除与设定默认模型需要插件声明 <code>models</code> 功能.</p>\n",
           "type": "module",
           "displayName": "[p+] models"
         },
         {
-          "textRaw": "SpeechSession",
-          "name": "speechsession",
-          "desc": "<p>该对象继承 EventEmitter. <code>on</code> / <code>once</code> 注册监听并返回会话本身. 属性包括 <code>id</code>, <code>modelId</code>, <code>startedAt</code>, <code>source</code>, <code>round</code>, <code>state</code>, <code>reason</code>, <code>isEnded</code>. <code>id</code> 和 <code>modelId</code> 在 <code>ready</code> 前为 <code>null</code>; <code>reason</code> 在结束前为 <code>null</code>; <code>state</code> 依次为 <code>&#39;pending&#39;</code>, <code>&#39;active&#39;</code>, <code>&#39;ended&#39;</code>.</p>\n<ul>\n<li><code>isActive()</code>: 尚未结束时返回 <code>true</code>.</li>\n<li><code>result()</code>: 返回目前已确定的文本; 会话结束后返回整段结果.</li>\n<li><code>stop()</code>: 冲刷最终结果并结束, 返回会话, 可重复调用.</li>\n<li><code>cancel()</code>: 不产生最终结果地结束, 返回会话, 可重复调用.</li>\n<li><code>feed(pcm)</code>: 仅适用于 <code>&#39;external&#39;</code> 来源, 输入 16 kHz 单声道 PCM16 LE, 每次最多 1 MiB, 返回会话.</li>\n</ul>\n<p>事件包括 <code>ready({ sessionId, modelId })</code>, <code>partial</code> / <code>final</code> (带 <code>text</code>), <code>endpoint</code> (无参数), <code>vad({ active })</code>, <code>warning({ code, message })</code>, <code>error(SpeechError)</code>, <code>end({ reason, text })</code>. <code>end</code> 的原因包括 <code>&#39;stopped&#39;</code>, <code>&#39;timeout&#39;</code>, <code>&#39;maxDuration&#39;</code>, <code>&#39;cancelled&#39;</code>, <code>&#39;error&#39;</code>.</p>\n",
-          "type": "module",
-          "displayName": "SpeechSession"
-        },
-        {
-          "textRaw": "SpeechWakeSession",
-          "name": "speechwakesession",
-          "desc": "<p>该对象继承 EventEmitter, 属性包括 <code>keywords</code>, <code>id</code>, <code>modelId</code>, <code>startedAt</code>, <code>state</code>, <code>reason</code>, <code>isEnded</code>. 提供 <code>stop()</code> 与 <code>isActive()</code>, 不提供听写会话的 <code>feed</code>, <code>cancel</code>, <code>result</code>.</p>\n<p>事件包括 <code>ready</code>, <code>wake({ keyword, score, timestampMillis, listen? })</code>, <code>warning</code>, <code>error</code>, <code>end({ reason })</code>. 引擎未提供命中分数时 <code>score</code> 可以为 <code>null</code>. 设置 <code>thenListen</code> 后, 在 <code>wake</code> 回调中向 <code>event.listen</code> 注册该轮的听写事件.</p>\n",
-          "type": "module",
-          "displayName": "SpeechWakeSession"
-        },
-        {
-          "textRaw": "[p] SpeechError",
-          "name": "[p]_speecherror",
+          "textRaw": "[C] SpeechError",
+          "name": "[c]_speecherror",
           "methods": [
             {
               "textRaw": "new speech.SpeechError(message?, code?)",
               "type": "method",
               "name": "SpeechError",
-              "desc": "<p>构造继承 Error 的脚本错误对象, 也可不使用 <code>new</code>. <code>message</code> 和 <code>code</code> 转换为字符串, 缺省分别为空字符串和 <code>&#39;INTERNAL&#39;</code>. 可通过 <code>error instanceof speech.SpeechError</code> 与 <code>error.code</code> 判断错误.</p>\n<p>常见错误码包括 <code>PLUGIN_UNAVAILABLE</code>, <code>PLUGIN_DISABLED</code>, <code>PLUGIN_INCOMPATIBLE</code>, <code>PERMISSION_DENIED</code>, <code>MODEL_MISSING</code>, <code>MODEL_DOWNLOAD_FAILED</code>, <code>MODEL_CHECKSUM_MISMATCH</code>, <code>MODEL_LICENSE_NOT_ACCEPTED</code>, <code>INVALID_OPTIONS</code>, <code>UNSUPPORTED_FORMAT</code>, <code>LIMIT_EXCEEDED</code>, <code>SESSION_BUSY</code>, <code>SESSION_CLOSED</code>, <code>SESSION_CANCELLED</code>, <code>ENGINE_FAILED</code>, <code>IO_FAILED</code>, <code>TIMEOUT</code>, <code>INTERNAL</code>.</p>\n",
+              "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li><strong>[ message = <code>&#39;&#39;</code> ]</strong> { <a href=\"dataTypes#string\">string</a> } - 错误消息</li>\n<li><strong>[ code = <code>&#39;INTERNAL&#39;</code> ]</strong> { <a href=\"dataTypes#string\">string</a> } - 错误代码</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"#c-speecherror\">SpeechError</a> }</li>\n</ul>\n<p>语音模块抛出的所有错误, Promise 的拒绝值, 以及会话 <code>error</code> 事件的参数, 都是 <code>name</code> 为 <code>&#39;SpeechError&#39;</code> 的 JavaScript <a href=\"exceptions#error-对象\">Error</a>, 可用 <code>instanceof speech.SpeechError</code> 判断, 用 <code>code</code> 区分原因. <code>message</code> 与 <code>code</code> 会转换为字符串; <code>message</code> 不可枚举, <code>JSON.stringify</code> 只输出 <code>code</code>. <code>toString()</code> 返回形如 <code>SpeechError [MODEL_MISSING]: ...</code> 的文本. AutoJs6 抛出的错误可能另带不可枚举的 <code>javaException</code> 属性 (原始 Java 异常). 不使用 <code>new</code> 调用也会构造新对象.</p>\n<pre><code class=\"lang-js\">try {\n    speech.recognize(&#39;./record.wav&#39;, { model: &#39;asr.zipformer-streaming.en.2023-06-26.int8&#39; });\n} catch (e) {\n    if (e instanceof speech.SpeechError &amp;&amp; e.code === &#39;MODEL_MISSING&#39;) {\n        speech.models.install(&#39;asr.zipformer-streaming.en.2023-06-26.int8&#39;);\n    } else {\n        throw e;\n    }\n}\n</code></pre>\n",
               "signatures": [
                 {
                   "params": [
@@ -486,7 +316,314 @@
             }
           ],
           "type": "module",
-          "displayName": "[p] SpeechError"
+          "displayName": "[C] SpeechError"
+        },
+        {
+          "textRaw": "选项 (Options)",
+          "name": "选项_(options)",
+          "modules": [
+            {
+              "textRaw": "SpeechListenOptions",
+              "name": "speechlistenoptions",
+              "desc": "<p><a href=\"#m-listen\">speech.listen</a> 的选项, 也是 <a href=\"#speechwakeoptions\">SpeechWakeOptions</a> 中 <code>thenListen</code> 对象的形态.</p>\n<ul>\n<li><strong>[ model ]</strong> { <a href=\"dataTypes#string\">string</a> } - 识别模型 ID, 默认为默认识别模型</li>\n<li><strong>[ language ]</strong> { <a href=\"dataTypes#string\">string</a> } - 语言提示, 如 <code>&#39;zh&#39;</code>, <code>&#39;en&#39;</code>, <code>&#39;ja&#39;</code>, <code>&#39;ko&#39;</code>, <code>&#39;yue&#39;</code>; 只有 SenseVoice 使用它, 其他模型忽略; SenseVoice 不认识的语言改为自动识别并给出警告</li>\n<li><strong>[ source = <code>&#39;mic&#39;</code> ]</strong> { <code>&#39;mic&#39;</code> | <code>&#39;external&#39;</code> } - 音频来源, 麦克风或脚本输入的 PCM</li>\n<li><strong>[ sampleRate = <code>16000</code> ]</strong> { <a href=\"dataTypes#number\">number</a> } - 外部 PCM 的采样率, 只接受 <code>16000</code></li>\n<li><strong>[ vad = <code>true</code> ]</strong> { <a href=\"dataTypes#boolean\">boolean</a> } - 是否启用语音活动检测; 流式模型只把语音部分送入识别器, 离线模型按语音段切分</li>\n<li><strong>[ silenceEndMillis = <code>1200</code> ]</strong> { <a href=\"dataTypes#number\">number</a> } - 结束一句话的静音时长, 范围 <code>1..60000</code> 毫秒</li>\n<li><strong>[ maxDurationMillis = <code>300000</code> ]</strong> { <a href=\"dataTypes#number\">number</a> } - 会话时长上限, 正整数, 最大 <code>1800000</code> (30 分钟, 超出为 <code>LIMIT_EXCEEDED</code>)</li>\n<li><strong>[ timeoutMillis = <code>15000</code> ]</strong> { <a href=\"dataTypes#number\">number</a> } - 没有语音或新文字时自动结束的时长, 范围 <code>0..1800000</code>, <code>0</code> 表示不限</li>\n<li><strong>[ hotwords = <code>[]</code> ]</strong> { <a href=\"dataTypes#string\">string</a><a href=\"dataTypes#array\">[]</a> } - 热词, 去重后最多 200 个, 每个不超过 128 个字符</li>\n<li><strong>[ punctuation = <code>true</code> ]</strong> { <a href=\"dataTypes#boolean\">boolean</a> } - 是否保留模型输出的标点</li>\n</ul>\n<p><code>timeoutMillis</code> 与 <code>maxDurationMillis</code> 按插件已处理的音频时长计算, 而不是墙钟时间: 麦克风会话按实时计算, 外部 PCM 会话按已输入的音频计算 (暂停输入时不会超时). <code>timeoutMillis</code> 从最近一次语音或新文字起算. 到达时会话以 <code>end</code> 结束, 原因分别为 <code>&#39;timeout&#39;</code> 与 <code>&#39;maxDuration&#39;</code>. 插件在静音达到 <code>silenceEndMillis</code> 或连续说话满 20 秒时结束一句话.</p>\n",
+              "type": "module",
+              "displayName": "SpeechListenOptions"
+            },
+            {
+              "textRaw": "SpeechRecognizeOptions",
+              "name": "speechrecognizeoptions",
+              "desc": "<p><a href=\"#m-recognize\">speech.recognize</a> 与 <a href=\"#m-recognizeasync\">speech.recognizeAsync</a> 的选项.</p>\n<ul>\n<li><strong>[ model ]</strong> { <a href=\"dataTypes#string\">string</a> } - 识别模型 ID, 默认为默认识别模型</li>\n<li><strong>[ language ]</strong> { <a href=\"dataTypes#string\">string</a> } - 语言提示, 同 <a href=\"#speechlistenoptions\">SpeechListenOptions</a></li>\n<li><strong>[ hotwords = <code>[]</code> ]</strong> { <a href=\"dataTypes#string\">string</a><a href=\"dataTypes#array\">[]</a> } - 热词, 最多 200 个</li>\n<li><strong>[ punctuation = <code>true</code> ]</strong> { <a href=\"dataTypes#boolean\">boolean</a> } - 是否保留模型输出的标点</li>\n<li><strong>[ vad = <code>true</code> ]</strong> { <a href=\"dataTypes#boolean\">boolean</a> } - 是否先按语音活动检测切段</li>\n<li><strong>[ sampleRate = <code>16000</code> ]</strong> { <a href=\"dataTypes#number\">number</a> } - PCM 数据的采样率, 范围 <code>8000..192000</code>; 文件识别读取 WAV 文件头, 忽略此项</li>\n</ul>\n",
+              "type": "module",
+              "displayName": "SpeechRecognizeOptions"
+            },
+            {
+              "textRaw": "SpeechVadOptions",
+              "name": "speechvadoptions",
+              "desc": "<p><a href=\"#m-detectvoice\">speech.detectVoice</a> 的选项. 省略的阈值与时长使用模型默认值.</p>\n<ul>\n<li><strong>[ model ]</strong> { <a href=\"dataTypes#string\">string</a> } - 语音活动检测模型 ID, 默认为 <code>vad.silero.v5</code></li>\n<li><strong>[ threshold ]</strong> { <a href=\"dataTypes#number\">number</a> } - 判定为语音的阈值, 范围 <code>0..1</code></li>\n<li><strong>[ minSpeechMillis ]</strong> { <a href=\"dataTypes#number\">number</a> } - 最短语音段, 范围 <code>0..1800000</code> 毫秒</li>\n<li><strong>[ minSilenceMillis ]</strong> { <a href=\"dataTypes#number\">number</a> } - 分隔语音段的最短静音, 范围 <code>0..1800000</code> 毫秒</li>\n<li><strong>[ sampleRate = <code>16000</code> ]</strong> { <a href=\"dataTypes#number\">number</a> } - PCM 数据的采样率, 范围 <code>8000..192000</code></li>\n</ul>\n",
+              "type": "module",
+              "displayName": "SpeechVadOptions"
+            },
+            {
+              "textRaw": "SpeechKeyword",
+              "name": "speechkeyword",
+              "desc": "<p>唤醒关键词的对象形式.</p>\n<ul>\n<li><strong>keyword</strong> { <a href=\"dataTypes#string\">string</a> } - 关键词原文或模型 token, 非空白, 最多 128 个字符</li>\n<li><strong>[ boost ]</strong> { <a href=\"dataTypes#number\">number</a> } - 关键词增益, 范围 <code>-100..100</code></li>\n<li><strong>[ threshold ]</strong> { <a href=\"dataTypes#number\">number</a> } - 触发阈值, 范围 <code>0..1</code>, 默认使用模型的阈值; 越低越容易触发</li>\n</ul>\n",
+              "type": "module",
+              "displayName": "SpeechKeyword"
+            },
+            {
+              "textRaw": "SpeechWakeOptions",
+              "name": "speechwakeoptions",
+              "desc": "<p><a href=\"#m-wake\">speech.wake</a> 的选项.</p>\n<ul>\n<li><strong>[ model ]</strong> { <a href=\"dataTypes#string\">string</a> } - 唤醒词模型 ID, 默认为默认唤醒词模型</li>\n<li><strong>[ minIntervalMillis = <code>1500</code> ]</strong> { <a href=\"dataTypes#number\">number</a> } - 两次命中之间的最小间隔, 范围 <code>0..600000</code> 毫秒</li>\n<li><strong>[ thenListen ]</strong> { <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"#speechlistenoptions\">SpeechListenOptions</a> } - 命中后自动转入听写; <code>true</code> 使用默认听写选项, 对象形式的 <code>source</code> 只能为 <code>&#39;mic&#39;</code></li>\n</ul>\n",
+              "type": "module",
+              "displayName": "SpeechWakeOptions"
+            },
+            {
+              "textRaw": "SpeechSynthesizeOptions",
+              "name": "speechsynthesizeoptions",
+              "desc": "<p><a href=\"#m-synthesize\">speech.synthesize</a> 与 <a href=\"#m-synthesizeasync\">speech.synthesizeAsync</a> 的选项.</p>\n<ul>\n<li><strong>[ model ]</strong> { <a href=\"dataTypes#string\">string</a> } - 合成模型 ID, 默认为默认合成模型</li>\n<li><strong>[ speaker ]</strong> { <a href=\"dataTypes#number\">number</a> | <a href=\"dataTypes#string\">string</a> } - 说话人编号, 或模型 <code>speakers.txt</code> 中的说话人名称 (如 AISHELL-3 的 <code>&#39;SSB0005&#39;</code>); 默认为模型的默认说话人</li>\n<li><strong>[ speed = <code>1</code> ]</strong> { <a href=\"dataTypes#number\">number</a> } - 语速, 范围 <code>0.5..2</code></li>\n<li><strong>[ format = <code>&#39;wav&#39;</code> ]</strong> { <code>&#39;wav&#39;</code> } - 输出格式, 只支持 WAV</li>\n</ul>\n",
+              "type": "module",
+              "displayName": "SpeechSynthesizeOptions"
+            },
+            {
+              "textRaw": "SpeechSpeakOptions",
+              "name": "speechspeakoptions",
+              "desc": "<p><a href=\"#m-speak\">speech.speak</a> 的选项: 以下三项, 加上 <a href=\"tts#ttsoptions\">TtsOptions</a> 中除 <code>engine</code>, <code>voice</code>, <code>rate</code> (及别名 <code>speechRate</code>) 以外的选项.</p>\n<ul>\n<li><strong>[ model ]</strong> { <a href=\"dataTypes#string\">string</a> } - 合成模型 ID; 省略时由引擎按文本语言选择语音</li>\n<li><strong>[ speaker ]</strong> { <a href=\"dataTypes#number\">number</a> | <a href=\"dataTypes#string\">string</a> } - 说话人编号或名称, 需要同时给出 <code>model</code>, 不能含 <code>/</code></li>\n<li><strong>[ speed ]</strong> { <a href=\"dataTypes#number\">number</a> } - 语速, 范围 <code>0.5..2</code>, 转为 <code>tts</code> 的 <code>rate</code></li>\n</ul>\n",
+              "type": "module",
+              "displayName": "SpeechSpeakOptions"
+            },
+            {
+              "textRaw": "SpeechModelFilter",
+              "name": "speechmodelfilter",
+              "desc": "<p><a href=\"#m-modelslist\">speech.models.list</a> 的过滤条件.</p>\n<ul>\n<li><strong>[ kind ]</strong> { <code>&#39;asr&#39;</code> | <code>&#39;tts&#39;</code> | <code>&#39;kws&#39;</code> | <code>&#39;vad&#39;</code> } - 模型类别</li>\n<li><strong>[ language ]</strong> { <a href=\"dataTypes#string\">string</a> } - 模型支持的语言</li>\n<li><strong>[ installed ]</strong> { <a href=\"dataTypes#boolean\">boolean</a> } - 只列出已安装 (<code>true</code>) 或未安装 (<code>false</code>) 的模型</li>\n</ul>\n",
+              "type": "module",
+              "displayName": "SpeechModelFilter"
+            },
+            {
+              "textRaw": "SpeechInstallOptions",
+              "name": "speechinstalloptions",
+              "desc": "<p><a href=\"#m-modelsinstall\">speech.models.install</a> 与 <a href=\"#m-modelsinstallasync\">speech.models.installAsync</a> 的选项.</p>\n<ul>\n<li><strong>[ acceptLicense = <code>false</code> ]</strong> { <a href=\"dataTypes#boolean\">boolean</a> } - 接受仅限非商业用途或未声明许可的模型的许可</li>\n<li><strong>[ onProgress ]</strong> { <a href=\"dataTypes#function\">Function</a> } - 进度回调 <code>(done: number, total: number) =&gt; void</code>, 单位为字节, 返回值被忽略</li>\n</ul>\n",
+              "type": "module",
+              "displayName": "SpeechInstallOptions"
+            },
+            {
+              "textRaw": "SpeechImportOptions",
+              "name": "speechimportoptions",
+              "desc": "<p><a href=\"#m-modelsimportfile\">speech.models.importFile</a> 的选项. 与目录条目一致的归档只需 <code>acceptLicense</code> 与 <code>onProgress</code>.</p>\n<ul>\n<li><strong>[ id ]</strong> { <a href=\"dataTypes#string\">string</a> } - 目录模型 ID (要求归档包含该模型), 或导入模型的新 ID</li>\n<li><strong>[ kind ]</strong> { <code>&#39;asr&#39;</code> | <code>&#39;tts&#39;</code> | <code>&#39;kws&#39;</code> | <code>&#39;vad&#39;</code> } - 导入模型的类别</li>\n<li><strong>[ modelType ]</strong> { <a href=\"dataTypes#string\">string</a> } - 导入模型的类型, 如 <code>&#39;online-transducer&#39;</code>, <code>&#39;sense-voice&#39;</code>, <code>&#39;kws-transducer&#39;</code>, <code>&#39;vits&#39;</code>, <code>&#39;matcha&#39;</code>, <code>&#39;kokoro&#39;</code></li>\n<li><strong>[ name ]</strong> { <a href=\"dataTypes#string\">string</a> } - 显示名称, 最多 128 个字符</li>\n<li><strong>[ languages ]</strong> { <a href=\"dataTypes#string\">string</a><a href=\"dataTypes#array\">[]</a> } - 支持的语言, 1 - 32 个语言标签</li>\n<li><strong>[ acceptLicense = <code>false</code> ]</strong> { <a href=\"dataTypes#boolean\">boolean</a> } - 同 <a href=\"#speechinstalloptions\">SpeechInstallOptions</a></li>\n<li><strong>[ onProgress ]</strong> { <a href=\"dataTypes#function\">Function</a> } - 进度回调, 单位为字节</li>\n</ul>\n",
+              "type": "module",
+              "displayName": "SpeechImportOptions"
+            }
+          ],
+          "type": "module",
+          "displayName": "选项 (Options)"
+        },
+        {
+          "textRaw": "返回对象",
+          "name": "返回对象",
+          "modules": [
+            {
+              "textRaw": "SpeechCapabilities",
+              "name": "speechcapabilities",
+              "desc": "<p><a href=\"#m-capabilities\">speech.capabilities</a> 的返回值.</p>\n<ul>\n<li><strong>contractVersion</strong> { <a href=\"dataTypes#number\">number</a> } - 语音插件契约版本, 当前为 <code>1</code></li>\n<li><strong>features</strong> { <a href=\"dataTypes#string\">string</a><a href=\"dataTypes#array\">[]</a> } - 插件实现的功能, 取自 <code>asr</code> (文件识别与外部 PCM 会话), <code>asrStreaming</code> (麦克风听写与 <code>thenListen</code>), <code>vad</code> (语音活动检测), <code>kws</code> (唤醒词), <code>tts</code> (合成到文件), <code>ttsSystemEngine</code> (系统 TTS 引擎), <code>models</code> (模型管理)</li>\n<li><strong>catalogVersion</strong> { <a href=\"dataTypes#number\">number</a> } - 插件当前的模型目录版本</li>\n<li><strong>engineName</strong> { <a href=\"dataTypes#string\">string</a> | <a href=\"dataTypes#null\">null</a> } - 语音运行时名称, 如 <code>&#39;sherpa-onnx&#39;</code></li>\n<li><strong>engineVersion</strong> { <a href=\"dataTypes#string\">string</a> | <a href=\"dataTypes#null\">null</a> } - 语音运行时版本</li>\n<li><strong>ttsEnginePackage</strong> { <a href=\"dataTypes#string\">string</a> | <a href=\"dataTypes#null\">null</a> } - 系统 TTS 引擎所在的包名</li>\n<li><strong>microphoneGranted</strong> { <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#null\">null</a> } - 插件当前是否持有麦克风权限, 实时查询失败时为 <code>null</code></li>\n<li><strong>packageName</strong> { <a href=\"dataTypes#string\">string</a> } - 插件包名</li>\n<li><strong>versionName</strong> { <a href=\"dataTypes#string\">string</a> | <a href=\"dataTypes#null\">null</a> } - 插件版本名称</li>\n<li><strong>versionCode</strong> { <a href=\"dataTypes#number\">number</a> } - 插件版本号</li>\n</ul>\n<p>应根据 <code>features</code> 的实际内容判断能力, 不要假定所有功能都存在.</p>\n",
+              "type": "module",
+              "displayName": "SpeechCapabilities"
+            },
+            {
+              "textRaw": "SpeechVoiceSegments",
+              "name": "speechvoicesegments",
+              "desc": "<p><a href=\"#m-detectvoice\">speech.detectVoice</a> 的返回值.</p>\n<ul>\n<li><strong>segments</strong> {{ startMillis: <a href=\"dataTypes#number\">number</a>; endMillis: <a href=\"dataTypes#number\">number</a> }}[] - 语音段, 时间相对音频开头, 单位为毫秒</li>\n<li><strong>durationMillis</strong> { <a href=\"dataTypes#number\">number</a> } - 音频总时长, 单位为毫秒</li>\n</ul>\n",
+              "type": "module",
+              "displayName": "SpeechVoiceSegments"
+            },
+            {
+              "textRaw": "SpeechSynthesisResult",
+              "name": "speechsynthesisresult",
+              "desc": "<p><a href=\"#m-synthesize\">speech.synthesize</a> 与 <a href=\"#m-synthesizeasync\">speech.synthesizeAsync</a> 的结果.</p>\n<ul>\n<li><strong>path</strong> { <a href=\"dataTypes#string\">string</a> } - 输出文件的绝对路径</li>\n<li><strong>sampleRate</strong> { <a href=\"dataTypes#number\">number</a> } - 采样率, 与模型一致</li>\n<li><strong>durationMillis</strong> { <a href=\"dataTypes#number\">number</a> } - 音频时长, 单位为毫秒</li>\n<li><strong>modelId</strong> { <a href=\"dataTypes#string\">string</a> } - 实际使用的模型</li>\n<li><strong>speakerId</strong> { <a href=\"dataTypes#number\">number</a> } - 实际使用的说话人编号</li>\n<li><strong>sizeBytes</strong> { <a href=\"dataTypes#number\">number</a> } - 输出文件的字节数</li>\n<li><strong>warnings</strong> {{ code: <a href=\"dataTypes#string\">string</a>; message: <a href=\"dataTypes#string\">string</a> }}[] - 非致命问题, 没有时为空数组</li>\n</ul>\n",
+              "type": "module",
+              "displayName": "SpeechSynthesisResult"
+            }
+          ],
+          "type": "module",
+          "displayName": "返回对象"
+        },
+        {
+          "textRaw": "错误代码",
+          "name": "错误代码",
+          "desc": "<table>\n<thead>\n<tr>\n<th>代码</th>\n<th>含义</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>PLUGIN_UNAVAILABLE</code></td>\n<td>未安装 3-Macaw Speech, 或插件不应答</td>\n</tr>\n<tr>\n<td><code>PLUGIN_DISABLED</code></td>\n<td>插件已在插件中心停用或未授权</td>\n</tr>\n<tr>\n<td><code>PLUGIN_INCOMPATIBLE</code></td>\n<td>插件版本或契约版本不兼容, 或插件未声明该调用所需的功能</td>\n</tr>\n<tr>\n<td><code>PERMISSION_DENIED</code></td>\n<td>插件没有麦克风权限 (打开会话时抛出); 作为会话的 <code>warning</code> 时表示收到的是静音或麦克风前台服务被拒绝, 会话继续</td>\n</tr>\n<tr>\n<td><code>MODEL_MISSING</code></td>\n<td>指定的模型未安装或不存在, 或该类没有已安装模型</td>\n</tr>\n<tr>\n<td><code>MODEL_DOWNLOAD_FAILED</code></td>\n<td>模型下载失败 (镜像与上游均失败)</td>\n</tr>\n<tr>\n<td><code>MODEL_CHECKSUM_MISMATCH</code></td>\n<td>下载或导入的文件校验失败, 或目录签名不符</td>\n</tr>\n<tr>\n<td><code>MODEL_LICENSE_NOT_ACCEPTED</code></td>\n<td>模型须先接受许可</td>\n</tr>\n<tr>\n<td><code>INVALID_OPTIONS</code></td>\n<td>参数, 选项或模型类别不正确, 或同步形态在 UI 线程调用</td>\n</tr>\n<tr>\n<td><code>UNSUPPORTED_FORMAT</code></td>\n<td>音频不是 WAV, 或归档格式不受支持</td>\n</tr>\n<tr>\n<td><code>LIMIT_EXCEEDED</code></td>\n<td>超过契约上限; 也用于脚本未及时消费会话事件</td>\n</tr>\n<tr>\n<td><code>SESSION_BUSY</code></td>\n<td>麦克风正被另一个会话占用, 外部 PCM 会话已达上限, 或模型正被使用而无法删除</td>\n</tr>\n<tr>\n<td><code>SESSION_CLOSED</code></td>\n<td>会话已结束, 插件进程退出, 或脚本正在退出</td>\n</tr>\n<tr>\n<td><code>SESSION_CANCELLED</code></td>\n<td>操作被取消</td>\n</tr>\n<tr>\n<td><code>ENGINE_FAILED</code></td>\n<td>识别或合成引擎失败</td>\n</tr>\n<tr>\n<td><code>IO_FAILED</code></td>\n<td>文件读写失败或下载出错</td>\n</tr>\n<tr>\n<td><code>TIMEOUT</code></td>\n<td>插件未在时限内应答</td>\n</tr>\n<tr>\n<td><code>INTERNAL</code></td>\n<td>其他内部错误</td>\n</tr>\n</tbody>\n</table>\n",
+          "type": "module",
+          "displayName": "错误代码"
+        },
+        {
+          "textRaw": "限制",
+          "name": "限制",
+          "desc": "<table>\n<thead>\n<tr>\n<th>项目</th>\n<th>上限</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>麦克风会话 (听写或唤醒), 整个插件</td>\n<td>1</td>\n</tr>\n<tr>\n<td>外部 PCM 会话, 每个调用方应用</td>\n<td>4</td>\n</tr>\n<tr>\n<td>一次 <code>feed</code> 的字节数</td>\n<td>1 MiB</td>\n</tr>\n<tr>\n<td>识别或检测的音频文件</td>\n<td>200 MiB, 30 分钟</td>\n</tr>\n<tr>\n<td>会话时长 (<code>maxDurationMillis</code>)</td>\n<td>30 分钟</td>\n</tr>\n<tr>\n<td>合成文本</td>\n<td>8000 个字符 (UTF-16 单元)</td>\n</tr>\n<tr>\n<td>合成输出文件</td>\n<td>100 MiB</td>\n</tr>\n<tr>\n<td>唤醒会话的关键词</td>\n<td>50 个</td>\n</tr>\n<tr>\n<td>热词</td>\n<td>200 个</td>\n</tr>\n<tr>\n<td>关键词, 热词, 模型 ID 或说话人的长度</td>\n<td>128 个字符</td>\n</tr>\n<tr>\n<td>一次列出的模型</td>\n<td>512 个</td>\n</tr>\n</tbody>\n</table>\n",
+          "type": "module",
+          "displayName": "限制"
+        },
+        {
+          "textRaw": "插件的系统入口",
+          "name": "插件的系统入口",
+          "desc": "<p>以下入口由 3-Macaw Speech 提供给 Android 系统与其他应用, 不是脚本 API, 在此一并说明以便脚本作者与集成方了解它们与脚本会话的关系. 它们与脚本共用插件唯一的麦克风: 脚本的听写会话占用麦克风时, 这些入口显示 &quot;麦克风正被占用&quot; 的说明; 它们收音时, 脚本打开麦克风会话失败于 <code>SESSION_BUSY</code>; 唤醒会话则被临时接管 (见 <a href=\"#唤醒会话的临时接管\">唤醒会话的临时接管</a>).</p>\n",
+          "modules": [
+            {
+              "textRaw": "系统 TTS 引擎",
+              "name": "系统_tts_引擎",
+              "desc": "<p>插件把已安装的合成模型注册为 Android 系统 TTS 引擎, 可在系统的文字转语音设置中选为首选引擎, 也可以由 AutoJs6 的 <a href=\"tts\">tts</a> 模块及其他应用指定使用. 语音名称与选择规则见 <a href=\"tts#使用-3-macaw-speech-引擎\">使用 3-Macaw Speech 引擎</a>.</p>\n",
+              "type": "module",
+              "displayName": "系统 TTS 引擎"
+            },
+            {
+              "textRaw": "系统语音输入",
+              "name": "系统语音输入",
+              "desc": "<p>插件导出一个应答 <code>android.speech.action.RECOGNIZE_SPEECH</code> 的界面, 其他应用 (例如 3-Stove Agent 的麦克风按钮) 发出语音输入请求时, 在底部弹层中说一句话, 识别出的文字直接交回该应用. 该入口不受插件权限保护, 任何应用都可以调用; 它只返回识别出的文字, 不返回音频, 不修改模型或设置, 也不启动下载.</p>\n<ul>\n<li>第一句话结束 (静音端点, 或点按 &quot;停止&quot;) 即返回 <code>RESULT_OK</code>, <code>RecognizerIntent.EXTRA_RESULTS</code> 中恰好 1 条文字, 不返回置信度.</li>\n<li>静音时长取插件设置中的端点灵敏度; 调用方给出 <code>EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS</code> 时优先使用 (限制在 300 - 5000 毫秒). 开始收音后 8 秒内没有语音返回 <code>RESULT_NO_MATCH</code>, 一句话最长 60 秒.</li>\n<li><code>EXTRA_LANGUAGE</code> 只用于选择识别模型: 默认识别模型覆盖该语言时使用它, 否则使用覆盖该语言的其他已安装识别模型 (目录推荐的优先), 都不覆盖时仍用默认识别模型. SenseVoice 始终自动识别语种.</li>\n<li><code>EXTRA_PROMPT</code> 显示为弹层标题; <code>EXTRA_BIASING_STRINGS</code> (Android 13 及以上) 作为热词交给支持热词的模型; <code>EXTRA_MAX_RESULTS</code> 被接受但只返回 1 条; 其他 extra 被忽略.</li>\n<li>返回码: 用户取消为 <code>RESULT_CANCELED</code>; 没有语音或结果为空为 <code>RESULT_NO_MATCH</code>; 麦克风权限被拒绝, 麦克风被占用或录音失败为 <code>RESULT_AUDIO_ERROR</code>; 没有识别模型, 模型加载或引擎失败为 <code>RESULT_SERVER_ERROR</code>.</li>\n<li>插件设置 &quot;识别&quot; 组中的 &quot;作为系统语音输入&quot; 开关可停用该入口. 设备上还有其他语音输入应用时, Android 会让用户选择.</li>\n</ul>\n",
+              "type": "module",
+              "displayName": "系统语音输入"
+            },
+            {
+              "textRaw": "数字助理",
+              "name": "数字助理",
+              "desc": "<p>用户可以把 3-Macaw Speech 选为默认数字助理应用: 打开插件设置, 点按 &quot;识别&quot; 组中的 &quot;数字助理&quot; (该行同时显示插件当前是否为默认助理), 在系统打开的设置页中选择 3-Macaw Speech (各系统的页面名称略有不同). 插件不能代替用户做此选择.</p>\n<ul>\n<li>之后长按电源键或 Home 键, 或使用助理手势, 即打开底部弹层听写; 部分厂商的电源键或手势可能只能唤起自家助理. 听写的结束, 模型选择与引导规则与 <a href=\"#系统语音输入\">系统语音输入</a> 相同.</li>\n<li>听写结束后弹层显示可编辑的识别文字, 以及每个接收语音指令的应用 (见 <a href=\"#语音指令入口\">语音指令入口</a>) 的按钮, &quot;复制文本&quot;, &quot;重说&quot; 与 &quot;关闭&quot;. 只有用户点按某个应用按钮时才发送, 没有默认目标, 也不根据说话内容自动选择. 没有任何接收应用时, 助理仍可用于听写并复制.</li>\n<li>不读取屏幕内容: 系统不会把当前应用的界面结构或截图交给插件, 除识别文字外不向目标附带任何内容.</li>\n<li>平时不在后台收音: 只在弹层显示时录音, 没有常驻通知与常亮的麦克风指示灯. 插件不保存识别历史.</li>\n<li>锁屏时可以开始听写; 点按应用按钮或 &quot;复制文本&quot; 时先请求解锁, 解锁成功后才发送或复制, 取消解锁则留在弹层.</li>\n</ul>\n",
+              "type": "module",
+              "displayName": "数字助理"
+            },
+            {
+              "textRaw": "语音指令入口",
+              "name": "语音指令入口",
+              "desc": "<p>希望接收数字助理识别文字的应用, 导出一个应答 <code>org.autojs.plugin.action.VOICE_COMMAND</code> 的 Activity:</p>\n<pre><code class=\"lang-xml\">&lt;activity\n    android:name=&quot;.VoiceCommandActivity&quot;\n    android:exported=&quot;true&quot;\n    android:label=&quot;@string/voice_command_label&quot;&gt;\n    &lt;intent-filter&gt;\n        &lt;action android:name=&quot;org.autojs.plugin.action.VOICE_COMMAND&quot; /&gt;\n        &lt;category android:name=&quot;android.intent.category.DEFAULT&quot; /&gt;\n    &lt;/intent-filter&gt;\n&lt;/activity&gt;\n</code></pre>\n<ul>\n<li>插件以 <code>queryIntentActivities</code> 发现已安装且已启用的接收方 (不按包名写死), 按钮文字与图标取该 Activity 的 label 与 icon, 按 label 排序. 3-Macaw Speech 自身不应答该 action.</li>\n<li>发送时使用显式组件 (包名与类名) 与 <code>FLAG_ACTIVITY_NEW_TASK</code>. extras 只有两项: <code>android.intent.extra.TEXT</code> (<code>Intent.EXTRA_TEXT</code>, 识别文字, 必有, 已去除首尾空白, 最多 16384 个字符) 与 <code>org.autojs.plugin.extra.VOICE_LANGUAGE</code> (所用识别模型检测到的语言, 或模型唯一支持的语言, BCP 47 标签, 可缺).</li>\n<li>该 action 不受任何权限保护, 与系统分享入口同级, 任何应用都能发出同样的 Intent. 接收方必须把文字当作不可信输入, 自行决定安全语义. 例如 3-Stove Agent 只把文字放入可审阅的任务草稿, 由用户点按开始后才执行.</li>\n</ul>\n<pre><code class=\"lang-kotlin\">val text = intent.getStringExtra(Intent.EXTRA_TEXT)?.trim().orEmpty()\nval language = intent.getStringExtra(&quot;org.autojs.plugin.extra.VOICE_LANGUAGE&quot;)\n</code></pre>\n",
+              "type": "module",
+              "displayName": "语音指令入口"
+            },
+            {
+              "textRaw": "系统识别服务",
+              "name": "系统识别服务",
+              "desc": "<p>插件还提供系统语音识别服务 (<code>android.speech.RecognitionService</code>), 组件名为 <code>io.github.supermonster003.autojs6.plugin.three.macaw.speech/.recognition.MacawRecognitionService</code>. 其他应用可以在 <code>SpeechRecognizer.createSpeechRecognizer(context, component)</code> 中直接指定它.</p>\n<p>不指定组件的 <code>SpeechRecognizer</code> 使用系统设置的默认识别服务, 它是否随数字助理切换取决于 Android 版本: Android 11 及以下把 3-Macaw Speech 选为数字助理时, 一般会一并设为默认识别服务; Android 12 起需要在系统的语音输入设置中另行选择 (部分手机没有这项设置).</p>\n<ul>\n<li>支持 <code>startListening</code>, <code>stopListening</code> 与 <code>cancel</code>. 回调顺序为 <code>onReadyForSpeech</code>, <code>onBeginningOfSpeech</code>, 调用方要求时的部分结果, <code>onEndOfSpeech</code>, 然后恰好一次 <code>onResults</code> (1 条结果) 或 <code>onError</code>; 取消后不再回调. <code>onRmsChanged</code> 按语音活动状态近似.</li>\n<li>语言与热词的处理同 <a href=\"#系统语音输入\">系统语音输入</a>.</li>\n<li>错误码: 调用方或插件没有麦克风权限为 <code>ERROR_INSUFFICIENT_PERMISSIONS</code>, 麦克风被听写占用为 <code>ERROR_RECOGNIZER_BUSY</code>, 录音失败为 <code>ERROR_AUDIO</code>, Intent 中的选项无效或调用方自带音频 (<code>EXTRA_AUDIO_SOURCE</code>) 为 <code>ERROR_CLIENT</code>, 没有模型及其他失败为 <code>ERROR_SERVER</code>, 超时前没有语音为 <code>ERROR_SPEECH_TIMEOUT</code>, 其他没有文字的结束为 <code>ERROR_NO_MATCH</code>.</li>\n<li>调用方自身须持有麦克风权限; Android 12 及以上录音归属于调用方.</li>\n<li>&quot;作为系统语音输入&quot; 开关不影响识别服务.</li>\n</ul>\n",
+              "type": "module",
+              "displayName": "系统识别服务"
+            }
+          ],
+          "type": "module",
+          "displayName": "插件的系统入口"
+        },
+        {
+          "textRaw": "示例 (Examples)",
+          "name": "示例_(examples)",
+          "modules": [
+            {
+              "textRaw": "听写到文件",
+              "name": "听写到文件",
+              "desc": "<pre><code class=\"lang-js\">let session = speech.listen({ silenceEndMillis: 1500, maxDurationMillis: 60000 });\nsession.on(&#39;final&#39;, e =&gt; files.append(&#39;./dictation.txt&#39;, e.text + &#39;\\n&#39;));\nsession.on(&#39;error&#39;, e =&gt; console.error(e.code, e.message));\nsession.on(&#39;end&#39;, e =&gt; toast(`听写结束 (${e.reason})`));\n</code></pre>\n",
+              "type": "module",
+              "displayName": "听写到文件"
+            },
+            {
+              "textRaw": "唤醒词后交给 3-Stove Agent",
+              "name": "唤醒词后交给_3-stove_agent",
+              "desc": "<pre><code class=\"lang-js\">let wake = speech.wake([&#39;小六小六&#39;], { thenListen: { silenceEndMillis: 1200 } });\nwake.on(&#39;wake&#39;, e =&gt; {\n    e.listen.on(&#39;final&#39;, r =&gt; {\n        console.log(&#39;指令:&#39;, r.text);\n        ai.agent.run(r.text);\n    });\n});\n</code></pre>\n",
+              "type": "module",
+              "displayName": "唤醒词后交给 3-Stove Agent"
+            },
+            {
+              "textRaw": "识别脚本生成的 PCM",
+              "name": "识别脚本生成的_pcm",
+              "desc": "<pre><code class=\"lang-js\">// pcm 为 16 kHz 单声道 PCM16 LE 的 Int16Array, 每次 feed 最多 1 MiB.\nlet session = speech.listen({ source: &#39;external&#39; });\nsession.on(&#39;ready&#39;, () =&gt; {\n    session.feed(pcm);\n    session.stop();\n});\nsession.on(&#39;final&#39;, e =&gt; console.log(e.text));\nsession.on(&#39;end&#39;, e =&gt; console.log(e.reason, session.result()));\n</code></pre>\n",
+              "type": "module",
+              "displayName": "识别脚本生成的 PCM"
+            },
+            {
+              "textRaw": "处理缺少模型或权限",
+              "name": "处理缺少模型或权限",
+              "desc": "<pre><code class=\"lang-js\">try {\n    let session = speech.listen();\n    session.on(&#39;end&#39;, e =&gt; console.log(session.result()));\n} catch (e) {\n    if (!(e instanceof speech.SpeechError)) throw e;\n    switch (e.code) {\n        case &#39;MODEL_MISSING&#39;:\n            speech.models.install(&#39;asr.sense-voice.zh-en-ja-ko-yue.2024-07-17.int8&#39;);\n            break;\n        case &#39;PERMISSION_DENIED&#39;:\n            console.log(&#39;请在 3-Macaw Speech 中授予麦克风权限&#39;);\n            break;\n        default:\n            throw e;\n    }\n}\n</code></pre>\n",
+              "type": "module",
+              "displayName": "处理缺少模型或权限"
+            }
+          ],
+          "type": "module",
+          "displayName": "示例 (Examples)"
+        }
+      ],
+      "properties": [
+        {
+          "textRaw": "[m] models.list",
+          "name": "list",
+          "modules": [
+            {
+              "textRaw": "speech.models.list(filter?)",
+              "name": "speech.models.list(filter?)",
+              "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li><strong>[ filter ]</strong> { <a href=\"#speechmodelfilter\">SpeechModelFilter</a> } - 过滤条件</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"speechModelInfoType\">SpeechModelInfo</a><a href=\"dataTypes#array\">[]</a> } - 模型对象数组, 最多 512 个</li>\n</ul>\n<p>列出目录中的模型, 已导入的模型与内置模型. 未给出过滤条件时返回全部.</p>\n<pre><code class=\"lang-js\">speech.models.list({ kind: &#39;asr&#39; }).forEach(m =&gt; {\n    console.log(m.id, m.installed ? &#39;已安装&#39; : m.sizeBytes, m.license.spdx);\n});\n</code></pre>\n",
+              "type": "module",
+              "displayName": "speech.models.list(filter?)"
+            }
+          ]
+        },
+        {
+          "textRaw": "[m] models.install",
+          "name": "install",
+          "modules": [
+            {
+              "textRaw": "speech.models.install(id, options?)",
+              "name": "speech.models.install(id,_options?)",
+              "desc": "<p><strong><code>6.8.0</code></strong> <strong><code>Non-UI</code></strong></p>\n<ul>\n<li><strong>id</strong> { <a href=\"dataTypes#string\">string</a> } - 目录中的模型 ID</li>\n<li><strong>[ options ]</strong> { <a href=\"#speechinstalloptions\">SpeechInstallOptions</a> } - 安装选项</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"speechModelInfoType\">SpeechModelInfo</a> } - 安装后的模型对象</li>\n</ul>\n<p>下载并安装目录中的模型, 阻塞当前脚本线程直至完成. 下载不设超时. <code>onProgress(done, total)</code> 以字节报告进度, 在脚本线程上执行, <code>total</code> 未知时为 <code>0</code>; 回调抛出的第一个错误在安装结束后抛出.</p>\n<p>仅限非商业用途或未声明许可的模型需要 <code>acceptLicense: true</code>, 见 <a href=\"#模型目录与许可\">模型目录与许可</a>. 失败时的错误代码: <code>MODEL_MISSING</code> (目录中没有该 ID), <code>MODEL_LICENSE_NOT_ACCEPTED</code>, <code>MODEL_DOWNLOAD_FAILED</code>, <code>MODEL_CHECKSUM_MISMATCH</code>, <code>IO_FAILED</code> (例如空间不足), <code>SESSION_CANCELLED</code> (脚本停止或插件界面取消).</p>\n<pre><code class=\"lang-js\">speech.models.install(&#39;kws.zipformer.zh-en.2025-12-20&#39;, {\n    onProgress: (done, total) =&gt; console.log(done, &#39;/&#39;, total),\n});\n</code></pre>\n",
+              "type": "module",
+              "displayName": "speech.models.install(id, options?)"
+            }
+          ]
+        },
+        {
+          "textRaw": "[m] models.installAsync",
+          "name": "installAsync",
+          "modules": [
+            {
+              "textRaw": "speech.models.installAsync(id, options?)",
+              "name": "speech.models.installasync(id,_options?)",
+              "desc": "<p><strong><code>6.8.0</code></strong> <strong><code>Async</code></strong></p>\n<ul>\n<li><strong>id</strong> { <a href=\"dataTypes#string\">string</a> } - 目录中的模型 ID</li>\n<li><strong>[ options ]</strong> { <a href=\"#speechinstalloptions\">SpeechInstallOptions</a> } - 安装选项</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise\">Promise</a> } - 兑现值为 <a href=\"speechModelInfoType\">SpeechModelInfo</a></li>\n</ul>\n<p><a href=\"#m-modelsinstall\">speech.models.install</a> 的异步形态, 可在 UI 线程使用; <code>onProgress</code> 同样在脚本线程执行.</p>\n",
+              "type": "module",
+              "displayName": "speech.models.installAsync(id, options?)"
+            }
+          ]
+        },
+        {
+          "textRaw": "[m] models.importFile",
+          "name": "importFile",
+          "modules": [
+            {
+              "textRaw": "speech.models.importFile(path, options?)",
+              "name": "speech.models.importfile(path,_options?)",
+              "desc": "<p><strong><code>6.8.0</code></strong> <strong><code>Non-UI</code></strong></p>\n<ul>\n<li><strong>path</strong> { <a href=\"dataTypes#string\">string</a> } - 脚本可读的模型归档路径</li>\n<li><strong>[ options ]</strong> { <a href=\"#speechimportoptions\">SpeechImportOptions</a> } - 导入选项</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"speechModelInfoType\">SpeechModelInfo</a> } - 导入后的模型对象</li>\n</ul>\n<p>从本地归档 (<code>tar</code>, <code>tar.bz2</code> 或 <code>zip</code>) 导入模型, 阻塞当前脚本线程直至完成. <code>onProgress(done, total)</code> 以字节报告进度.</p>\n<ul>\n<li>插件先按大小与 SHA-256 把归档中的文件与目录条目逐一比对. 包含某个目录模型的全部文件时, 以该目录模型的身份登记 (<code>source</code> 为 <code>&#39;catalog&#39;</code>), 同样受许可规则约束.</li>\n<li><code>options.id</code> 为目录模型 ID 时, 归档必须包含该模型的全部文件, 否则失败于 <code>MODEL_CHECKSUM_MISMATCH</code>.</li>\n<li>与任何目录条目都不一致时, 以 &quot;用户导入&quot; 身份登记 (<code>source</code> 为 <code>&#39;imported&#39;</code>), 此时 <code>id</code>, <code>kind</code>, <code>modelType</code>, <code>name</code> 与 <code>languages</code> 都必须给出, 否则失败于 <code>INVALID_OPTIONS</code>. 导入模型的 ID 由 2 - 64 个小写字母, 数字, <code>.</code>, <code>_</code> 或 <code>-</code> 组成, 且不能采用目录 ID 的 <code>&lt;kind&gt;.&lt;名称&gt;</code> 形式.</li>\n<li>格式错误, 被截断或不安全的归档失败于 <code>UNSUPPORTED_FORMAT</code>; 文件不存在或不可读时失败于 <code>IO_FAILED</code>.</li>\n</ul>\n",
+              "type": "module",
+              "displayName": "speech.models.importFile(path, options?)"
+            }
+          ]
+        },
+        {
+          "textRaw": "[m] models.remove",
+          "name": "remove",
+          "modules": [
+            {
+              "textRaw": "speech.models.remove(id)",
+              "name": "speech.models.remove(id)",
+              "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li><strong>id</strong> { <a href=\"dataTypes#string\">string</a> } - 模型 ID</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#boolean\">boolean</a> } - 是否实际删除</li>\n</ul>\n<p>删除已安装的模型. 模型正被会话使用时失败于 <code>SESSION_BUSY</code>; 内置的 <code>vad.silero.v5</code> 不能删除 (<code>INVALID_OPTIONS</code>).</p>\n",
+              "type": "module",
+              "displayName": "speech.models.remove(id)"
+            }
+          ]
+        },
+        {
+          "textRaw": "[m] models.setDefault",
+          "name": "setDefault",
+          "modules": [
+            {
+              "textRaw": "speech.models.setDefault(kind, id)",
+              "name": "speech.models.setdefault(kind,_id)",
+              "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li><strong>kind</strong> { <code>&#39;asr&#39;</code> | <code>&#39;tts&#39;</code> | <code>&#39;kws&#39;</code> | <code>&#39;vad&#39;</code> } - 模型类别</li>\n<li><strong>id</strong> { <a href=\"dataTypes#string\">string</a> } - 已安装的模型 ID</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"speechModelInfoType\">SpeechModelInfo</a> } - 设定后的模型对象</li>\n</ul>\n<p>设定某类的默认模型. 模型须已安装且属于该类别, 否则失败于 <code>MODEL_MISSING</code> 或 <code>INVALID_OPTIONS</code>. 默认模型对插件界面, 系统 TTS 引擎与系统语音入口同样生效.</p>\n",
+              "type": "module",
+              "displayName": "speech.models.setDefault(kind, id)"
+            }
+          ]
+        },
+        {
+          "textRaw": "[m] models.getDefault",
+          "name": "getDefault",
+          "modules": [
+            {
+              "textRaw": "speech.models.getDefault(kind)",
+              "name": "speech.models.getdefault(kind)",
+              "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li><strong>kind</strong> { <code>&#39;asr&#39;</code> | <code>&#39;tts&#39;</code> | <code>&#39;kws&#39;</code> | <code>&#39;vad&#39;</code> } - 模型类别</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"speechModelInfoType\">SpeechModelInfo</a> | <a href=\"dataTypes#null\">null</a> } - 该类的默认模型, 没有已安装模型时为 <code>null</code></li>\n</ul>\n",
+              "type": "module",
+              "displayName": "speech.models.getDefault(kind)"
+            }
+          ]
+        },
+        {
+          "textRaw": "[m] models.refreshCatalog",
+          "name": "refreshCatalog",
+          "modules": [
+            {
+              "textRaw": "speech.models.refreshCatalog()",
+              "name": "speech.models.refreshcatalog()",
+              "desc": "<p><strong><code>6.8.0</code></strong> <strong><code>Non-UI</code></strong></p>\n<ul>\n<li><ins><strong>returns</strong></ins> {{ version: <a href=\"dataTypes#number\">number</a>; updated: <a href=\"dataTypes#boolean\">boolean</a> }} - 当前目录版本, 以及本次是否更新了目录</li>\n</ul>\n<p>从 AutoJs6-Shared-Assets 下载带签名的模型目录并校验签名, 只接受版本更高的目录. 等待上限为 2 分钟. 下载失败时为 <code>IO_FAILED</code>, 签名不符时为 <code>MODEL_CHECKSUM_MISMATCH</code>. 没有异步形态.</p>\n",
+              "type": "module",
+              "displayName": "speech.models.refreshCatalog()"
+            }
+          ]
         }
       ],
       "type": "module",

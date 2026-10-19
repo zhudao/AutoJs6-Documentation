@@ -1032,6 +1032,26 @@
     },
     {
       "type": "text",
+      "text": "[SpeechSession - 听写会话](speechSessionType)"
+    },
+    {
+      "type": "list_item_end"
+    },
+    {
+      "type": "list_item_start"
+    },
+    {
+      "type": "text",
+      "text": "[SpeechWakeSession - 唤醒会话](speechWakeSessionType)"
+    },
+    {
+      "type": "list_item_end"
+    },
+    {
+      "type": "list_item_start"
+    },
+    {
+      "type": "text",
       "text": "[WebSocket](webSocketType)"
     },
     {
@@ -1617,6 +1637,26 @@
     {
       "type": "text",
       "text": "[OpenCCConversion](openCCConversionType)"
+    },
+    {
+      "type": "list_item_end"
+    },
+    {
+      "type": "list_item_start"
+    },
+    {
+      "type": "text",
+      "text": "[SpeechModelInfo](speechModelInfoType)"
+    },
+    {
+      "type": "list_item_end"
+    },
+    {
+      "type": "list_item_start"
+    },
+    {
+      "type": "text",
+      "text": "[SpeechRecognitionResult](speechRecognitionResultType)"
     },
     {
       "type": "space"

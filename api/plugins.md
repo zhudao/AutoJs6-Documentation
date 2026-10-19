@@ -22,6 +22,29 @@ let { exp } = plugins.load('org.autojs.autojs.plugin.demo');
 exp.test('hello');
 ```
 
+### 提供脚本模块的插件
+
+从 AutoJs6 6.8.0 起, 部分脚本模块由外置的官方应用插件提供. 这些插件不通过 plugins.load 加载: 在插件中心安装并启用兼容的插件后, 对应的全局模块即可使用; 插件缺失或不可用时, 模块方法抛出相应的插件错误, 具体条件见各模块文档.
+
+| 模块 | 提供功能的插件 |
+| --- | --- |
+| [AI - 人工智能](ai) | 3-Stone AI (文本生成与会话), 3-Stove Agent (`ai.agent`) |
+| [Barcode - 条码](barcode), [QR Code - 二维码](qrcode) | ML Kit Barcode |
+| [3-Block Compose](compose) | 3-Block Compose |
+| [EPUB - 电子书](epub) | Readium EPUB Reader |
+| [Files - 文件](files#m-batchrename) 的 files.batchRename | Batch Rename |
+| [Gallery - 相册](gallery) | 3-Maple Image |
+| [Installer - 安装器](installer) | 3-Setup Installer |
+| [Mail - 邮件](mail) | Angus Mail |
+| [OCR - 光学字符识别](ocr) | OCR 插件 |
+| [OpenCC - 中文转换](opencc) | OpenCC 插件 |
+| [Pinyin - 拼音](pinyin) | Pinyin 插件 |
+| [Speech - 语音](speech) | 3-Macaw Speech |
+| [Terminal - 终端](terminal) | 3-Shell Terminal |
+| [YOLO - 目标检测](yolo) | YOLO Provider 插件 |
+
+[AutoJs4 Runtime](autojs4Runtime) 插件不提供脚本模块, 它为文件管理器增加 "使用 AutoJs4 运行" 入口.
+
 ## 项目插件
 
 项目插件是依附于项目的一组 JavaScript 模块, 它们位于项目根目录的 `plugins` 文件夹中, 由 AutoJs6 通过 [plugins.load](#m-load) 方法加载并使用.
