@@ -10,6 +10,14 @@
       "entries": [
         {
           "category": "feature",
+          "text": "واجهات Bun للملفات والتخزين الدائم مع أذونات مستقلة وبيانات تخزين مشتركة مع Node.js"
+        },
+        {
+          "category": "feature",
+          "text": "عمليات Shell المتدفقة: shell.spawn/shizuku.spawn و ShellProcess, ومنشئ Shell بالخيارات المتوافق مع Auto.js Pro (مع adb/pty) وطرق التدفق الخاصة به, و $shell.setDefaultOptions/checkAccess/isRootAvailable وخيار adb لدالة shell"
+        },
+        {
+          "category": "feature",
           "text": "واجهات Bun لإمكانية الوصول وعمليات التطبيقات والحافظة متوافقة مع Node.js مع أذونات مستقلة ودعم التطبيقات المحزمة"
         },
         {

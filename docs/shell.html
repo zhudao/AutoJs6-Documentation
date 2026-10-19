@@ -210,6 +210,7 @@
 </li>
 <li><a class="nav-terminalOpenOptionsType" href="terminalOpenOptionsType.html">TerminalOpenOptions - 终端选项</a></li>
 <li><a class="nav-terminalErrorType" href="terminalErrorType.html">TerminalError - 终端错误</a></li>
+<li><a class="nav-shellProcessType" href="shellProcessType.html">ShellProcess - Shell 进程</a></li>
 </ul>
 
     </div>
@@ -327,6 +328,25 @@
 <li><span class="stability_undefined"><a href="#shell_currentcomponent">currentComponent()</a></span></li>
 </ul>
 </li>
+<li><span class="stability_undefined"><a href="#shell_m_spawn">[m] spawn</a></span><ul>
+<li><span class="stability_undefined"><a href="#shell_spawn_command">spawn(command)</a></span></li>
+<li><span class="stability_undefined"><a href="#shell_spawn_command_withroot">spawn(command, withRoot)</a></span></li>
+<li><span class="stability_undefined"><a href="#shell_spawn_command_options">spawn(command, options)</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#shell_shelloptions">ShellOptions</a></span></li>
+<li><span class="stability_undefined"><a href="#shell_m_setdefaultoptions">[m] setDefaultOptions</a></span><ul>
+<li><span class="stability_undefined"><a href="#shell_setdefaultoptions_options">setDefaultOptions(options)</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#shell_m_checkaccess">[m] checkAccess</a></span><ul>
+<li><span class="stability_undefined"><a href="#shell_checkaccess_type">checkAccess(type)</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#shell_m_isrootavailable">[m] isRootAvailable</a></span><ul>
+<li><span class="stability_undefined"><a href="#shell_isrootavailable">isRootAvailable()</a></span></li>
+</ul>
+</li>
 <li><span class="stability_undefined"><a href="#shell_c_shellresult">[C] ShellResult</a></span><ul>
 <li><span class="stability_undefined"><a href="#shell_p_code">[p#] code</a></span></li>
 <li><span class="stability_undefined"><a href="#shell_p_result">[p#] result</a></span></li>
@@ -430,6 +450,8 @@
 <li><span class="stability_undefined"><a href="#shell_c_withroot">[c] (withRoot)</a></span></li>
 <li><span class="stability_undefined"><a href="#shell_c_context">[c] (context)</a></span></li>
 <li><span class="stability_undefined"><a href="#shell_c_context_withroot">[c] (context, withRoot)</a></span></li>
+<li><span class="stability_undefined"><a href="#shell_c_options">[c] (options)</a></span></li>
+<li><span class="stability_undefined"><a href="#shell_c_cmd">[c] (cmd)</a></span></li>
 <li><span class="stability_undefined"><a href="#shell_p_command_su">[p] COMMAND_SU</a></span><ul>
 <li><span class="stability_undefined"><a href="#shell_shell_command_su">Shell.COMMAND_SU</a></span></li>
 </ul>
@@ -454,6 +476,10 @@
 <li><span class="stability_undefined"><a href="#shell_shell_execandwaitfor_command">Shell#execAndWaitFor(command)</a></span></li>
 </ul>
 </li>
+<li><span class="stability_undefined"><a href="#shell_m_execforresult">[m#] execForResult</a></span><ul>
+<li><span class="stability_undefined"><a href="#shell_shell_execforresult_command">Shell#execForResult(command)</a></span></li>
+</ul>
+</li>
 <li><span class="stability_undefined"><a href="#shell_m_setcallback">[m#] setCallback</a></span><ul>
 <li><span class="stability_undefined"><a href="#shell_shell_setcallback_callback">Shell#setCallback(callback)</a></span></li>
 </ul>
@@ -476,6 +502,38 @@
 </li>
 <li><span class="stability_undefined"><a href="#shell_m_gettermsession">[m#] getTermSession</a></span><ul>
 <li><span class="stability_undefined"><a href="#shell_shell_gettermsession">Shell#getTermSession()</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#shell_m_isadb">[m#] isAdb</a></span><ul>
+<li><span class="stability_undefined"><a href="#shell_shell_isadb">Shell#isAdb()</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#shell_m_getinputstream">[m#] getInputStream</a></span><ul>
+<li><span class="stability_undefined"><a href="#shell_shell_getinputstream">Shell#getInputStream()</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#shell_m_geterrorstream">[m#] getErrorStream</a></span><ul>
+<li><span class="stability_undefined"><a href="#shell_shell_geterrorstream">Shell#getErrorStream()</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#shell_m_getoutputstream">[m#] getOutputStream</a></span><ul>
+<li><span class="stability_undefined"><a href="#shell_shell_getoutputstream">Shell#getOutputStream()</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#shell_m_waitfor">[m#] waitFor</a></span><ul>
+<li><span class="stability_undefined"><a href="#shell_shell_waitfor">Shell#waitFor()</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#shell_m_exitcode">[m#] exitCode</a></span><ul>
+<li><span class="stability_undefined"><a href="#shell_shell_exitcode">Shell#exitCode()</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#shell_m_exitandreadoutput">[m#] exitAndReadOutput</a></span><ul>
+<li><span class="stability_undefined"><a href="#shell_shell_exitandreadoutput">Shell#exitAndReadOutput()</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#shell_m_raw">[m#] raw</a></span><ul>
+<li><span class="stability_undefined"><a href="#shell_shell_raw">Shell#raw()</a></span></li>
 </ul>
 </li>
 </ul>
@@ -621,15 +679,21 @@
 
         <div id="apicontent">
             <h1>Shell<span><a class="mark" href="#shell_shell" id="shell_shell">#</a></span></h1>
-<p>交互式终端会话, 可见执行和输出事件由独立的 <a href="terminal.html">terminal 模块</a> 提供, 需要安装 3-Shell Terminal 插件. 本章的 <code>shell()</code> API 保留其原有的一次性命令执行和权限语义; 两者的返回值及进程权限不同.</p>
+<p>交互式终端会话, 可见执行和输出事件由独立的 <a href="terminal.html">terminal 模块</a> 提供, 需要安装 3-Shell Terminal 插件. 本章的 API 由 AutoJs6 自身提供, 不需要插件; 两者的返回值及进程权限不同.</p>
 <p>shell 模块用于在 Android 设备本地执行 Shell 命令.</p>
-<p>它不会建立 ADB 连接. 普通模式使用 AutoJs6 应用进程可用的 <code>sh</code>, Root 模式使用 <code>su</code>. 命令正文通常与 <code>adb shell</code> 后面的部分相同.</p>
+<p>它不会建立 ADB 连接. 命令可以以下列身份运行:</p>
+<ul>
+<li>普通模式使用 AutoJs6 应用进程可用的 <code>sh</code>.</li>
+<li>Root 模式 (<code>root</code>) 使用 <code>su</code>.</li>
+<li>adb 模式 (<code>adb</code>) 在 AutoJs6 的 <a href="shizuku.html">Shizuku</a> 用户服务中运行, 身份与 Shizuku 服务相同: 经 ADB 启动的 Shizuku 为 shell 用户, 经 Root 启动的 Shizuku 为 root. <code>root</code> 与 <code>adb</code> 同时启用时, 命令在 Shizuku 进程中经 <code>su</code> 运行 (与 Auto.js Pro 相同).</li>
+</ul>
+<p>命令正文通常与 <code>adb shell</code> 后面的部分相同.</p>
 <p><code>shell</code> 与 <code>$shell</code> 指向同一个可调用模块对象.</p>
-<p>一次性执行与持久执行的区别:</p>
+<p>执行方式的区别:</p>
 <ul>
 <li><code>shell(...)</code> 和 <code>shell.execCommand(...)</code> 启动独立进程, 同步等待命令结束, 返回 <a href="#shell_c_shellresult">ShellResult</a>, 随后销毁进程.</li>
-<li>全局 Java 类 <a href="#shell_c_shell">Shell</a> 维护一个终端会话, <code>Shell#exec()</code> 只写入命令并立即返回, 输出通过回调或阻塞方法读取.</li>
-<li>shell 模块不返回 <code>java.lang.Process</code>. 大写 <code>Shell</code> 也不公开底层 <code>Process</code>, 其高级访问入口是 <code>Shell#getTermSession()</code>.</li>
+<li><a href="#shell_m_spawn">shell.spawn(...)</a> 启动独立进程后立即返回 <a href="shellProcessType.html">ShellProcess</a>, 可逐行或以事件实时读取输出, 向 stdin 写入, 等待或结束进程.</li>
+<li>全局 Java 类 <a href="#shell_c_shell">Shell</a> 维护一个持久的 Shell 进程, 可连续写入多条命令. <code>new Shell()</code> 与 <code>new Shell(withRoot)</code> 使用终端会话; <code>new Shell(options)</code> 与 <code>new Shell(cmd)</code> 使用管道 (兼容 Auto.js Pro), 提供流方法和按退出码标记分割的 <code>execAndWaitFor</code>.</li>
 </ul>
 <p>命令权限由实际执行身份决定. <code>withRoot = true</code> 只表示尝试使用 <code>su</code>, 不保证设备已取得 Root 权限.</p>
 <hr>
@@ -638,14 +702,14 @@
 <hr>
 <h2>[@] shell<span><a class="mark" href="#shell_shell_1" id="shell_shell_1">#</a></span></h2>
 <h3>shell(command, withRoot?)<span><a class="mark" href="#shell_shell_command_withroot" id="shell_shell_command_withroot">#</a></span></h3>
-<p><strong><code>[6.6.0]</code></strong> <strong><code>Overload [1-2]/4</code></strong></p>
+<p><strong><code>[6.8.0]</code></strong> <strong><code>Overload [1-2]/4</code></strong></p>
 <ul>
 <li><strong>command</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> | <span class="type"><a href="dataTypes.html#datatypes_string">string</a><a href="dataTypes.html#datatypes_array">[]</a></span> } - 命令或命令数组</li>
 <li><strong>[ withRoot = false ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> | <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> } - 是否使用 Root</li>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="#shell_c_shellresult">ShellResult</a></span> } - 命令执行结果</li>
 </ul>
 <h3>shell(command, arguments, withRoot?)<span><a class="mark" href="#shell_shell_command_arguments_withroot" id="shell_shell_command_arguments_withroot">#</a></span></h3>
-<p><strong><code>6.6.0</code></strong> <strong><code>Overload [3-4]/4</code></strong></p>
+<p><strong><code>6.6.0</code></strong> <strong><code>[6.8.0]</code></strong> <strong><code>Overload [3-4]/4</code></strong></p>
 <ul>
 <li><strong>command</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> | <span class="type"><a href="dataTypes.html#datatypes_string">string</a><a href="dataTypes.html#datatypes_array">[]</a></span> } - 命令或命令数组</li>
 <li><strong>arguments</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> | <span class="type"><a href="#shell_shellarguments">ShellArguments</a></span> } - 待拼接的命令参数</li>
@@ -658,6 +722,10 @@ let resultB = shell(&#39;adb shell id&#39;);
 console.log(resultA.code, resultB.code);
 </code></pre>
 <p>Root 模式启动失败, 命令退出码非 <code>0</code> 或标准错误非空时, 通常仍返回 <a href="#shell_c_shellresult">ShellResult</a>, 由调用方检查 <code>code</code> 和 <code>error</code>. 参数类型或数量不合法时会直接抛出异常.</p>
+<p><code>root</code> 与 <code>adb</code> 既未经 <code>withRoot</code> 也未经 <code>arguments</code> 指定时, 采用 <a href="#shell_m_setdefaultoptions">setDefaultOptions</a> 为当前脚本设置的默认值, 再退回 <code>false</code>. <code>adb</code> 启用时命令经 Shizuku 执行, 结果与 <a href="shizuku.html">shizuku(...)</a> 相同; Shizuku 不可用时抛出异常.</p>
+<pre><code class="lang-js">let result = shell(&#39;pm list packages -3&#39;, { adb: true });
+console.log(result.code, result.result.trim().split(&#39;\n&#39;).length);
+</code></pre>
 <pre><code class="lang-js">let result = shell(&#39;pm list packages&#39;, {
     3: true,
     user: 0,
@@ -670,14 +738,14 @@ if (result.code === 0) {
 </code></pre>
 <h2>[m] execCommand<span><a class="mark" href="#shell_m_execcommand" id="shell_m_execcommand">#</a></span></h2>
 <h3>execCommand(command, withRoot?)<span><a class="mark" href="#shell_execcommand_command_withroot" id="shell_execcommand_command_withroot">#</a></span></h3>
-<p><strong><code>6.6.0</code></strong> <strong><code>Overload [1-2]/4</code></strong></p>
+<p><strong><code>6.6.0</code></strong> <strong><code>[6.8.0]</code></strong> <strong><code>Overload [1-2]/4</code></strong></p>
 <ul>
 <li><strong>command</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> | <span class="type"><a href="dataTypes.html#datatypes_string">string</a><a href="dataTypes.html#datatypes_array">[]</a></span> } - 命令或命令数组</li>
 <li><strong>[ withRoot = false ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> | <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> } - 是否使用 Root</li>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="#shell_c_shellresult">ShellResult</a></span> } - 命令执行结果</li>
 </ul>
 <h3>execCommand(command, arguments, withRoot?)<span><a class="mark" href="#shell_execcommand_command_arguments_withroot" id="shell_execcommand_command_arguments_withroot">#</a></span></h3>
-<p><strong><code>6.6.0</code></strong> <strong><code>Overload [3-4]/4</code></strong></p>
+<p><strong><code>6.6.0</code></strong> <strong><code>[6.8.0]</code></strong> <strong><code>Overload [3-4]/4</code></strong></p>
 <ul>
 <li><strong>command</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> | <span class="type"><a href="dataTypes.html#datatypes_string">string</a><a href="dataTypes.html#datatypes_array">[]</a></span> } - 命令或命令数组</li>
 <li><strong>arguments</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> | <span class="type"><a href="#shell_shellarguments">ShellArguments</a></span> } - 待拼接的命令参数</li>
@@ -714,8 +782,9 @@ pm list packages -3 --user 0
 <ul>
 <li><strong>[ root = false ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> } - 是否使用 Root, 不会输出为命令行参数</li>
 <li><strong>[ exit = false ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> } - 是否在命令末尾追加退出和清理命令</li>
+<li><strong>[ adb = false ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> } - 是否经 Shizuku 执行 (兼容 Auto.js Pro), 不会输出为命令行参数</li>
 </ul>
-<p>除 <code>root</code> 和 <code>exit</code> 外, 其他属性会按以下规则转换:</p>
+<p>除 <code>root</code>, <code>exit</code> 和 <code>adb</code> 外, 其他属性会按以下规则转换:</p>
 <ul>
 <li>已以 <code>--</code> 开头的键转换为 kebab-case 长参数.</li>
 <li>已以单个 <code>-</code> 开头的键保持原样.</li>
@@ -729,11 +798,12 @@ pm list packages -3 --user 0
 <pre><code class="lang-js">shell.getCommand(&#39;cmd package list packages&#39;, &#39;user=0 | 3&#39;);
 // cmd package list packages --user 0 -3
 </code></pre>
-<p>特殊条目 <code>root</code> 和 <code>exit</code> 与对象同名属性作用相同. 特殊值转换为字符串后, 只有精确的 <code>false</code> 会将对应选项关闭, 其他值均会启用选项. <code>exit</code> 启用时实际追加:</p>
+<p>AutoJs6 6.8.0 之前, <code>adb</code> 键会转换为 <code>--adb</code> 参数. 现在需要该参数时应写作 <code>&#39;--adb&#39;</code> 键.</p>
+<p>特殊条目 <code>root</code>, <code>exit</code> 和 <code>adb</code> 与对象同名属性作用相同. 特殊值转换为字符串后, 只有精确的 <code>false</code> 会将对应选项关闭, 其他值均会启用选项. <code>exit</code> 启用时实际追加:</p>
 <pre><code class="lang-text">exit
 kill $$
 </code></pre>
-<p>显式 <code>withRoot</code> 与 <code>arguments.root</code> 按逻辑或组合, 因此任一值为真都会启用 Root.</p>
+<p>显式 <code>withRoot</code> 与 <code>arguments.root</code> 按逻辑或组合, 因此任一值为真都会启用 Root. 二者都未给出时, <code>root</code> 与 <code>adb</code> 采用 <a href="#shell_m_setdefaultoptions">setDefaultOptions</a> 的默认值; <a href="#shell_m_getcommand">getCommand</a> 不读取默认值.</p>
 <p>此转换只提供基础的命令行拼接, 不等同于完整的 Shell 转义器. 对来自外部的数据仍应自行验证和转义.</p>
 <h2>[m] fromIntent<span><a class="mark" href="#shell_m_fromintent" id="shell_m_fromintent">#</a></span></h2>
 <h3>fromIntent(intent)<span><a class="mark" href="#shell_fromintent_intent" id="shell_fromintent_intent">#</a></span></h3>
@@ -780,6 +850,90 @@ shell(`am start ${intentArguments}`);
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 当前前台组件, 查询失败时为空字符串</li>
 </ul>
 <p>使用 Root 读取当前 resumed activity. 结果通常采用 <code>package/activity</code> 形式.</p>
+<h2>[m] spawn<span><a class="mark" href="#shell_m_spawn" id="shell_m_spawn">#</a></span></h2>
+<h3>spawn(command)<span><a class="mark" href="#shell_spawn_command" id="shell_spawn_command">#</a></span></h3>
+<p><strong><code>6.8.0</code></strong> <strong><code>Overload 1/3</code></strong></p>
+<ul>
+<li><strong>command</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> | <span class="type"><a href="dataTypes.html#datatypes_string">string</a><a href="dataTypes.html#datatypes_array">[]</a></span> } - 命令或命令数组</li>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="shellProcessType.html">ShellProcess</a></span> } - 正在运行的进程</li>
+</ul>
+<h3>spawn(command, withRoot)<span><a class="mark" href="#shell_spawn_command_withroot" id="shell_spawn_command_withroot">#</a></span></h3>
+<p><strong><code>6.8.0</code></strong> <strong><code>Overload 2/3</code></strong></p>
+<ul>
+<li><strong>command</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> | <span class="type"><a href="dataTypes.html#datatypes_string">string</a><a href="dataTypes.html#datatypes_array">[]</a></span> } - 命令或命令数组</li>
+<li><strong>withRoot</strong> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> } - 是否使用 Root</li>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="shellProcessType.html">ShellProcess</a></span> } - 正在运行的进程</li>
+</ul>
+<h3>spawn(command, options)<span><a class="mark" href="#shell_spawn_command_options" id="shell_spawn_command_options">#</a></span></h3>
+<p><strong><code>6.8.0</code></strong> <strong><code>Overload 3/3</code></strong></p>
+<ul>
+<li><strong>command</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> | <span class="type"><a href="dataTypes.html#datatypes_string">string</a><a href="dataTypes.html#datatypes_array">[]</a></span> } - 命令或命令数组</li>
+<li><strong>options</strong> { <span class="type"><a href="#shell_shelloptions">ShellOptions</a></span> } - 进程选项, 不支持 <code>cmd</code></li>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="shellProcessType.html">ShellProcess</a></span> } - 正在运行的进程</li>
+</ul>
+<p>启动进程运行命令后立即返回 <a href="shellProcessType.html">ShellProcess</a>, 不等待命令结束. 命令数组以换行符连接. 普通模式与 adb 模式经 <code>sh -c</code> 运行, Root 模式经 <code>su -c</code> 运行, 因此命令可以包含管道, 重定向和多条语句. 未指定的 <code>root</code> 与 <code>adb</code> 采用 <a href="#shell_m_setdefaultoptions">setDefaultOptions</a> 的默认值.</p>
+<p>进程随启动它的脚本结束而结束. 读取输出, 事件, 写入 stdin 和结束进程的方法见 <a href="shellProcessType.html">ShellProcess</a>.</p>
+<pre><code class="lang-js">let proc = shell.spawn(&#39;logcat -v brief&#39;, { adb: true });
+proc.on(&#39;output&#39;, (line) =&gt; {
+    if (line.indexOf(&#39;ActivityManager&#39;) &gt;= 0) console.log(line);
+});
+setTimeout(() =&gt; proc.kill(), 10000);
+</code></pre>
+<h2>ShellOptions<span><a class="mark" href="#shell_shelloptions" id="shell_shelloptions">#</a></span></h2>
+<p>ShellOptions 是 <a href="#shell_m_spawn">spawn</a>, <a href="shizuku.html#shizuku_m_spawn">shizuku.spawn</a> 和管道 <a href="#shell_c_shell">Shell</a> 构造方法使用的普通 JavaScript 对象. 出现其他属性时抛出异常.</p>
+<ul>
+<li><strong>[ root = false ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> } - 是否经 <code>su</code> 以 Root 身份运行</li>
+<li><strong>[ adb = false ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> } - 是否在 Shizuku 用户服务中运行, Shizuku 不可用时抛出异常</li>
+<li><strong>[ pty = false ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> } - 是否在伪终端上运行</li>
+<li><strong>[ env ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_object">object</a></span> } - 追加的环境变量, 键须为合法的变量名</li>
+<li><strong>[ cwd ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 工作目录, 相对路径按脚本工作目录解析; 目录无法进入时进程以退出码 <code>1</code> 结束</li>
+<li><strong>[ cmd ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 仅用于 <code>new Shell(options)</code>: 持久 Shell 的程序行, 默认为 <code>sh</code>, <code>root</code> 为 <code>true</code> 时经 <code>su</code> 运行 (兼容 Auto.js Pro)</li>
+</ul>
+<p><code>root</code> 与 <code>adb</code> 同时启用时, 命令在 Shizuku 进程中经 <code>su</code> 运行. <code>env</code> 与 <code>cwd</code> 由命令开头的 <code>export</code> 与 <code>cd</code> 应用, 因此对重置环境的 <code>su</code> 实现同样有效.</p>
+<p><code>pty</code> 使命令的 stdin, stdout 与 stderr 连接到伪终端. getevent, awk 等程序的输出接到管道时由 C 标准库按块缓冲, 接到终端时逐行刷新; 需要严格逐行实时读取时可启用此选项. 以 getevent 为例, 一次触摸产生的事件通常已超过一个缓冲块, 因此管道下多数行也能及时送达, 但缓冲中剩余的少量行要等后续事件才会送达. 启用 <code>pty</code> 后:</p>
+<ul>
+<li>stderr 并入 stdout, ShellProcess 的 <code>readErrorLine()</code> 与 <code>errorOutput</code> 事件不再有数据, <code>getErrorStream()</code> 为空流.</li>
+<li>写入的文本不会回显, 行尾与管道相同为 <code>\n</code>.</li>
+<li>Android 9 及以下使用 Magisk 时, Root 模式下 su 另开的终端仍会回显写入的文本, 行尾为 <code>\r\n</code>. 逐行读取方法会去掉行尾的 <code>\r</code>.</li>
+</ul>
+<h2>[m] setDefaultOptions<span><a class="mark" href="#shell_m_setdefaultoptions" id="shell_m_setdefaultoptions">#</a></span></h2>
+<h3>setDefaultOptions(options)<span><a class="mark" href="#shell_setdefaultoptions_options" id="shell_setdefaultoptions_options">#</a></span></h3>
+<p><strong><code>6.8.0</code></strong></p>
+<ul>
+<li><strong>options</strong> { <span class="type"><a href="dataTypes.html#datatypes_object">object</a></span> | <span class="type"><a href="dataTypes.html#datatypes_null">null</a></span> } - 默认选项 <code>{ root?, adb? }</code>, 均为 <a href="dataTypes.html#datatypes_boolean">boolean</a>; <code>null</code> 或 <code>undefined</code> 表示清除</li>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
+</ul>
+<p>为当前脚本设置 <code>shell(...)</code>, <code>shell.execCommand(...)</code> 和 <a href="#shell_m_spawn">spawn</a> 中未显式指定的 <code>root</code> 与 <code>adb</code> 的默认值 (兼容 Auto.js Pro). 每次调用替换之前的默认值, 省略的属性表示不设置默认值. 只支持 <code>root</code> 与 <code>adb</code>, 其他属性会抛出异常. 设置只影响当前脚本, 不影响 <code>new Shell(...)</code>, <a href="#shell_m_getcommand">getCommand</a> 与 <a href="shizuku.html">shizuku</a>.</p>
+<p><code>adb</code> 默认值为 <code>true</code> 时, 全局兼容函数 <a href="#shell_m_keycode">KeyCode</a> 及其按键快捷函数, <a href="#shell_m_text">Text</a>, <a href="#shell_m_input">Input</a>, <a href="#shell_m_tap">Tap</a>, <a href="#shell_m_swipe">Swipe</a>, <a href="#shell_m_screencap">Screencap</a> 和 <a href="#shell_m_setscreenmetrics">SetScreenMetrics</a> 改为经 Shizuku 执行, Shizuku 不可用时抛出异常. 两种执行方式的坐标缩放基准分别保存, 应在 setDefaultOptions 之后调用 SetScreenMetrics.</p>
+<pre><code class="lang-js">$shell.setDefaultOptions({ adb: true });
+console.log(shell(&#39;id -u&#39;).result.trim()); // Shizuku 的运行身份, 如 2000.
+console.log(shell(&#39;id -u&#39;, false).result.trim()); // 仍经 Shizuku: withRoot 只指定 root.
+$shell.setDefaultOptions(null);
+</code></pre>
+<h2>[m] checkAccess<span><a class="mark" href="#shell_m_checkaccess" id="shell_m_checkaccess">#</a></span></h2>
+<h3>checkAccess(type)<span><a class="mark" href="#shell_checkaccess_type" id="shell_checkaccess_type">#</a></span></h3>
+<p><strong><code>6.8.0</code></strong></p>
+<ul>
+<li><strong>type</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 权限类型, <code>root</code> 或 <code>adb</code></li>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> } - 当前是否具有该权限</li>
+</ul>
+<p>检查权限 (兼容 Auto.js Pro):</p>
+<ul>
+<li><code>root</code>: 经 <code>su</code> 执行 <code>id</code>, 输出包含 <code>uid=0</code> 时返回 <code>true</code>. 首次检查可能触发 Root 管理器的授权提示, 方法阻塞到命令结束.</li>
+<li><code>adb</code>: Shizuku 正在运行且已授权 AutoJs6 时返回 <code>true</code>, 等同于 <a href="shizuku.html#shizuku_p_state">shizuku.state</a> 的 <code>isOperational</code>.</li>
+</ul>
+<p>其他值抛出异常.</p>
+<pre><code class="lang-js">if ($shell.checkAccess(&#39;adb&#39;)) {
+    console.log(shell(&#39;id&#39;, { adb: true }).result.trim());
+}
+</code></pre>
+<h2>[m] isRootAvailable<span><a class="mark" href="#shell_m_isrootavailable" id="shell_m_isrootavailable">#</a></span></h2>
+<h3>isRootAvailable()<span><a class="mark" href="#shell_isrootavailable" id="shell_isrootavailable">#</a></span></h3>
+<p><strong><code>6.8.0</code></strong></p>
+<ul>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> } - 设备是否具备 Root</li>
+</ul>
+<p>与 <a href="autojs.html#autojs_m_isrootavailable">autojs.isRootAvailable()</a> 相同 (兼容 Auto.js Pro). 返回 <code>true</code> 只表示设备具备 Root, 不表示 AutoJs6 已获授权; 检查授权使用 <a href="#shell_m_checkaccess">checkAccess(&#39;root&#39;)</a>.</p>
 <hr>
 <h2>[C] ShellResult<span><a class="mark" href="#shell_c_shellresult" id="shell_c_shellresult">#</a></span></h2>
 <p>ShellResult 是 <code>shell(...)</code>, <code>shell.execCommand(...)</code> 和 <a href="shizuku.html">shizuku</a> 返回的 Java 对象, 实际类型为 <code>org.autojs.autojs.runtime.api.AbstractShell.Result</code>.</p>
@@ -833,7 +987,7 @@ console.log(result.result.trim());
 <p>以下函数由 shell 模块直接挂载到全局作用域, 不属于 <code>shell</code> 对象的成员.</p>
 <h3>[m] KeyCode<span><a class="mark" href="#shell_m_keycode" id="shell_m_keycode">#</a></span></h3>
 <h4>KeyCode(keyCode)<span><a class="mark" href="#shell_keycode_keycode" id="shell_keycode_keycode">#</a></span></h4>
-<p><strong><code>Global</code></strong> <strong><code>[6.7.1]</code></strong></p>
+<p><strong><code>Global</code></strong> <strong><code>[6.8.0]</code></strong></p>
 <ul>
 <li><strong>keyCode</strong> { <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> | <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - Android 按键码或按键名称</li>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
@@ -846,7 +1000,7 @@ console.log(result.result.trim());
 <li>省略 <code>KEYCODE_</code> 的名称, 如 <code>&#39;VOLUME_UP&#39;</code>.</li>
 </ul>
 <p>名称匹配不区分大小写. 无法识别的按键码会抛出异常.</p>
-<p>从 AutoJs6 6.7.1 起, Shizuku 可操作时优先使用 Shizuku 执行 <code>input keyevent</code>; 否则使用运行时 Root Shell. Shizuku 命令执行失败时不会再尝试 Root.</p>
+<p>从 AutoJs6 6.7.1 起, Shizuku 可操作时优先使用 Shizuku 执行 <code>input keyevent</code>; 否则使用运行时 Root Shell. Shizuku 命令执行失败时不会再尝试 Root. 从 6.8.0 起, 经 <a href="#shell_m_setdefaultoptions">setDefaultOptions</a> 将 <code>adb</code> 默认值设为 <code>true</code> 后总是经 Shizuku 执行, Shizuku 不可用时抛出异常.</p>
 <pre><code class="lang-js">KeyCode(&#39;BACK&#39;);
 KeyCode(24); // KEYCODE_VOLUME_UP
 </code></pre>
@@ -854,99 +1008,99 @@ KeyCode(24); // KEYCODE_VOLUME_UP
 <p>以下函数使用与 <a href="#shell_m_keycode">KeyCode</a> 相同的 Shizuku 或 Root 选择规则.</p>
 <h3>[m] Menu<span><a class="mark" href="#shell_m_menu" id="shell_m_menu">#</a></span></h3>
 <h4>Menu()<span><a class="mark" href="#shell_menu" id="shell_menu">#</a></span></h4>
-<p><strong><code>Global</code></strong> <strong><code>[6.7.1]</code></strong></p>
+<p><strong><code>Global</code></strong> <strong><code>[6.8.0]</code></strong></p>
 <ul>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
 <p>发送 <code>KEYCODE_MENU</code>.</p>
 <h3>[m] Home<span><a class="mark" href="#shell_m_home" id="shell_m_home">#</a></span></h3>
 <h4>Home()<span><a class="mark" href="#shell_home" id="shell_home">#</a></span></h4>
-<p><strong><code>Global</code></strong> <strong><code>[6.7.1]</code></strong></p>
+<p><strong><code>Global</code></strong> <strong><code>[6.8.0]</code></strong></p>
 <ul>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
 <p>发送 <code>KEYCODE_HOME</code>.</p>
 <h3>[m] Back<span><a class="mark" href="#shell_m_back" id="shell_m_back">#</a></span></h3>
 <h4>Back()<span><a class="mark" href="#shell_back" id="shell_back">#</a></span></h4>
-<p><strong><code>Global</code></strong> <strong><code>[6.7.1]</code></strong></p>
+<p><strong><code>Global</code></strong> <strong><code>[6.8.0]</code></strong></p>
 <ul>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
 <p>发送 <code>KEYCODE_BACK</code>.</p>
 <h3>[m] Up<span><a class="mark" href="#shell_m_up" id="shell_m_up">#</a></span></h3>
 <h4>Up()<span><a class="mark" href="#shell_up" id="shell_up">#</a></span></h4>
-<p><strong><code>Global</code></strong> <strong><code>[6.7.1]</code></strong></p>
+<p><strong><code>Global</code></strong> <strong><code>[6.8.0]</code></strong></p>
 <ul>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
 <p>发送 <code>KEYCODE_DPAD_UP</code>.</p>
 <h3>[m] Down<span><a class="mark" href="#shell_m_down" id="shell_m_down">#</a></span></h3>
 <h4>Down()<span><a class="mark" href="#shell_down" id="shell_down">#</a></span></h4>
-<p><strong><code>Global</code></strong> <strong><code>[6.7.1]</code></strong></p>
+<p><strong><code>Global</code></strong> <strong><code>[6.8.0]</code></strong></p>
 <ul>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
 <p>发送 <code>KEYCODE_DPAD_DOWN</code>.</p>
 <h3>[m] Left<span><a class="mark" href="#shell_m_left" id="shell_m_left">#</a></span></h3>
 <h4>Left()<span><a class="mark" href="#shell_left" id="shell_left">#</a></span></h4>
-<p><strong><code>Global</code></strong> <strong><code>[6.7.1]</code></strong></p>
+<p><strong><code>Global</code></strong> <strong><code>[6.8.0]</code></strong></p>
 <ul>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
 <p>发送 <code>KEYCODE_DPAD_LEFT</code>.</p>
 <h3>[m] Right<span><a class="mark" href="#shell_m_right" id="shell_m_right">#</a></span></h3>
 <h4>Right()<span><a class="mark" href="#shell_right" id="shell_right">#</a></span></h4>
-<p><strong><code>Global</code></strong> <strong><code>[6.7.1]</code></strong></p>
+<p><strong><code>Global</code></strong> <strong><code>[6.8.0]</code></strong></p>
 <ul>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
 <p>发送 <code>KEYCODE_DPAD_RIGHT</code>.</p>
 <h3>[m] OK<span><a class="mark" href="#shell_m_ok" id="shell_m_ok">#</a></span></h3>
 <h4>OK()<span><a class="mark" href="#shell_ok" id="shell_ok">#</a></span></h4>
-<p><strong><code>Global</code></strong> <strong><code>[6.7.1]</code></strong></p>
+<p><strong><code>Global</code></strong> <strong><code>[6.8.0]</code></strong></p>
 <ul>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
 <p>发送 <code>KEYCODE_DPAD_CENTER</code>.</p>
 <h3>[m] VolumeUp<span><a class="mark" href="#shell_m_volumeup" id="shell_m_volumeup">#</a></span></h3>
 <h4>VolumeUp()<span><a class="mark" href="#shell_volumeup" id="shell_volumeup">#</a></span></h4>
-<p><strong><code>Global</code></strong> <strong><code>[6.7.1]</code></strong></p>
+<p><strong><code>Global</code></strong> <strong><code>[6.8.0]</code></strong></p>
 <ul>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
 <p>发送 <code>KEYCODE_VOLUME_UP</code>.</p>
 <h3>[m] VolumeDown<span><a class="mark" href="#shell_m_volumedown" id="shell_m_volumedown">#</a></span></h3>
 <h4>VolumeDown()<span><a class="mark" href="#shell_volumedown" id="shell_volumedown">#</a></span></h4>
-<p><strong><code>Global</code></strong> <strong><code>[6.7.1]</code></strong></p>
+<p><strong><code>Global</code></strong> <strong><code>[6.8.0]</code></strong></p>
 <ul>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
 <p>发送 <code>KEYCODE_VOLUME_DOWN</code>.</p>
 <h3>[m] Power<span><a class="mark" href="#shell_m_power" id="shell_m_power">#</a></span></h3>
 <h4>Power()<span><a class="mark" href="#shell_power" id="shell_power">#</a></span></h4>
-<p><strong><code>Global</code></strong> <strong><code>[6.7.1]</code></strong></p>
+<p><strong><code>Global</code></strong> <strong><code>[6.8.0]</code></strong></p>
 <ul>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
 <p>发送 <code>KEYCODE_POWER</code>.</p>
 <h3>[m] Camera<span><a class="mark" href="#shell_m_camera" id="shell_m_camera">#</a></span></h3>
 <h4>Camera()<span><a class="mark" href="#shell_camera" id="shell_camera">#</a></span></h4>
-<p><strong><code>Global</code></strong> <strong><code>[6.7.1]</code></strong></p>
+<p><strong><code>Global</code></strong> <strong><code>[6.8.0]</code></strong></p>
 <ul>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
 <p>发送 <code>KEYCODE_CAMERA</code>.</p>
 <h3>[m] Text<span><a class="mark" href="#shell_m_text" id="shell_m_text">#</a></span></h3>
 <h4>Text(text)<span><a class="mark" href="#shell_text_text" id="shell_text_text">#</a></span></h4>
-<p><strong><code>Global</code></strong></p>
+<p><strong><code>Global</code></strong> <strong><code>[6.8.0]</code></strong></p>
 <ul>
 <li><strong>text</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 待输入文本</li>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
-<p>通过运行时 Root Shell 写入 <code>input text</code> 命令. 方法写入命令后返回, 不等待命令执行完成.</p>
+<p>通过运行时 Root Shell 写入 <code>input text</code> 命令. 方法写入命令后返回, 不等待命令执行完成. 经 <a href="#shell_m_setdefaultoptions">setDefaultOptions</a> 将 <code>adb</code> 默认值设为 <code>true</code> 后改为经 Shizuku 执行, 并等待命令结束.</p>
 <h3>[m] Input<span><a class="mark" href="#shell_m_input" id="shell_m_input">#</a></span></h3>
 <h4>Input(text)<span><a class="mark" href="#shell_input_text" id="shell_input_text">#</a></span></h4>
-<p><strong><code>Global</code></strong></p>
+<p><strong><code>Global</code></strong> <strong><code>[6.8.0]</code></strong></p>
 <ul>
 <li><strong>text</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 待输入文本</li>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
@@ -954,16 +1108,16 @@ KeyCode(24); // KEYCODE_VOLUME_UP
 <p><a href="#shell_m_text">Text(text)</a> 的兼容别名.</p>
 <h3>[m] Tap<span><a class="mark" href="#shell_m_tap" id="shell_m_tap">#</a></span></h3>
 <h4>Tap(x, y)<span><a class="mark" href="#shell_tap_x_y" id="shell_tap_x_y">#</a></span></h4>
-<p><strong><code>Global</code></strong></p>
+<p><strong><code>Global</code></strong> <strong><code>[6.8.0]</code></strong></p>
 <ul>
 <li><strong>x</strong> { <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> } - X 坐标</li>
 <li><strong>y</strong> { <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> } - Y 坐标</li>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
-<p>通过运行时 Root Shell 写入 <code>input tap</code> 命令. 坐标受 <a href="#shell_m_setscreenmetrics">SetScreenMetrics</a> 设置的缩放规则影响.</p>
+<p>通过运行时 Root Shell 写入 <code>input tap</code> 命令. 坐标受 <a href="#shell_m_setscreenmetrics">SetScreenMetrics</a> 设置的缩放规则影响. <code>adb</code> 默认值为 <code>true</code> 时改为经 Shizuku 执行 (参阅 <a href="#shell_m_setdefaultoptions">setDefaultOptions</a>).</p>
 <h3>[m] Swipe<span><a class="mark" href="#shell_m_swipe" id="shell_m_swipe">#</a></span></h3>
 <h4>Swipe(x1, y1, x2, y2, duration?)<span><a class="mark" href="#shell_swipe_x1_y1_x2_y2_duration" id="shell_swipe_x1_y1_x2_y2_duration">#</a></span></h4>
-<p><strong><code>Global</code></strong></p>
+<p><strong><code>Global</code></strong> <strong><code>[6.8.0]</code></strong></p>
 <ul>
 <li><strong>x1</strong> { <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> } - 起点 X 坐标</li>
 <li><strong>y1</strong> { <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> } - 起点 Y 坐标</li>
@@ -972,58 +1126,62 @@ KeyCode(24); // KEYCODE_VOLUME_UP
 <li><strong>[ duration ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> } - 滑动时长, 单位为毫秒</li>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
-<p>通过运行时 Root Shell 写入 <code>input swipe</code> 命令. 省略 <code>duration</code> 时不向系统命令提供时长参数.</p>
+<p>通过运行时 Root Shell 写入 <code>input swipe</code> 命令. 省略 <code>duration</code> 时不向系统命令提供时长参数. <code>adb</code> 默认值为 <code>true</code> 时改为经 Shizuku 执行 (参阅 <a href="#shell_m_setdefaultoptions">setDefaultOptions</a>).</p>
 <h3>[m] Screencap<span><a class="mark" href="#shell_m_screencap" id="shell_m_screencap">#</a></span></h3>
 <h4>Screencap(path)<span><a class="mark" href="#shell_screencap_path" id="shell_screencap_path">#</a></span></h4>
-<p><strong><code>Global</code></strong></p>
+<p><strong><code>Global</code></strong> <strong><code>[6.8.0]</code></strong></p>
 <ul>
 <li><strong>path</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - Shell 可写入的目标路径</li>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
-<p>通过运行时 Root Shell 写入 <code>screencap -p</code> 命令. 路径不会经过 <a href="files.html">files</a> 模块解析. 方法不等待截图完成.</p>
+<p>通过运行时 Root Shell 写入 <code>screencap -p</code> 命令. 路径不会经过 <a href="files.html">files</a> 模块解析. 方法不等待截图完成. <code>adb</code> 默认值为 <code>true</code> 时改为经 Shizuku 执行并等待命令结束 (参阅 <a href="#shell_m_setdefaultoptions">setDefaultOptions</a>).</p>
 <h3>[m] SetScreenMetrics<span><a class="mark" href="#shell_m_setscreenmetrics" id="shell_m_setscreenmetrics">#</a></span></h3>
 <h4>SetScreenMetrics(width, height)<span><a class="mark" href="#shell_setscreenmetrics_width_height" id="shell_setscreenmetrics_width_height">#</a></span></h4>
-<p><strong><code>Global</code></strong></p>
+<p><strong><code>Global</code></strong> <strong><code>[6.8.0]</code></strong></p>
 <ul>
 <li><strong>width</strong> { <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> } - 脚本设计宽度</li>
 <li><strong>height</strong> { <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> } - 脚本设计高度</li>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
-<p>设置运行时 Root Shell 的坐标缩放基准, 影响后续 <a href="#shell_m_tap">Tap</a> 和 <a href="#shell_m_swipe">Swipe</a>. 此方法与小写全局方法 <a href="global.html#global_m_setscreenmetrics">setScreenMetrics</a> 使用不同的内部对象.</p>
+<p>设置运行时 Root Shell 的坐标缩放基准, 影响后续 <a href="#shell_m_tap">Tap</a> 和 <a href="#shell_m_swipe">Swipe</a>. 此方法与小写全局方法 <a href="global.html#global_m_setscreenmetrics">setScreenMetrics</a> 使用不同的内部对象. <code>adb</code> 默认值为 <code>true</code> 时设置的是经 Shizuku 执行时使用的缩放基准 (参阅 <a href="#shell_m_setdefaultoptions">setDefaultOptions</a>).</p>
 <hr>
 <p style="font: bold 2em sans-serif; color: #FF7043">Shell</p>
 
 <h2>[C] Shell<span><a class="mark" href="#shell_c_shell" id="shell_c_shell">#</a></span></h2>
-<p>大写 <code>Shell</code> 是通过运行时全局类代理提供的 Java 类 <code>org.autojs.autojs.runtime.api.Shell</code>.</p>
-<p>Shell 实例维护一个终端会话. 普通实例以 <code>sh</code> 初始化, Root 实例以 <code>su</code> 初始化. 它不使用 Shizuku.</p>
-<p>调用 <code>exit()</code> 或 <code>exitAndWaitFor()</code> 后不应继续复用实例. 自行创建的 Shell 实例应在脚本结束前显式退出.</p>
+<p>大写 <code>Shell</code> 是通过运行时全局类代理提供的 Java 类 <code>org.autojs.autojs.runtime.api.Shell</code>. 实例维护一个持久的 Shell 进程, 按构造方法分为两类:</p>
+<ul>
+<li>终端会话 Shell: <code>new Shell()</code>, <code>new Shell(withRoot)</code> 及带 Context 的构造方法. 普通实例以 <code>sh</code> 初始化, Root 实例以 <code>su</code> 初始化终端会话, 不使用 Shizuku. 输出经回调或 <code>execAndWaitFor</code> 读取, 不提供流方法.</li>
+<li>管道 Shell: <code>new Shell(options)</code> 与 <code>new Shell(cmd)</code> (兼容 Auto.js Pro). 进程的 stdin, stdout 与 stderr 为管道 (<code>pty</code> 时为伪终端), 可经 Shizuku 运行, 提供流方法, <code>execForResult</code> 以及按退出码标记分割输出的 <code>execAndWaitFor</code>. 进程随创建它的脚本结束而结束.</li>
+</ul>
+<p>管道 Shell 的输出只能以一种方式读取, 由首次调用决定: 流方法 (<code>getInputStream</code>, <code>getErrorStream</code>) 或托管方法 (<code>setCallback</code>, <code>execAndWaitFor</code>, <code>execForResult</code>). 两类方法混用时抛出异常. <code>exec()</code> 只写入命令本身, 因此先 <code>exec()</code> 再读取流不会混入额外内容.</p>
+<p>调用 <code>exit()</code> 或 <code>exitAndWaitFor()</code> 后不应继续复用实例. 终端会话 Shell 应在脚本结束前显式退出.</p>
 <h3>[c] ()<span><a class="mark" href="#shell_c" id="shell_c">#</a></span></h3>
-<p><strong><code>6.6.1</code></strong> <strong><code>Global</code></strong> <strong><code>Overload 1/4</code></strong></p>
+<p><strong><code>6.6.1</code></strong> <strong><code>Global</code></strong> <strong><code>Overload 1/6</code></strong></p>
 <ul>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="#shell_c_shell">Shell</a></span> } - 普通权限 Shell</li>
 </ul>
 <p>创建普通权限 Shell, 相当于 <code>new Shell(false)</code>.</p>
 <h3>[c] (withRoot)<span><a class="mark" href="#shell_c_withroot" id="shell_c_withroot">#</a></span></h3>
-<p><strong><code>Global</code></strong> <strong><code>Overload 2/4</code></strong></p>
+<p><strong><code>Global</code></strong> <strong><code>Overload 2/6</code></strong></p>
 <ul>
 <li><strong>withRoot</strong> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> } - 是否以 <code>su</code> 初始化</li>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="#shell_c_shell">Shell</a></span> } - Shell 实例</li>
 </ul>
 <h3>[c] (context)<span><a class="mark" href="#shell_c_context" id="shell_c_context">#</a></span></h3>
-<p><strong><code>6.6.1</code></strong> <strong><code>Global</code></strong> <strong><code>Overload 3/4</code></strong></p>
+<p><strong><code>6.6.1</code></strong> <strong><code>Global</code></strong> <strong><code>Overload 3/6</code></strong></p>
 <ul>
 <li><strong>context</strong> { <span class="type"><a href="https://developer.android.com/reference/android/content/Context">android.content.Context</a></span> } - Android Context</li>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="#shell_c_shell">Shell</a></span> } - 普通权限 Shell</li>
 </ul>
 <p>使用指定 Context 创建普通权限 Shell.</p>
 <h3>[c] (context, withRoot)<span><a class="mark" href="#shell_c_context_withroot" id="shell_c_context_withroot">#</a></span></h3>
-<p><strong><code>Global</code></strong> <strong><code>Overload 4/4</code></strong></p>
+<p><strong><code>Global</code></strong> <strong><code>Overload 4/6</code></strong></p>
 <ul>
 <li><strong>context</strong> { <span class="type"><a href="https://developer.android.com/reference/android/content/Context">android.content.Context</a></span> } - Android Context</li>
 <li><strong>withRoot</strong> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> } - 是否以 <code>su</code> 初始化</li>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="#shell_c_shell">Shell</a></span> } - Shell 实例</li>
 </ul>
-<p>Shell 会在 Android 主线程异步创建终端会话. 首次执行命令时可能等待初始化完成. 初始化 <code>su</code> 失败时会抛出相应异常. 在 Android UI 主线程中创建实例后, 应等待 <code>onInitialized()</code> 再调用命令方法.</p>
+<p>终端会话 Shell 会在 Android 主线程异步创建终端会话. 首次执行命令时可能等待初始化完成. 初始化 <code>su</code> 失败时会抛出相应异常. 在 Android UI 主线程中创建实例后, 应等待 <code>onInitialized()</code> 再调用命令方法.</p>
 <pre><code class="lang-js">let sh = new Shell(false);
 try {
     console.log(sh.execAndWaitFor(&#39;pwd&#39;));
@@ -1031,6 +1189,32 @@ try {
     sh.exitAndWaitFor();
 }
 </code></pre>
+<h3>[c] (options)<span><a class="mark" href="#shell_c_options" id="shell_c_options">#</a></span></h3>
+<p><strong><code>6.8.0</code></strong> <strong><code>Global</code></strong> <strong><code>Overload 5/6</code></strong></p>
+<ul>
+<li><strong>options</strong> { <span class="type"><a href="#shell_shelloptions">ShellOptions</a></span> } - Shell 选项</li>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="#shell_c_shell">Shell</a></span> } - 管道 Shell</li>
+</ul>
+<p>创建管道 Shell (兼容 Auto.js Pro). 未指定 <code>cmd</code> 时运行 <code>sh</code>, <code>root</code> 为 <code>true</code> 时经 <code>su</code> 运行. <code>adb</code> 为 <code>true</code> 时进程在 Shizuku 用户服务中运行, Shizuku 不可用时抛出异常. <code>env</code> 与 <code>cwd</code> 在首条命令之前生效. 此构造方法不读取 <a href="#shell_m_setdefaultoptions">setDefaultOptions</a> 的默认值.</p>
+<p><code>pty</code> 为 <code>true</code> 时输出接到伪终端, stderr 并入 stdout; 写入的命令不会回显, Android 9 及以下使用 Magisk 的 Root 模式除外 (参阅 <a href="#shell_shelloptions">ShellOptions</a>).</p>
+<pre><code class="lang-js">let sh = new Shell({ adb: true });
+sh.exec(&#39;getevent -tl | grep -E &quot;ABS_MT_POSITION|UP|DOWN|ffffff&quot;&#39;);
+let reader = new java.io.BufferedReader(new java.io.InputStreamReader(sh.getInputStream()));
+threads.start(() =&gt; {
+    let line;
+    while ((line = reader.readLine()) != null) {
+        console.log(line);
+    }
+});
+setTimeout(() =&gt; sh.exit(), 30000);
+</code></pre>
+<h3>[c] (cmd)<span><a class="mark" href="#shell_c_cmd" id="shell_c_cmd">#</a></span></h3>
+<p><strong><code>6.8.0</code></strong> <strong><code>Global</code></strong> <strong><code>Overload 6/6</code></strong></p>
+<ul>
+<li><strong>cmd</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 程序行, 如 <code>&#39;sh&#39;</code> 或 <code>&#39;su&#39;</code></li>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="#shell_c_shell">Shell</a></span> } - 管道 Shell</li>
+</ul>
+<p>相当于 <code>new Shell({ cmd: cmd })</code>. 程序行按空白拆分为程序及其参数.</p>
 <h3>[p] COMMAND_SU<span><a class="mark" href="#shell_p_command_su" id="shell_p_command_su">#</a></span></h3>
 <h4>Shell.COMMAND_SU<span><a class="mark" href="#shell_shell_command_su" id="shell_shell_command_su">#</a></span></h4>
 <p><strong><code>CONSTANT</code></strong> <strong><code>READONLY</code></strong></p>
@@ -1066,22 +1250,39 @@ try {
 <li><strong>command</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 待执行命令</li>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
-<p>等待终端完成初始化, 将命令和换行符写入会话, 随后返回. 此方法不等待命令执行完成.</p>
+<p>终端会话 Shell 等待终端完成初始化, 将命令和换行符写入会话, 随后返回. 管道 Shell 将命令和换行符写入 stdin, 不追加其他内容. 此方法不等待命令执行完成.</p>
 <h3>[m#] execAndWaitFor<span><a class="mark" href="#shell_m_execandwaitfor" id="shell_m_execandwaitfor">#</a></span></h3>
 <h4>Shell#execAndWaitFor(command)<span><a class="mark" href="#shell_shell_execandwaitfor_command" id="shell_shell_execandwaitfor_command">#</a></span></h4>
-<div class="signature"><ul>
+<p><strong><code>[6.8.0]</code></strong></p>
+<ul>
 <li><strong>command</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 待执行命令</li>
-<li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 本次命令的终端输出</li>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 本次命令的输出</li>
 </ul>
-</div><p>执行命令并阻塞到终端再次出现 Shell 提示符. 返回内容不包含首行的命令回显.</p>
-<p>此方法不提供退出码或独立标准错误. 需要 <a href="#shell_c_shellresult">ShellResult</a> 时使用 <code>shell(...)</code>. 不应在 Android UI 主线程调用此阻塞方法.</p>
+<p>执行命令并阻塞到命令结束. 不应在 Android UI 主线程调用此阻塞方法.</p>
+<ul>
+<li>终端会话 Shell 阻塞到终端再次出现 Shell 提示符, 返回内容不包含首行的命令回显. 不提供退出码或独立标准错误.</li>
+<li>管道 Shell 在命令后追加带 <code>$?</code> 的标记, 据此分割输出, 返回本次命令的 stdout (每行带换行符), 与 <code>execForResult(command).result</code> 相同. 此前经 <code>exec()</code> 写入但尚未输出完的内容也会计入本次结果.</li>
+</ul>
+<h3>[m#] execForResult<span><a class="mark" href="#shell_m_execforresult" id="shell_m_execforresult">#</a></span></h3>
+<h4>Shell#execForResult(command)<span><a class="mark" href="#shell_shell_execforresult_command" id="shell_shell_execforresult_command">#</a></span></h4>
+<p><strong><code>6.8.0</code></strong></p>
+<ul>
+<li><strong>command</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 待执行命令</li>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="#shell_c_shellresult">ShellResult</a></span> } - 本次命令的 stdout, stderr 与退出码</li>
+</ul>
+<p>仅限管道 Shell. 执行命令并阻塞到命令结束, 以命令后的标记分割 stdout 与 stderr, <code>code</code> 为命令的实际退出码 (与 <code>shell(...)</code> 不同, stderr 非空时不会改写 <code>code</code>). <code>pty</code> 时 stderr 并入 <code>result</code>, <code>error</code> 为空字符串. 同一实例的多次调用依次执行. 终端会话 Shell 调用时抛出异常.</p>
+<pre><code class="lang-js">let sh = new Shell({ root: false });
+let r = sh.execForResult(&quot;sh -c &#39;echo out; echo err &gt;&amp;2; exit 3&#39;&quot;);
+console.log(r.code, JSON.stringify(r.result), JSON.stringify(r.error)); // 3 &quot;out\n&quot; &quot;err\n&quot;
+sh.exitAndWaitFor();
+</code></pre>
 <h3>[m#] setCallback<span><a class="mark" href="#shell_m_setcallback" id="shell_m_setcallback">#</a></span></h3>
 <h4>Shell#setCallback(callback)<span><a class="mark" href="#shell_shell_setcallback_callback" id="shell_shell_setcallback_callback">#</a></span></h4>
 <div class="signature"><ul>
 <li><strong>callback</strong> { <span class="type"><a href="#shell_i_shell_callback">Shell.Callback</a></span> | <span class="type"><a href="dataTypes.html#datatypes_null">null</a></span> } - 输出回调, <code>null</code> 表示清除回调</li>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
-</div><p>设置终端事件回调.</p>
+</div><p>设置输出回调. 管道 Shell 的 stdout 与 stderr 每行都会触发回调, 回调在读取线程上依次调用 (不经过脚本线程的事件循环), <code>onInitialized()</code> 在设置时立即调用. 设置后不能再使用流方法.</p>
 <pre><code class="lang-js">let sh = new Shell(false);
 sh.setCallback({
     onNewLine(line) {
@@ -1097,7 +1298,8 @@ sh.setCallback({
 <div class="signature"><ul>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> } - 终端是否已完成初始化</li>
 </ul>
-</div><h3>[m#] isExecWithRoot<span><a class="mark" href="#shell_m_isexecwithroot" id="shell_m_isexecwithroot">#</a></span></h3>
+</div><p>管道 Shell 总是返回 <code>true</code>.</p>
+<h3>[m#] isExecWithRoot<span><a class="mark" href="#shell_m_isexecwithroot" id="shell_m_isexecwithroot">#</a></span></h3>
 <h4>Shell#isExecWithRoot()<span><a class="mark" href="#shell_shell_isexecwithroot" id="shell_shell_isexecwithroot">#</a></span></h4>
 <div class="signature"><ul>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> } - 实例是否配置为使用 Root</li>
@@ -1108,20 +1310,80 @@ sh.setCallback({
 <div class="signature"><ul>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
-</div><p>立即结束终端会话, 不等待已写入命令完成.</p>
+</div><p>立即结束终端会话, 不等待已写入命令完成. 管道 Shell 会同时结束 Shell 启动的进程; Root 模式下这些进程由另一个 Root Shell 结束.</p>
 <h3>[m#] exitAndWaitFor<span><a class="mark" href="#shell_m_exitandwaitfor" id="shell_m_exitandwaitfor">#</a></span></h3>
 <h4>Shell#exitAndWaitFor()<span><a class="mark" href="#shell_shell_exitandwaitfor" id="shell_shell_exitandwaitfor">#</a></span></h4>
 <div class="signature"><ul>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
-</div><p>写入 <code>exit</code> 并阻塞等待 Shell 退出. Root 实例会依次退出 <code>su</code> 和外层 Shell.</p>
+</div><p>写入 <code>exit</code> 并阻塞等待 Shell 退出. 终端会话的 Root 实例会依次退出 <code>su</code> 和外层 Shell. 管道 Shell 写入 <code>exit</code> 并关闭 stdin, 等待已写入的命令执行完毕; 仍在运行的长期命令 (如 <code>getevent</code>) 会使此方法一直等待, 此时应使用 <code>exit()</code>.</p>
 <p>不应在 Android UI 主线程调用此阻塞方法.</p>
 <h3>[m#] getTermSession<span><a class="mark" href="#shell_m_gettermsession" id="shell_m_gettermsession">#</a></span></h3>
 <h4>Shell#getTermSession()<span><a class="mark" href="#shell_shell_gettermsession" id="shell_shell_gettermsession">#</a></span></h4>
 <div class="signature"><ul>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_object">object</a></span> | <span class="type"><a href="dataTypes.html#datatypes_null">null</a></span> } - <code>jackpal.androidterm.emulatorview.TermSession</code> 实例</li>
 </ul>
-</div><p>返回底层终端会话. 初始化完成前可能为 <code>null</code>. 此入口主要用于高级 Java 互操作.</p>
+</div><p>返回底层终端会话. 初始化完成前可能为 <code>null</code>, 管道 Shell 总是返回 <code>null</code>. 此入口主要用于高级 Java 互操作.</p>
+<h3>[m#] isAdb<span><a class="mark" href="#shell_m_isadb" id="shell_m_isadb">#</a></span></h3>
+<h4>Shell#isAdb()<span><a class="mark" href="#shell_shell_isadb" id="shell_shell_isadb">#</a></span></h4>
+<p><strong><code>6.8.0</code></strong></p>
+<ul>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> } - 是否在 Shizuku 用户服务中运行</li>
+</ul>
+<h3>[m#] getInputStream<span><a class="mark" href="#shell_m_getinputstream" id="shell_m_getinputstream">#</a></span></h3>
+<h4>Shell#getInputStream()<span><a class="mark" href="#shell_shell_getinputstream" id="shell_shell_getinputstream">#</a></span></h4>
+<p><strong><code>6.8.0</code></strong></p>
+<ul>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="https://developer.android.com/reference/java/io/InputStream">java.io.InputStream</a></span> } - Shell 进程的 stdout</li>
+</ul>
+<p>仅限管道 Shell. 返回原始 stdout, 之后不能再使用托管方法. 终端会话 Shell 调用时抛出异常.</p>
+<h3>[m#] getErrorStream<span><a class="mark" href="#shell_m_geterrorstream" id="shell_m_geterrorstream">#</a></span></h3>
+<h4>Shell#getErrorStream()<span><a class="mark" href="#shell_shell_geterrorstream" id="shell_shell_geterrorstream">#</a></span></h4>
+<p><strong><code>6.8.0</code></strong></p>
+<ul>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="https://developer.android.com/reference/java/io/InputStream">java.io.InputStream</a></span> } - Shell 进程的 stderr</li>
+</ul>
+<p>仅限管道 Shell. <code>pty</code> 时为空流. 之后不能再使用托管方法.</p>
+<h3>[m#] getOutputStream<span><a class="mark" href="#shell_m_getoutputstream" id="shell_m_getoutputstream">#</a></span></h3>
+<h4>Shell#getOutputStream()<span><a class="mark" href="#shell_shell_getoutputstream" id="shell_shell_getoutputstream">#</a></span></h4>
+<p><strong><code>6.8.0</code></strong></p>
+<ul>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="https://developer.android.com/reference/java/io/OutputStream">java.io.OutputStream</a></span> } - Shell 进程的 stdin</li>
+</ul>
+<p>仅限管道 Shell. 写入的内容由 Shell 当作命令读取, 与 <code>exec()</code> 写入同一个流.</p>
+<h3>[m#] waitFor<span><a class="mark" href="#shell_m_waitfor" id="shell_m_waitfor">#</a></span></h3>
+<h4>Shell#waitFor()<span><a class="mark" href="#shell_shell_waitfor" id="shell_shell_waitfor">#</a></span></h4>
+<p><strong><code>6.8.0</code></strong></p>
+<ul>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> } - 退出码</li>
+</ul>
+<p>仅限管道 Shell. 阻塞到 Shell 进程退出. 不应在 Android UI 主线程调用.</p>
+<h3>[m#] exitCode<span><a class="mark" href="#shell_m_exitcode" id="shell_m_exitcode">#</a></span></h3>
+<h4>Shell#exitCode()<span><a class="mark" href="#shell_shell_exitcode" id="shell_shell_exitcode">#</a></span></h4>
+<p><strong><code>6.8.0</code></strong></p>
+<ul>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> | <span class="type"><a href="dataTypes.html#datatypes_null">null</a></span> } - 退出码, 运行期间为 <code>null</code></li>
+</ul>
+<p>仅限管道 Shell. 返回值是 <code>java.lang.Integer</code>, 与数值比较时使用 <code>==</code>.</p>
+<h3>[m#] exitAndReadOutput<span><a class="mark" href="#shell_m_exitandreadoutput" id="shell_m_exitandreadoutput">#</a></span></h3>
+<h4>Shell#exitAndReadOutput()<span><a class="mark" href="#shell_shell_exitandreadoutput" id="shell_shell_exitandreadoutput">#</a></span></h4>
+<p><strong><code>6.8.0</code></strong></p>
+<ul>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - Shell 退出前剩余的 stdout</li>
+</ul>
+<p>仅限管道 Shell (兼容 Auto.js Pro). 关闭 stdin, 等待已写入的命令执行完毕并返回其间的 stdout. 已使用托管方法时, 返回不属于 <code>execAndWaitFor</code> 或 <code>execForResult</code> 的输出.</p>
+<pre><code class="lang-js">let sh = new Shell({});
+sh.exec(&#39;echo r1&#39;);
+sh.exec(&#39;echo r2&#39;);
+console.log(JSON.stringify(sh.exitAndReadOutput())); // &quot;r1\nr2\n&quot;
+</code></pre>
+<h3>[m#] raw<span><a class="mark" href="#shell_m_raw" id="shell_m_raw">#</a></span></h3>
+<h4>Shell#raw()<span><a class="mark" href="#shell_shell_raw" id="shell_shell_raw">#</a></span></h4>
+<p><strong><code>6.8.0</code></strong></p>
+<ul>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="https://developer.android.com/reference/java/lang/Process">java.lang.Process</a></span> | <span class="type"><a href="dataTypes.html#datatypes_object">object</a></span> } - 底层进程或终端会话</li>
+</ul>
+<p>管道 Shell 返回底层 <code>java.lang.Process</code> (adb 模式下为代理 Shizuku 进程的对象), 终端会话 Shell 返回 <code>TermSession</code>.</p>
 <hr>
 <p style="font: bold 2em sans-serif; color: #FF7043">Shell.Callback</p>
 
@@ -1134,20 +1396,20 @@ sh.setCallback({
 <li><strong>str</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 移除 <code>\r</code> 后的原始输出块</li>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
-</div><p>终端收到输出块时调用. 一个输出块可能包含半行, 一行或多行文本.</p>
+</div><p>终端收到输出块时调用. 一个输出块可能包含半行, 一行或多行文本. 管道 Shell 每次传入一整行加换行符.</p>
 <h3>[m!] onNewLine<span><a class="mark" href="#shell_m_onnewline" id="shell_m_onnewline">#</a></span></h3>
 <h4>Shell.Callback#onNewLine(line)<span><a class="mark" href="#shell_shell_callback_onnewline_line" id="shell_shell_callback_onnewline_line">#</a></span></h4>
 <div class="signature"><ul>
 <li><strong>line</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 不含换行符且已移除首尾空白的输出行</li>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
-</div><p>终端组成一行完整输出时调用.</p>
+</div><p>终端组成一行完整输出时调用. 管道 Shell 传入的行不移除首尾空白.</p>
 <h3>[m!] onInitialized<span><a class="mark" href="#shell_m_oninitialized" id="shell_m_oninitialized">#</a></span></h3>
 <h4>Shell.Callback#onInitialized()<span><a class="mark" href="#shell_shell_callback_oninitialized" id="shell_shell_callback_oninitialized">#</a></span></h4>
 <div class="signature"><ul>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
-</div><p>终端完成初始化时调用.</p>
+</div><p>终端完成初始化时调用. 管道 Shell 在 <code>setCallback()</code> 中立即调用.</p>
 <h3>[m!] onInterrupted<span><a class="mark" href="#shell_m_oninterrupted" id="shell_m_oninterrupted">#</a></span></h3>
 <h4>Shell.Callback#onInterrupted(error)<span><a class="mark" href="#shell_shell_callback_oninterrupted_error" id="shell_shell_callback_oninterrupted_error">#</a></span></h4>
 <div class="signature"><ul>

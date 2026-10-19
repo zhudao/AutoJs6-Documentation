@@ -10,6 +10,14 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Bun file and persistent storage APIs with separate host-file grants and shared Node.js storage"
+        },
+        {
+          "category": "feature",
+          "text": "Shell streaming processes: shell.spawn/shizuku.spawn and ShellProcess, the Auto.js Pro compatible Shell options constructor (with adb/pty) and its stream methods, $shell.setDefaultOptions/checkAccess/isRootAvailable and the adb option of the shell function"
+        },
+        {
+          "category": "feature",
           "text": "Bun accessibility, app operations and clipboard APIs aligned with the Node.js interfaces, with independent grants and packaged-app support"
         },
         {

@@ -191,3 +191,4 @@
 - [TerminalSession - 终端会话](terminalSessionType)
 - [TerminalOpenOptions - 终端选项](terminalOpenOptionsType)
 - [TerminalError - 终端错误](terminalErrorType)
+- [ShellProcess - Shell 进程](shellProcessType)

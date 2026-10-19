@@ -10,6 +10,14 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Bun ファイルと永続ストレージ API. 個別のホストファイル権限と Node.js ストレージの共有に対応"
+        },
+        {
+          "category": "feature",
+          "text": "Shell のストリーミングプロセス: shell.spawn/shizuku.spawn と ShellProcess, Auto.js Pro 互換の Shell オプションコンストラクター (adb/pty 対応) とそのストリームメソッド, $shell.setDefaultOptions/checkAccess/isRootAvailable と shell 関数の adb オプション"
+        },
+        {
+          "category": "feature",
           "text": "Bun のユーザー補助, アプリ操作, クリップボード API を Node.js の対応インターフェースに合わせ, 個別の許可とパッケージ化アプリに対応"
         },
         {

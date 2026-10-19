@@ -1,18 +1,24 @@
 # Shell
 
-交互式终端会话, 可见执行和输出事件由独立的 [terminal 模块](terminal) 提供, 需要安装 3-Shell Terminal 插件. 本章的 `shell()` API 保留其原有的一次性命令执行和权限语义; 两者的返回值及进程权限不同.
+交互式终端会话, 可见执行和输出事件由独立的 [terminal 模块](terminal) 提供, 需要安装 3-Shell Terminal 插件. 本章的 API 由 AutoJs6 自身提供, 不需要插件; 两者的返回值及进程权限不同.
 
 shell 模块用于在 Android 设备本地执行 Shell 命令.
 
-它不会建立 ADB 连接. 普通模式使用 AutoJs6 应用进程可用的 `sh`, Root 模式使用 `su`. 命令正文通常与 `adb shell` 后面的部分相同.
+它不会建立 ADB 连接. 命令可以以下列身份运行:
+
+- 普通模式使用 AutoJs6 应用进程可用的 `sh`.
+- Root 模式 (`root`) 使用 `su`.
+- adb 模式 (`adb`) 在 AutoJs6 的 [Shizuku](shizuku) 用户服务中运行, 身份与 Shizuku 服务相同: 经 ADB 启动的 Shizuku 为 shell 用户, 经 Root 启动的 Shizuku 为 root. `root` 与 `adb` 同时启用时, 命令在 Shizuku 进程中经 `su` 运行 (与 Auto.js Pro 相同).
+
+命令正文通常与 `adb shell` 后面的部分相同.
 
 `shell` 与 `$shell` 指向同一个可调用模块对象.
 
-一次性执行与持久执行的区别:
+执行方式的区别:
 
 - `shell(...)` 和 `shell.execCommand(...)` 启动独立进程, 同步等待命令结束, 返回 [ShellResult](#c-shellresult), 随后销毁进程.
-- 全局 Java 类 [Shell](#c-shell) 维护一个终端会话, `Shell#exec()` 只写入命令并立即返回, 输出通过回调或阻塞方法读取.
-- shell 模块不返回 `java.lang.Process`. 大写 `Shell` 也不公开底层 `Process`, 其高级访问入口是 `Shell#getTermSession()`.
+- [shell.spawn(...)](#m-spawn) 启动独立进程后立即返回 [ShellProcess](shellProcessType), 可逐行或以事件实时读取输出, 向 stdin 写入, 等待或结束进程.
+- 全局 Java 类 [Shell](#c-shell) 维护一个持久的 Shell 进程, 可连续写入多条命令. `new Shell()` 与 `new Shell(withRoot)` 使用终端会话; `new Shell(options)` 与 `new Shell(cmd)` 使用管道 (兼容 Auto.js Pro), 提供流方法和按退出码标记分割的 `execAndWaitFor`.
 
 命令权限由实际执行身份决定. `withRoot = true` 只表示尝试使用 `su`, 不保证设备已取得 Root 权限.
 
@@ -26,7 +32,7 @@ shell 模块用于在 Android 设备本地执行 Shell 命令.
 
 ### shell(command, withRoot?)
 
-**`[6.6.0]`** **`Overload [1-2]/4`**
+**`[6.8.0]`** **`Overload [1-2]/4`**
 
 - **command** { [string](dataTypes#string) | [string](dataTypes#string)[[]](dataTypes#array) } - 命令或命令数组
 - **[ withRoot = false ]** { [boolean](dataTypes#boolean) | [number](dataTypes#number) } - 是否使用 Root
@@ -34,7 +40,7 @@ shell 模块用于在 Android 设备本地执行 Shell 命令.
 
 ### shell(command, arguments, withRoot?)
 
-**`6.6.0`** **`Overload [3-4]/4`**
+**`6.6.0`** **`[6.8.0]`** **`Overload [3-4]/4`**
 
 - **command** { [string](dataTypes#string) | [string](dataTypes#string)[[]](dataTypes#array) } - 命令或命令数组
 - **arguments** { [string](dataTypes#string) | [ShellArguments](#shellarguments) } - 待拼接的命令参数
@@ -50,6 +56,13 @@ console.log(resultA.code, resultB.code);
 ```
 
 Root 模式启动失败, 命令退出码非 `0` 或标准错误非空时, 通常仍返回 [ShellResult](#c-shellresult), 由调用方检查 `code` 和 `error`. 参数类型或数量不合法时会直接抛出异常.
+
+`root` 与 `adb` 既未经 `withRoot` 也未经 `arguments` 指定时, 采用 [setDefaultOptions](#m-setdefaultoptions) 为当前脚本设置的默认值, 再退回 `false`. `adb` 启用时命令经 Shizuku 执行, 结果与 [shizuku(...)](shizuku) 相同; Shizuku 不可用时抛出异常.
+
+```js
+let result = shell('pm list packages -3', { adb: true });
+console.log(result.code, result.result.trim().split('\n').length);
+```
 
 ```js
 let result = shell('pm list packages', {
@@ -67,7 +80,7 @@ if (result.code === 0) {
 
 ### execCommand(command, withRoot?)
 
-**`6.6.0`** **`Overload [1-2]/4`**
+**`6.6.0`** **`[6.8.0]`** **`Overload [1-2]/4`**
 
 - **command** { [string](dataTypes#string) | [string](dataTypes#string)[[]](dataTypes#array) } - 命令或命令数组
 - **[ withRoot = false ]** { [boolean](dataTypes#boolean) | [number](dataTypes#number) } - 是否使用 Root
@@ -75,7 +88,7 @@ if (result.code === 0) {
 
 ### execCommand(command, arguments, withRoot?)
 
-**`6.6.0`** **`Overload [3-4]/4`**
+**`6.6.0`** **`[6.8.0]`** **`Overload [3-4]/4`**
 
 - **command** { [string](dataTypes#string) | [string](dataTypes#string)[[]](dataTypes#array) } - 命令或命令数组
 - **arguments** { [string](dataTypes#string) | [ShellArguments](#shellarguments) } - 待拼接的命令参数
@@ -120,8 +133,9 @@ ShellArguments 是用于构造命令行参数的普通 JavaScript 对象.
 
 - **[ root = false ]** { [boolean](dataTypes#boolean) } - 是否使用 Root, 不会输出为命令行参数
 - **[ exit = false ]** { [boolean](dataTypes#boolean) } - 是否在命令末尾追加退出和清理命令
+- **[ adb = false ]** { [boolean](dataTypes#boolean) } - 是否经 Shizuku 执行 (兼容 Auto.js Pro), 不会输出为命令行参数
 
-除 `root` 和 `exit` 外, 其他属性会按以下规则转换:
+除 `root`, `exit` 和 `adb` 外, 其他属性会按以下规则转换:
 
 - 已以 `--` 开头的键转换为 kebab-case 长参数.
 - 已以单个 `-` 开头的键保持原样.
@@ -139,14 +153,16 @@ shell.getCommand('cmd package list packages', 'user=0 | 3');
 // cmd package list packages --user 0 -3
 ```
 
-特殊条目 `root` 和 `exit` 与对象同名属性作用相同. 特殊值转换为字符串后, 只有精确的 `false` 会将对应选项关闭, 其他值均会启用选项. `exit` 启用时实际追加:
+AutoJs6 6.8.0 之前, `adb` 键会转换为 `--adb` 参数. 现在需要该参数时应写作 `'--adb'` 键.
+
+特殊条目 `root`, `exit` 和 `adb` 与对象同名属性作用相同. 特殊值转换为字符串后, 只有精确的 `false` 会将对应选项关闭, 其他值均会启用选项. `exit` 启用时实际追加:
 
 ```text
 exit
 kill $$
 ```
 
-显式 `withRoot` 与 `arguments.root` 按逻辑或组合, 因此任一值为真都会启用 Root.
+显式 `withRoot` 与 `arguments.root` 按逻辑或组合, 因此任一值为真都会启用 Root. 二者都未给出时, `root` 与 `adb` 采用 [setDefaultOptions](#m-setdefaultoptions) 的默认值; [getCommand](#m-getcommand) 不读取默认值.
 
 此转换只提供基础的命令行拼接, 不等同于完整的 Shell 转义器. 对来自外部的数据仍应自行验证和转义.
 
@@ -213,6 +229,114 @@ shell(`am start ${intentArguments}`);
 - <ins>**returns**</ins> { [string](dataTypes#string) } - 当前前台组件, 查询失败时为空字符串
 
 使用 Root 读取当前 resumed activity. 结果通常采用 `package/activity` 形式.
+
+## [m] spawn
+
+### spawn(command)
+
+**`6.8.0`** **`Overload 1/3`**
+
+- **command** { [string](dataTypes#string) | [string](dataTypes#string)[[]](dataTypes#array) } - 命令或命令数组
+- <ins>**returns**</ins> { [ShellProcess](shellProcessType) } - 正在运行的进程
+
+### spawn(command, withRoot)
+
+**`6.8.0`** **`Overload 2/3`**
+
+- **command** { [string](dataTypes#string) | [string](dataTypes#string)[[]](dataTypes#array) } - 命令或命令数组
+- **withRoot** { [boolean](dataTypes#boolean) } - 是否使用 Root
+- <ins>**returns**</ins> { [ShellProcess](shellProcessType) } - 正在运行的进程
+
+### spawn(command, options)
+
+**`6.8.0`** **`Overload 3/3`**
+
+- **command** { [string](dataTypes#string) | [string](dataTypes#string)[[]](dataTypes#array) } - 命令或命令数组
+- **options** { [ShellOptions](#shelloptions) } - 进程选项, 不支持 `cmd`
+- <ins>**returns**</ins> { [ShellProcess](shellProcessType) } - 正在运行的进程
+
+启动进程运行命令后立即返回 [ShellProcess](shellProcessType), 不等待命令结束. 命令数组以换行符连接. 普通模式与 adb 模式经 `sh -c` 运行, Root 模式经 `su -c` 运行, 因此命令可以包含管道, 重定向和多条语句. 未指定的 `root` 与 `adb` 采用 [setDefaultOptions](#m-setdefaultoptions) 的默认值.
+
+进程随启动它的脚本结束而结束. 读取输出, 事件, 写入 stdin 和结束进程的方法见 [ShellProcess](shellProcessType).
+
+```js
+let proc = shell.spawn('logcat -v brief', { adb: true });
+proc.on('output', (line) => {
+    if (line.indexOf('ActivityManager') >= 0) console.log(line);
+});
+setTimeout(() => proc.kill(), 10000);
+```
+
+## ShellOptions
+
+ShellOptions 是 [spawn](#m-spawn), [shizuku.spawn](shizuku#m-spawn) 和管道 [Shell](#c-shell) 构造方法使用的普通 JavaScript 对象. 出现其他属性时抛出异常.
+
+- **[ root = false ]** { [boolean](dataTypes#boolean) } - 是否经 `su` 以 Root 身份运行
+- **[ adb = false ]** { [boolean](dataTypes#boolean) } - 是否在 Shizuku 用户服务中运行, Shizuku 不可用时抛出异常
+- **[ pty = false ]** { [boolean](dataTypes#boolean) } - 是否在伪终端上运行
+- **[ env ]** { [object](dataTypes#object) } - 追加的环境变量, 键须为合法的变量名
+- **[ cwd ]** { [string](dataTypes#string) } - 工作目录, 相对路径按脚本工作目录解析; 目录无法进入时进程以退出码 `1` 结束
+- **[ cmd ]** { [string](dataTypes#string) } - 仅用于 `new Shell(options)`: 持久 Shell 的程序行, 默认为 `sh`, `root` 为 `true` 时经 `su` 运行 (兼容 Auto.js Pro)
+
+`root` 与 `adb` 同时启用时, 命令在 Shizuku 进程中经 `su` 运行. `env` 与 `cwd` 由命令开头的 `export` 与 `cd` 应用, 因此对重置环境的 `su` 实现同样有效.
+
+`pty` 使命令的 stdin, stdout 与 stderr 连接到伪终端. getevent, awk 等程序的输出接到管道时由 C 标准库按块缓冲, 接到终端时逐行刷新; 需要严格逐行实时读取时可启用此选项. 以 getevent 为例, 一次触摸产生的事件通常已超过一个缓冲块, 因此管道下多数行也能及时送达, 但缓冲中剩余的少量行要等后续事件才会送达. 启用 `pty` 后:
+
+- stderr 并入 stdout, ShellProcess 的 `readErrorLine()` 与 `errorOutput` 事件不再有数据, `getErrorStream()` 为空流.
+- 写入的文本不会回显, 行尾与管道相同为 `\n`.
+- Android 9 及以下使用 Magisk 时, Root 模式下 su 另开的终端仍会回显写入的文本, 行尾为 `\r\n`. 逐行读取方法会去掉行尾的 `\r`.
+
+## [m] setDefaultOptions
+
+### setDefaultOptions(options)
+
+**`6.8.0`**
+
+- **options** { [object](dataTypes#object) | [null](dataTypes#null) } - 默认选项 `{ root?, adb? }`, 均为 [boolean](dataTypes#boolean); `null` 或 `undefined` 表示清除
+- <ins>**returns**</ins> { [void](dataTypes#void) }
+
+为当前脚本设置 `shell(...)`, `shell.execCommand(...)` 和 [spawn](#m-spawn) 中未显式指定的 `root` 与 `adb` 的默认值 (兼容 Auto.js Pro). 每次调用替换之前的默认值, 省略的属性表示不设置默认值. 只支持 `root` 与 `adb`, 其他属性会抛出异常. 设置只影响当前脚本, 不影响 `new Shell(...)`, [getCommand](#m-getcommand) 与 [shizuku](shizuku).
+
+`adb` 默认值为 `true` 时, 全局兼容函数 [KeyCode](#m-keycode) 及其按键快捷函数, [Text](#m-text), [Input](#m-input), [Tap](#m-tap), [Swipe](#m-swipe), [Screencap](#m-screencap) 和 [SetScreenMetrics](#m-setscreenmetrics) 改为经 Shizuku 执行, Shizuku 不可用时抛出异常. 两种执行方式的坐标缩放基准分别保存, 应在 setDefaultOptions 之后调用 SetScreenMetrics.
+
+```js
+$shell.setDefaultOptions({ adb: true });
+console.log(shell('id -u').result.trim()); // Shizuku 的运行身份, 如 2000.
+console.log(shell('id -u', false).result.trim()); // 仍经 Shizuku: withRoot 只指定 root.
+$shell.setDefaultOptions(null);
+```
+
+## [m] checkAccess
+
+### checkAccess(type)
+
+**`6.8.0`**
+
+- **type** { [string](dataTypes#string) } - 权限类型, `root` 或 `adb`
+- <ins>**returns**</ins> { [boolean](dataTypes#boolean) } - 当前是否具有该权限
+
+检查权限 (兼容 Auto.js Pro):
+
+- `root`: 经 `su` 执行 `id`, 输出包含 `uid=0` 时返回 `true`. 首次检查可能触发 Root 管理器的授权提示, 方法阻塞到命令结束.
+- `adb`: Shizuku 正在运行且已授权 AutoJs6 时返回 `true`, 等同于 [shizuku.state](shizuku#p-state) 的 `isOperational`.
+
+其他值抛出异常.
+
+```js
+if ($shell.checkAccess('adb')) {
+    console.log(shell('id', { adb: true }).result.trim());
+}
+```
+
+## [m] isRootAvailable
+
+### isRootAvailable()
+
+**`6.8.0`**
+
+- <ins>**returns**</ins> { [boolean](dataTypes#boolean) } - 设备是否具备 Root
+
+与 [autojs.isRootAvailable()](autojs#m-isrootavailable) 相同 (兼容 Auto.js Pro). 返回 `true` 只表示设备具备 Root, 不表示 AutoJs6 已获授权; 检查授权使用 [checkAccess('root')](#m-checkaccess).
 
 ---
 
@@ -290,7 +414,7 @@ Java 静态方法 `org.autojs.autojs.runtime.api.AbstractShell.Result.fromJson(j
 
 #### KeyCode(keyCode)
 
-**`Global`** **`[6.7.1]`**
+**`Global`** **`[6.8.0]`**
 
 - **keyCode** { [number](dataTypes#number) | [string](dataTypes#string) } - Android 按键码或按键名称
 - <ins>**returns**</ins> { [void](dataTypes#void) }
@@ -304,7 +428,7 @@ Java 静态方法 `org.autojs.autojs.runtime.api.AbstractShell.Result.fromJson(j
 
 名称匹配不区分大小写. 无法识别的按键码会抛出异常.
 
-从 AutoJs6 6.7.1 起, Shizuku 可操作时优先使用 Shizuku 执行 `input keyevent`; 否则使用运行时 Root Shell. Shizuku 命令执行失败时不会再尝试 Root.
+从 AutoJs6 6.7.1 起, Shizuku 可操作时优先使用 Shizuku 执行 `input keyevent`; 否则使用运行时 Root Shell. Shizuku 命令执行失败时不会再尝试 Root. 从 6.8.0 起, 经 [setDefaultOptions](#m-setdefaultoptions) 将 `adb` 默认值设为 `true` 后总是经 Shizuku 执行, Shizuku 不可用时抛出异常.
 
 ```js
 KeyCode('BACK');
@@ -319,7 +443,7 @@ KeyCode(24); // KEYCODE_VOLUME_UP
 
 #### Menu()
 
-**`Global`** **`[6.7.1]`**
+**`Global`** **`[6.8.0]`**
 
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
@@ -329,7 +453,7 @@ KeyCode(24); // KEYCODE_VOLUME_UP
 
 #### Home()
 
-**`Global`** **`[6.7.1]`**
+**`Global`** **`[6.8.0]`**
 
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
@@ -339,7 +463,7 @@ KeyCode(24); // KEYCODE_VOLUME_UP
 
 #### Back()
 
-**`Global`** **`[6.7.1]`**
+**`Global`** **`[6.8.0]`**
 
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
@@ -349,7 +473,7 @@ KeyCode(24); // KEYCODE_VOLUME_UP
 
 #### Up()
 
-**`Global`** **`[6.7.1]`**
+**`Global`** **`[6.8.0]`**
 
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
@@ -359,7 +483,7 @@ KeyCode(24); // KEYCODE_VOLUME_UP
 
 #### Down()
 
-**`Global`** **`[6.7.1]`**
+**`Global`** **`[6.8.0]`**
 
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
@@ -369,7 +493,7 @@ KeyCode(24); // KEYCODE_VOLUME_UP
 
 #### Left()
 
-**`Global`** **`[6.7.1]`**
+**`Global`** **`[6.8.0]`**
 
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
@@ -379,7 +503,7 @@ KeyCode(24); // KEYCODE_VOLUME_UP
 
 #### Right()
 
-**`Global`** **`[6.7.1]`**
+**`Global`** **`[6.8.0]`**
 
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
@@ -389,7 +513,7 @@ KeyCode(24); // KEYCODE_VOLUME_UP
 
 #### OK()
 
-**`Global`** **`[6.7.1]`**
+**`Global`** **`[6.8.0]`**
 
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
@@ -399,7 +523,7 @@ KeyCode(24); // KEYCODE_VOLUME_UP
 
 #### VolumeUp()
 
-**`Global`** **`[6.7.1]`**
+**`Global`** **`[6.8.0]`**
 
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
@@ -409,7 +533,7 @@ KeyCode(24); // KEYCODE_VOLUME_UP
 
 #### VolumeDown()
 
-**`Global`** **`[6.7.1]`**
+**`Global`** **`[6.8.0]`**
 
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
@@ -419,7 +543,7 @@ KeyCode(24); // KEYCODE_VOLUME_UP
 
 #### Power()
 
-**`Global`** **`[6.7.1]`**
+**`Global`** **`[6.8.0]`**
 
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
@@ -429,7 +553,7 @@ KeyCode(24); // KEYCODE_VOLUME_UP
 
 #### Camera()
 
-**`Global`** **`[6.7.1]`**
+**`Global`** **`[6.8.0]`**
 
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
@@ -439,18 +563,18 @@ KeyCode(24); // KEYCODE_VOLUME_UP
 
 #### Text(text)
 
-**`Global`**
+**`Global`** **`[6.8.0]`**
 
 - **text** { [string](dataTypes#string) } - 待输入文本
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
-通过运行时 Root Shell 写入 `input text` 命令. 方法写入命令后返回, 不等待命令执行完成.
+通过运行时 Root Shell 写入 `input text` 命令. 方法写入命令后返回, 不等待命令执行完成. 经 [setDefaultOptions](#m-setdefaultoptions) 将 `adb` 默认值设为 `true` 后改为经 Shizuku 执行, 并等待命令结束.
 
 ### [m] Input
 
 #### Input(text)
 
-**`Global`**
+**`Global`** **`[6.8.0]`**
 
 - **text** { [string](dataTypes#string) } - 待输入文本
 - <ins>**returns**</ins> { [void](dataTypes#void) }
@@ -461,19 +585,19 @@ KeyCode(24); // KEYCODE_VOLUME_UP
 
 #### Tap(x, y)
 
-**`Global`**
+**`Global`** **`[6.8.0]`**
 
 - **x** { [number](dataTypes#number) } - X 坐标
 - **y** { [number](dataTypes#number) } - Y 坐标
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
-通过运行时 Root Shell 写入 `input tap` 命令. 坐标受 [SetScreenMetrics](#m-setscreenmetrics) 设置的缩放规则影响.
+通过运行时 Root Shell 写入 `input tap` 命令. 坐标受 [SetScreenMetrics](#m-setscreenmetrics) 设置的缩放规则影响. `adb` 默认值为 `true` 时改为经 Shizuku 执行 (参阅 [setDefaultOptions](#m-setdefaultoptions)).
 
 ### [m] Swipe
 
 #### Swipe(x1, y1, x2, y2, duration?)
 
-**`Global`**
+**`Global`** **`[6.8.0]`**
 
 - **x1** { [number](dataTypes#number) } - 起点 X 坐标
 - **y1** { [number](dataTypes#number) } - 起点 Y 坐标
@@ -482,30 +606,30 @@ KeyCode(24); // KEYCODE_VOLUME_UP
 - **[ duration ]** { [number](dataTypes#number) } - 滑动时长, 单位为毫秒
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
-通过运行时 Root Shell 写入 `input swipe` 命令. 省略 `duration` 时不向系统命令提供时长参数.
+通过运行时 Root Shell 写入 `input swipe` 命令. 省略 `duration` 时不向系统命令提供时长参数. `adb` 默认值为 `true` 时改为经 Shizuku 执行 (参阅 [setDefaultOptions](#m-setdefaultoptions)).
 
 ### [m] Screencap
 
 #### Screencap(path)
 
-**`Global`**
+**`Global`** **`[6.8.0]`**
 
 - **path** { [string](dataTypes#string) } - Shell 可写入的目标路径
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
-通过运行时 Root Shell 写入 `screencap -p` 命令. 路径不会经过 [files](files) 模块解析. 方法不等待截图完成.
+通过运行时 Root Shell 写入 `screencap -p` 命令. 路径不会经过 [files](files) 模块解析. 方法不等待截图完成. `adb` 默认值为 `true` 时改为经 Shizuku 执行并等待命令结束 (参阅 [setDefaultOptions](#m-setdefaultoptions)).
 
 ### [m] SetScreenMetrics
 
 #### SetScreenMetrics(width, height)
 
-**`Global`**
+**`Global`** **`[6.8.0]`**
 
 - **width** { [number](dataTypes#number) } - 脚本设计宽度
 - **height** { [number](dataTypes#number) } - 脚本设计高度
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
-设置运行时 Root Shell 的坐标缩放基准, 影响后续 [Tap](#m-tap) 和 [Swipe](#m-swipe). 此方法与小写全局方法 [setScreenMetrics](global#m-setscreenmetrics) 使用不同的内部对象.
+设置运行时 Root Shell 的坐标缩放基准, 影响后续 [Tap](#m-tap) 和 [Swipe](#m-swipe). 此方法与小写全局方法 [setScreenMetrics](global#m-setscreenmetrics) 使用不同的内部对象. `adb` 默认值为 `true` 时设置的是经 Shizuku 执行时使用的缩放基准 (参阅 [setDefaultOptions](#m-setdefaultoptions)).
 
 ---
 
@@ -513,15 +637,18 @@ KeyCode(24); // KEYCODE_VOLUME_UP
 
 ## [C] Shell
 
-大写 `Shell` 是通过运行时全局类代理提供的 Java 类 `org.autojs.autojs.runtime.api.Shell`.
+大写 `Shell` 是通过运行时全局类代理提供的 Java 类 `org.autojs.autojs.runtime.api.Shell`. 实例维护一个持久的 Shell 进程, 按构造方法分为两类:
 
-Shell 实例维护一个终端会话. 普通实例以 `sh` 初始化, Root 实例以 `su` 初始化. 它不使用 Shizuku.
+- 终端会话 Shell: `new Shell()`, `new Shell(withRoot)` 及带 Context 的构造方法. 普通实例以 `sh` 初始化, Root 实例以 `su` 初始化终端会话, 不使用 Shizuku. 输出经回调或 `execAndWaitFor` 读取, 不提供流方法.
+- 管道 Shell: `new Shell(options)` 与 `new Shell(cmd)` (兼容 Auto.js Pro). 进程的 stdin, stdout 与 stderr 为管道 (`pty` 时为伪终端), 可经 Shizuku 运行, 提供流方法, `execForResult` 以及按退出码标记分割输出的 `execAndWaitFor`. 进程随创建它的脚本结束而结束.
 
-调用 `exit()` 或 `exitAndWaitFor()` 后不应继续复用实例. 自行创建的 Shell 实例应在脚本结束前显式退出.
+管道 Shell 的输出只能以一种方式读取, 由首次调用决定: 流方法 (`getInputStream`, `getErrorStream`) 或托管方法 (`setCallback`, `execAndWaitFor`, `execForResult`). 两类方法混用时抛出异常. `exec()` 只写入命令本身, 因此先 `exec()` 再读取流不会混入额外内容.
+
+调用 `exit()` 或 `exitAndWaitFor()` 后不应继续复用实例. 终端会话 Shell 应在脚本结束前显式退出.
 
 ### [c] ()
 
-**`6.6.1`** **`Global`** **`Overload 1/4`**
+**`6.6.1`** **`Global`** **`Overload 1/6`**
 
 - <ins>**returns**</ins> { [Shell](#c-shell) } - 普通权限 Shell
 
@@ -529,14 +656,14 @@ Shell 实例维护一个终端会话. 普通实例以 `sh` 初始化, Root 实�
 
 ### [c] (withRoot)
 
-**`Global`** **`Overload 2/4`**
+**`Global`** **`Overload 2/6`**
 
 - **withRoot** { [boolean](dataTypes#boolean) } - 是否以 `su` 初始化
 - <ins>**returns**</ins> { [Shell](#c-shell) } - Shell 实例
 
 ### [c] (context)
 
-**`6.6.1`** **`Global`** **`Overload 3/4`**
+**`6.6.1`** **`Global`** **`Overload 3/6`**
 
 - **context** { [android.content.Context](https://developer.android.com/reference/android/content/Context) } - Android Context
 - <ins>**returns**</ins> { [Shell](#c-shell) } - 普通权限 Shell
@@ -545,13 +672,13 @@ Shell 实例维护一个终端会话. 普通实例以 `sh` 初始化, Root 实�
 
 ### [c] (context, withRoot)
 
-**`Global`** **`Overload 4/4`**
+**`Global`** **`Overload 4/6`**
 
 - **context** { [android.content.Context](https://developer.android.com/reference/android/content/Context) } - Android Context
 - **withRoot** { [boolean](dataTypes#boolean) } - 是否以 `su` 初始化
 - <ins>**returns**</ins> { [Shell](#c-shell) } - Shell 实例
 
-Shell 会在 Android 主线程异步创建终端会话. 首次执行命令时可能等待初始化完成. 初始化 `su` 失败时会抛出相应异常. 在 Android UI 主线程中创建实例后, 应等待 `onInitialized()` 再调用命令方法.
+终端会话 Shell 会在 Android 主线程异步创建终端会话. 首次执行命令时可能等待初始化完成. 初始化 `su` 失败时会抛出相应异常. 在 Android UI 主线程中创建实例后, 应等待 `onInitialized()` 再调用命令方法.
 
 ```js
 let sh = new Shell(false);
@@ -561,6 +688,39 @@ try {
     sh.exitAndWaitFor();
 }
 ```
+
+### [c] (options)
+
+**`6.8.0`** **`Global`** **`Overload 5/6`**
+
+- **options** { [ShellOptions](#shelloptions) } - Shell 选项
+- <ins>**returns**</ins> { [Shell](#c-shell) } - 管道 Shell
+
+创建管道 Shell (兼容 Auto.js Pro). 未指定 `cmd` 时运行 `sh`, `root` 为 `true` 时经 `su` 运行. `adb` 为 `true` 时进程在 Shizuku 用户服务中运行, Shizuku 不可用时抛出异常. `env` 与 `cwd` 在首条命令之前生效. 此构造方法不读取 [setDefaultOptions](#m-setdefaultoptions) 的默认值.
+
+`pty` 为 `true` 时输出接到伪终端, stderr 并入 stdout; 写入的命令不会回显, Android 9 及以下使用 Magisk 的 Root 模式除外 (参阅 [ShellOptions](#shelloptions)).
+
+```js
+let sh = new Shell({ adb: true });
+sh.exec('getevent -tl | grep -E "ABS_MT_POSITION|UP|DOWN|ffffff"');
+let reader = new java.io.BufferedReader(new java.io.InputStreamReader(sh.getInputStream()));
+threads.start(() => {
+    let line;
+    while ((line = reader.readLine()) != null) {
+        console.log(line);
+    }
+});
+setTimeout(() => sh.exit(), 30000);
+```
+
+### [c] (cmd)
+
+**`6.8.0`** **`Global`** **`Overload 6/6`**
+
+- **cmd** { [string](dataTypes#string) } - 程序行, 如 `'sh'` 或 `'su'`
+- <ins>**returns**</ins> { [Shell](#c-shell) } - 管道 Shell
+
+相当于 `new Shell({ cmd: cmd })`. 程序行按空白拆分为程序及其参数.
 
 ### [p] COMMAND_SU
 
@@ -611,18 +771,39 @@ Shell 退出命令.
 - **command** { [string](dataTypes#string) } - 待执行命令
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
-等待终端完成初始化, 将命令和换行符写入会话, 随后返回. 此方法不等待命令执行完成.
+终端会话 Shell 等待终端完成初始化, 将命令和换行符写入会话, 随后返回. 管道 Shell 将命令和换行符写入 stdin, 不追加其他内容. 此方法不等待命令执行完成.
 
 ### [m#] execAndWaitFor
 
 #### Shell#execAndWaitFor(command)
 
+**`[6.8.0]`**
+
 - **command** { [string](dataTypes#string) } - 待执行命令
-- <ins>**returns**</ins> { [string](dataTypes#string) } - 本次命令的终端输出
+- <ins>**returns**</ins> { [string](dataTypes#string) } - 本次命令的输出
 
-执行命令并阻塞到终端再次出现 Shell 提示符. 返回内容不包含首行的命令回显.
+执行命令并阻塞到命令结束. 不应在 Android UI 主线程调用此阻塞方法.
 
-此方法不提供退出码或独立标准错误. 需要 [ShellResult](#c-shellresult) 时使用 `shell(...)`. 不应在 Android UI 主线程调用此阻塞方法.
+- 终端会话 Shell 阻塞到终端再次出现 Shell 提示符, 返回内容不包含首行的命令回显. 不提供退出码或独立标准错误.
+- 管道 Shell 在命令后追加带 `$?` 的标记, 据此分割输出, 返回本次命令的 stdout (每行带换行符), 与 `execForResult(command).result` 相同. 此前经 `exec()` 写入但尚未输出完的内容也会计入本次结果.
+
+### [m#] execForResult
+
+#### Shell#execForResult(command)
+
+**`6.8.0`**
+
+- **command** { [string](dataTypes#string) } - 待执行命令
+- <ins>**returns**</ins> { [ShellResult](#c-shellresult) } - 本次命令的 stdout, stderr 与退出码
+
+仅限管道 Shell. 执行命令并阻塞到命令结束, 以命令后的标记分割 stdout 与 stderr, `code` 为命令的实际退出码 (与 `shell(...)` 不同, stderr 非空时不会改写 `code`). `pty` 时 stderr 并入 `result`, `error` 为空字符串. 同一实例的多次调用依次执行. 终端会话 Shell 调用时抛出异常.
+
+```js
+let sh = new Shell({ root: false });
+let r = sh.execForResult("sh -c 'echo out; echo err >&2; exit 3'");
+console.log(r.code, JSON.stringify(r.result), JSON.stringify(r.error)); // 3 "out\n" "err\n"
+sh.exitAndWaitFor();
+```
 
 ### [m#] setCallback
 
@@ -631,7 +812,7 @@ Shell 退出命令.
 - **callback** { [Shell.Callback](#i-shellcallback) | [null](dataTypes#null) } - 输出回调, `null` 表示清除回调
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
-设置终端事件回调.
+设置输出回调. 管道 Shell 的 stdout 与 stderr 每行都会触发回调, 回调在读取线程上依次调用 (不经过脚本线程的事件循环), `onInitialized()` 在设置时立即调用. 设置后不能再使用流方法.
 
 ```js
 let sh = new Shell(false);
@@ -651,6 +832,8 @@ sh.setCallback({
 
 - <ins>**returns**</ins> { [boolean](dataTypes#boolean) } - 终端是否已完成初始化
 
+管道 Shell 总是返回 `true`.
+
 ### [m#] isExecWithRoot
 
 #### Shell#isExecWithRoot()
@@ -665,7 +848,7 @@ sh.setCallback({
 
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
-立即结束终端会话, 不等待已写入命令完成.
+立即结束终端会话, 不等待已写入命令完成. 管道 Shell 会同时结束 Shell 启动的进程; Root 模式下这些进程由另一个 Root Shell 结束.
 
 ### [m#] exitAndWaitFor
 
@@ -673,7 +856,7 @@ sh.setCallback({
 
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
-写入 `exit` 并阻塞等待 Shell 退出. Root 实例会依次退出 `su` 和外层 Shell.
+写入 `exit` 并阻塞等待 Shell 退出. 终端会话的 Root 实例会依次退出 `su` 和外层 Shell. 管道 Shell 写入 `exit` 并关闭 stdin, 等待已写入的命令执行完毕; 仍在运行的长期命令 (如 `getevent`) 会使此方法一直等待, 此时应使用 `exit()`.
 
 不应在 Android UI 主线程调用此阻塞方法.
 
@@ -683,7 +866,92 @@ sh.setCallback({
 
 - <ins>**returns**</ins> { [object](dataTypes#object) | [null](dataTypes#null) } - `jackpal.androidterm.emulatorview.TermSession` 实例
 
-返回底层终端会话. 初始化完成前可能为 `null`. 此入口主要用于高级 Java 互操作.
+返回底层终端会话. 初始化完成前可能为 `null`, 管道 Shell 总是返回 `null`. 此入口主要用于高级 Java 互操作.
+
+### [m#] isAdb
+
+#### Shell#isAdb()
+
+**`6.8.0`**
+
+- <ins>**returns**</ins> { [boolean](dataTypes#boolean) } - 是否在 Shizuku 用户服务中运行
+
+### [m#] getInputStream
+
+#### Shell#getInputStream()
+
+**`6.8.0`**
+
+- <ins>**returns**</ins> { [java.io.InputStream](https://developer.android.com/reference/java/io/InputStream) } - Shell 进程的 stdout
+
+仅限管道 Shell. 返回原始 stdout, 之后不能再使用托管方法. 终端会话 Shell 调用时抛出异常.
+
+### [m#] getErrorStream
+
+#### Shell#getErrorStream()
+
+**`6.8.0`**
+
+- <ins>**returns**</ins> { [java.io.InputStream](https://developer.android.com/reference/java/io/InputStream) } - Shell 进程的 stderr
+
+仅限管道 Shell. `pty` 时为空流. 之后不能再使用托管方法.
+
+### [m#] getOutputStream
+
+#### Shell#getOutputStream()
+
+**`6.8.0`**
+
+- <ins>**returns**</ins> { [java.io.OutputStream](https://developer.android.com/reference/java/io/OutputStream) } - Shell 进程的 stdin
+
+仅限管道 Shell. 写入的内容由 Shell 当作命令读取, 与 `exec()` 写入同一个流.
+
+### [m#] waitFor
+
+#### Shell#waitFor()
+
+**`6.8.0`**
+
+- <ins>**returns**</ins> { [number](dataTypes#number) } - 退出码
+
+仅限管道 Shell. 阻塞到 Shell 进程退出. 不应在 Android UI 主线程调用.
+
+### [m#] exitCode
+
+#### Shell#exitCode()
+
+**`6.8.0`**
+
+- <ins>**returns**</ins> { [number](dataTypes#number) | [null](dataTypes#null) } - 退出码, 运行期间为 `null`
+
+仅限管道 Shell. 返回值是 `java.lang.Integer`, 与数值比较时使用 `==`.
+
+### [m#] exitAndReadOutput
+
+#### Shell#exitAndReadOutput()
+
+**`6.8.0`**
+
+- <ins>**returns**</ins> { [string](dataTypes#string) } - Shell 退出前剩余的 stdout
+
+仅限管道 Shell (兼容 Auto.js Pro). 关闭 stdin, 等待已写入的命令执行完毕并返回其间的 stdout. 已使用托管方法时, 返回不属于 `execAndWaitFor` 或 `execForResult` 的输出.
+
+```js
+let sh = new Shell({});
+sh.exec('echo r1');
+sh.exec('echo r2');
+console.log(JSON.stringify(sh.exitAndReadOutput())); // "r1\nr2\n"
+```
+
+### [m#] raw
+
+#### Shell#raw()
+
+**`6.8.0`**
+
+- <ins>**returns**</ins> { [java.lang.Process](https://developer.android.com/reference/java/lang/Process) | [object](dataTypes#object) } - 底层进程或终端会话
+
+管道 Shell 返回底层 `java.lang.Process` (adb 模式下为代理 Shizuku 进程的对象), 终端会话 Shell 返回 `TermSession`.
 
 ---
 
@@ -702,7 +970,7 @@ sh.setCallback({
 - **str** { [string](dataTypes#string) } - 移除 `\r` 后的原始输出块
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
-终端收到输出块时调用. 一个输出块可能包含半行, 一行或多行文本.
+终端收到输出块时调用. 一个输出块可能包含半行, 一行或多行文本. 管道 Shell 每次传入一整行加换行符.
 
 ### [m!] onNewLine
 
@@ -711,7 +979,7 @@ sh.setCallback({
 - **line** { [string](dataTypes#string) } - 不含换行符且已移除首尾空白的输出行
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
-终端组成一行完整输出时调用.
+终端组成一行完整输出时调用. 管道 Shell 传入的行不移除首尾空白.
 
 ### [m!] onInitialized
 
@@ -719,7 +987,7 @@ sh.setCallback({
 
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
-终端完成初始化时调用.
+终端完成初始化时调用. 管道 Shell 在 `setCallback()` 中立即调用.
 
 ### [m!] onInterrupted
 

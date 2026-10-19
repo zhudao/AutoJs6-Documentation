@@ -71,6 +71,7 @@ Les documents peuvent changer à tout moment et diverger du comportement réel. 
 
 ### v6.8.0
 
+- `Fonctionnalité` Processus Shell en flux: shell.spawn/shizuku.spawn et ShellProcess, constructeur Shell à options compatible Auto.js Pro (avec adb/pty) et ses méthodes de flux, $shell.setDefaultOptions/checkAccess/isRootAvailable et l'option adb de la fonction shell
 - `Fonctionnalité` API Bun pour accessibilité, applications et presse-papiers alignées sur Node.js, avec autorisations distinctes et applications empaquetées
 - `Fonctionnalité` Adaptateur de partage ecran WebView, capture audio par service de premier plan et enregistrement camera natif en arriere-plan pour Node.js/Bun et Node Worker
 - `Fonctionnalité` Flux audio et video WebView getUserMedia/MediaRecorder, attente des Promise de page, demandes explicites de permissions multimedia Android et cycle de vie des Worker

@@ -130,6 +130,43 @@ shizuku('cmd-a\ncmd-b\ncmd-c'); /* 同上. */
 
 仅构造 Shizuku 将执行的命令字符串, 不执行命令. `withRoot` 以及 `arguments` 中的 `root` 不改变返回结果.
 
+## [m] spawn
+
+### spawn(command)
+
+**`6.8.0`** **`Overload 1/3`**
+
+- **command** { [string](dataTypes#string) | [string](dataTypes#string)[[]](dataTypes#array) } - 命令或命令数组
+- <ins>**returns**</ins> { [ShellProcess](shellProcessType) } - 正在运行的进程
+
+### spawn(command, withRoot)
+
+**`6.8.0`** **`Overload 2/3`**
+
+- **command** { [string](dataTypes#string) | [string](dataTypes#string)[[]](dataTypes#array) } - 命令或命令数组
+- **withRoot** { [boolean](dataTypes#boolean) } - 是否在 Shizuku 进程中经 `su` 运行
+- <ins>**returns**</ins> { [ShellProcess](shellProcessType) } - 正在运行的进程
+
+### spawn(command, options)
+
+**`6.8.0`** **`Overload 3/3`**
+
+- **command** { [string](dataTypes#string) | [string](dataTypes#string)[[]](dataTypes#array) } - 命令或命令数组
+- **options** { [ShellOptions](shell#shelloptions) } - 进程选项, `adb` 恒为 `true`, 不支持 `cmd`
+- <ins>**returns**</ins> { [ShellProcess](shellProcessType) } - 正在运行的进程
+
+在 Shizuku 用户服务中启动进程运行命令, 立即返回 [ShellProcess](shellProcessType), 可实时读取输出, 写入 stdin 或结束进程. 相当于带 `adb: true` 的 [shell.spawn](shell#m-spawn), 但不读取 [shell.setDefaultOptions](shell#m-setdefaultoptions) 的默认值. Shizuku 不可用时抛出异常.
+
+与 `shizuku(...)` 不同, `root` 或 `withRoot` 为 `true` 时命令在 Shizuku 进程中经 `su` 运行. Shizuku 本身经 Root 启动时, 命令已具有 root 身份.
+
+```js
+let proc = shizuku.spawn('getevent -tl', { pty: true });
+proc.on('output', (line) => {
+    if (line.indexOf('BTN_TOUCH') >= 0) console.log(line);
+});
+setTimeout(() => proc.kill(), 30000);
+```
+
 ## [m] kill
 
 ### kill(app)

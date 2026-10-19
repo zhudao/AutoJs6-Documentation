@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `新機能` Shell のストリーミングプロセス: shell.spawn/shizuku.spawn と ShellProcess, Auto.js Pro 互換の Shell オプションコンストラクター (adb/pty 対応) とそのストリームメソッド, $shell.setDefaultOptions/checkAccess/isRootAvailable と shell 関数の adb オプション
 - `新機能` Bun のユーザー補助, アプリ操作, クリップボード API を Node.js の対応インターフェースに合わせ, 個別の許可とパッケージ化アプリに対応
 - `新機能` Node.js/Bun の WebView 画面共有アダプター, フォアグラウンドサービスによる録音とネイティブのバックグラウンド動画録画, Node Worker にも対応
 - `新機能` WebView の getUserMedia/MediaRecorder による音声と動画のストリーミング, ページの Promise 待機, Android メディア権限の明示的な要求と Worker のライフサイクル管理
