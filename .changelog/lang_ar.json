@@ -9,6 +9,10 @@
     "v6.8.0": {
       "entries": [
         {
+          "category": "feature",
+          "text": "Shell المضيف مع تدفق الإدخال والإخراج وتفويض Shizuku وتنظيف العمليات في Bun وNode.js وWorkers"
+        },
+        {
           "category": "fix",
           "text": "إكمال تعريفات أنواع عمليات shell/shizuku واقتراحاتها بما يشمل معاملات الأحداث ومنشئات Shell ذات الأنابيب"
         },

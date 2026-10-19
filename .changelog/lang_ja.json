@@ -9,6 +9,10 @@
     "v6.8.0": {
       "entries": [
         {
+          "category": "feature",
+          "text": "Bun, Node.js と Worker のホスト Shell API, ストリーム入出力, Shizuku 許可とプロセス解放"
+        },
+        {
           "category": "fix",
           "text": "shell/shizuku プロセスの型宣言と補完の不足, イベント引数とパイプ型 Shell コンストラクターを含む"
         },

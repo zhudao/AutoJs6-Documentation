@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `新增` Bun, Node.js 及 Worker 的宿主 Shell API, 支援串流輸入輸出, Shizuku 授權與進程清理
 - `修復` shell/shizuku 進程介面的類型宣告與補全遺漏, 包含事件參數及管道 Shell 建構器
 - `新增` Bun 與 Node.js Worker 的感應器取樣及訂閱 API, 支援取消和監聽器自動釋放
 - `新增` Node.js Worker 與 Bun 的 database/sqlite API, 支援參數化查詢, 交易和資料庫持久化

@@ -9,6 +9,10 @@
     "v6.8.0": {
       "entries": [
         {
+          "category": "feature",
+          "text": "Bun, Node.js 及 Worker 的宿主 Shell API, 支援串流輸入輸出, Shizuku 授權與進程清理"
+        },
+        {
           "category": "fix",
           "text": "shell/shizuku 進程介面的類型宣告與補全遺漏, 包含事件參數及管道 Shell 建構器"
         },

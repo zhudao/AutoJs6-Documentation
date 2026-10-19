@@ -9,6 +9,10 @@
     "v6.8.0": {
       "entries": [
         {
+          "category": "feature",
+          "text": "Host Shell streaming, Shizuku authorization and process cleanup for Bun, Node.js and Workers"
+        },
+        {
           "category": "fix",
           "text": "Missing shell/shizuku process declarations and completions, including event parameters and pipe-based Shell constructors"
         },

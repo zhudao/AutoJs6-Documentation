@@ -694,6 +694,98 @@ Worker 可将上述客户端初始化替换为 `import sensors from 'autojs6:sen
 
 Node.js 主线程保留协商后的事件推送; Worker 和 Bun 使用有界队列轮询. Bun 沿用每次执行最多 1024 次桥接调用, 4 个并行请求, 单次 RPC 10 秒, 64 KiB 请求和 256 KiB 响应限制. 每次轮询包含 start/poll 请求, 长时间或高频轮询会消耗额度; 不应把 Bun 的订阅视为无限时长数据通道. 应及时 close, 按业务需要调大 drainIntervalMs, 并处理额度或宿主退出错误. 本批没有开放任意 Android SensorManager/Java 对象, 也没有补齐 Rhino 的所有传感器类型.
 
+
+
+## Bun 与 Node.js Worker 宿主 Shell
+
+宿主 build 5583, Node.js Runtime 1.18.0 和 Bun Runtime 0.7.0 提供共同的异步宿主 Shell 封装. Node.js 主线程及 CommonJS/ESM/嵌套 Worker 使用 `shell` / `autojs6:shell` 与 `shizuku` / `autojs6:shizuku`. Bun 使用 `host.shell` 和 `host.shizuku`. Node 原生 child_process 与 Bun.spawn 仍按各自运行时的 UID 和文件系统工作; 这里的命令在宿主应用中执行.
+
+Bun 插件中心的 shell.control, shell.root, shell.shizuku 为三个默认关闭的独立授权. 打包应用在 bun.hostCapabilities 中声明需要的授权. 普通命令需要 shell.control, Root/Shizuku 还需对应授权及设备许可. Node.js 项目相应声明 shell, shell.root, shell.shizuku. 声明 shell 不会隐式授予 Root/Shizuku. 打包时, shell.shizuku 会自动加入 Shizuku 的 Android API 权限声明; 每个应用仍需分别在 Shizuku 中授权.
+
+### 执行与状态
+
+| 方法 | 返回值 | 说明 |
+| --- | --- | --- |
+| exec(command, options?) | `Promise<ShellResult>` | 捕获 stdout/stderr, 非零退出码也返回结果 |
+| execRoot(command, options?) | `Promise<ShellResult>` | 通过 su 执行, 可与 shizuku 组合 |
+| execShizuku(command, options?) | `Promise<ShellResult>` | 通过已运行且已授权的 Shizuku 执行 |
+| execFile(path, args?, options?) | `Promise<ShellResult>` | 对文件路径和每个参数分别引用, 支持宿主可访问的绝对路径; 无斜杠的相对文件名按 ./file 执行 |
+| checkAccess(options?) | ShellAccessReport | 保留同步行为, 检查当前执行声明的授权, 不查询系统授权 |
+| getAccess(options?) | `Promise<ShellAccessState>` | 查询宿主 UID, Root 可用性, Shizuku 运行/授权状态及缺少的声明 |
+| requestShizukuPermission(options?) | `Promise<boolean>` | 显式触发当前应用的 Shizuku 授权, 默认等待 60000 毫秒, 不启动 Shizuku 服务 |
+| setDefaultTimeout(ms) | number | 设置当前客户端的 exec 默认时限, 初始 30000 毫秒, 必须为正整数 |
+| spawn(command, options?) | ShellProcess | 立即返回异步进程对象, await ready 等待创建 |
+| open(options?) | ShellProcess | 创建读取 stdin 的持久进程, cmd 默认 sh /proc/self/fd/0 |
+
+ShellResult 包含 code/stdout/stderr/timedOut/truncated. 超时返回 code=124 和 timedOut=true; AbortSignal 取消会拒绝 Promise, 错误名 AbortError, code 为 ABORT_ERR. maxOutputBytes 默认 1048576, 限制捕获的程序原始字节总数, 超出后继续排空输出并设置 truncated, 避免进程被管道堵塞. timeout 的诊断文字可以附加到 stderr. 启动失败或权限不足会拒绝 Promise, 不伪造成功结果.
+
+checkAccess 的 root/shizuku 标志仅在请求检查相应项且声明满足时为 true. getAccess 提供 shell/rootAvailable/shizukuRunning/shizukuGranted/shizuku/uid/missingCapabilities; rootAvailable 表示 su 可用性, 不等于已获得 Root 授权. 这些报告中的能力名称使用 shell/shell.root/shell.shizuku, Bun 普通授权项对应 shell.control.
+
+### 选项与工作目录
+
+exec 接受 root/shizuku/adb/pty/cwd/env/timeoutMs/signal/maxOutputBytes. adb 是 shizuku 的别名. env 的值必须为不含 NUL 的字符串, 键为合法的环境变量名. 未指定 cwd 时, 普通命令使用宿主脚本工作目录, Shizuku 使用 / (Shizuku 身份通常无法进入宿主私有目录). 显式相对路径仍基于宿主脚本工作目录, 绝对路径由 Android 实际访问权限决定. 不再人为要求 cwd 或 execFile 路径留在工作目录内. Root 与 Shizuku 同时为 true 时, 在 Shizuku 进程中运行 su.
+
+spawn/open 的 timeoutMs 默认 0, 表示不设置命令时限; signal 仍可取消, 执行结束时清理进程. drainIntervalMs 默认 25 毫秒; 没有输出时宿主一次轮询最多等待 250 毫秒. open 另接受 cmd 程序行. pty 启用伪终端, stderr 并入 stdout, 不提供 Java TermSession 对象. closeInput 在 PTY 上发送终端 EOF, 保留输出端; 若程序自行关闭规范输入模式, 应按其协议退出或调用 close 结束进程.
+
+### ShellProcess
+
+id/pid 在 ready 完成后有效, 之前分别为空字符串和 -1. command/mode 为命令和 sh/root/adb/adb+root 模式. closed/killed/exitCode/timedOut 反映客户端已接收的状态. exited 是进程退出码 Promise.
+
+stdin/stdout/stderr 是实际的 node:stream 对象. 传输以分块二进制形式进行, 包含 NUL 或跨块 UTF-8 字节也不会被当作文本截断. stdout/stderr 支持 data/end/error 监听, setEncoding 和异步迭代; stdin 支持 write/end 及回压. 声明提供通用流接口, 更完整的 Node/Bun 原生流类型可配合相应运行时的类型库使用.
+
+| 方法或事件 | 行为 |
+| --- | --- |
+| readLine() / readErrorLine() | `Promise<string 或 null>`, 异步读取一行, EOF 为 null |
+| write(data) / writeLine(text) / closeInput() | `Promise<ShellProcess>`, 写入字节/文本或关闭 stdin |
+| waitFor() | `Promise<number>`, 等待退出 |
+| waitFor(timeoutMs) | `Promise<number 或 null>`, 到时未退出则为 null, 不结束进程 |
+| kill() | `Promise<boolean>`, 结束进程树, 返回是否仍在运行; 继续读取输出以接收剩余数据 |
+| close() | `Promise<boolean>`, 释放进程并丢弃尚未取出的宿主输出, 可重复调用 |
+| on/once('output', listener) | 按行接收 stdout, 包含 EOF 前未换行的尾行 |
+| on/once('errorOutput', listener) | 按行接收 stderr |
+| on/once('exit' 或 'close', listener) | 接收退出码, 失败时可为 null |
+| on/once('error', listener) | 接收桥接或流错误 |
+
+同一输出流选择原始流, readLine 或 output/errorOutput 事件中的一种读取方式. 不混用读取方式. 持续产生输出的进程必须读取两路输出, 或在结束时调用 close; 宿主与客户端均使用回压, 不以无限缓冲换取表面上的持续执行. 不通过桥接返回 Java InputStream/OutputStream.
+
+```js
+let { createHostClient } = await import(process.env.AUTOJS6_HOST_CLIENT_MODULE);
+let host = await createHostClient();
+let proc = host.shell.open({ cmd: 'cat' });
+try {
+    await proc.ready;
+    await proc.writeLine('hello');
+    console.log(await proc.readLine());
+    await proc.closeInput();
+    console.log(await proc.waitFor());
+} finally {
+    await proc.close();
+}
+```
+
+Node.js Worker 对应导入示例:
+
+```js
+import shell from 'autojs6:shell';
+import shizuku from 'autojs6:shizuku';
+let access = await shell.getAccess();
+if (access.shizukuRunning && !access.shizukuGranted) {
+    await shizuku.requestPermission();
+}
+let result = await shizuku.exec('id -u');
+console.log(result.stdout);
+```
+
+shizuku 同时可作为函数调用, 并提供 exec/spawn/open/checkAccess/getAccess/requestPermission. 它强制使用 Shizuku, 不会退回普通应用身份执行. Root/Shizuku 授权失败, 服务退出或连接失败应由调用者处理.
+
+### 生命周期与传输边界
+
+每次宿主执行沿用 maxShellCommands 限制 (默认 2, Node 配置可为 0..4), 主线程与 Workers 共享. Worker 退出时清理它创建的进程, 包括退出后才返回的创建结果, 保留父线程自己的进程. 宿主执行结束, 显式取消和关闭会终止进程及当时可见的子进程; 忽略 SIGTERM 的命令也会被结束. 进程可以因 Android 或 Shizuku 的实际权限与生命周期而失败.
+
+写入以 8 KiB 原始字节分块, 给 Base64 与 JSON 转义预留空间. 宿主最多排队 32 个 4 KiB 数据块, 单次 drain 最多取 8 个事件, 队列满时暂停读取而不丢字节. Node/Bun 客户端用可读流的回压暂停轮询. 这些队列大小不等于 Java/JS 对象的实际内存开销.
+
+Bun 继续使用原有每次执行最多 1024 次桥接调用, 4 个并行任务, 64 KiB 请求, 256 KiB 响应及单次 RPC 10 秒的限制. start/poll 均消耗调用额度, Shell 流不能视为无限时长通道. 额度耗尽时宿主释放该执行的 Shell 进程. 长时间或大量数据可按实际场景使用 Node 原生 child_process 或 Bun.spawn, 它们的运行身份与宿主 Shell 不同.
+
 ## UI 与 Compose
 
 **`Async`**

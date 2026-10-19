@@ -9,6 +9,10 @@
     "v6.8.0": {
       "entries": [
         {
+          "category": "feature",
+          "text": "Shell del anfitrión con flujos, autorización Shizuku y limpieza de procesos para Bun, Node.js y Workers"
+        },
+        {
           "category": "fix",
           "text": "Declaraciones y autocompletado ausentes de procesos shell/shizuku, incluidos eventos y constructores Shell con tuberías"
         },

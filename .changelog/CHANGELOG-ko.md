@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `추가` Bun, Node.js 및 Worker의 호스트 Shell API, 스트리밍 입출력, Shizuku 승인 및 프로세스 정리
 - `수정` shell/shizuku 프로세스 타입 선언과 자동 완성 누락, 이벤트 인수 및 파이프 Shell 생성자 포함
 - `추가` Bun 및 Node.js Worker 센서 샘플링과 구독 API, 취소 및 리스너 자동 해제
 - `추가` Node.js Worker 및 Bun의 database/sqlite API, 매개변수 쿼리, 트랜잭션 및 데이터베이스 영속성 지원
