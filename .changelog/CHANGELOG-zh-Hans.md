@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `新增` Bun 文件与持久化存储 API, 支持独立授权的宿主文件读写及 Node.js 存储互通
 - `新增` Shell 流式进程: shell.spawn/shizuku.spawn 与 ShellProcess, 兼容 Auto.js Pro 的 Shell 选项构造方法 (支持 adb/pty) 及其流方法, $shell.setDefaultOptions/checkAccess/isRootAvailable 与 shell 函数的 adb 选项
 - `新增` Bun 无障碍, 应用操作与剪贴板 API 对齐 Node.js 对应接口, 支持独立授权和打包应用
 - `新增` Node.js/Bun 的 WebView 屏幕共享适配, 前台服务后台录音及原生后台摄像头录像, 包括 Node Worker 封装

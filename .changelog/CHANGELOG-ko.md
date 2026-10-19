@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `추가` Bun 파일 및 영구 저장소 API, 별도의 호스트 파일 권한과 Node.js 저장소 공유 지원
 - `추가` Shell 스트리밍 프로세스: shell.spawn/shizuku.spawn 및 ShellProcess, Auto.js Pro 호환 Shell 옵션 생성자 (adb/pty 지원) 와 스트림 메서드, $shell.setDefaultOptions/checkAccess/isRootAvailable 및 shell 함수의 adb 옵션
 - `추가` Bun 접근성, 앱 작업 및 클립보드 API를 Node.js 인터페이스에 맞추고 개별 권한과 패키징 앱 지원
 - `추가` Node.js/Bun WebView 화면 공유 어댑터, 포그라운드 서비스 녹음 및 네이티브 백그라운드 카메라 녹화, Node Worker 지원

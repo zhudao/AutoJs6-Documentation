@@ -71,6 +71,7 @@ generator\auto-generate-for-autojs6.bat
 
 ### v6.8.0
 
+- `新增` Bun 檔案與持久化儲存 API, 支援獨立授權的宿主檔案讀寫及 Node.js 儲存互通
 - `新增` Shell 串流進程: shell.spawn/shizuku.spawn 與 ShellProcess, 相容 Auto.js Pro 的 Shell 選項構造方法 (支援 adb/pty) 及其串流方法, $shell.setDefaultOptions/checkAccess/isRootAvailable 與 shell 函數的 adb 選項
 - `新增` Bun 無障礙, 應用程式操作與剪貼簿 API 對齊 Node.js 對應介面, 支援獨立授權和打包應用程式
 - `新增` Node.js/Bun 的 WebView 螢幕共享適配, 前景服務背景錄音及原生背景攝影機錄影, 包括 Node Worker 封裝

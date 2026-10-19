@@ -315,6 +315,11 @@
 <li><span class="stability_undefined"><a href="#runtimeapis_3">等待, 取消与限额</a></span></li>
 </ul>
 </li>
+<li><span class="stability_undefined"><a href="#runtimeapis_bun_4">Bun 文件与存储</a></span><ul>
+<li><span class="stability_undefined"><a href="#runtimeapis_host_files">host.files</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_host_storage_host_storages">host.storage / host.storages</a></span></li>
+</ul>
+</li>
 <li><span class="stability_undefined"><a href="#runtimeapis_ui_compose">UI 与 Compose</a></span><ul>
 <li><span class="stability_undefined"><a href="#runtimeapis_view_xml_compose">原生 View 与 XML compose 容器</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_xml_view">常用 XML 组件与 View 属性代理</a></span></li>
@@ -1233,6 +1238,90 @@ if (node) await host.accessibility.click(target);
 <p>读取与写入均使用宿主/打包应用的 <code>ClipboardManager</code>. <code>hasText</code> 判断读到的文本是否非空. Android 拒绝后台读取时, 可能读不到文本; 不能用一次空结果证明剪贴板本来为空.</p>
 <h3>等待, 取消与限额<span><a class="mark" href="#runtimeapis_3" id="runtimeapis_3">#</a></span></h3>
 <p>调用选项支持 <code>timeoutMs</code> (整数, 1..120000) 和 <code>signal</code> (<code>AbortSignal</code>). 默认等待时间沿用 Node.js 对应方法, 通常为 5000 或 10000 ms; <code>ensureEnabled</code> 为 30000 ms. 长手势和服务等待通过短轮询完成, 不扩大 Bun 的 10 秒单次 RPC 上限. 同时最多四项操作, SDK 会排队后续调用. 取消停止等待和回收任务记录, 无法撤回已经交给 Android 的点击, Intent 或手势. 原有单次执行 1024 次桥调用及 JSON 体积限制仍适用, 轮询也计入调用次数.</p>
+<h2>Bun 文件与存储<span><a class="mark" href="#runtimeapis_bun_4" id="runtimeapis_bun_4">#</a></span></h2>
+<p>Bun Runtime 0.4.0 和配套宿主 build 5579 提供 <code>host.files</code>, <code>host.storage</code>, <code>host.storages</code>. 两个独立授权 <code>files.control</code> 和 <code>storage.control</code> 默认关闭, 在插件中心分别开启; 打包项目在 <code>bun.hostCapabilities</code> 中显式声明. 授权不替代 Android 对执行应用的文件权限.</p>
+<h3>host.files<span><a class="mark" href="#runtimeapis_host_files" id="runtimeapis_host_files">#</a></span></h3>
+<p>对应 Node.js <code>files</code> 的 15 个可用方法. <code>join</code>, <code>getName</code>, <code>getExtension</code> 是同步的 POSIX 路径字符串辅助方法, 不需要授权. 其余方法访问宿主或打包应用的文件并返回 Promise, 调用时使用 <code>await</code>:</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>参数</th>
+<th>Promise 的结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>path</td>
+<td>path?: string 或 null</td>
+<td>绝对路径, 空值返回 null</td>
+</tr>
+<tr>
+<td>read</td>
+<td>path?: string 或 null, encoding?: string</td>
+<td>文件文本, 空路径返回空字符串</td>
+</tr>
+<tr>
+<td>write / append</td>
+<td>path: string, text: unknown, encoding?: string</td>
+<td>void</td>
+</tr>
+<tr>
+<td>exists / isFile / isDir</td>
+<td>path?: string 或 null</td>
+<td>boolean, 空路径返回 false</td>
+</tr>
+<tr>
+<td>listDir</td>
+<td>path?: string 或 null, filter?: (name: string) =&gt; boolean</td>
+<td>string[], 目录不存在或路径为空时返回空数组</td>
+</tr>
+<tr>
+<td>remove</td>
+<td>path?: string 或 null</td>
+<td>boolean, 路径不存在时返回 false</td>
+</tr>
+<tr>
+<td>copy / move</td>
+<td>source: string, destination: string</td>
+<td>boolean</td>
+</tr>
+<tr>
+<td>ensureDir</td>
+<td>path: string</td>
+<td>boolean</td>
+</tr>
+</tbody>
+</table>
+<p>默认编码为 utf8, 支持 utf16le, latin1, ascii, hex, base64, base64url 及运行时 Buffer 接受的编码别名. text 为 null/undefined 时写入空字符串, 其他值按 String 转换. listDir 的 filter 在 Bun 中同步执行, 仅返回 true 时保留文件名. 未保证目录列表顺序.</p>
+<p>相对路径按宿主的脚本工作目录解析, 缺省为执行应用的 filesDir; 绝对路径和本地 file: URL 仍由 Android 判定访问权限. 这与 Bun 自身 <code>process.cwd()</code> 指向的临时工作区不同. 不返回项目归档写回承诺; <code>Bun.file</code> 和 <code>node:fs</code> 仍在 Bun 插件进程中执行. 保存持久文件时可使用 host.files 或已经授权且可访问的持久路径.</p>
+<p>ensureDir 的路径以斜杠结尾时创建该目录, 否则只创建文件的父目录. write/append 不自动创建父目录; copy 会创建目标父目录, move 不会. remove 只移除文件或空目录, 非空目录会拒绝. 文件不存在, 路径无权访问及不支持的跨文件系统移动均保留失败结果, 不伪装成功. <code>open</code> 和 <code>toFile</code> 与 Node.js 一样不提供 Rhino 文件句柄或原始 Java 对象.</p>
+<p>文件字节通过 base64 JSON 传输, 沿用 64 KiB 请求与 256 KiB 结果限制; 封装和编码共同占用额度. 当前单次读取最多 196512 字节, 单次写入的可用原始字节少于 48 KiB, 取决于路径和参数长度. 超限拒绝, 不截断; 过大的写请求在打开目标文件前被拒绝. 大型文件可使用 Bun/Node 原生文件 API 访问插件自身有权访问的路径. 该传输差异不意味着 Node.js files 具有相同大小上限.</p>
+<pre><code class="lang-js">let { createHostClient } = await import(process.env.AUTOJS6_HOST_CLIENT_MODULE);
+let host = await createHostClient();
+await host.files.ensureDir(&#39;output/settings.json&#39;);
+await host.files.write(&#39;output/settings.json&#39;, JSON.stringify({ enabled: true }));
+console.log(await host.files.read(&#39;output/settings.json&#39;));
+</code></pre>
+<h3>host.storage / host.storages<span><a class="mark" href="#runtimeapis_host_storage_host_storages" id="runtimeapis_host_storage_host_storages">#</a></span></h3>
+<p>两个入口采用 Node.js 的公开封装和同一持久化后端. <code>create(name)</code> / <code>open(name)</code> 同步返回存储对象; 对象的 name 是规范化前去除首尾空白的名称. 下述方法全部返回 Promise:</p>
+<ul>
+<li>get(key, defaultValue?, options?): 返回 JSON 值, 缺失键返回 defaultValue 或 undefined. 已存储的 null 不会被默认值替换.</li>
+<li>put(key, value, options?) / putSync(...): 写入 JSON 值, 返回 void.</li>
+<li>remove(key, options?) / removeSync(...): 删除键, 返回 void.</li>
+<li>clear(options?) / clearSync(...): 清空该存储, 返回 void.</li>
+<li>keys(options?): 返回冻结的, 按键名排序的字符串数组.</li>
+<li>contains(key, options?): 返回 boolean.</li>
+<li>selfRemove(options?) / selfRemoveSync(...): 清空当前存储, 返回 void.</li>
+<li>模块级 remove(name, options?) / removeSync(...): 清空指定存储, 返回 void.</li>
+</ul>
+<p><code>Sync</code> 后缀沿用 Node.js 的历史别名, 仍须 await. names/all 不提供全局命名空间枚举, 调用时抛出 NOT_SUPPORTED. 名称和键去除首尾空白后最多 128 字符, 不得为空或含 NUL; value 不接受 undefined, 函数, Symbol, BigInt 或循环对象. JSON 序列化规则与 Node.js 一致.</p>
+<p>存储按执行应用包名和宿主脚本工作目录分组. 同一应用及目录的 Node.js/Bun 脚本可以共享数据; 更换目录或打包包名后属于不同存储. 后端沿用 Node.js 的名称规则: 字母转小写, 非字母数字及 ._- 字符替换为 _, 并取前 64 字符. 因此不同原始名称可能指向同一个存储; 不要依赖大小写或第 65 个字符区分名称. 此 API 不等同于 Rhino 全局 storages.</p>
+<p>options 支持 timeoutMs (1..120000 毫秒) 和 AbortSignal. 默认单次存储操作超时为 5000 毫秒. 取消等待不能撤销已经提交的写入. 存储后端单值最多 64 KiB JSON, 每个存储最多 256 KiB; Bun 的单次请求还需包含参数封装, 因此实际可写值小于 64 KiB. 原有 1024 次桥接调用额度及并发限制继续适用.</p>
+<pre><code class="lang-js">let store = host.storages.create(&#39;settings&#39;);
+await store.putSync(&#39;enabled&#39;, true);
+console.log(await host.storage.open(&#39;settings&#39;).get(&#39;enabled&#39;, false));
+</code></pre>
 <h2>UI 与 Compose<span><a class="mark" href="#runtimeapis_ui_compose" id="runtimeapis_ui_compose">#</a></span></h2>
 <p><strong><code>Async</code></strong></p>
 <p>以下接口对应当前工作区的开发版本.</p>

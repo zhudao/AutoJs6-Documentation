@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Bun 檔案與持久化儲存 API, 支援獨立授權的宿主檔案讀寫及 Node.js 儲存互通"
+        },
+        {
+          "category": "feature",
           "text": "Shell 串流處理程序: shell.spawn/shizuku.spawn 與 ShellProcess, 相容 Auto.js Pro 的 Shell 選項建構方法 (支援 adb/pty) 及其串流方法, $shell.setDefaultOptions/checkAccess/isRootAvailable 與 shell 函式的 adb 選項"
         },
         {

@@ -71,6 +71,7 @@ generator\auto-generate-for-autojs6.bat
 
 ### v6.8.0
 
+- `إضافة جديدة` واجهات Bun للملفات والتخزين الدائم مع أذونات مستقلة وبيانات تخزين مشتركة مع Node.js
 - `إضافة جديدة` عمليات Shell المتدفقة: shell.spawn/shizuku.spawn و ShellProcess, ومنشئ Shell بالخيارات المتوافق مع Auto.js Pro (مع adb/pty) وطرق التدفق الخاصة به, و $shell.setDefaultOptions/checkAccess/isRootAvailable وخيار adb لدالة shell
 - `إضافة جديدة` واجهات Bun لإمكانية الوصول وعمليات التطبيقات والحافظة متوافقة مع Node.js مع أذونات مستقلة ودعم التطبيقات المحزمة
 - `إضافة جديدة` مهايئ مشاركة شاشة WebView وتسجيل الصوت عبر خدمة أمامية وتسجيل الكاميرا الأصلي في الخلفية في Node.js/Bun مع دعم Node Worker

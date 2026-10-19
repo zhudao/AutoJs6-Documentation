@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `Nuevo` API de archivos y almacenamiento persistente de Bun, con permisos independientes y almacenamiento compartido con Node.js
 - `Nuevo` Procesos de Shell en streaming: shell.spawn/shizuku.spawn y ShellProcess, constructor de Shell con opciones compatible con Auto.js Pro (con adb/pty) y sus métodos de flujo, $shell.setDefaultOptions/checkAccess/isRootAvailable y la opción adb de la función shell
 - `Nuevo` API de accesibilidad, aplicaciones y portapapeles de Bun alineadas con Node.js, con permisos independientes y aplicaciones empaquetadas
 - `Nuevo` Adaptador para compartir pantalla WebView, captura de audio mediante servicio en primer plano y grabacion de camara nativa en segundo plano para Node.js/Bun y Node Worker

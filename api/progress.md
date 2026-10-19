@@ -1,5 +1,7 @@
 # 文档部署进度 (Progress)
 
+2026-10-19 Bun 宿主文件与命名持久化存储的公开接口, 独立授权, 异步返回值及运行边界已同步.
+
 2026-10-19 Shell 流式进程: 新增 shell.spawn / shizuku.spawn 与 [ShellProcess](shellProcessType) 页面 (逐行读取, output/errorOutput/exit 事件, stdin 写入, 限时等待, 结束进程树, 脚本退出清理), ShellOptions (root, adb, pty, env, cwd, cmd) 与伪终端的输出缓冲说明, Shell 的选项与命令构造方法 (兼容 Auto.js Pro) 及其流方法, execForResult, 按标记分割的 execAndWaitFor, $shell.setDefaultOptions / checkAccess / isRootAvailable, shell 函数与 ShellArguments 的 adb 选项, 以及全局兼容函数改走 Shizuku 的条件. 依据为宿主提交 2ea2fa85b 与 e2b470422, 以及 2026-10-19 在 Sony XQ-AT72 (Android 12, Shizuku 为 shell), G8441 (Android 9, Magisk, Shizuku 为 root), XQ-DQ72 (Android 13, KernelSU, Shizuku 为 root) 上的 tools/shell-stream 设备检查与 getevent 触摸测试.
 
 2026-10-19 Bun 无障碍, 应用操作及剪贴板的公开接口, 授权与运行条件已同步.

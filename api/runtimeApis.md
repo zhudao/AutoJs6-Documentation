@@ -509,6 +509,68 @@ if (node) await host.accessibility.click(target);
 调用选项支持 `timeoutMs` (整数, 1..120000) 和 `signal` (`AbortSignal`). 默认等待时间沿用 Node.js 对应方法, 通常为 5000 或 10000 ms; `ensureEnabled` 为 30000 ms. 长手势和服务等待通过短轮询完成, 不扩大 Bun 的 10 秒单次 RPC 上限. 同时最多四项操作, SDK 会排队后续调用. 取消停止等待和回收任务记录, 无法撤回已经交给 Android 的点击, Intent 或手势. 原有单次执行 1024 次桥调用及 JSON 体积限制仍适用, 轮询也计入调用次数.
 
 
+
+
+## Bun 文件与存储
+
+Bun Runtime 0.4.0 和配套宿主 build 5579 提供 `host.files`, `host.storage`, `host.storages`. 两个独立授权 `files.control` 和 `storage.control` 默认关闭, 在插件中心分别开启; 打包项目在 `bun.hostCapabilities` 中显式声明. 授权不替代 Android 对执行应用的文件权限.
+
+### host.files
+
+对应 Node.js `files` 的 15 个可用方法. `join`, `getName`, `getExtension` 是同步的 POSIX 路径字符串辅助方法, 不需要授权. 其余方法访问宿主或打包应用的文件并返回 Promise, 调用时使用 `await`:
+
+| 方法 | 参数 | Promise 的结果 |
+| --- | --- | --- |
+| path | path?: string 或 null | 绝对路径, 空值返回 null |
+| read | path?: string 或 null, encoding?: string | 文件文本, 空路径返回空字符串 |
+| write / append | path: string, text: unknown, encoding?: string | void |
+| exists / isFile / isDir | path?: string 或 null | boolean, 空路径返回 false |
+| listDir | path?: string 或 null, filter?: (name: string) => boolean | string[], 目录不存在或路径为空时返回空数组 |
+| remove | path?: string 或 null | boolean, 路径不存在时返回 false |
+| copy / move | source: string, destination: string | boolean |
+| ensureDir | path: string | boolean |
+
+默认编码为 utf8, 支持 utf16le, latin1, ascii, hex, base64, base64url 及运行时 Buffer 接受的编码别名. text 为 null/undefined 时写入空字符串, 其他值按 String 转换. listDir 的 filter 在 Bun 中同步执行, 仅返回 true 时保留文件名. 未保证目录列表顺序.
+
+相对路径按宿主的脚本工作目录解析, 缺省为执行应用的 filesDir; 绝对路径和本地 file: URL 仍由 Android 判定访问权限. 这与 Bun 自身 `process.cwd()` 指向的临时工作区不同. 不返回项目归档写回承诺; `Bun.file` 和 `node:fs` 仍在 Bun 插件进程中执行. 保存持久文件时可使用 host.files 或已经授权且可访问的持久路径.
+
+ensureDir 的路径以斜杠结尾时创建该目录, 否则只创建文件的父目录. write/append 不自动创建父目录; copy 会创建目标父目录, move 不会. remove 只移除文件或空目录, 非空目录会拒绝. 文件不存在, 路径无权访问及不支持的跨文件系统移动均保留失败结果, 不伪装成功. `open` 和 `toFile` 与 Node.js 一样不提供 Rhino 文件句柄或原始 Java 对象.
+
+文件字节通过 base64 JSON 传输, 沿用 64 KiB 请求与 256 KiB 结果限制; 封装和编码共同占用额度. 当前单次读取最多 196512 字节, 单次写入的可用原始字节少于 48 KiB, 取决于路径和参数长度. 超限拒绝, 不截断; 过大的写请求在打开目标文件前被拒绝. 大型文件可使用 Bun/Node 原生文件 API 访问插件自身有权访问的路径. 该传输差异不意味着 Node.js files 具有相同大小上限.
+
+```js
+let { createHostClient } = await import(process.env.AUTOJS6_HOST_CLIENT_MODULE);
+let host = await createHostClient();
+await host.files.ensureDir('output/settings.json');
+await host.files.write('output/settings.json', JSON.stringify({ enabled: true }));
+console.log(await host.files.read('output/settings.json'));
+```
+
+### host.storage / host.storages
+
+两个入口采用 Node.js 的公开封装和同一持久化后端. `create(name)` / `open(name)` 同步返回存储对象; 对象的 name 是规范化前去除首尾空白的名称. 下述方法全部返回 Promise:
+
+- get(key, defaultValue?, options?): 返回 JSON 值, 缺失键返回 defaultValue 或 undefined. 已存储的 null 不会被默认值替换.
+- put(key, value, options?) / putSync(...): 写入 JSON 值, 返回 void.
+- remove(key, options?) / removeSync(...): 删除键, 返回 void.
+- clear(options?) / clearSync(...): 清空该存储, 返回 void.
+- keys(options?): 返回冻结的, 按键名排序的字符串数组.
+- contains(key, options?): 返回 boolean.
+- selfRemove(options?) / selfRemoveSync(...): 清空当前存储, 返回 void.
+- 模块级 remove(name, options?) / removeSync(...): 清空指定存储, 返回 void.
+
+`Sync` 后缀沿用 Node.js 的历史别名, 仍须 await. names/all 不提供全局命名空间枚举, 调用时抛出 NOT_SUPPORTED. 名称和键去除首尾空白后最多 128 字符, 不得为空或含 NUL; value 不接受 undefined, 函数, Symbol, BigInt 或循环对象. JSON 序列化规则与 Node.js 一致.
+
+存储按执行应用包名和宿主脚本工作目录分组. 同一应用及目录的 Node.js/Bun 脚本可以共享数据; 更换目录或打包包名后属于不同存储. 后端沿用 Node.js 的名称规则: 字母转小写, 非字母数字及 ._- 字符替换为 _, 并取前 64 字符. 因此不同原始名称可能指向同一个存储; 不要依赖大小写或第 65 个字符区分名称. 此 API 不等同于 Rhino 全局 storages.
+
+options 支持 timeoutMs (1..120000 毫秒) 和 AbortSignal. 默认单次存储操作超时为 5000 毫秒. 取消等待不能撤销已经提交的写入. 存储后端单值最多 64 KiB JSON, 每个存储最多 256 KiB; Bun 的单次请求还需包含参数封装, 因此实际可写值小于 64 KiB. 原有 1024 次桥接调用额度及并发限制继续适用.
+
+```js
+let store = host.storages.create('settings');
+await store.putSync('enabled', true);
+console.log(await host.storage.open('settings').get('enabled', false));
+```
+
 ## UI 与 Compose
 
 **`Async`**
