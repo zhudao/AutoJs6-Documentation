@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "واجهات database/sqlite للمضيف في Bun وWorkers من Node.js مع استعلامات بمعاملات ومعاملات ذرية وتخزين دائم"
+        },
+        {
+          "category": "feature",
           "text": "واجهات Bun للملفات والتخزين الدائم مع أذونات مستقلة وبيانات تخزين مشتركة مع Node.js"
         },
         {

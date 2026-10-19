@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `Fonctionnalité` API hôtes database/sqlite pour Bun et les Workers Node.js, avec requêtes paramétrées, transactions et persistance
 - `Fonctionnalité` API Bun de fichiers et de stockage persistant, avec autorisations distinctes et stockage partagé avec Node.js
 - `Fonctionnalité` Processus Shell en flux: shell.spawn/shizuku.spawn et ShellProcess, constructeur Shell à options compatible Auto.js Pro (avec adb/pty) et ses méthodes de flux, $shell.setDefaultOptions/checkAccess/isRootAvailable et l'option adb de la fonction shell
 - `Fonctionnalité` API Bun pour accessibilité, applications et presse-papiers alignées sur Node.js, avec autorisations distinctes et applications empaquetées

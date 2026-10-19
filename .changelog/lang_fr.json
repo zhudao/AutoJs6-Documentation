@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "API hôtes database/sqlite pour Bun et les Workers Node.js, avec requêtes paramétrées, transactions et persistance"
+        },
+        {
+          "category": "feature",
           "text": "API Bun de fichiers et de stockage persistant, avec autorisations distinctes et stockage partagé avec Node.js"
         },
         {

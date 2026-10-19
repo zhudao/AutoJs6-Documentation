@@ -571,6 +571,82 @@ await store.putSync('enabled', true);
 console.log(await host.storage.open('settings').get('enabled', false));
 ```
 
+
+
+## Bun 与 Node.js Worker 数据库
+
+配套宿主 build 5580, Node.js Runtime 1.16.0 和 Bun Runtime 0.5.0 提供同一套异步宿主数据库封装. Node.js 主线程及 CJS/ESM/嵌套 Worker 使用 `database` / `sqlite` 或 `autojs6:database` / `autojs6:sqlite`; Bun 显式客户端使用 `host.database` / `host.sqlite`.
+
+这些接口使用执行应用内的 Android SQLite. 它们不替代 Node.js 的原生 `node:sqlite` 或 Bun 原生 SQLite 模块, 也不返回 Java SQLiteDatabase/Cursor 对象. Node.js 保留原生 `node:sqlite` 的同步接口和文件语义. Bun 的 `database.control` 是默认关闭的独立授权, 可在插件中心启用, 打包时在 `bun.hostCapabilities` 中声明. Node.js 项目声明 `database` 权限.
+
+### database.open(name, options?) / database.open(options) / sqlite(name, options?)
+
+**`Async`**
+
+- **name** { [string](dataTypes#string) } - 数据库名称, 1..64 字符, 只接受字母, 数字, 下划线, 短横线和单点, 不接受路径或连续两个点.
+- **options.name** { [string](dataTypes#string) } - 对象重载中的名称.
+- **[ options.timeoutMs = 10000 ]** { [number](dataTypes#number) } - 调用等待时限, 毫秒. Bun 接受 1..120000 的整数.
+- **[ options.signal ]** { [AbortSignal](https://developer.mozilla.org/docs/Web/API/AbortSignal) } - 取消等待的信号.
+- <ins>**returns**</ins> { [Promise](dataTypes#promise) } - 数据库句柄, 含只读 id/name 与下述方法.
+
+sqlite 是可调用别名, 同时提供相同的 open 重载. 对象形式中的 timeoutMs/signal 会正确传递, 空对象或缺少名称会拒绝. 名称先去除首尾空白; 后端沿用 Node.js 的小写名称及 .db 后缀规则, 不要以大小写或省略 .db 区分数据库.
+
+数据库按应用包名与宿主脚本工作目录区分. 相同应用/目录的 Node.js 和 Bun 可以共享数据; 打包应用的数据属于自己的包名和私有目录. 数据不随单次 Bun/Node 工作区快照删除.
+
+### 数据库句柄
+
+所有方法返回 Promise, 参数使用有序数组, 只接受有限 number, string, boolean 或 null. 查询与写入使用相同的原生类型绑定; boolean 为 SQLite INTEGER 0/1, null 保持 SQL NULL. 不接收 BigInt, 原始字节数组或命名参数对象.
+
+| 方法 | 签名 | 结果 |
+| --- | --- | --- |
+| exec | exec(sql, params?, options?) | void |
+| run | run(sql, params?, options?) | { rowsAffected: number 或 null, insertId: number 或 null } |
+| get | get(sql, params?, options?) | 第一行对象, 无匹配时为 null |
+| all | all(sql, params?, options?) | 冻结的行数组 |
+| transaction | transaction(operations, options?) | 与操作顺序一致的结果数组 |
+| close | close(options?) | 本次关闭为 true, 重复关闭为 false |
+
+直接 INSERT/REPLACE 返回实际影响行数与插入 id; 忽略插入为 0/null. UPDATE/DELETE 返回影响行数和 null 插入 id; 其他命令的计数字段可为 null. SQL 前的注释不会破坏命令识别. 查询行中的 BLOB 表示为 `{ base64: string }`, SQL NULL 表示为 null. 返回值为数据快照, 不持有游标.
+
+transaction 接受 `{ type: 'exec' | 'run' | 'get' | 'all', sql, params? }` 数组, 不接受回调. 任意操作失败会回滚整个事务. 结果中 exec 项为 null, 其他项沿用相应方法的结果. 默认等待时限为 15000 毫秒; exec/run/get/all 默认 10000 毫秒, close 默认 5000 毫秒.
+
+```js
+let { createHostClient } = await import(process.env.AUTOJS6_HOST_CLIENT_MODULE);
+let host = await createHostClient();
+let db = await host.sqlite({ name: 'events', timeoutMs: 10000 });
+try {
+    await db.exec('CREATE TABLE IF NOT EXISTS events(id INTEGER PRIMARY KEY, value TEXT)');
+    let results = await db.transaction([
+        { type: 'run', sql: 'INSERT INTO events(value) VALUES(?)', params: ['owned example'] },
+        { type: 'get', sql: 'SELECT COUNT(*) AS total FROM events' },
+    ]);
+    console.log(results[1]);
+} finally {
+    await db.close();
+}
+```
+
+Node.js Worker 的对应导入示例:
+
+```js
+import database from 'autojs6:database';
+import sqlite from 'autojs6:sqlite';
+let db = await database.open({ name: 'events' });
+try {
+    console.log(await db.get('SELECT COUNT(*) AS total FROM events'));
+} finally {
+    await db.close();
+}
+```
+
+### 生命周期与边界
+
+- 每次宿主执行最多同时打开 4 个数据库句柄. Worker 与父执行共享该额度; Worker 退出时关闭通过自身桥接打开的句柄, 包括退出后才返回的连接. 关闭不会影响其他 Worker 或父线程自己打开的连接.
+- 执行结束时释放其数据库句柄. 手动 BEGIN 后未提交的事务在 SQLite 所属线程回滚后关闭, 避免遗留数据库锁. 普通调用仍应使用 finally/close; transaction 操作数组会自行提交或回滚.
+- Bun 通过短轮询等待操作, 不延长单次桥接 RPC 的 10 秒上限. 取消或过期且未交付的 Bun open 结果会释放连接. Abort/timeout 不撤销已经完成的 SQL 写入, 不等于可抢占正在执行的任意 SQL.
+- 名称/路径隔离与 SQL 限制沿用 Node.js 宿主桥: 不提供 ATTACH/DETACH/load_extension, 原始 Java 句柄或跨执行句柄操作. database.close 不能释放其他种类的资源.
+- 单条 SQL 最多 16 KiB UTF-8, 最多 128 个参数, 一次事务最多 64 项, all 最多 200 行, 结果最多 256 KiB JSON. 超限拒绝而非截断. Bun 还受原有 64 KiB 请求/256 KiB 结果封装与 1024 次调用额度限制.
+
 ## UI 与 Compose
 
 **`Async`**

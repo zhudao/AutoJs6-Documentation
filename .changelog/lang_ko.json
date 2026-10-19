@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Node.js Worker 및 Bun의 database/sqlite API, 매개변수 쿼리, 트랜잭션 및 데이터베이스 영속성 지원"
+        },
+        {
+          "category": "feature",
           "text": "Bun 파일 및 영구 저장소 API, 별도의 호스트 파일 권한과 Node.js 저장소 공유 지원"
         },
         {

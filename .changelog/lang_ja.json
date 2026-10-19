@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Node.js Worker と Bun の database/sqlite API. パラメーター付きクエリ, トランザクション, 永続化に対応"
+        },
+        {
+          "category": "feature",
           "text": "Bun ファイルと永続ストレージ API. 個別のホストファイル権限と Node.js ストレージの共有に対応"
         },
         {

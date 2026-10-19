@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `新增` Node.js Worker 與 Bun 的 database/sqlite API, 支援參數化查詢, 交易和資料庫持久化
 - `新增` Bun 檔案與持久化儲存 API, 支援獨立授權的宿主檔案讀寫及 Node.js 儲存互通
 - `新增` Shell 串流進程: shell.spawn/shizuku.spawn 與 ShellProcess, 相容 Auto.js Pro 的 Shell 選項構造方法 (支援 adb/pty) 及其串流方法, $shell.setDefaultOptions/checkAccess/isRootAvailable 與 shell 函數的 adb 選項
 - `新增` Bun 無障礙, 應用程式操作與剪貼簿 API 對齊 Node.js 對應介面, 支援獨立授權和打包應用程式

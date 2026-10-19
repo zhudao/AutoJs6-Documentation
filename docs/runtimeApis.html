@@ -320,6 +320,12 @@
 <li><span class="stability_undefined"><a href="#runtimeapis_host_storage_host_storages">host.storage / host.storages</a></span></li>
 </ul>
 </li>
+<li><span class="stability_undefined"><a href="#runtimeapis_bun_node_js_worker">Bun 与 Node.js Worker 数据库</a></span><ul>
+<li><span class="stability_undefined"><a href="#runtimeapis_database_open_name_options_database_open_options_sqlite_name_options">database.open(name, options?) / database.open(options) / sqlite(name, options?)</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_4">数据库句柄</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_5">生命周期与边界</a></span></li>
+</ul>
+</li>
 <li><span class="stability_undefined"><a href="#runtimeapis_ui_compose">UI 与 Compose</a></span><ul>
 <li><span class="stability_undefined"><a href="#runtimeapis_view_xml_compose">原生 View 与 XML compose 容器</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_xml_view">常用 XML 组件与 View 属性代理</a></span></li>
@@ -344,7 +350,7 @@
 <li><span class="stability_undefined"><a href="#runtimeapis_view_choosefiles_options_1">view.chooseFiles(options?) 的媒体选项</a></span></li>
 </ul>
 </li>
-<li><span class="stability_undefined"><a href="#runtimeapis_4">打包项目</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_6">打包项目</a></span></li>
 </ul>
 </li>
 <li><span class="stability_undefined"><a href="#runtimeapis_ace">声明与 Ace 智能提示</a></span><ul>
@@ -352,11 +358,11 @@
 <li><span class="stability_undefined"><a href="#runtimeapis_webview_2">WebView 屏幕共享与后台录制</a></span><ul>
 <li><span class="stability_undefined"><a href="#runtimeapis_view_enabledisplaycapture_options">view.enableDisplayCapture(options)</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_view_disabledisplaycapture_id">view.disableDisplayCapture(id?)</a></span></li>
-<li><span class="stability_undefined"><a href="#runtimeapis_5">后台网页录音</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_7">后台网页录音</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_view_startbackgroundrecording_options">view.startBackgroundRecording(options?)</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_view_getbackgroundrecording_view_stopbackgroundrecording_view_cancelbackgroundrecording_id">view.getBackgroundRecording() / view.stopBackgroundRecording() / view.cancelBackgroundRecording(id?)</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_view_stopmediacapture">view.stopMediaCapture()</a></span></li>
-<li><span class="stability_undefined"><a href="#runtimeapis_6">打包权限与平台边界</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_8">打包权限与平台边界</a></span></li>
 </ul>
 </li>
 </ul>
@@ -1322,7 +1328,98 @@ console.log(await host.files.read(&#39;output/settings.json&#39;));
 await store.putSync(&#39;enabled&#39;, true);
 console.log(await host.storage.open(&#39;settings&#39;).get(&#39;enabled&#39;, false));
 </code></pre>
-<h2>UI 与 Compose<span><a class="mark" href="#runtimeapis_ui_compose" id="runtimeapis_ui_compose">#</a></span></h2>
+<h2>Bun 与 Node.js Worker 数据库<span><a class="mark" href="#runtimeapis_bun_node_js_worker" id="runtimeapis_bun_node_js_worker">#</a></span></h2>
+<p>配套宿主 build 5580, Node.js Runtime 1.16.0 和 Bun Runtime 0.5.0 提供同一套异步宿主数据库封装. Node.js 主线程及 CJS/ESM/嵌套 Worker 使用 <code>database</code> / <code>sqlite</code> 或 <code>autojs6:database</code> / <code>autojs6:sqlite</code>; Bun 显式客户端使用 <code>host.database</code> / <code>host.sqlite</code>.</p>
+<p>这些接口使用执行应用内的 Android SQLite. 它们不替代 Node.js 的原生 <code>node:sqlite</code> 或 Bun 原生 SQLite 模块, 也不返回 Java SQLiteDatabase/Cursor 对象. Node.js 保留原生 <code>node:sqlite</code> 的同步接口和文件语义. Bun 的 <code>database.control</code> 是默认关闭的独立授权, 可在插件中心启用, 打包时在 <code>bun.hostCapabilities</code> 中声明. Node.js 项目声明 <code>database</code> 权限.</p>
+<h3>database.open(name, options?) / database.open(options) / sqlite(name, options?)<span><a class="mark" href="#runtimeapis_database_open_name_options_database_open_options_sqlite_name_options" id="runtimeapis_database_open_name_options_database_open_options_sqlite_name_options">#</a></span></h3>
+<p><strong><code>Async</code></strong></p>
+<ul>
+<li><strong>name</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 数据库名称, 1..64 字符, 只接受字母, 数字, 下划线, 短横线和单点, 不接受路径或连续两个点.</li>
+<li><strong>options.name</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 对象重载中的名称.</li>
+<li><strong>[ options.timeoutMs = 10000 ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> } - 调用等待时限, 毫秒. Bun 接受 1..120000 的整数.</li>
+<li><strong>[ options.signal ]</strong> { <span class="type"><a href="https://developer.mozilla.org/docs/Web/API/AbortSignal">AbortSignal</a></span> } - 取消等待的信号.</li>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_promise">Promise</a></span> } - 数据库句柄, 含只读 id/name 与下述方法.</li>
+</ul>
+<p>sqlite 是可调用别名, 同时提供相同的 open 重载. 对象形式中的 timeoutMs/signal 会正确传递, 空对象或缺少名称会拒绝. 名称先去除首尾空白; 后端沿用 Node.js 的小写名称及 .db 后缀规则, 不要以大小写或省略 .db 区分数据库.</p>
+<p>数据库按应用包名与宿主脚本工作目录区分. 相同应用/目录的 Node.js 和 Bun 可以共享数据; 打包应用的数据属于自己的包名和私有目录. 数据不随单次 Bun/Node 工作区快照删除.</p>
+<h3>数据库句柄<span><a class="mark" href="#runtimeapis_4" id="runtimeapis_4">#</a></span></h3>
+<p>所有方法返回 Promise, 参数使用有序数组, 只接受有限 number, string, boolean 或 null. 查询与写入使用相同的原生类型绑定; boolean 为 SQLite INTEGER 0/1, null 保持 SQL NULL. 不接收 BigInt, 原始字节数组或命名参数对象.</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>签名</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>exec</td>
+<td>exec(sql, params?, options?)</td>
+<td>void</td>
+</tr>
+<tr>
+<td>run</td>
+<td>run(sql, params?, options?)</td>
+<td>{ <span class="type">rowsAffected: number 或 null, insertId: number 或 null</span> }</td>
+</tr>
+<tr>
+<td>get</td>
+<td>get(sql, params?, options?)</td>
+<td>第一行对象, 无匹配时为 null</td>
+</tr>
+<tr>
+<td>all</td>
+<td>all(sql, params?, options?)</td>
+<td>冻结的行数组</td>
+</tr>
+<tr>
+<td>transaction</td>
+<td>transaction(operations, options?)</td>
+<td>与操作顺序一致的结果数组</td>
+</tr>
+<tr>
+<td>close</td>
+<td>close(options?)</td>
+<td>本次关闭为 true, 重复关闭为 false</td>
+</tr>
+</tbody>
+</table>
+<p>直接 INSERT/REPLACE 返回实际影响行数与插入 id; 忽略插入为 0/null. UPDATE/DELETE 返回影响行数和 null 插入 id; 其他命令的计数字段可为 null. SQL 前的注释不会破坏命令识别. 查询行中的 BLOB 表示为 <code>{ base64: string }</code>, SQL NULL 表示为 null. 返回值为数据快照, 不持有游标.</p>
+<p>transaction 接受 <code>{ type: &#39;exec&#39; | &#39;run&#39; | &#39;get&#39; | &#39;all&#39;, sql, params? }</code> 数组, 不接受回调. 任意操作失败会回滚整个事务. 结果中 exec 项为 null, 其他项沿用相应方法的结果. 默认等待时限为 15000 毫秒; exec/run/get/all 默认 10000 毫秒, close 默认 5000 毫秒.</p>
+<pre><code class="lang-js">let { createHostClient } = await import(process.env.AUTOJS6_HOST_CLIENT_MODULE);
+let host = await createHostClient();
+let db = await host.sqlite({ name: &#39;events&#39;, timeoutMs: 10000 });
+try {
+    await db.exec(&#39;CREATE TABLE IF NOT EXISTS events(id INTEGER PRIMARY KEY, value TEXT)&#39;);
+    let results = await db.transaction([
+        { type: &#39;run&#39;, sql: &#39;INSERT INTO events(value) VALUES(?)&#39;, params: [&#39;owned example&#39;] },
+        { type: &#39;get&#39;, sql: &#39;SELECT COUNT(*) AS total FROM events&#39; },
+    ]);
+    console.log(results[1]);
+} finally {
+    await db.close();
+}
+</code></pre>
+<p>Node.js Worker 的对应导入示例:</p>
+<pre><code class="lang-js">import database from &#39;autojs6:database&#39;;
+import sqlite from &#39;autojs6:sqlite&#39;;
+let db = await database.open({ name: &#39;events&#39; });
+try {
+    console.log(await db.get(&#39;SELECT COUNT(*) AS total FROM events&#39;));
+} finally {
+    await db.close();
+}
+</code></pre>
+<h3>生命周期与边界<span><a class="mark" href="#runtimeapis_5" id="runtimeapis_5">#</a></span></h3>
+<div class="signature"><ul>
+<li>每次宿主执行最多同时打开 4 个数据库句柄. Worker 与父执行共享该额度; Worker 退出时关闭通过自身桥接打开的句柄, 包括退出后才返回的连接. 关闭不会影响其他 Worker 或父线程自己打开的连接.</li>
+<li>执行结束时释放其数据库句柄. 手动 BEGIN 后未提交的事务在 SQLite 所属线程回滚后关闭, 避免遗留数据库锁. 普通调用仍应使用 finally/close; transaction 操作数组会自行提交或回滚.</li>
+<li>Bun 通过短轮询等待操作, 不延长单次桥接 RPC 的 10 秒上限. 取消或过期且未交付的 Bun open 结果会释放连接. Abort/timeout 不撤销已经完成的 SQL 写入, 不等于可抢占正在执行的任意 SQL.</li>
+<li>名称/路径隔离与 SQL 限制沿用 Node.js 宿主桥: 不提供 ATTACH/DETACH/load_extension, 原始 Java 句柄或跨执行句柄操作. database.close 不能释放其他种类的资源.</li>
+<li>单条 SQL 最多 16 KiB UTF-8, 最多 128 个参数, 一次事务最多 64 项, all 最多 200 行, 结果最多 256 KiB JSON. 超限拒绝而非截断. Bun 还受原有 64 KiB 请求/256 KiB 结果封装与 1024 次调用额度限制.</li>
+</ul>
+</div><h2>UI 与 Compose<span><a class="mark" href="#runtimeapis_ui_compose" id="runtimeapis_ui_compose">#</a></span></h2>
 <p><strong><code>Async</code></strong></p>
 <p>以下接口对应当前工作区的开发版本.</p>
 <p>Node.js 主线程和 CJS/ESM/嵌套 Worker 可使用 <code>require(&#39;ui&#39;)</code> / <code>require(&#39;compose&#39;)</code>, 也可从 <code>autojs6:ui</code> / <code>autojs6:compose</code> 导入. 两个模块使用 <code>ui</code> 能力声明. Bun 使用 <code>host.ui</code> / <code>host.compose</code>, 在插件设置中分别开启 <code>ui.layout</code> / <code>ui.compose</code>, 默认均关闭. Compose 还需要已安装, 启用并授权且契约兼容的 3-Block Compose 插件. Android 悬浮窗权限仍由系统判断.</p>
@@ -1936,7 +2033,7 @@ console.log(value.answer);
 })().catch(console.error);
 </code></pre>
 <p>参阅 Android <a href="https://developer.android.com/reference/android/provider/MediaStore#ACTION_VIDEO_CAPTURE">视频捕获 Intent</a> 和 <a href="https://developer.android.com/media/platform/mediarecorder">MediaRecorder</a>. 这组文件捕获接口与网页 getUserMedia/MediaRecorder 流式 API 及屏幕录制接口分别使用各自的契约.</p>
-<h3>打包项目<span><a class="mark" href="#runtimeapis_4" id="runtimeapis_4">#</a></span></h3>
+<h3>打包项目<span><a class="mark" href="#runtimeapis_6" id="runtimeapis_6">#</a></span></h3>
 <p>宿主 5566 起, Bun 项目可在 project.json 设置 bun.timeoutMs, 默认 60000 毫秒, 按现有运行时范围限制为 1..600000 毫秒. 显式执行参数 bun.timeoutMillis 优先于项目设置. 打包应用采用同一设置; 拍照/文件选择和下载的等待时限不会延长整个项目的执行预算.</p>
 <p>Node.js/Bun 项目 APK 使用已安装的外部 Runtime 插件和 3-Block Compose 插件, 自己的应用版本号可以从 1 开始. runtimeVersionCode 表示内置宿主运行库版本, applicationVersionCode 表示应用声明版本. APK Builder 需要匹配的 Runtime Kit (本批为 6.8.0+5567).</p>
 <p>Node 项目通过 node.permissions 声明 ui. Bun 项目使用 projectType=bun 或 bun 入口标记, 并在 project.json 明确声明 bun.hostCapabilities, 例如:</p>
@@ -2076,7 +2173,7 @@ await web.evaluateJavascript(`
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_promise">Promise</a></span> } - <code>boolean</code>, 是否移除了匹配的安装.</li>
 </ul>
 <p>停止待处理授权和活动共享, 移除当前页面的适配器. 完成 MediaRecorder 的 stop/dataavailable 及输出保存后再调用; 页面资源关闭后不能重新读取尚未保存的 Blob.</p>
-<h4>后台网页录音<span><a class="mark" href="#runtimeapis_5" id="runtimeapis_5">#</a></span></h4>
+<h4>后台网页录音<span><a class="mark" href="#runtimeapis_7" id="runtimeapis_7">#</a></span></h4>
 <p>WebChromeClient 的 <code>onPermissionRequest</code> 对象回复增加 <code>backgroundCapture: true</code>. 在前台取得 CAMERA/RECORD_AUDIO 授权后, 为所选资源启动带停止操作的 Android 前台服务, 然后将资源授予网页. 麦克风流可在应用退到后台后继续录制, 仍需显式停止轨道及释放服务.</p>
 <pre><code class="lang-js">await web.setWebChromeClient({
     onPermissionRequest(event) {
@@ -2129,7 +2226,7 @@ try {
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_promise">Promise</a></span> } - <code>true</code>.</li>
 </ul>
 <p>取消活动媒体, 原生未保存录像及屏幕共享, 释放前台服务, 并导航到 about:blank. 完成并保存网页 MediaRecorder 的结果或原生 stopBackgroundRecording 结果后再释放; 此方法本身不负责合并网页录制分片.</p>
-<h4>打包权限与平台边界<span><a class="mark" href="#runtimeapis_6" id="runtimeapis_6">#</a></span></h4>
+<h4>打包权限与平台边界<span><a class="mark" href="#runtimeapis_8" id="runtimeapis_8">#</a></span></h4>
 <p>屏幕共享项目需声明 FOREGROUND_SERVICE_MEDIA_PROJECTION; APK Builder 1.2.7 会保留其配套 FOREGROUND_SERVICE. 选择 CAMERA/RECORD_AUDIO 时, Builder 同时保留对应 FOREGROUND_SERVICE_CAMERA/FOREGROUND_SERVICE_MICROPHONE; RECORD_AUDIO 仍会保留 MODIFY_AUDIO_SETTINGS. 这些普通权限不会替代 Android 的相机/麦克风授权或每次屏幕共享授权.</p>
 <p>本批后台行为指应用退到其他应用之后继续运行的受保护前台服务. 不承诺开机启动, 系统强停后恢复, 绕过屏幕锁定时的撤销, 厂商省电限制或无限时录制. Android 和 WebView 的限制仍然适用. 参阅 <a href="https://developer.android.com/develop/background-work/services/fgs/service-types">Android 前台服务类型</a> 与 <a href="https://www.w3.org/TR/screen-capture/">Screen Capture 标准</a>.</p>
 

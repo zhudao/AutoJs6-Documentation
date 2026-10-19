@@ -71,6 +71,7 @@ Documentation may change at any time, and some descriptions may differ from actu
 
 ### v6.8.0
 
+- `Feature` Host database/sqlite APIs for Bun and Node.js Workers with parameterized queries, transactions and persistence
 - `Feature` Bun file and persistent storage APIs with separate host-file grants and shared Node.js storage
 - `Feature` Shell streaming processes: shell.spawn/shizuku.spawn and ShellProcess, the Auto.js Pro compatible Shell options constructor (with adb/pty) and its stream methods, $shell.setDefaultOptions/checkAccess/isRootAvailable and the adb option of the shell function
 - `Feature` Bun accessibility, app operations and clipboard APIs aligned with the Node.js interfaces, with independent grants and packaged-app support
