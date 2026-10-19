@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Mesures et abonnements aux capteurs pour Bun et les Workers Node.js, avec annulation et libération automatique des écouteurs"
+        },
+        {
+          "category": "feature",
           "text": "API hôtes database/sqlite pour Bun et les Workers Node.js, avec requêtes paramétrées, transactions et persistance"
         },
         {

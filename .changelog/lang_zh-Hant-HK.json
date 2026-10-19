@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Bun 與 Node.js Worker 的感應器取樣及訂閱 API, 支援取消和監聽器自動釋放"
+        },
+        {
+          "category": "feature",
           "text": "Node.js Worker 與 Bun 的 database/sqlite API, 支援參數化查詢, 交易和資料庫持久化"
         },
         {

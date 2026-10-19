@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `추가` Bun 및 Node.js Worker 센서 샘플링과 구독 API, 취소 및 리스너 자동 해제
 - `추가` Node.js Worker 및 Bun의 database/sqlite API, 매개변수 쿼리, 트랜잭션 및 데이터베이스 영속성 지원
 - `추가` Bun 파일 및 영구 저장소 API, 별도의 호스트 파일 권한과 Node.js 저장소 공유 지원
 - `추가` Shell 스트리밍 프로세스: shell.spawn/shizuku.spawn 및 ShellProcess, Auto.js Pro 호환 Shell 옵션 생성자 (adb/pty 지원) 와 스트림 메서드, $shell.setDefaultOptions/checkAccess/isRootAvailable 및 shell 함수의 adb 옵션

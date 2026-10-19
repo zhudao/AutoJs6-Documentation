@@ -647,6 +647,53 @@ try {
 - 名称/路径隔离与 SQL 限制沿用 Node.js 宿主桥: 不提供 ATTACH/DETACH/load_extension, 原始 Java 句柄或跨执行句柄操作. database.close 不能释放其他种类的资源.
 - 单条 SQL 最多 16 KiB UTF-8, 最多 128 个参数, 一次事务最多 64 项, all 最多 200 行, 结果最多 256 KiB JSON. 超限拒绝而非截断. Bun 还受原有 64 KiB 请求/256 KiB 结果封装与 1024 次调用额度限制.
 
+
+
+## Bun 与 Node.js Worker 传感器
+
+宿主 build 5581, Node.js Runtime 1.17.0 和 Bun Runtime 0.6.0 共用传感器封装. Node.js 主线程及 CommonJS/ESM/嵌套 Worker 可使用 `sensors` 或 `autojs6:sensors`; Bun 使用显式客户端 `host.sensors`. Bun 插件中心的独立 `sensors.control` 授权默认关闭, 打包应用在 `bun.hostCapabilities` 中声明; Node.js 项目声明 `sensors` 权限.
+
+| 接口 | 返回值与行为 |
+| --- | --- |
+| getAvailableSensors(options?) | Promise<readonly SensorInfo[]>, 仅列出设备实际提供的 accelerometer, gyroscope, light |
+| once(type, options?) | Promise<SensorEvent>, 取得第一份样本后关闭临时订阅, 超时或取消也会清理 |
+| subscribe(type, callback?, options?) | SensorSubscription, 立即返回, await ready 等待原生注册完成 |
+| subscription.on/once/off(event, listener) | 订阅或移除 event, accuracy, close, error 监听器, 支持链式调用 |
+| subscription.close(options?) | Promise<void>, 可重复调用, 关闭后不再向脚本发送样本 |
+| policy | 冻结的采样间隔, 队列和订阅数量限制 |
+
+getAvailableSensors 反映 Android 的传感器清单, 不保证厂商允许应用注册. Redmi 22120RN86C 的 camera_light_Sensor 会出现在清单中, 但厂商服务拒绝第三方应用注册, 此时采样会返回权限拒绝错误.
+
+SensorInfo 包含 type/name, 以及设备提供的 vendor/version/resolution/power/minDelayUs/maxDelayUs. SensorEvent 包含 type/timestamp/accuracy 和冻结的数值数组 values. timestamp 沿用 Android SensorEvent 的纳秒时间基准, 不是 Unix 时间. accelerometer 为三个轴的加速度, 单位 m/s², 含重力; gyroscope 为三个轴的角速度, 单位 rad/s; light 的第一个值为照度, 单位 lx. 不对横竖屏自动旋转原生传感器坐标轴.
+
+可选参数 samplingIntervalMs (别名 intervalMs) 默认 250 毫秒, 限制到 20..60000; maxQueueSize 默认 16, 限制到 1..64; drainIntervalMs 默认 100, 限制到 25..5000 毫秒. 这些采样间隔是给 Android 的请求提示, 硬件和系统可调整实际频率. 光线传感器可能仅在读数改变时继续出事件, 不应要求所有传感器都有固定帧率.
+
+once 的 timeoutMs 默认 5000, 限制到 100..60000 毫秒. signal 可取消一次采样; subscribe 的 signal 在注册完成后仍有效, 触发时关闭订阅. 可读取订阅的 id/type/closed/ready, subscriptionId 仅在协商推送成功时存在. close 始终尝试清理, 不继承已取消的订阅信号. 订阅注册失败会拒绝 ready, 请处理该 Promise; 运行期轮询错误发送到已注册的 error 监听器并停止订阅.
+
+```js
+const { createHostClient } = await import(process.env.AUTOJS6_HOST_CLIENT_MODULE);
+const host = await createHostClient();
+const sensors = host.sensors;
+console.log(await sensors.getAvailableSensors());
+const sample = await sensors.once('accelerometer', { timeoutMs: 5000 });
+console.log(sample.values);
+const controller = new AbortController();
+const sub = sensors.subscribe('accelerometer', event => console.log(event.values), {
+    signal: controller.signal, samplingIntervalMs: 250, drainIntervalMs: 250,
+});
+sub.on('error', error => console.error(error));
+try {
+    await sub.ready;
+    await new Promise(resolve => setTimeout(resolve, 1000));
+} finally {
+    await sub.close();
+}
+```
+
+Worker 可将上述客户端初始化替换为 `import sensors from 'autojs6:sensors'`. 每个宿主执行最多同时有 4 个活动订阅, 包括 once 的临时订阅, 父线程和 Worker 共享额度. Worker 退出或被终止时释放其订阅, 包括退出后才返回的注册结果. 执行结束会释放该执行的所有传感器监听. 不支持的类型与缺失的硬件会明确失败, 不产生模拟样本.
+
+Node.js 主线程保留协商后的事件推送; Worker 和 Bun 使用有界队列轮询. Bun 沿用每次执行最多 1024 次桥接调用, 4 个并行请求, 单次 RPC 10 秒, 64 KiB 请求和 256 KiB 响应限制. 每次轮询包含 start/poll 请求, 长时间或高频轮询会消耗额度; 不应把 Bun 的订阅视为无限时长数据通道. 应及时 close, 按业务需要调大 drainIntervalMs, 并处理额度或宿主退出错误. 本批没有开放任意 Android SensorManager/Java 对象, 也没有补齐 Rhino 的所有传感器类型.
+
 ## UI 与 Compose
 
 **`Async`**

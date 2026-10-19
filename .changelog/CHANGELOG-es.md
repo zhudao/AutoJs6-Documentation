@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `Nuevo` Muestras y suscripciones de sensores para Bun y Workers de Node.js, con cancelación y liberación automática de escuchas
 - `Nuevo` API database/sqlite del anfitrión para Bun y Workers de Node.js, con consultas parametrizadas, transacciones y persistencia
 - `Nuevo` API de archivos y almacenamiento persistente de Bun, con permisos independientes y almacenamiento compartido con Node.js
 - `Nuevo` Procesos de Shell en streaming: shell.spawn/shizuku.spawn y ShellProcess, constructor de Shell con opciones compatible con Auto.js Pro (con adb/pty) y sus métodos de flujo, $shell.setDefaultOptions/checkAccess/isRootAvailable y la opción adb de la función shell

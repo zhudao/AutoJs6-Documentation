@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "أخذ عينات المستشعرات والاشتراك بها في Bun وWorkers من Node.js مع الإلغاء والتحرير التلقائي للمستمعين"
+        },
+        {
+          "category": "feature",
           "text": "واجهات database/sqlite للمضيف في Bun وWorkers من Node.js مع استعلامات بمعاملات ومعاملات ذرية وتخزين دائم"
         },
         {

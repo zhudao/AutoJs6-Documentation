@@ -71,6 +71,7 @@ generator\auto-generate-for-autojs6.bat
 
 ### v6.8.0
 
+- `新機能` Bun と Node.js Worker のセンサー取得と購読 API, キャンセルとリスナーの自動解放
 - `新機能` Node.js Worker と Bun の database/sqlite API. パラメーター付きクエリ, トランザクション, 永続化に対応
 - `新機能` Bun ファイルと永続ストレージ API. 個別のホストファイル権限と Node.js ストレージの共有に対応
 - `新機能` Shell のストリーミングプロセス: shell.spawn/shizuku.spawn と ShellProcess, Auto.js Pro 互換の Shell オプションコンストラクター (adb/pty 対応) とそのストリームメソッド, $shell.setDefaultOptions/checkAccess/isRootAvailable と shell 関数の adb オプション

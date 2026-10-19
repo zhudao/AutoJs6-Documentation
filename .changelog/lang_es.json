@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Muestras y suscripciones de sensores para Bun y Workers de Node.js, con cancelación y liberación automática de escuchas"
+        },
+        {
+          "category": "feature",
           "text": "API database/sqlite del anfitrión para Bun y Workers de Node.js, con consultas parametrizadas, transacciones y persistencia"
         },
         {

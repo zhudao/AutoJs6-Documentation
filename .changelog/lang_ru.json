@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Измерения и подписки датчиков для Bun и Workers Node.js с отменой и автоматическим освобождением слушателей"
+        },
+        {
+          "category": "feature",
           "text": "API database/sqlite хоста для Bun и Workers Node.js с параметризованными запросами, транзакциями и сохранением данных"
         },
         {

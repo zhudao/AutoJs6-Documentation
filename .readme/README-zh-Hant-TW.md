@@ -71,6 +71,7 @@ generator\auto-generate-for-autojs6.bat
 
 ### v6.8.0
 
+- `新增` Bun 與 Node.js Worker 的感測器取樣及訂閱 API, 支援取消和監聽器自動釋放
 - `新增` Node.js Worker 與 Bun 的 database/sqlite API, 支援參數化查詢, 交易和資料庫持久化
 - `新增` Bun 檔案與持久化儲存 API, 支援獨立授權的宿主檔案讀寫及 Node.js 儲存互通
 - `新增` Shell 串流處理程序: shell.spawn/shizuku.spawn 與 ShellProcess, 相容 Auto.js Pro 的 Shell 選項建構方法 (支援 adb/pty) 及其串流方法, $shell.setDefaultOptions/checkAccess/isRootAvailable 與 shell 函式的 adb 選項

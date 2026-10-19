@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `Новое` Измерения и подписки датчиков для Bun и Workers Node.js с отменой и автоматическим освобождением слушателей
 - `Новое` API database/sqlite хоста для Bun и Workers Node.js с параметризованными запросами, транзакциями и сохранением данных
 - `Новое` API файлов и постоянного хранилища Bun с отдельными разрешениями и общим хранилищем Node.js
 - `Новое` Потоковые процессы Shell: shell.spawn/shizuku.spawn и ShellProcess, совместимый с Auto.js Pro конструктор Shell с параметрами (adb/pty) и его потоковые методы, $shell.setDefaultOptions/checkAccess/isRootAvailable и параметр adb функции shell

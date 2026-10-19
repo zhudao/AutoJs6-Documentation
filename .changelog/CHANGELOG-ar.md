@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `إضافة جديدة` أخذ عينات المستشعرات والاشتراك بها في Bun وWorkers من Node.js مع الإلغاء والتحرير التلقائي للمستمعين
 - `إضافة جديدة` واجهات database/sqlite للمضيف في Bun وWorkers من Node.js مع استعلامات بمعاملات ومعاملات ذرية وتخزين دائم
 - `إضافة جديدة` واجهات Bun للملفات والتخزين الدائم مع أذونات مستقلة وبيانات تخزين مشتركة مع Node.js
 - `إضافة جديدة` عمليات Shell المتدفقة: shell.spawn/shizuku.spawn و ShellProcess, ومنشئ Shell بالخيارات المتوافق مع Auto.js Pro (مع adb/pty) وطرق التدفق الخاصة به, و $shell.setDefaultOptions/checkAccess/isRootAvailable وخيار adb لدالة shell
