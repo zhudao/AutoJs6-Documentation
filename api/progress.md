@@ -1,5 +1,7 @@
 # 文档部署进度 (Progress)
 
+2026-10-20 Node.js/Bun/Worker 的 Java/Android 对象互操作, 精确数值, 数组及主线程调用文档已同步.
+
 2026-10-19 Node.js/Bun/Worker 的 Android 对象辅助接口, 日历和 IntentTask 调度文档已同步.
 
 2026-10-19 Bun 与 Node.js Worker 的设备控制, 对话框及独立生命周期文档已同步.

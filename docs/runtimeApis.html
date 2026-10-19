@@ -396,6 +396,7 @@
 </li>
 </ul>
 </li>
+<li><span class="stability_undefined"><a href="#runtimeapis_java_android">Java/Android 对象互操作</a></span></li>
 </ul>
 </li>
 </ul>
@@ -429,7 +430,7 @@
 </tr>
 <tr>
 <td>Node.js Worker</td>
-<td><code>opencc</code> / <code>autojs6:opencc</code>, <code>image</code> / <code>images</code>, <code>pinyin</code>, <code>pinyin4j</code>, <code>console</code>, <code>screen_metrics</code>, <code>media_projection</code>, <code>screen_recorder</code>, <code>recorder</code> 及其 <code>autojs6:</code> 入口; 其他能力可经 <code>autojs6:bridge</code> 转发</td>
+<td><code>opencc</code> / <code>autojs6:opencc</code>, <code>image</code> / <code>images</code>, <code>pinyin</code>, <code>pinyin4j</code>, <code>console</code>, <code>screen_metrics</code>, <code>media_projection</code>, <code>screen_recorder</code>, <code>recorder</code>, <code>java</code> 及其 <code>autojs6:</code> 入口; 其他能力可经 <code>autojs6:bridge</code> 转发</td>
 <td>支持 CJS, ESM 和嵌套 Worker; 异步操作复用父线程封装, 仍受本次执行授权约束</td>
 </tr>
 <tr>
@@ -1098,7 +1099,7 @@ console.log(await host.coordinates.getInfo());
 </tbody>
 </table>
 <p>先通过 <code>host.capabilities</code> 或 <code>host.hasCapability(name)</code> 检查当前执行是否协商到所需能力. Bun 的基数 setter 和控制台命令返回 <code>Promise&lt;void&gt;</code>. 普通 <code>console.log</code> 等仍由 Bun 原生控制台处理, <code>host.console</code> 是显式宿主窗口控制入口.</p>
-<p>Bun 不自动获得 Node 的全部模块, Java 互操作或 <code>rhino.run</code>. 无障碍选择器通过下述显式 <code>host.accessibility</code> 接口使用. 截图需要独立能力开关及 Android 同意. SDK 的图像句柄也不是 Rhino 图片对象, 不自动注入 <code>cX</code>, <code>pinyin</code>, <code>opencc</code> 或 Rhino 的对象图.</p>
+<p>Bun 不自动获得 Node 的全部模块或 <code>rhino.run</code>. Java 对象互操作使用下述显式 <code>host.java</code> 接口和独立授权. 无障碍选择器通过下述显式 <code>host.accessibility</code> 接口使用. 截图需要独立能力开关及 Android 同意. SDK 的图像句柄也不是 Rhino 图片对象, 不自动注入 <code>cX</code>, <code>pinyin</code>, <code>opencc</code> 或 Rhino 的对象图.</p>
 <h2>Bun 无障碍, 应用与剪贴板<span><a class="mark" href="#runtimeapis_bun_3" id="runtimeapis_bun_3">#</a></span></h2>
 <p>配套 Bun Runtime 0.3.0 和宿主 Android build 5572, 显式客户端提供 <code>host.accessibility</code>, <code>host.app</code>, <code>host.clipboard</code>. 参数转换, 选择器描述符, Intent 构造及公开别名与 Node.js 对应模块保持一致; Android 操作复用同一宿主实现. 不注入 Rhino 全局对象.</p>
 <table>
@@ -2899,6 +2900,103 @@ try {
 <h4>打包权限与平台边界<span><a class="mark" href="#runtimeapis_21" id="runtimeapis_21">#</a></span></h4>
 <p>屏幕共享项目需声明 FOREGROUND_SERVICE_MEDIA_PROJECTION; APK Builder 1.2.7 会保留其配套 FOREGROUND_SERVICE. 选择 CAMERA/RECORD_AUDIO 时, Builder 同时保留对应 FOREGROUND_SERVICE_CAMERA/FOREGROUND_SERVICE_MICROPHONE; RECORD_AUDIO 仍会保留 MODIFY_AUDIO_SETTINGS. 这些普通权限不会替代 Android 的相机/麦克风授权或每次屏幕共享授权.</p>
 <p>本批后台行为指应用退到其他应用之后继续运行的受保护前台服务. 不承诺开机启动, 系统强停后恢复, 绕过屏幕锁定时的撤销, 厂商省电限制或无限时录制. Android 和 WebView 的限制仍然适用. 参阅 <a href="https://developer.android.com/develop/background-work/services/fgs/service-types">Android 前台服务类型</a> 与 <a href="https://www.w3.org/TR/screen-capture/">Screen Capture 标准</a>.</p>
+<h2>Java/Android 对象互操作<span><a class="mark" href="#runtimeapis_java_android" id="runtimeapis_java_android">#</a></span></h2>
+<p><strong><code>Async</code></strong></p>
+<p>Node.js 主线程和 CJS/ESM/嵌套 Worker 使用 <code>require(&#39;java&#39;)</code> 或 <code>import java from &#39;autojs6:java&#39;</code>. Bun 使用 <code>host.java</code>. Node 项目声明 <code>java_interop</code>, Bun 使用默认关闭的独立 <code>java.interop</code> 开关, 打包项目在 <code>bun.hostCapabilities</code> 中声明该能力. <code>android.objects</code> 的画笔等辅助接口授权保持独立.</p>
+<p>配套宿主提供已加载应用及 Android/Java 类的公开成员访问, 不再使用旧版本的九类白名单. <code>java.policy.access</code> 为 <code>public</code>; 空的 allowedClasses 不表示所有类被禁用. <code>describe</code> 查询当前设备实际可用的类和成员. 调用在宿主应用进程中运行, 不是 Node/Bun 插件进程; 打包后则在生成应用自己的进程中运行. Java 能力允许调用其公开 Android 接口, 不以其他窄接口开关再次过滤, 但系统权限, UID, SELinux 和 Android 隐藏 API 规则仍生效. 显式调用 Java 反射 API 同样遵守平台的反射规则.</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>返回值及含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type(className)</code> / <code>findClass(className)</code></td>
+<td>本地同步 ClassDescriptor; 使用完整类名, 内部类用 <code>$</code></td>
+</tr>
+<tr>
+<td><code>describe(classOrName, options?)</code></td>
+<td><code>Promise&lt;ClassSpec&gt;</code>; 方法名, 字段名及构造/方法签名</td>
+</tr>
+<tr>
+<td><code>new(classOrName, args?, options?)</code> / <code>create(...)</code></td>
+<td><code>Promise&lt;ObjectHandle&gt;</code>; 调用公开构造器</td>
+</tr>
+<tr>
+<td><code>callStatic(classOrName, method, args?, options?)</code></td>
+<td><code>Promise&lt;unknown&gt;</code>; 静态方法</td>
+</tr>
+<tr>
+<td><code>call(target, method, args?, options?)</code> / <code>callInstance(...)</code></td>
+<td><code>Promise&lt;unknown&gt;</code>; 实例方法</td>
+</tr>
+<tr>
+<td><code>getField(target, field, options?)</code> / <code>setField(target, field, value, options?)</code></td>
+<td>异步读取/写入公开实例字段; 写入返回 boolean</td>
+</tr>
+<tr>
+<td><code>getStatic(classOrName, field, options?)</code> / <code>setStatic(classOrName, field, value, options?)</code></td>
+<td>异步读取/写入公开静态字段; final 字段不可直接写入</td>
+</tr>
+<tr>
+<td><code>getContext(options?)</code></td>
+<td><code>Promise&lt;ObjectHandle&gt;</code>; 当前执行应用的 application Context, 不是 Activity</td>
+</tr>
+<tr>
+<td><code>getClassName(target, options?)</code> / <code>instanceOf(target, classOrName, options?)</code></td>
+<td><code>Promise&lt;string&gt;</code> / <code>Promise&lt;boolean&gt;</code></td>
+</tr>
+<tr>
+<td><code>newArray(componentType, lengthOrValues, options?)</code></td>
+<td><code>Promise&lt;ObjectHandle&gt;</code>; 创建可修改的 Java 数组, 支持基础类型, 对象和嵌套数组</td>
+</tr>
+<tr>
+<td><code>arrayLength(target, options?)</code> / <code>getArrayItem(target, index, options?)</code></td>
+<td><code>Promise&lt;number&gt;</code> / <code>Promise&lt;unknown&gt;</code></td>
+</tr>
+<tr>
+<td><code>setArrayItem(target, index, value, options?)</code> / <code>toArray(target, options?)</code></td>
+<td><code>Promise&lt;boolean&gt;</code> / <code>Promise&lt;readonly unknown[]&gt;</code></td>
+</tr>
+<tr>
+<td><code>cast(type, value)</code></td>
+<td>本地同步 TypedValue, 用于选择重载, typed null 或精确数值</td>
+</tr>
+<tr>
+<td><code>release(target, options?)</code> / <code>dispose(target, options?)</code></td>
+<td><code>Promise&lt;boolean&gt;</code>; 释放该句柄引用, 再次释放返回 false</td>
+</tr>
+</tbody>
+</table>
+<p>ClassDescriptor 带 callStatic/new/create/getStatic/setStatic/describe 方法. ObjectHandle 带 call/callInstance/getField/setField/getClassName/instanceOf/arrayLength/getArrayItem/setArrayItem/toArray/release/dispose 方法, 无需重复传 target. 对象方法不可枚举, <code>toJSON()</code> 返回可克隆的句柄描述符. Worker 间传递后使用 <code>java.call(snapshot, ...)</code> 等模块方法; 克隆不会转移所有权或延长创建者生命周期.</p>
+<p>参数接受 null/undefined, string, boolean, number, bigint, Java 句柄, 数组, TypedArray 和 cast 结果. 普通 JS 对象与函数不自动变为 Java Map 或回调. 可先构造 Bundle/HashMap 再逐项写入. 数组参数按声明的数组类型转换; Java 可变参数使用一个明确的数组参数, 不自动把尾随参数打包. 方法返回的数组是 JS 快照; 使用 newArray 创建并持有 Java 数组可观察原地修改.</p>
+<p>默认按实际值匹配重载, 无法唯一确定时拒绝, 不依赖反射返回顺序. <code>options.parameterTypes</code> 指定准确的 JVM 参数类型名, 如 <code>[&#39;long&#39;, &#39;java.lang.String&#39;, &#39;byte[]&#39;]</code>; <code>java.cast(&#39;java.lang.String&#39;, null)</code> 区分可空引用重载. 非整数不会截断为 int. JS 不安全整数拒绝, 应传 bigint 或 <code>java.cast(&#39;long&#39;, &#39;9223372036854775807&#39;)</code>. 返回的 long 在安全整数范围内是 number, 超出范围是 bigint. NaN/Infinity 使用可传输标记往返后恢复为 JS number. 这些标记由封装处理, 不需用户手写.</p>
+<p><code>options.thread</code> 为 <code>default</code> 或 <code>main</code>; 默认沿用桥接执行线程, Android View 等要求主 Looper 的操作应传 <code>main</code>. 每次调用单独指定. <code>timeoutMs</code> 默认 5000, <code>signal</code> 可取消等待, 但已进入 Java 的操作不承诺回滚或强制中断. Java 异常保留原因类名和消息; Node 使用 Java 桥接错误码, Bun 使用其既有 HostCallError 传输错误码.</p>
+<pre><code class="lang-js">&quot;nodejs&quot;;
+let java = require(&#39;autojs6:java&#39;);
+
+(async () =&gt; {
+    let context = await java.getContext();
+    let array = await java.newArray(&#39;int&#39;, [4, 1, 3]);
+    let view;
+    try {
+        console.log(await context.call(&#39;getPackageName&#39;));
+        await java.callStatic(&#39;java.util.Arrays&#39;, &#39;sort&#39;, [array]);
+        console.log(await array.toArray()); // [1, 3, 4].
+        view = await java.new(&#39;android.widget.TextView&#39;, [context], { thread: &#39;main&#39; });
+        await view.call(&#39;setText&#39;, [&#39;Hello&#39;], { thread: &#39;main&#39; });
+        console.log(String(await java.getStatic(&#39;java.lang.Long&#39;, &#39;MAX_VALUE&#39;)));
+    } finally {
+        if (view) await view.release();
+        await array.release();
+        await context.release();
+    }
+})();
+</code></pre>
+<p>Bun 中把入口替换为 <code>const { createHostClient } = await import(process.env.AUTOJS6_HOST_CLIENT_MODULE); const java = (await createHostClient()).java;</code>. 文档示例只创建未附加的 TextView; 将 View 显示在窗口中仍需对应 UI 操作和系统条件.</p>
+<p>对象句柄属于一次执行; Node Worker 创建的句柄在该 Worker 退出时释放, 父线程句柄保持有效. 取消后的迟到对象结果也会释放. release 只释放桥引用, 不自动调用未知 Java 对象的 close/recycle, 文件流等资源应先显式关闭. Context 句柄不能代替运行时权限申请. 专门的 JS 回调/子类生成, loadDex/loadJar 便利接口和 Rhino 式同步包全局仍未实现. Bun 继续受 1024 次调用, 4 个并行请求和 JSON 大小上限约束; 本次没有修改原生 Bun 二进制或其兼容范围.</p>
 
         </div>
     </div>

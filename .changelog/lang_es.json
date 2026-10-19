@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Interoperabilidad Java/Android para Node.js, Bun y Workers, con constructores y miembros públicos, matrices, valores long exactos, sobrecargas explícitas y referencias Context"
+        },
+        {
+          "category": "feature",
           "text": "Objetos Android para Node.js, Bun y Workers, con Paint, ColorStateList, colores del tema y URI FileProvider"
         },
         {

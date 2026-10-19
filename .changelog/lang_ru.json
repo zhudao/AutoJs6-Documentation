@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Взаимодействие Java/Android для Node.js, Bun и Workers: открытые конструкторы и члены, массивы, точные значения long, явные перегрузки и ссылки Context приложения"
+        },
+        {
+          "category": "feature",
           "text": "Объекты Android для Node.js, Bun и Workers, включая Paint, ColorStateList, цвета темы и URI FileProvider"
         },
         {

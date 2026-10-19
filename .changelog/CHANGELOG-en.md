@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `Feature` Java/Android object interop for Node.js, Bun and Workers, including public constructors and members, arrays, exact long values, explicit overloads and application Context handles
 - `Feature` Android object helpers for Node.js, Bun and Workers, including Paint, ColorStateList, theme colors and FileProvider URIs
 - `Feature` Persistent calendar and IntentTask APIs for Node.js and Bun, with daily, weekly, monthly, yearly, one-shot, countdown and broadcast tasks
 - `Feature` Device controls and dialogs for Bun and Node.js Workers, including brightness, volume and independent window cleanup
