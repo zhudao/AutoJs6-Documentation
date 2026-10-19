@@ -71,6 +71,8 @@ generator\auto-generate-for-autojs6.bat
 
 ### v6.8.0
 
+- `新機能` Node.js, Bun と Worker の Android オブジェクトヘルパー, Paint, ColorStateList, テーマ色と FileProvider URI
+- `新機能` Node.js と Bun の永続的なカレンダーと IntentTask API, 毎日, 毎週, 毎月, 毎年, 単発, カウントダウンとブロードキャストのタスク
 - `新機能` Bun と Node.js Worker のデバイス制御とダイアログ API, 明るさ, 音量と独立したウィンドウ解放
 - `新機能` Bun と Node.js Worker のホストイベントと通知 API, 独立した購読と通知の解放
 - `新機能` Bun, Node.js と Worker のホスト Shell API, ストリーム入出力, Shizuku 許可とプロセス解放

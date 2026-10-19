@@ -925,6 +925,115 @@ main().catch(console.error);
 ```
 
 
+## Android 对象辅助接口与日历任务
+
+宿主 build 5586, Node.js Runtime 1.21.0 和 Bun Runtime 0.10.0 提供以下接口. Node 主线程及 CommonJS/ESM/嵌套 Worker 可导入 `android` / `autojs6:android`, `colors` / `autojs6:colors` 和 `tasks` / `autojs6:tasks`. Bun 使用 `host.android`, `host.colors` 和 `host.tasks`.
+
+### 授权与对象生命周期
+
+| 能力 | Node 声明 | Bun 授权 |
+|---|---|---|
+| Paint, ColorStateList, 主题色, 原生 URI | android.objects | android.objects |
+| 持久日历任务与 IntentTask | tasks | tasks.control |
+| 将颜色状态用于原生 View | ui | ui.layout |
+
+Bun 的 android.objects 与 tasks.control 默认关闭. colors 的纯数值转换, tasks.daysToTimeFlag 和 tasks.timeFlagToDays 在本地执行, 无需这些授权. Node 和 Bun 的 colors 共享当前 Node 颜色转换实现.
+
+Paint 和 ColorStateList 由宿主持有, 脚本通过异步句柄访问. 句柄属于创建它的执行; Worker 退出释放自己的对象, 执行结束释放剩余对象. 句柄不能跨执行使用. ColorStateList 还提供只读 states/colors 快照, 可直接作为原生 TextView 的 textColor. 快照中的值可以序列化, 操作方法仍需原执行中的有效句柄.
+
+### Paint 与颜色状态
+
+| 签名 | 返回值与行为 |
+|---|---|
+| android.createPaint(options?, control?) | Promise<PaintHandle>; options 支持 color, antiAlias (默认 true), strokeWidth (默认 0), textSize (默认 16) 和 style |
+| paint.getInfo(control?) | Promise<PaintInfo>; 当前颜色, 抗锯齿, 线宽, 文字大小和样式 |
+| paint.setColor(color, control?) | Promise<void>; 更新原生 Paint, 也更新句柄颜色快照 |
+| paint.measureText(text, control?) | Promise<number>; 使用原生 Paint 测量文字宽度, 单位 px |
+| paint.close(control?) | Promise<boolean>; 释放对象, 再次关闭返回 false |
+| android.createColorStateList(descriptor, control?) | Promise<ColorStateListHandle>; descriptor.states 与 descriptor.colors 必须非空且长度一致 |
+| stateList.getColorForState(states?, fallback?, control?) | Promise<number>; 使用 Android 颜色状态匹配, fallback 默认为 defaultColor |
+| stateList.close(control?) | Promise<boolean>; 释放对象 |
+
+Paint 的线宽和文字大小使用 px, 必须有限且非负; style 为 fill, stroke 或 fill_and_stroke. control 支持 timeoutMs 和 signal, 默认超时 5000 ms. 取消尚未确认的创建请求会释放后来返回的对象.
+
+颜色状态支持 Android 属性整数, 或 enabled, pressed, focused, checked, selected, activated, window_focused 名称. 名称前加 `!` 表示不具备该状态; 空数组表示默认分支. Android 按 states 的顺序选择首个匹配分支, 应将默认分支放在最后. 句柄包含 defaultColor 和 stateful.
+
+colors.createPaint, colors.createColorStateList 和 colors.setPaintColor 是对应辅助接口. colors.toColorStateList(color, ...colors) 保留旧接口的默认颜色行为, 使用首个颜色; 多状态颜色使用 createColorStateList 明确提供 states.
+
+```js
+"nodejs";
+let colors = require("autojs6:colors");
+let ui = require("ui");
+async function main() {
+    let stateList = await colors.createColorStateList({
+        states: [["!enabled"], []],
+        colors: ["#888888", "#1565C0"]
+    });
+    let text = await ui.createView("Text", { text: "颜色状态", textColor: stateList });
+    let window = await ui.showLayout(text);
+    try {
+        await text.set({ enabled: false });
+    } finally {
+        await window.close();
+        await text.dispose();
+        await stateList.close();
+    }
+}
+main().catch(console.error);
+```
+
+### 主题色与 URI
+
+android.getThemeColor(control?) 和 colors.getThemeColor(control?) 返回 Promise<ThemeColor>, 包含 colorPrimary, colorPrimaryDark 和 colorAccent. colors.themeColor 为异步属性, 需使用 await; 持续读取最新主题可调用 getThemeColor. 主题快照可作为颜色输入, colors.toInt/toHex 等方法使用其 colorPrimary.
+
+android.parseUri(value, control?) 返回原生 Android URI 的只读快照, 包含 value, scheme, authority, host, port, path, query 和 fragment; 缺失的字符串字段为 null, 缺失端口为 -1. null/undefined 输入返回 null.
+
+android.getUriForFile(path, control?) 和 app.getUriForFile(path, control?) 返回 Promise<UriSnapshot>, 由当前应用的 FileProvider 为已存在路径生成 content URI. 相对路径以当前宿主执行目录解析. URI 本身不会授予其他应用读取权; 用 Intent 分享时仍需相应 URI 授权标志. app.parseUri 保留原有同步描述符接口.
+
+### 持久日历任务
+
+tasks 使用宿主任务页面相同的数据库和调度器, 创建结果为只读 JSON 快照. 已确认的任务在 Worker/脚本退出后保留, 需使用删除接口移除. 被取消且尚未确认的注册请求会清理其创建结果. 目标脚本在新的执行中运行, 使用目标项目的运行时及权限配置.
+
+| 创建方法 | 主要参数 |
+|---|---|
+| addTimedTask(options) | path/scriptPath/entry 与 repeatMode |
+| addDailyTask(options) | path 与 time |
+| addWeeklyTask(options) | path, time 与 daysOfWeek |
+| addMonthlyTask(options) | path, time 与 dayOfMonth (1..31) |
+| addYearlyTask(options) | path, time, monthOfYear (1..12) 与 dayOfMonth |
+| addDisposableTask(options) | path 与 date |
+| addCountdownTask(options) | path 与非负整数 delayMs |
+
+这些方法返回 Promise<TimedTask>. path 可以是已有脚本文件或声明了 project.json 的项目目录; 相对路径以宿主执行目录解析. repeatMode 支持 disposable/once, daily, weekly, monthly, yearly, countdown, 或对应数值 0..5. addTask(options) 根据 action/kind 选择 IntentTask, 否则创建日历任务.
+
+time 接受本地 HH:mm[:ss[.SSS]], Date 或时间戳. date 接受 Date, 时间戳或日期时间字符串; 带时区偏移的字符串保留其实际时刻, 无偏移字符串按设备本地时间解析. daysOfWeek 中 0/7 表示周日, 1..6 表示周一至周六, 也支持英文星期名称及缩写.
+
+日历重复按本地日期计算. 月末不存在的日期沿用宿主规则取当月末日; 非闰年的 2 月 29 日取 2 月末日. 夏令时缺失时刻向前跨过缺口, 重复时刻采用较早的一次. endMode 支持 forever, count 或 until_date; count 配合正整数 times, until_date 配合 YYYY-MM-DD 格式的 untilDate. delay, interval 和 loopTimes 沿用脚本执行配置, 默认分别为 0, 0, 1.
+
+任务快照包含 id (数字), kind="timed", path, repeatMode, millis, timeFlag, nextTime, scheduled, finishedTimes, sourceKind, projectRoot 和 options. nextTime 是计划时刻, 实际启动受 Android 调度与运行时可用性影响. 构建器为 tasks 能力声明补入 RECEIVE_BOOT_COMPLETED, WAKE_LOCK 和 SCHEDULE_EXACT_ALARM; 特殊闹钟访问仍由 Android 决定. 宿主继续使用已有的 Alarm/WorkManager/JobScheduler 选择与降级规则. [Android 闹钟调度说明](https://developer.android.com/develop/background-work/services/alarms).
+
+### IntentTask 与任务管理
+
+addIntentTask(options) / addBroadcastIntentTask(options) 返回 Promise<IntentTask>. options 包含 path 与 action, 可选 category, dataType (MIME), local/isLocal. 默认接收外部广播; startup 动作默认 local=true. 本地和外部广播分别注册, category 和 MIME 条件参与匹配. 更新或删除后, 相应接收器按剩余任务重新注册.
+
+IntentTask 快照包含 id, kind="intent", path, action, category, dataType, local, options 和 lastIntent. 本批 API 创建的任务在收到广播后保存最近一次 Intent 快照, 包括 action, data, type, categories, flags, extras 和 receivedAt. 更新时 category/dataType 设为 null 可以清除条件. 自定义广播接收依赖应用进程中的动态注册; 应用强停后需重新打开以恢复注册.
+
+| 管理方法 | 返回值 |
+|---|---|
+| queryTimedTasks(options?) | Promise<readonly TimedTask[]>; 可按 path/scriptPath 和 repeatMode 筛选 |
+| queryIntentTasks(options?) | Promise<readonly IntentTask[]>; 可按 path/scriptPath 和 action 筛选 |
+| queryTasks(options?) | Promise<readonly Task[]>; 两类任务快照 |
+| getTimedTask(id, control?) / getIntentTask(id, control?) | Promise<Task \| null>; 可传对应快照或数字 ID |
+| updateTask(task, patch?) | Promise<Task \| null>; 根据快照 kind 更新并重新调度/注册 |
+| removeTimedTask(id, control?) / removeIntentTask(id, control?) | Promise<boolean> |
+| removeTask(task, control?) | Promise<boolean>; 推荐传含 kind 的快照, 数字或数字字符串按 timed 处理 |
+| daysToTimeFlag(days) / timeFlagToDays(flag) | 本地同步转换; days 为 0..6, flag 为 0..127 |
+
+tasks.sendLocalBroadcastSync(actionOrIntent, control?) 返回 Promise<boolean>, 表示本地事件提交结果, 不等待目标脚本运行完成. Intent 描述符可提供 action, category/categories, type, data 和 JSON 基础类型 extras. 本地事件不重播给新注册的接收器, 使用现有 64 项缓冲.
+
+Node 的 autojs6:compat.tasks.addDisposableTask 保留旧 WorkManager 路径与字符串 ID, queryTasks 保留该旧作业查询. 新 tasks 模块返回本地任务数据库的数字 ID. compat 的 get/remove 根据 ID 类型兼容旧字符串作业, 日历和 Intent 方法转入新接口. 同时声明 tasks/work_manager 时, 无筛选的 compat.tasks.queryTimedTasks 包含两类结果. 新代码建议直接导入 autojs6:tasks.
+
+
 ## UI 与 Compose
 
 **`Async`**

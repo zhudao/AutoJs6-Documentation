@@ -15,6 +15,8 @@
 
 # v6.8.0
 
+- `Feature` Android object helpers for Node.js, Bun and Workers, including Paint, ColorStateList, theme colors and FileProvider URIs
+- `Feature` Persistent calendar and IntentTask APIs for Node.js and Bun, with daily, weekly, monthly, yearly, one-shot, countdown and broadcast tasks
 - `Feature` Device controls and dialogs for Bun and Node.js Workers, including brightness, volume and independent window cleanup
 - `Feature` Host event observers and notifications for Bun and Node.js Workers, with independent subscription and notification cleanup
 - `Feature` Host Shell streaming, Shizuku authorization and process cleanup for Bun, Node.js and Workers

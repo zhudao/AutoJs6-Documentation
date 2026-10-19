@@ -347,6 +347,14 @@
 <li><span class="stability_undefined"><a href="#runtimeapis_16">进度对话框</a></span></li>
 </ul>
 </li>
+<li><span class="stability_undefined"><a href="#runtimeapis_android">Android 对象辅助接口与日历任务</a></span><ul>
+<li><span class="stability_undefined"><a href="#runtimeapis_17">授权与对象生命周期</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_paint">Paint 与颜色状态</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_uri">主题色与 URI</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_18">持久日历任务</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_intenttask">IntentTask 与任务管理</a></span></li>
+</ul>
+</li>
 <li><span class="stability_undefined"><a href="#runtimeapis_ui_compose">UI 与 Compose</a></span><ul>
 <li><span class="stability_undefined"><a href="#runtimeapis_view_xml_compose">原生 View 与 XML compose 容器</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_xml_view">常用 XML 组件与 View 属性代理</a></span></li>
@@ -371,7 +379,7 @@
 <li><span class="stability_undefined"><a href="#runtimeapis_view_choosefiles_options_1">view.chooseFiles(options?) 的媒体选项</a></span></li>
 </ul>
 </li>
-<li><span class="stability_undefined"><a href="#runtimeapis_17">打包项目</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_19">打包项目</a></span></li>
 </ul>
 </li>
 <li><span class="stability_undefined"><a href="#runtimeapis_ace">声明与 Ace 智能提示</a></span><ul>
@@ -379,11 +387,11 @@
 <li><span class="stability_undefined"><a href="#runtimeapis_webview_2">WebView 屏幕共享与后台录制</a></span><ul>
 <li><span class="stability_undefined"><a href="#runtimeapis_view_enabledisplaycapture_options">view.enableDisplayCapture(options)</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_view_disabledisplaycapture_id">view.disableDisplayCapture(id?)</a></span></li>
-<li><span class="stability_undefined"><a href="#runtimeapis_18">后台网页录音</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_20">后台网页录音</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_view_startbackgroundrecording_options">view.startBackgroundRecording(options?)</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_view_getbackgroundrecording_view_stopbackgroundrecording_view_cancelbackgroundrecording_id">view.getBackgroundRecording() / view.stopBackgroundRecording() / view.cancelBackgroundRecording(id?)</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_view_stopmediacapture">view.stopMediaCapture()</a></span></li>
-<li><span class="stability_undefined"><a href="#runtimeapis_19">打包权限与平台边界</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_21">打包权限与平台边界</a></span></li>
 </ul>
 </li>
 </ul>
@@ -1887,6 +1895,200 @@ async function main() {
 }
 main().catch(console.error);
 </code></pre>
+<h2>Android 对象辅助接口与日历任务<span><a class="mark" href="#runtimeapis_android" id="runtimeapis_android">#</a></span></h2>
+<p>宿主 build 5586, Node.js Runtime 1.21.0 和 Bun Runtime 0.10.0 提供以下接口. Node 主线程及 CommonJS/ESM/嵌套 Worker 可导入 <code>android</code> / <code>autojs6:android</code>, <code>colors</code> / <code>autojs6:colors</code> 和 <code>tasks</code> / <code>autojs6:tasks</code>. Bun 使用 <code>host.android</code>, <code>host.colors</code> 和 <code>host.tasks</code>.</p>
+<h3>授权与对象生命周期<span><a class="mark" href="#runtimeapis_17" id="runtimeapis_17">#</a></span></h3>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>Node 声明</th>
+<th>Bun 授权</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Paint, ColorStateList, 主题色, 原生 URI</td>
+<td>android.objects</td>
+<td>android.objects</td>
+</tr>
+<tr>
+<td>持久日历任务与 IntentTask</td>
+<td>tasks</td>
+<td>tasks.control</td>
+</tr>
+<tr>
+<td>将颜色状态用于原生 View</td>
+<td>ui</td>
+<td>ui.layout</td>
+</tr>
+</tbody>
+</table>
+<p>Bun 的 android.objects 与 tasks.control 默认关闭. colors 的纯数值转换, tasks.daysToTimeFlag 和 tasks.timeFlagToDays 在本地执行, 无需这些授权. Node 和 Bun 的 colors 共享当前 Node 颜色转换实现.</p>
+<p>Paint 和 ColorStateList 由宿主持有, 脚本通过异步句柄访问. 句柄属于创建它的执行; Worker 退出释放自己的对象, 执行结束释放剩余对象. 句柄不能跨执行使用. ColorStateList 还提供只读 states/colors 快照, 可直接作为原生 TextView 的 textColor. 快照中的值可以序列化, 操作方法仍需原执行中的有效句柄.</p>
+<h3>Paint 与颜色状态<span><a class="mark" href="#runtimeapis_paint" id="runtimeapis_paint">#</a></span></h3>
+<table>
+<thead>
+<tr>
+<th>签名</th>
+<th>返回值与行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>android.createPaint(options?, control?)</td>
+<td>Promise<PaintHandle>; options 支持 color, antiAlias (默认 true), strokeWidth (默认 0), textSize (默认 16) 和 style</td>
+</tr>
+<tr>
+<td>paint.getInfo(control?)</td>
+<td>Promise<PaintInfo>; 当前颜色, 抗锯齿, 线宽, 文字大小和样式</td>
+</tr>
+<tr>
+<td>paint.setColor(color, control?)</td>
+<td>Promise<void>; 更新原生 Paint, 也更新句柄颜色快照</td>
+</tr>
+<tr>
+<td>paint.measureText(text, control?)</td>
+<td>Promise<number>; 使用原生 Paint 测量文字宽度, 单位 px</td>
+</tr>
+<tr>
+<td>paint.close(control?)</td>
+<td>Promise<boolean>; 释放对象, 再次关闭返回 false</td>
+</tr>
+<tr>
+<td>android.createColorStateList(descriptor, control?)</td>
+<td>Promise<ColorStateListHandle>; descriptor.states 与 descriptor.colors 必须非空且长度一致</td>
+</tr>
+<tr>
+<td>stateList.getColorForState(states?, fallback?, control?)</td>
+<td>Promise<number>; 使用 Android 颜色状态匹配, fallback 默认为 defaultColor</td>
+</tr>
+<tr>
+<td>stateList.close(control?)</td>
+<td>Promise<boolean>; 释放对象</td>
+</tr>
+</tbody>
+</table>
+<p>Paint 的线宽和文字大小使用 px, 必须有限且非负; style 为 fill, stroke 或 fill_and_stroke. control 支持 timeoutMs 和 signal, 默认超时 5000 ms. 取消尚未确认的创建请求会释放后来返回的对象.</p>
+<p>颜色状态支持 Android 属性整数, 或 enabled, pressed, focused, checked, selected, activated, window_focused 名称. 名称前加 <code>!</code> 表示不具备该状态; 空数组表示默认分支. Android 按 states 的顺序选择首个匹配分支, 应将默认分支放在最后. 句柄包含 defaultColor 和 stateful.</p>
+<p>colors.createPaint, colors.createColorStateList 和 colors.setPaintColor 是对应辅助接口. colors.toColorStateList(color, ...colors) 保留旧接口的默认颜色行为, 使用首个颜色; 多状态颜色使用 createColorStateList 明确提供 states.</p>
+<pre><code class="lang-js">&quot;nodejs&quot;;
+let colors = require(&quot;autojs6:colors&quot;);
+let ui = require(&quot;ui&quot;);
+async function main() {
+    let stateList = await colors.createColorStateList({
+        states: [[&quot;!enabled&quot;], []],
+        colors: [&quot;#888888&quot;, &quot;#1565C0&quot;]
+    });
+    let text = await ui.createView(&quot;Text&quot;, { text: &quot;颜色状态&quot;, textColor: stateList });
+    let window = await ui.showLayout(text);
+    try {
+        await text.set({ enabled: false });
+    } finally {
+        await window.close();
+        await text.dispose();
+        await stateList.close();
+    }
+}
+main().catch(console.error);
+</code></pre>
+<h3>主题色与 URI<span><a class="mark" href="#runtimeapis_uri" id="runtimeapis_uri">#</a></span></h3>
+<p>android.getThemeColor(control?) 和 colors.getThemeColor(control?) 返回 Promise<ThemeColor>, 包含 colorPrimary, colorPrimaryDark 和 colorAccent. colors.themeColor 为异步属性, 需使用 await; 持续读取最新主题可调用 getThemeColor. 主题快照可作为颜色输入, colors.toInt/toHex 等方法使用其 colorPrimary.</p>
+<p>android.parseUri(value, control?) 返回原生 Android URI 的只读快照, 包含 value, scheme, authority, host, port, path, query 和 fragment; 缺失的字符串字段为 null, 缺失端口为 -1. null/undefined 输入返回 null.</p>
+<p>android.getUriForFile(path, control?) 和 app.getUriForFile(path, control?) 返回 Promise<UriSnapshot>, 由当前应用的 FileProvider 为已存在路径生成 content URI. 相对路径以当前宿主执行目录解析. URI 本身不会授予其他应用读取权; 用 Intent 分享时仍需相应 URI 授权标志. app.parseUri 保留原有同步描述符接口.</p>
+<h3>持久日历任务<span><a class="mark" href="#runtimeapis_18" id="runtimeapis_18">#</a></span></h3>
+<p>tasks 使用宿主任务页面相同的数据库和调度器, 创建结果为只读 JSON 快照. 已确认的任务在 Worker/脚本退出后保留, 需使用删除接口移除. 被取消且尚未确认的注册请求会清理其创建结果. 目标脚本在新的执行中运行, 使用目标项目的运行时及权限配置.</p>
+<table>
+<thead>
+<tr>
+<th>创建方法</th>
+<th>主要参数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>addTimedTask(options)</td>
+<td>path/scriptPath/entry 与 repeatMode</td>
+</tr>
+<tr>
+<td>addDailyTask(options)</td>
+<td>path 与 time</td>
+</tr>
+<tr>
+<td>addWeeklyTask(options)</td>
+<td>path, time 与 daysOfWeek</td>
+</tr>
+<tr>
+<td>addMonthlyTask(options)</td>
+<td>path, time 与 dayOfMonth (1..31)</td>
+</tr>
+<tr>
+<td>addYearlyTask(options)</td>
+<td>path, time, monthOfYear (1..12) 与 dayOfMonth</td>
+</tr>
+<tr>
+<td>addDisposableTask(options)</td>
+<td>path 与 date</td>
+</tr>
+<tr>
+<td>addCountdownTask(options)</td>
+<td>path 与非负整数 delayMs</td>
+</tr>
+</tbody>
+</table>
+<p>这些方法返回 Promise<TimedTask>. path 可以是已有脚本文件或声明了 project.json 的项目目录; 相对路径以宿主执行目录解析. repeatMode 支持 disposable/once, daily, weekly, monthly, yearly, countdown, 或对应数值 0..5. addTask(options) 根据 action/kind 选择 IntentTask, 否则创建日历任务.</p>
+<p>time 接受本地 HH:mm[:ss[.SSS]], Date 或时间戳. date 接受 Date, 时间戳或日期时间字符串; 带时区偏移的字符串保留其实际时刻, 无偏移字符串按设备本地时间解析. daysOfWeek 中 0/7 表示周日, 1..6 表示周一至周六, 也支持英文星期名称及缩写.</p>
+<p>日历重复按本地日期计算. 月末不存在的日期沿用宿主规则取当月末日; 非闰年的 2 月 29 日取 2 月末日. 夏令时缺失时刻向前跨过缺口, 重复时刻采用较早的一次. endMode 支持 forever, count 或 until_date; count 配合正整数 times, until_date 配合 YYYY-MM-DD 格式的 untilDate. delay, interval 和 loopTimes 沿用脚本执行配置, 默认分别为 0, 0, 1.</p>
+<p>任务快照包含 id (数字), kind=&quot;timed&quot;, path, repeatMode, millis, timeFlag, nextTime, scheduled, finishedTimes, sourceKind, projectRoot 和 options. nextTime 是计划时刻, 实际启动受 Android 调度与运行时可用性影响. 构建器为 tasks 能力声明补入 RECEIVE_BOOT_COMPLETED, WAKE_LOCK 和 SCHEDULE_EXACT_ALARM; 特殊闹钟访问仍由 Android 决定. 宿主继续使用已有的 Alarm/WorkManager/JobScheduler 选择与降级规则. <a href="https://developer.android.com/develop/background-work/services/alarms">Android 闹钟调度说明</a>.</p>
+<h3>IntentTask 与任务管理<span><a class="mark" href="#runtimeapis_intenttask" id="runtimeapis_intenttask">#</a></span></h3>
+<p>addIntentTask(options) / addBroadcastIntentTask(options) 返回 Promise<IntentTask>. options 包含 path 与 action, 可选 category, dataType (MIME), local/isLocal. 默认接收外部广播; startup 动作默认 local=true. 本地和外部广播分别注册, category 和 MIME 条件参与匹配. 更新或删除后, 相应接收器按剩余任务重新注册.</p>
+<p>IntentTask 快照包含 id, kind=&quot;intent&quot;, path, action, category, dataType, local, options 和 lastIntent. 本批 API 创建的任务在收到广播后保存最近一次 Intent 快照, 包括 action, data, type, categories, flags, extras 和 receivedAt. 更新时 category/dataType 设为 null 可以清除条件. 自定义广播接收依赖应用进程中的动态注册; 应用强停后需重新打开以恢复注册.</p>
+<table>
+<thead>
+<tr>
+<th>管理方法</th>
+<th>返回值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>queryTimedTasks(options?)</td>
+<td>Promise<readonly TimedTask[]>; 可按 path/scriptPath 和 repeatMode 筛选</td>
+</tr>
+<tr>
+<td>queryIntentTasks(options?)</td>
+<td>Promise<readonly IntentTask[]>; 可按 path/scriptPath 和 action 筛选</td>
+</tr>
+<tr>
+<td>queryTasks(options?)</td>
+<td>Promise<readonly Task[]>; 两类任务快照</td>
+</tr>
+<tr>
+<td>getTimedTask(id, control?) / getIntentTask(id, control?)</td>
+<td>Promise&lt;Task \</td>
+<td>null&gt;; 可传对应快照或数字 ID</td>
+</tr>
+<tr>
+<td>updateTask(task, patch?)</td>
+<td>Promise&lt;Task \</td>
+<td>null&gt;; 根据快照 kind 更新并重新调度/注册</td>
+</tr>
+<tr>
+<td>removeTimedTask(id, control?) / removeIntentTask(id, control?)</td>
+<td>Promise<boolean></td>
+</tr>
+<tr>
+<td>removeTask(task, control?)</td>
+<td>Promise<boolean>; 推荐传含 kind 的快照, 数字或数字字符串按 timed 处理</td>
+</tr>
+<tr>
+<td>daysToTimeFlag(days) / timeFlagToDays(flag)</td>
+<td>本地同步转换; days 为 0..6, flag 为 0..127</td>
+</tr>
+</tbody>
+</table>
+<p>tasks.sendLocalBroadcastSync(actionOrIntent, control?) 返回 Promise<boolean>, 表示本地事件提交结果, 不等待目标脚本运行完成. Intent 描述符可提供 action, category/categories, type, data 和 JSON 基础类型 extras. 本地事件不重播给新注册的接收器, 使用现有 64 项缓冲.</p>
+<p>Node 的 autojs6:compat.tasks.addDisposableTask 保留旧 WorkManager 路径与字符串 ID, queryTasks 保留该旧作业查询. 新 tasks 模块返回本地任务数据库的数字 ID. compat 的 get/remove 根据 ID 类型兼容旧字符串作业, 日历和 Intent 方法转入新接口. 同时声明 tasks/work_manager 时, 无筛选的 compat.tasks.queryTimedTasks 包含两类结果. 新代码建议直接导入 autojs6:tasks.</p>
 <h2>UI 与 Compose<span><a class="mark" href="#runtimeapis_ui_compose" id="runtimeapis_ui_compose">#</a></span></h2>
 <p><strong><code>Async</code></strong></p>
 <p>以下接口对应当前工作区的开发版本.</p>
@@ -2501,7 +2703,7 @@ console.log(value.answer);
 })().catch(console.error);
 </code></pre>
 <p>参阅 Android <a href="https://developer.android.com/reference/android/provider/MediaStore#ACTION_VIDEO_CAPTURE">视频捕获 Intent</a> 和 <a href="https://developer.android.com/media/platform/mediarecorder">MediaRecorder</a>. 这组文件捕获接口与网页 getUserMedia/MediaRecorder 流式 API 及屏幕录制接口分别使用各自的契约.</p>
-<h3>打包项目<span><a class="mark" href="#runtimeapis_17" id="runtimeapis_17">#</a></span></h3>
+<h3>打包项目<span><a class="mark" href="#runtimeapis_19" id="runtimeapis_19">#</a></span></h3>
 <p>宿主 5566 起, Bun 项目可在 project.json 设置 bun.timeoutMs, 默认 60000 毫秒, 按现有运行时范围限制为 1..600000 毫秒. 显式执行参数 bun.timeoutMillis 优先于项目设置. 打包应用采用同一设置; 拍照/文件选择和下载的等待时限不会延长整个项目的执行预算.</p>
 <p>Node.js/Bun 项目 APK 使用已安装的外部 Runtime 插件和 3-Block Compose 插件, 自己的应用版本号可以从 1 开始. runtimeVersionCode 表示内置宿主运行库版本, applicationVersionCode 表示应用声明版本. APK Builder 需要匹配的 Runtime Kit (本批为 6.8.0+5567).</p>
 <p>Node 项目通过 node.permissions 声明 ui. Bun 项目使用 projectType=bun 或 bun 入口标记, 并在 project.json 明确声明 bun.hostCapabilities, 例如:</p>
@@ -2641,7 +2843,7 @@ await web.evaluateJavascript(`
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_promise">Promise</a></span> } - <code>boolean</code>, 是否移除了匹配的安装.</li>
 </ul>
 <p>停止待处理授权和活动共享, 移除当前页面的适配器. 完成 MediaRecorder 的 stop/dataavailable 及输出保存后再调用; 页面资源关闭后不能重新读取尚未保存的 Blob.</p>
-<h4>后台网页录音<span><a class="mark" href="#runtimeapis_18" id="runtimeapis_18">#</a></span></h4>
+<h4>后台网页录音<span><a class="mark" href="#runtimeapis_20" id="runtimeapis_20">#</a></span></h4>
 <p>WebChromeClient 的 <code>onPermissionRequest</code> 对象回复增加 <code>backgroundCapture: true</code>. 在前台取得 CAMERA/RECORD_AUDIO 授权后, 为所选资源启动带停止操作的 Android 前台服务, 然后将资源授予网页. 麦克风流可在应用退到后台后继续录制, 仍需显式停止轨道及释放服务.</p>
 <pre><code class="lang-js">await web.setWebChromeClient({
     onPermissionRequest(event) {
@@ -2694,7 +2896,7 @@ try {
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_promise">Promise</a></span> } - <code>true</code>.</li>
 </ul>
 <p>取消活动媒体, 原生未保存录像及屏幕共享, 释放前台服务, 并导航到 about:blank. 完成并保存网页 MediaRecorder 的结果或原生 stopBackgroundRecording 结果后再释放; 此方法本身不负责合并网页录制分片.</p>
-<h4>打包权限与平台边界<span><a class="mark" href="#runtimeapis_19" id="runtimeapis_19">#</a></span></h4>
+<h4>打包权限与平台边界<span><a class="mark" href="#runtimeapis_21" id="runtimeapis_21">#</a></span></h4>
 <p>屏幕共享项目需声明 FOREGROUND_SERVICE_MEDIA_PROJECTION; APK Builder 1.2.7 会保留其配套 FOREGROUND_SERVICE. 选择 CAMERA/RECORD_AUDIO 时, Builder 同时保留对应 FOREGROUND_SERVICE_CAMERA/FOREGROUND_SERVICE_MICROPHONE; RECORD_AUDIO 仍会保留 MODIFY_AUDIO_SETTINGS. 这些普通权限不会替代 Android 的相机/麦克风授权或每次屏幕共享授权.</p>
 <p>本批后台行为指应用退到其他应用之后继续运行的受保护前台服务. 不承诺开机启动, 系统强停后恢复, 绕过屏幕锁定时的撤销, 厂商省电限制或无限时录制. Android 和 WebView 的限制仍然适用. 参阅 <a href="https://developer.android.com/develop/background-work/services/fgs/service-types">Android 前台服务类型</a> 与 <a href="https://www.w3.org/TR/screen-capture/">Screen Capture 标准</a>.</p>
 
