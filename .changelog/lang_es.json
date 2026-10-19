@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Control del dispositivo y diálogos para Bun y Workers de Node.js, con brillo, volumen y limpieza independiente de ventanas"
+        },
+        {
+          "category": "feature",
           "text": "Eventos y notificaciones del anfitrión para Bun y Workers de Node.js, con limpieza independiente de suscripciones y notificaciones"
         },
         {

@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `Fonctionnalité` Commandes de périphérique et dialogues pour Bun et les Workers Node.js, avec luminosité, volume et nettoyage indépendant des fenêtres
 - `Fonctionnalité` Événements et notifications hôtes pour Bun et les Workers Node.js, avec nettoyage indépendant des abonnements et notifications
 - `Fonctionnalité` Shell hôte avec flux, autorisation Shizuku et nettoyage des processus pour Bun, Node.js et les Workers
 - `Correction` Déclarations et complétions manquantes des processus shell/shizuku, dont les paramètres des événements et les constructeurs Shell avec tubes

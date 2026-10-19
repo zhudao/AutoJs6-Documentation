@@ -845,6 +845,86 @@ if (status.notificationsEnabled && status.postNotificationsPermissionGranted) {
 
 Bun 仍受每次执行 1024 次桥接调用, 四个并行任务, 64 KiB 请求, 256 KiB 响应和单次 RPC 10 秒的原有限制. start/poll 均计入额度, 不应视为无限时长事件通道. 额度耗尽会释放该执行的事件订阅和通知. 本批不提供任意 Android 广播, Rhino 全部 EventEmitter 扩展或任意原生通知操作.
 
+## 设备控制与对话框
+
+宿主 build 5585, Node.js Runtime 1.20.0 和 Bun Runtime 0.9.0 提供共同的异步设备控制和对话框接口. Node 主线程及 CommonJS/ESM/嵌套 Worker 可导入 `device` / `autojs6:device` 和 `dialogs` / `autojs6:dialogs`; Bun 使用 `host.device` 和 `host.dialogs`.
+
+### 授权与设备信息
+
+| 能力 | Node 声明 | Bun 独立授权 |
+|---|---|---|
+| 实时信息, 唤醒, 振动 | `device` | `device.control` |
+| 亮度, 保持亮屏, 电池优化设置 | `device` + `device.power` | `device.control` + `device.power` |
+| 媒体/通知/闹钟音量 | `media` + `media.audio` | `device.audio` |
+| 输入/选择/进度对话框 | `dialogs` | `dialogs.control` |
+
+Bun 的上述四项授权默认关闭, `device.info` 保留原有独立授权和格式. 打包项目在 `bun.hostCapabilities` 或 `node.permissions` 中声明能力. 构建器补入 WAKE_LOCK, VIBRATE, WRITE_SETTINGS 和 MODIFY_AUDIO_SETTINGS 对应清单项; 修改系统亮度仍需 Android 单独允许应用修改系统设置, 不会因项目声明自动获准.
+
+`device.getInfo(options?)` 返回完整实时快照, 包含 build, screen, battery, memory, screenOn, locale, timeZone, uptimeMs 和 now. Node 的 `device.info()` 是其别名. Bun 的 `host.device.info()` 继续返回原有 Build 简要信息, 完整快照使用 `host.device.getInfo()`. Node 的同步 width/height/density/densityDpi 和 Build 属性是执行启动快照, Worker 继承它; Bun 使用异步 getter, 不提供这些同步属性.
+
+实时 getter 均返回 Promise:
+
+- 数值: getWidth, getHeight, getDensity, getDensityDpi, getBrightness, getBrightnessMode, getBattery, getSdkInt, getTotalMem, getAvailMem.
+- 字符串: getRelease, getModel, getBrand, getProduct, getBoard, getBootloader, getHardware, getFingerprint, getBuildId.
+- 布尔: isCharging, isScreenOn, isIgnoringBatteryOptimizations.
+
+缺失的设备信息会拒绝 Promise, 不返回伪造的有效值. 内存单位为字节; 宽高为像素. 屏幕方向应读取实时信息, 不用 Node 的启动快照推断.
+
+### 设备控制方法
+
+| 签名 | 返回值与行为 |
+|---|---|
+| setBrightness(value, options?) | Promise<void>; 整数 0..255, 写入系统亮度设置 |
+| setBrightnessMode(mode, options?) | Promise<void>; 0 为手动, 1 为自动 |
+| keepScreenOn(timeoutMs, options?) | Promise<void>; 正整数毫秒, 替换当前客户端的定时亮屏锁 |
+| cancelKeepingAwake(options?) | Promise<void>; 释放当前客户端的亮屏锁 |
+| wakeUp(options?) | Promise<void>; 请求唤醒屏幕 |
+| vibrate(durationMs, options?) | Promise<void>; 非负有限时长, 向下取整并限制为最多 10000 ms |
+| getMusicVolume / getNotificationVolume / getAlarmVolume(options?) | Promise<number>; 当前音量 |
+| getMusicMaxVolume / getNotificationMaxVolume / getAlarmMaxVolume(options?) | Promise<number>; 最大音量 |
+| setMusicVolume / setNotificationVolume / setAlarmVolume(value, options?) | Promise<void>; 非负整数, Android 决定允许范围与勿扰模式限制 |
+| openBatteryOptimizationSettings(options?) | Promise<object>; options.dryRun=true 仅检查, 不打开设置页 |
+
+控制方法支持 timeoutMs 和 signal. 一般调用默认超时 5000 ms. 亮屏锁属于创建它的客户端; Worker 退出只释放自己的锁, 执行结束释放该执行的全部锁. Android 的用户设置, 电源策略和权限仍有最终决定权. 音量控制本身不播放测试音.
+
+### 输入与选择对话框
+
+| 签名 | 返回值 | 取消结果 |
+|---|---|---|
+| alert(title, message?, options?) | Promise<void> | undefined |
+| confirm(title, message?, options?) | Promise<boolean> | false |
+| input / prompt / rawInput(title, prefill?, options?) | Promise<string \| null> | null |
+| select(title, items, options?) | Promise<number> | -1 |
+| singleChoice(title, items, selected=-1, options?) | Promise<number> | -1 |
+| multiChoice(title, items, selected=[], options?) | Promise<readonly number[]> | [] |
+
+input, prompt 和 rawInput 都返回文本, 不执行输入的 JavaScript. message/prefill 可以省略, 直接传 options. items 接受 string/number/boolean 数组, 索引从 0 开始. multiChoice 成功返回按索引排序的选中项. options 的 positive/negative/neutral 自定义按钮文本; neutral 的结果与取消相同. select 使用列表项直接完成选择.
+
+对话框依附宿主或打包应用的独立 Activity, 不依赖 Rhino UI 线程. 普通交互默认等待 30000 ms, timeoutMs 可调整, Bun 最大为 120000 ms. 用户取消返回上表值; 超时或 AbortSignal 取消拒绝 Promise 并关闭窗口. Worker/执行退出也会清理仍在等待或尚未附着 Activity 的窗口. Android 仍限制后台启动 Activity.
+
+### 进度对话框
+
+`dialogs.progress.show(descriptor?, options?)` 返回 Promise<ProgressHandle>, 默认等待创建完成的预算为 10000 ms. descriptor 支持 title, message, max (默认 100), value (默认 0) 和 indeterminate (默认 false); max 必须大于 0, value 必须在 0..max 范围内.
+
+句柄包含 id, shown, title, message, max, value 和 indeterminate, 并提供 update(patch, options?) 和 dismiss(options?). update 返回新的只读状态, 句柄的属性也随成功更新变化; dismiss 返回是否关闭了仍存在的窗口. 对应模块方法为 progress.update(id, patch, options?) 和 progress.dismiss(id, options?), 默认超时 5000 ms. 同一客户端创建的句柄可由这些方法操作. 创建完成后不会受 show 的超时预算影响, 需要显式关闭或由 Worker/执行退出清理.
+
+```js
+"nodejs";
+let device = require("autojs6:device");
+let dialogs = require("autojs6:dialogs");
+async function main() {
+    let progress = await dialogs.progress.show({ title: "设备信息", max: 1 });
+    try {
+        let info = await device.getInfo();
+        await progress.update({ value: 1, message: info.build.model });
+    } finally {
+        await progress.dismiss();
+    }
+}
+main().catch(console.error);
+```
+
+
 ## UI 与 Compose
 
 **`Async`**

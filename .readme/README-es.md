@@ -71,6 +71,7 @@ La documentación puede cambiar en cualquier momento y diferir del comportamient
 
 ### v6.8.0
 
+- `Nuevo` Control del dispositivo y diálogos para Bun y Workers de Node.js, con brillo, volumen y limpieza independiente de ventanas
 - `Nuevo` Eventos y notificaciones del anfitrión para Bun y Workers de Node.js, con limpieza independiente de suscripciones y notificaciones
 - `Nuevo` Shell del anfitrión con flujos, autorización Shizuku y limpieza de procesos para Bun, Node.js y Workers
 - `Corrección` Declaraciones y autocompletado ausentes de procesos shell/shizuku, incluidos eventos y constructores Shell con tuberías

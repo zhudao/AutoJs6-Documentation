@@ -71,6 +71,7 @@ generator\auto-generate-for-autojs6.bat
 
 ### v6.8.0
 
+- `新增` Bun 与 Node.js Worker 的设备控制和对话框 API, 支持亮度, 音量和独立窗口清理
 - `新增` Bun 与 Node.js Worker 的宿主事件和通知 API, 支持独立订阅与通知清理
 - `新增` Bun, Node.js 及 Worker 的宿主 Shell API, 支持流式输入输出, Shizuku 授权与进程清理
 - `修复` shell/shizuku 进程接口的类型声明与补全缺漏, 包含事件参数及管道 Shell 构造器

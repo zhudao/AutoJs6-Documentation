@@ -340,6 +340,13 @@
 <li><span class="stability_undefined"><a href="#runtimeapis_11">通知模块</a></span></li>
 </ul>
 </li>
+<li><span class="stability_undefined"><a href="#runtimeapis_12">设备控制与对话框</a></span><ul>
+<li><span class="stability_undefined"><a href="#runtimeapis_13">授权与设备信息</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_14">设备控制方法</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_15">输入与选择对话框</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_16">进度对话框</a></span></li>
+</ul>
+</li>
 <li><span class="stability_undefined"><a href="#runtimeapis_ui_compose">UI 与 Compose</a></span><ul>
 <li><span class="stability_undefined"><a href="#runtimeapis_view_xml_compose">原生 View 与 XML compose 容器</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_xml_view">常用 XML 组件与 View 属性代理</a></span></li>
@@ -364,7 +371,7 @@
 <li><span class="stability_undefined"><a href="#runtimeapis_view_choosefiles_options_1">view.chooseFiles(options?) 的媒体选项</a></span></li>
 </ul>
 </li>
-<li><span class="stability_undefined"><a href="#runtimeapis_12">打包项目</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_17">打包项目</a></span></li>
 </ul>
 </li>
 <li><span class="stability_undefined"><a href="#runtimeapis_ace">声明与 Ace 智能提示</a></span><ul>
@@ -372,11 +379,11 @@
 <li><span class="stability_undefined"><a href="#runtimeapis_webview_2">WebView 屏幕共享与后台录制</a></span><ul>
 <li><span class="stability_undefined"><a href="#runtimeapis_view_enabledisplaycapture_options">view.enableDisplayCapture(options)</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_view_disabledisplaycapture_id">view.disableDisplayCapture(id?)</a></span></li>
-<li><span class="stability_undefined"><a href="#runtimeapis_13">后台网页录音</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_18">后台网页录音</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_view_startbackgroundrecording_options">view.startBackgroundRecording(options?)</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_view_getbackgroundrecording_view_stopbackgroundrecording_view_cancelbackgroundrecording_id">view.getBackgroundRecording() / view.stopBackgroundRecording() / view.cancelBackgroundRecording(id?)</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_view_stopmediacapture">view.stopMediaCapture()</a></span></li>
-<li><span class="stability_undefined"><a href="#runtimeapis_14">打包权限与平台边界</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_19">打包权限与平台边界</a></span></li>
 </ul>
 </li>
 </ul>
@@ -1723,6 +1730,163 @@ if (status.notificationsEnabled &amp;&amp; status.postNotificationsPermissionGra
 }
 </code></pre>
 <p>Bun 仍受每次执行 1024 次桥接调用, 四个并行任务, 64 KiB 请求, 256 KiB 响应和单次 RPC 10 秒的原有限制. start/poll 均计入额度, 不应视为无限时长事件通道. 额度耗尽会释放该执行的事件订阅和通知. 本批不提供任意 Android 广播, Rhino 全部 EventEmitter 扩展或任意原生通知操作.</p>
+<h2>设备控制与对话框<span><a class="mark" href="#runtimeapis_12" id="runtimeapis_12">#</a></span></h2>
+<p>宿主 build 5585, Node.js Runtime 1.20.0 和 Bun Runtime 0.9.0 提供共同的异步设备控制和对话框接口. Node 主线程及 CommonJS/ESM/嵌套 Worker 可导入 <code>device</code> / <code>autojs6:device</code> 和 <code>dialogs</code> / <code>autojs6:dialogs</code>; Bun 使用 <code>host.device</code> 和 <code>host.dialogs</code>.</p>
+<h3>授权与设备信息<span><a class="mark" href="#runtimeapis_13" id="runtimeapis_13">#</a></span></h3>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>Node 声明</th>
+<th>Bun 独立授权</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>实时信息, 唤醒, 振动</td>
+<td><code>device</code></td>
+<td><code>device.control</code></td>
+</tr>
+<tr>
+<td>亮度, 保持亮屏, 电池优化设置</td>
+<td><code>device</code> + <code>device.power</code></td>
+<td><code>device.control</code> + <code>device.power</code></td>
+</tr>
+<tr>
+<td>媒体/通知/闹钟音量</td>
+<td><code>media</code> + <code>media.audio</code></td>
+<td><code>device.audio</code></td>
+</tr>
+<tr>
+<td>输入/选择/进度对话框</td>
+<td><code>dialogs</code></td>
+<td><code>dialogs.control</code></td>
+</tr>
+</tbody>
+</table>
+<p>Bun 的上述四项授权默认关闭, <code>device.info</code> 保留原有独立授权和格式. 打包项目在 <code>bun.hostCapabilities</code> 或 <code>node.permissions</code> 中声明能力. 构建器补入 WAKE_LOCK, VIBRATE, WRITE_SETTINGS 和 MODIFY_AUDIO_SETTINGS 对应清单项; 修改系统亮度仍需 Android 单独允许应用修改系统设置, 不会因项目声明自动获准.</p>
+<p><code>device.getInfo(options?)</code> 返回完整实时快照, 包含 build, screen, battery, memory, screenOn, locale, timeZone, uptimeMs 和 now. Node 的 <code>device.info()</code> 是其别名. Bun 的 <code>host.device.info()</code> 继续返回原有 Build 简要信息, 完整快照使用 <code>host.device.getInfo()</code>. Node 的同步 width/height/density/densityDpi 和 Build 属性是执行启动快照, Worker 继承它; Bun 使用异步 getter, 不提供这些同步属性.</p>
+<p>实时 getter 均返回 Promise:</p>
+<ul>
+<li>数值: getWidth, getHeight, getDensity, getDensityDpi, getBrightness, getBrightnessMode, getBattery, getSdkInt, getTotalMem, getAvailMem.</li>
+<li>字符串: getRelease, getModel, getBrand, getProduct, getBoard, getBootloader, getHardware, getFingerprint, getBuildId.</li>
+<li>布尔: isCharging, isScreenOn, isIgnoringBatteryOptimizations.</li>
+</ul>
+<p>缺失的设备信息会拒绝 Promise, 不返回伪造的有效值. 内存单位为字节; 宽高为像素. 屏幕方向应读取实时信息, 不用 Node 的启动快照推断.</p>
+<h3>设备控制方法<span><a class="mark" href="#runtimeapis_14" id="runtimeapis_14">#</a></span></h3>
+<table>
+<thead>
+<tr>
+<th>签名</th>
+<th>返回值与行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>setBrightness(value, options?)</td>
+<td>Promise<void>; 整数 0..255, 写入系统亮度设置</td>
+</tr>
+<tr>
+<td>setBrightnessMode(mode, options?)</td>
+<td>Promise<void>; 0 为手动, 1 为自动</td>
+</tr>
+<tr>
+<td>keepScreenOn(timeoutMs, options?)</td>
+<td>Promise<void>; 正整数毫秒, 替换当前客户端的定时亮屏锁</td>
+</tr>
+<tr>
+<td>cancelKeepingAwake(options?)</td>
+<td>Promise<void>; 释放当前客户端的亮屏锁</td>
+</tr>
+<tr>
+<td>wakeUp(options?)</td>
+<td>Promise<void>; 请求唤醒屏幕</td>
+</tr>
+<tr>
+<td>vibrate(durationMs, options?)</td>
+<td>Promise<void>; 非负有限时长, 向下取整并限制为最多 10000 ms</td>
+</tr>
+<tr>
+<td>getMusicVolume / getNotificationVolume / getAlarmVolume(options?)</td>
+<td>Promise<number>; 当前音量</td>
+</tr>
+<tr>
+<td>getMusicMaxVolume / getNotificationMaxVolume / getAlarmMaxVolume(options?)</td>
+<td>Promise<number>; 最大音量</td>
+</tr>
+<tr>
+<td>setMusicVolume / setNotificationVolume / setAlarmVolume(value, options?)</td>
+<td>Promise<void>; 非负整数, Android 决定允许范围与勿扰模式限制</td>
+</tr>
+<tr>
+<td>openBatteryOptimizationSettings(options?)</td>
+<td>Promise<object>; options.dryRun=true 仅检查, 不打开设置页</td>
+</tr>
+</tbody>
+</table>
+<p>控制方法支持 timeoutMs 和 signal. 一般调用默认超时 5000 ms. 亮屏锁属于创建它的客户端; Worker 退出只释放自己的锁, 执行结束释放该执行的全部锁. Android 的用户设置, 电源策略和权限仍有最终决定权. 音量控制本身不播放测试音.</p>
+<h3>输入与选择对话框<span><a class="mark" href="#runtimeapis_15" id="runtimeapis_15">#</a></span></h3>
+<table>
+<thead>
+<tr>
+<th>签名</th>
+<th>返回值</th>
+<th>取消结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>alert(title, message?, options?)</td>
+<td>Promise<void></td>
+<td>undefined</td>
+</tr>
+<tr>
+<td>confirm(title, message?, options?)</td>
+<td>Promise<boolean></td>
+<td>false</td>
+</tr>
+<tr>
+<td>input / prompt / rawInput(title, prefill?, options?)</td>
+<td>Promise&lt;string \</td>
+<td>null&gt;</td>
+<td>null</td>
+</tr>
+<tr>
+<td>select(title, items, options?)</td>
+<td>Promise<number></td>
+<td>-1</td>
+</tr>
+<tr>
+<td>singleChoice(title, items, selected=-1, options?)</td>
+<td>Promise<number></td>
+<td>-1</td>
+</tr>
+<tr>
+<td>multiChoice(title, items, selected=[], options?)</td>
+<td>Promise<readonly number[]></td>
+<td>[]</td>
+</tr>
+</tbody>
+</table>
+<p>input, prompt 和 rawInput 都返回文本, 不执行输入的 JavaScript. message/prefill 可以省略, 直接传 options. items 接受 string/number/boolean 数组, 索引从 0 开始. multiChoice 成功返回按索引排序的选中项. options 的 positive/negative/neutral 自定义按钮文本; neutral 的结果与取消相同. select 使用列表项直接完成选择.</p>
+<p>对话框依附宿主或打包应用的独立 Activity, 不依赖 Rhino UI 线程. 普通交互默认等待 30000 ms, timeoutMs 可调整, Bun 最大为 120000 ms. 用户取消返回上表值; 超时或 AbortSignal 取消拒绝 Promise 并关闭窗口. Worker/执行退出也会清理仍在等待或尚未附着 Activity 的窗口. Android 仍限制后台启动 Activity.</p>
+<h3>进度对话框<span><a class="mark" href="#runtimeapis_16" id="runtimeapis_16">#</a></span></h3>
+<p><code>dialogs.progress.show(descriptor?, options?)</code> 返回 Promise<ProgressHandle>, 默认等待创建完成的预算为 10000 ms. descriptor 支持 title, message, max (默认 100), value (默认 0) 和 indeterminate (默认 false); max 必须大于 0, value 必须在 0..max 范围内.</p>
+<p>句柄包含 id, shown, title, message, max, value 和 indeterminate, 并提供 update(patch, options?) 和 dismiss(options?). update 返回新的只读状态, 句柄的属性也随成功更新变化; dismiss 返回是否关闭了仍存在的窗口. 对应模块方法为 progress.update(id, patch, options?) 和 progress.dismiss(id, options?), 默认超时 5000 ms. 同一客户端创建的句柄可由这些方法操作. 创建完成后不会受 show 的超时预算影响, 需要显式关闭或由 Worker/执行退出清理.</p>
+<pre><code class="lang-js">&quot;nodejs&quot;;
+let device = require(&quot;autojs6:device&quot;);
+let dialogs = require(&quot;autojs6:dialogs&quot;);
+async function main() {
+    let progress = await dialogs.progress.show({ title: &quot;设备信息&quot;, max: 1 });
+    try {
+        let info = await device.getInfo();
+        await progress.update({ value: 1, message: info.build.model });
+    } finally {
+        await progress.dismiss();
+    }
+}
+main().catch(console.error);
+</code></pre>
 <h2>UI 与 Compose<span><a class="mark" href="#runtimeapis_ui_compose" id="runtimeapis_ui_compose">#</a></span></h2>
 <p><strong><code>Async</code></strong></p>
 <p>以下接口对应当前工作区的开发版本.</p>
@@ -2337,7 +2501,7 @@ console.log(value.answer);
 })().catch(console.error);
 </code></pre>
 <p>参阅 Android <a href="https://developer.android.com/reference/android/provider/MediaStore#ACTION_VIDEO_CAPTURE">视频捕获 Intent</a> 和 <a href="https://developer.android.com/media/platform/mediarecorder">MediaRecorder</a>. 这组文件捕获接口与网页 getUserMedia/MediaRecorder 流式 API 及屏幕录制接口分别使用各自的契约.</p>
-<h3>打包项目<span><a class="mark" href="#runtimeapis_12" id="runtimeapis_12">#</a></span></h3>
+<h3>打包项目<span><a class="mark" href="#runtimeapis_17" id="runtimeapis_17">#</a></span></h3>
 <p>宿主 5566 起, Bun 项目可在 project.json 设置 bun.timeoutMs, 默认 60000 毫秒, 按现有运行时范围限制为 1..600000 毫秒. 显式执行参数 bun.timeoutMillis 优先于项目设置. 打包应用采用同一设置; 拍照/文件选择和下载的等待时限不会延长整个项目的执行预算.</p>
 <p>Node.js/Bun 项目 APK 使用已安装的外部 Runtime 插件和 3-Block Compose 插件, 自己的应用版本号可以从 1 开始. runtimeVersionCode 表示内置宿主运行库版本, applicationVersionCode 表示应用声明版本. APK Builder 需要匹配的 Runtime Kit (本批为 6.8.0+5567).</p>
 <p>Node 项目通过 node.permissions 声明 ui. Bun 项目使用 projectType=bun 或 bun 入口标记, 并在 project.json 明确声明 bun.hostCapabilities, 例如:</p>
@@ -2477,7 +2641,7 @@ await web.evaluateJavascript(`
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_promise">Promise</a></span> } - <code>boolean</code>, 是否移除了匹配的安装.</li>
 </ul>
 <p>停止待处理授权和活动共享, 移除当前页面的适配器. 完成 MediaRecorder 的 stop/dataavailable 及输出保存后再调用; 页面资源关闭后不能重新读取尚未保存的 Blob.</p>
-<h4>后台网页录音<span><a class="mark" href="#runtimeapis_13" id="runtimeapis_13">#</a></span></h4>
+<h4>后台网页录音<span><a class="mark" href="#runtimeapis_18" id="runtimeapis_18">#</a></span></h4>
 <p>WebChromeClient 的 <code>onPermissionRequest</code> 对象回复增加 <code>backgroundCapture: true</code>. 在前台取得 CAMERA/RECORD_AUDIO 授权后, 为所选资源启动带停止操作的 Android 前台服务, 然后将资源授予网页. 麦克风流可在应用退到后台后继续录制, 仍需显式停止轨道及释放服务.</p>
 <pre><code class="lang-js">await web.setWebChromeClient({
     onPermissionRequest(event) {
@@ -2530,7 +2694,7 @@ try {
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_promise">Promise</a></span> } - <code>true</code>.</li>
 </ul>
 <p>取消活动媒体, 原生未保存录像及屏幕共享, 释放前台服务, 并导航到 about:blank. 完成并保存网页 MediaRecorder 的结果或原生 stopBackgroundRecording 结果后再释放; 此方法本身不负责合并网页录制分片.</p>
-<h4>打包权限与平台边界<span><a class="mark" href="#runtimeapis_14" id="runtimeapis_14">#</a></span></h4>
+<h4>打包权限与平台边界<span><a class="mark" href="#runtimeapis_19" id="runtimeapis_19">#</a></span></h4>
 <p>屏幕共享项目需声明 FOREGROUND_SERVICE_MEDIA_PROJECTION; APK Builder 1.2.7 会保留其配套 FOREGROUND_SERVICE. 选择 CAMERA/RECORD_AUDIO 时, Builder 同时保留对应 FOREGROUND_SERVICE_CAMERA/FOREGROUND_SERVICE_MICROPHONE; RECORD_AUDIO 仍会保留 MODIFY_AUDIO_SETTINGS. 这些普通权限不会替代 Android 的相机/麦克风授权或每次屏幕共享授权.</p>
 <p>本批后台行为指应用退到其他应用之后继续运行的受保护前台服务. 不承诺开机启动, 系统强停后恢复, 绕过屏幕锁定时的撤销, 厂商省电限制或无限时录制. Android 和 WebView 的限制仍然适用. 参阅 <a href="https://developer.android.com/develop/background-work/services/fgs/service-types">Android 前台服务类型</a> 与 <a href="https://www.w3.org/TR/screen-capture/">Screen Capture 标准</a>.</p>
 

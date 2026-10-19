@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Commandes de périphérique et dialogues pour Bun et les Workers Node.js, avec luminosité, volume et nettoyage indépendant des fenêtres"
+        },
+        {
+          "category": "feature",
           "text": "Événements et notifications hôtes pour Bun et les Workers Node.js, avec nettoyage indépendant des abonnements et notifications"
         },
         {

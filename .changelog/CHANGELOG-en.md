@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `Feature` Device controls and dialogs for Bun and Node.js Workers, including brightness, volume and independent window cleanup
 - `Feature` Host event observers and notifications for Bun and Node.js Workers, with independent subscription and notification cleanup
 - `Feature` Host Shell streaming, Shizuku authorization and process cleanup for Bun, Node.js and Workers
 - `Fix` Missing shell/shizuku process declarations and completions, including event parameters and pipe-based Shell constructors

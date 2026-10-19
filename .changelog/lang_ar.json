@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "التحكم بالجهاز ومربعات الحوار في Bun وNode.js Workers مع السطوع والصوت والتنظيف المستقل للنوافذ"
+        },
+        {
+          "category": "feature",
           "text": "أحداث وإشعارات المضيف في Bun وNode.js Workers مع تنظيف مستقل للاشتراكات والإشعارات"
         },
         {

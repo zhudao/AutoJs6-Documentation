@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `추가` Bun 및 Node.js Worker의 기기 제어와 대화상자 API, 밝기, 음량 및 독립 창 정리
 - `추가` Bun 및 Node.js Worker의 호스트 이벤트 및 알림 API, 독립 구독과 알림 정리
 - `추가` Bun, Node.js 및 Worker의 호스트 Shell API, 스트리밍 입출력, Shizuku 승인 및 프로세스 정리
 - `수정` shell/shizuku 프로세스 타입 선언과 자동 완성 누락, 이벤트 인수 및 파이프 Shell 생성자 포함

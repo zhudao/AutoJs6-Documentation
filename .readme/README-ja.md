@@ -71,6 +71,7 @@ generator\auto-generate-for-autojs6.bat
 
 ### v6.8.0
 
+- `新機能` Bun と Node.js Worker のデバイス制御とダイアログ API, 明るさ, 音量と独立したウィンドウ解放
 - `新機能` Bun と Node.js Worker のホストイベントと通知 API, 独立した購読と通知の解放
 - `新機能` Bun, Node.js と Worker のホスト Shell API, ストリーム入出力, Shizuku 許可とプロセス解放
 - `修正` shell/shizuku プロセスの型宣言と補完の不足, イベント引数とパイプ型 Shell コンストラクターを含む

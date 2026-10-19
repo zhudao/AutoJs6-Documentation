@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Bun と Node.js Worker のデバイス制御とダイアログ API, 明るさ, 音量と独立したウィンドウ解放"
+        },
+        {
+          "category": "feature",
           "text": "Bun と Node.js Worker のホストイベントと通知 API, 独立した購読と通知の解放"
         },
         {

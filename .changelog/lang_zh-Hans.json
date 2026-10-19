@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Bun 与 Node.js Worker 的设备控制和对话框 API, 支持亮度, 音量和独立窗口清理"
+        },
+        {
+          "category": "feature",
           "text": "Bun 与 Node.js Worker 的宿主事件和通知 API, 支持独立订阅与通知清理"
         },
         {

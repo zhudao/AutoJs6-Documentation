@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Bun 및 Node.js Worker의 기기 제어와 대화상자 API, 밝기, 음량 및 독립 창 정리"
+        },
+        {
+          "category": "feature",
           "text": "Bun 및 Node.js Worker의 호스트 이벤트 및 알림 API, 독립 구독과 알림 정리"
         },
         {
