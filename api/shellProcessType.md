@@ -1,6 +1,6 @@
 # ShellProcess
 
-由 [shell.spawn](shell#m-spawn) 和 [shizuku.spawn](shizuku#m-spawn) 返回的进程对象, 表示一条正在运行或已经结束的命令行. 属性与方法的返回值均为普通 JavaScript 值. 进程随启动它的脚本结束而结束, 连同其启动的子进程.
+由 [shell.spawn](shell#m-spawn) 和 [shizuku.spawn](shizuku#m-spawn) 返回的进程对象, 表示一条正在运行或已经结束的命令行. 属性, 文本与状态方法返回普通 JavaScript 值, 流方法返回 Java 输入/输出流. TypeScript 类型名为 `Shell.Process`, 不存在可直接调用的全局 `ShellProcess` 构造器. 进程随启动它的脚本结束而结束, 连同其启动的子进程.
 
 stdout 与 stderr 各自只能以一种方式读取, 由首次使用决定:
 
@@ -174,7 +174,7 @@ proc.kill();
 
 ## 事件
 
-使用 `on`, `addListener`, `once`, `prependListener`, `prependOnceListener`, `off`, `removeListener` 和 `removeAllListeners` 管理监听器, 它们返回当前对象; `listenerCount(eventName)` 返回监听器数量. 事件名只能是下表之一, 其他事件名抛出异常.
+使用 `on`, `addListener`, `once`, `prependListener`, `prependOnceListener`, `off`, `removeListener` 和 `removeAllListeners` 管理监听器, 它们返回当前对象; `listenerCount(eventName)` 返回监听器数量. 注册监听器或通过 off/removeListener 移除监听器时, 事件名只能是下表之一, 其他事件名抛出异常. TypeScript 根据事件名推断回调参数: output/errorOutput 为 string, exit 为 number. 此对象不提供 emit 或其他未列出的 EventEmitter 方法.
 
 | 事件 | 回调签名 | 含义 |
 | --- | --- | --- |

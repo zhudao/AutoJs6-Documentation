@@ -461,7 +461,7 @@ shizuku(&#39;cmd-a\ncmd-b\ncmd-c&#39;); /* 同上. */
 <li><strong>options</strong> { <span class="type"><a href="shell.html#shell_shelloptions">ShellOptions</a></span> } - 进程选项, <code>adb</code> 恒为 <code>true</code>, 不支持 <code>cmd</code></li>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="shellProcessType.html">ShellProcess</a></span> } - 正在运行的进程</li>
 </ul>
-<p>在 Shizuku 用户服务中启动进程运行命令, 立即返回 <a href="shellProcessType.html">ShellProcess</a>, 可实时读取输出, 写入 stdin 或结束进程. 相当于带 <code>adb: true</code> 的 <a href="shell.html#shell_m_spawn">shell.spawn</a>, 但不读取 <a href="shell.html#shell_m_setdefaultoptions">shell.setDefaultOptions</a> 的默认值. Shizuku 不可用时抛出异常.</p>
+<p>在 Shizuku 用户服务中启动进程运行命令, 立即返回 <a href="shellProcessType.html">ShellProcess</a>, 可实时读取输出, 写入 stdin 或结束进程. 相当于带 <code>adb: true</code> 的 <a href="shell.html#shell_m_spawn">shell.spawn</a>, 但不读取 <a href="shell.html#shell_m_setdefaultoptions">shell.setDefaultOptions</a> 的默认值. 显式传入 <code>adb: false</code> 也不会改变执行方式. Shizuku 不可用时抛出异常. 返回对象的 TypeScript 类型与 shell.spawn 一致, 为 <code>Shell.Process</code>.</p>
 <p>与 <code>shizuku(...)</code> 不同, <code>root</code> 或 <code>withRoot</code> 为 <code>true</code> 时命令在 Shizuku 进程中经 <code>su</code> 运行. Shizuku 本身经 Root 启动时, 命令已具有 root 身份.</p>
 <pre><code class="lang-js">let proc = shizuku.spawn(&#39;getevent -tl&#39;, { pty: true });
 proc.on(&#39;output&#39;, (line) =&gt; {

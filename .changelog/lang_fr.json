@@ -9,6 +9,10 @@
     "v6.8.0": {
       "entries": [
         {
+          "category": "fix",
+          "text": "Déclarations et complétions manquantes des processus shell/shizuku, dont les paramètres des événements et les constructeurs Shell avec tubes"
+        },
+        {
           "category": "feature",
           "text": "Mesures et abonnements aux capteurs pour Bun et les Workers Node.js, avec annulation et libération automatique des écouteurs"
         },

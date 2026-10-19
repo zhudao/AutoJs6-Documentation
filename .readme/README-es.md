@@ -71,6 +71,7 @@ La documentación puede cambiar en cualquier momento y diferir del comportamient
 
 ### v6.8.0
 
+- `Corrección` Declaraciones y autocompletado ausentes de procesos shell/shizuku, incluidos eventos y constructores Shell con tuberías
 - `Nuevo` Muestras y suscripciones de sensores para Bun y Workers de Node.js, con cancelación y liberación automática de escuchas
 - `Nuevo` API database/sqlite del anfitrión para Bun y Workers de Node.js, con consultas parametrizadas, transacciones y persistencia
 - `Nuevo` API de archivos y almacenamiento persistente de Bun, con permisos independientes y almacenamiento compartido con Node.js

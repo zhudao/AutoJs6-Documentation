@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `Fix` Missing shell/shizuku process declarations and completions, including event parameters and pipe-based Shell constructors
 - `Feature` Sensor sampling and subscriptions for Bun and Node.js Workers with cancellation and automatic listener cleanup
 - `Feature` Host database/sqlite APIs for Bun and Node.js Workers with parameterized queries, transactions and persistence
 - `Feature` Bun file and persistent storage APIs with separate host-file grants and shared Node.js storage

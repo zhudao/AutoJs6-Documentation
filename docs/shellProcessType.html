@@ -351,7 +351,7 @@
 
         <div id="apicontent">
             <h1>ShellProcess<span><a class="mark" href="#shellprocesstype_shellprocess" id="shellprocesstype_shellprocess">#</a></span></h1>
-<p>由 <a href="shell.html#shell_m_spawn">shell.spawn</a> 和 <a href="shizuku.html#shizuku_m_spawn">shizuku.spawn</a> 返回的进程对象, 表示一条正在运行或已经结束的命令行. 属性与方法的返回值均为普通 JavaScript 值. 进程随启动它的脚本结束而结束, 连同其启动的子进程.</p>
+<p>由 <a href="shell.html#shell_m_spawn">shell.spawn</a> 和 <a href="shizuku.html#shizuku_m_spawn">shizuku.spawn</a> 返回的进程对象, 表示一条正在运行或已经结束的命令行. 属性, 文本与状态方法返回普通 JavaScript 值, 流方法返回 Java 输入/输出流. TypeScript 类型名为 <code>Shell.Process</code>, 不存在可直接调用的全局 <code>ShellProcess</code> 构造器. 进程随启动它的脚本结束而结束, 连同其启动的子进程.</p>
 <p>stdout 与 stderr 各自只能以一种方式读取, 由首次使用决定:</p>
 <ul>
 <li>逐行读取: <a href="#shellprocesstype_m_readline">readLine</a> 与 <a href="#shellprocesstype_m_readerrorline">readErrorLine</a>, 阻塞调用线程.</li>
@@ -500,7 +500,7 @@ proc.kill();
 </ul>
 <p>包含 <code>pid</code>, <code>mode</code>, 命令行开头部分, 是否运行及退出码.</p>
 <h2>事件<span><a class="mark" href="#shellprocesstype_1" id="shellprocesstype_1">#</a></span></h2>
-<p>使用 <code>on</code>, <code>addListener</code>, <code>once</code>, <code>prependListener</code>, <code>prependOnceListener</code>, <code>off</code>, <code>removeListener</code> 和 <code>removeAllListeners</code> 管理监听器, 它们返回当前对象; <code>listenerCount(eventName)</code> 返回监听器数量. 事件名只能是下表之一, 其他事件名抛出异常.</p>
+<p>使用 <code>on</code>, <code>addListener</code>, <code>once</code>, <code>prependListener</code>, <code>prependOnceListener</code>, <code>off</code>, <code>removeListener</code> 和 <code>removeAllListeners</code> 管理监听器, 它们返回当前对象; <code>listenerCount(eventName)</code> 返回监听器数量. 注册监听器或通过 off/removeListener 移除监听器时, 事件名只能是下表之一, 其他事件名抛出异常. TypeScript 根据事件名推断回调参数: output/errorOutput 为 string, exit 为 number. 此对象不提供 emit 或其他未列出的 EventEmitter 方法.</p>
 <table>
 <thead>
 <tr>

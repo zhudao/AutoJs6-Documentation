@@ -1,5 +1,7 @@
 # 文档部署进度 (Progress)
 
+2026-10-19 已对齐 shell/shizuku 进程接口的声明与 Ace 提示, 包含 Shell.Process 返回对象, 事件参数和管道 Shell 构造器.
+
 2026-10-19 Bun 传感器与 Node.js Worker 的采样, 订阅和取消清理接口已同步.
 
 2026-10-19 Bun database/sqlite 与 Node.js Worker 数据库接口, 参数类型, 事务和连接生命周期已同步.

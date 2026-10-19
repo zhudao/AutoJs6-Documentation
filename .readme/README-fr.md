@@ -71,6 +71,7 @@ Les documents peuvent changer à tout moment et diverger du comportement réel. 
 
 ### v6.8.0
 
+- `Correction` Déclarations et complétions manquantes des processus shell/shizuku, dont les paramètres des événements et les constructeurs Shell avec tubes
 - `Fonctionnalité` Mesures et abonnements aux capteurs pour Bun et les Workers Node.js, avec annulation et libération automatique des écouteurs
 - `Fonctionnalité` API hôtes database/sqlite pour Bun et les Workers Node.js, avec requêtes paramétrées, transactions et persistance
 - `Fonctionnalité` API Bun de fichiers et de stockage persistant, avec autorisations distinctes et stockage partagé avec Node.js

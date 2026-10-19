@@ -9,6 +9,10 @@
     "v6.8.0": {
       "entries": [
         {
+          "category": "fix",
+          "text": "shell/shizuku 进程接口的类型声明与补全缺漏, 包含事件参数及管道 Shell 构造器"
+        },
+        {
           "category": "feature",
           "text": "Bun 与 Node.js Worker 的传感器采样及订阅 API, 支持取消和监听器自动释放"
         },

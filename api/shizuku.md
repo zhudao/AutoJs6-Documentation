@@ -155,7 +155,7 @@ shizuku('cmd-a\ncmd-b\ncmd-c'); /* 同上. */
 - **options** { [ShellOptions](shell#shelloptions) } - 进程选项, `adb` 恒为 `true`, 不支持 `cmd`
 - <ins>**returns**</ins> { [ShellProcess](shellProcessType) } - 正在运行的进程
 
-在 Shizuku 用户服务中启动进程运行命令, 立即返回 [ShellProcess](shellProcessType), 可实时读取输出, 写入 stdin 或结束进程. 相当于带 `adb: true` 的 [shell.spawn](shell#m-spawn), 但不读取 [shell.setDefaultOptions](shell#m-setdefaultoptions) 的默认值. Shizuku 不可用时抛出异常.
+在 Shizuku 用户服务中启动进程运行命令, 立即返回 [ShellProcess](shellProcessType), 可实时读取输出, 写入 stdin 或结束进程. 相当于带 `adb: true` 的 [shell.spawn](shell#m-spawn), 但不读取 [shell.setDefaultOptions](shell#m-setdefaultoptions) 的默认值. 显式传入 `adb: false` 也不会改变执行方式. Shizuku 不可用时抛出异常. 返回对象的 TypeScript 类型与 shell.spawn 一致, 为 `Shell.Process`.
 
 与 `shizuku(...)` 不同, `root` 或 `withRoot` 为 `true` 时命令在 Shizuku 进程中经 `su` 运行. Shizuku 本身经 Root 启动时, 命令已具有 root 身份.
 

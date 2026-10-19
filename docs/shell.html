@@ -871,7 +871,7 @@ shell(`am start ${intentArguments}`);
 <li><strong>options</strong> { <span class="type"><a href="#shell_shelloptions">ShellOptions</a></span> } - 进程选项, 不支持 <code>cmd</code></li>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="shellProcessType.html">ShellProcess</a></span> } - 正在运行的进程</li>
 </ul>
-<p>启动进程运行命令后立即返回 <a href="shellProcessType.html">ShellProcess</a>, 不等待命令结束. 命令数组以换行符连接. 普通模式与 adb 模式经 <code>sh -c</code> 运行, Root 模式经 <code>su -c</code> 运行, 因此命令可以包含管道, 重定向和多条语句. 未指定的 <code>root</code> 与 <code>adb</code> 采用 <a href="#shell_m_setdefaultoptions">setDefaultOptions</a> 的默认值.</p>
+<p>启动进程运行命令后立即返回 <a href="shellProcessType.html">ShellProcess</a>, 不等待命令结束. TypeScript 将其声明为 <code>Shell.Process</code>, 可以继续补全进程属性, 流方法和事件回调. <code>spawn</code> 的第二个参数接受布尔值或选项对象, 不接受 <code>shell(...)</code> 兼容的数字 Root 标记. 命令数组以换行符连接. 普通模式与 adb 模式经 <code>sh -c</code> 运行, Root 模式经 <code>su -c</code> 运行, 因此命令可以包含管道, 重定向和多条语句. 未指定的 <code>root</code> 与 <code>adb</code> 采用 <a href="#shell_m_setdefaultoptions">setDefaultOptions</a> 的默认值.</p>
 <p>进程随启动它的脚本结束而结束. 读取输出, 事件, 写入 stdin 和结束进程的方法见 <a href="shellProcessType.html">ShellProcess</a>.</p>
 <pre><code class="lang-js">let proc = shell.spawn(&#39;logcat -v brief&#39;, { adb: true });
 proc.on(&#39;output&#39;, (line) =&gt; {
@@ -880,6 +880,7 @@ proc.on(&#39;output&#39;, (line) =&gt; {
 setTimeout(() =&gt; proc.kill(), 10000);
 </code></pre>
 <h2>ShellOptions<span><a class="mark" href="#shell_shelloptions" id="shell_shelloptions">#</a></span></h2>
+<p>TypeScript 使用 <code>Shell.SpawnOptions</code> 表示 spawn 的选项, <code>Shell.Options</code> 表示构造器选项, <code>Shell.DefaultOptions</code> 表示仅含 root/adb 的默认选项.</p>
 <p>ShellOptions 是 <a href="#shell_m_spawn">spawn</a>, <a href="shizuku.html#shizuku_m_spawn">shizuku.spawn</a> 和管道 <a href="#shell_c_shell">Shell</a> 构造方法使用的普通 JavaScript 对象. 出现其他属性时抛出异常.</p>
 <ul>
 <li><strong>[ root = false ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> } - 是否经 <code>su</code> 以 Root 身份运行</li>
@@ -900,7 +901,7 @@ setTimeout(() =&gt; proc.kill(), 10000);
 <h3>setDefaultOptions(options)<span><a class="mark" href="#shell_setdefaultoptions_options" id="shell_setdefaultoptions_options">#</a></span></h3>
 <p><strong><code>6.8.0</code></strong></p>
 <ul>
-<li><strong>options</strong> { <span class="type"><a href="dataTypes.html#datatypes_object">object</a></span> | <span class="type"><a href="dataTypes.html#datatypes_null">null</a></span> } - 默认选项 <code>{ root?, adb? }</code>, 均为 <a href="dataTypes.html#datatypes_boolean">boolean</a>; <code>null</code> 或 <code>undefined</code> 表示清除</li>
+<li><strong>options</strong> { <span class="type"><a href="dataTypes.html#datatypes_object">object</a></span> | <span class="type"><a href="dataTypes.html#datatypes_null">null</a></span> | <span class="type"><a href="dataTypes.html#datatypes_undefined">undefined</a></span> } - 默认选项 <code>{ root?, adb? }</code>, 均为 <a href="dataTypes.html#datatypes_boolean">boolean</a>; <code>null</code> 或 <code>undefined</code> 表示清除</li>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
 </ul>
 <p>为当前脚本设置 <code>shell(...)</code>, <code>shell.execCommand(...)</code> 和 <a href="#shell_m_spawn">spawn</a> 中未显式指定的 <code>root</code> 与 <code>adb</code> 的默认值 (兼容 Auto.js Pro). 每次调用替换之前的默认值, 省略的属性表示不设置默认值. 只支持 <code>root</code> 与 <code>adb</code>, 其他属性会抛出异常. 设置只影响当前脚本, 不影响 <code>new Shell(...)</code>, <a href="#shell_m_getcommand">getCommand</a> 与 <a href="shizuku.html">shizuku</a>.</p>

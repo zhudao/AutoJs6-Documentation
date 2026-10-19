@@ -255,7 +255,7 @@ shell(`am start ${intentArguments}`);
 - **options** { [ShellOptions](#shelloptions) } - 进程选项, 不支持 `cmd`
 - <ins>**returns**</ins> { [ShellProcess](shellProcessType) } - 正在运行的进程
 
-启动进程运行命令后立即返回 [ShellProcess](shellProcessType), 不等待命令结束. 命令数组以换行符连接. 普通模式与 adb 模式经 `sh -c` 运行, Root 模式经 `su -c` 运行, 因此命令可以包含管道, 重定向和多条语句. 未指定的 `root` 与 `adb` 采用 [setDefaultOptions](#m-setdefaultoptions) 的默认值.
+启动进程运行命令后立即返回 [ShellProcess](shellProcessType), 不等待命令结束. TypeScript 将其声明为 `Shell.Process`, 可以继续补全进程属性, 流方法和事件回调. `spawn` 的第二个参数接受布尔值或选项对象, 不接受 `shell(...)` 兼容的数字 Root 标记. 命令数组以换行符连接. 普通模式与 adb 模式经 `sh -c` 运行, Root 模式经 `su -c` 运行, 因此命令可以包含管道, 重定向和多条语句. 未指定的 `root` 与 `adb` 采用 [setDefaultOptions](#m-setdefaultoptions) 的默认值.
 
 进程随启动它的脚本结束而结束. 读取输出, 事件, 写入 stdin 和结束进程的方法见 [ShellProcess](shellProcessType).
 
@@ -268,6 +268,8 @@ setTimeout(() => proc.kill(), 10000);
 ```
 
 ## ShellOptions
+
+TypeScript 使用 `Shell.SpawnOptions` 表示 spawn 的选项, `Shell.Options` 表示构造器选项, `Shell.DefaultOptions` 表示仅含 root/adb 的默认选项.
 
 ShellOptions 是 [spawn](#m-spawn), [shizuku.spawn](shizuku#m-spawn) 和管道 [Shell](#c-shell) 构造方法使用的普通 JavaScript 对象. 出现其他属性时抛出异常.
 
@@ -292,7 +294,7 @@ ShellOptions 是 [spawn](#m-spawn), [shizuku.spawn](shizuku#m-spawn) 和管道 [
 
 **`6.8.0`**
 
-- **options** { [object](dataTypes#object) | [null](dataTypes#null) } - 默认选项 `{ root?, adb? }`, 均为 [boolean](dataTypes#boolean); `null` 或 `undefined` 表示清除
+- **options** { [object](dataTypes#object) | [null](dataTypes#null) | [undefined](dataTypes#undefined) } - 默认选项 `{ root?, adb? }`, 均为 [boolean](dataTypes#boolean); `null` 或 `undefined` 表示清除
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
 为当前脚本设置 `shell(...)`, `shell.execCommand(...)` 和 [spawn](#m-spawn) 中未显式指定的 `root` 与 `adb` 的默认值 (兼容 Auto.js Pro). 每次调用替换之前的默认值, 省略的属性表示不设置默认值. 只支持 `root` 与 `adb`, 其他属性会抛出异常. 设置只影响当前脚本, 不影响 `new Shell(...)`, [getCommand](#m-getcommand) 与 [shizuku](shizuku).
