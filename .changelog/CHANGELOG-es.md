@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `Nuevo` Eventos y notificaciones del anfitrión para Bun y Workers de Node.js, con limpieza independiente de suscripciones y notificaciones
 - `Nuevo` Shell del anfitrión con flujos, autorización Shizuku y limpieza de procesos para Bun, Node.js y Workers
 - `Corrección` Declaraciones y autocompletado ausentes de procesos shell/shizuku, incluidos eventos y constructores Shell con tuberías
 - `Nuevo` Muestras y suscripciones de sensores para Bun y Workers de Node.js, con cancelación y liberación automática de escuchas

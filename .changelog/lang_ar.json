@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "أحداث وإشعارات المضيف في Bun وNode.js Workers مع تنظيف مستقل للاشتراكات والإشعارات"
+        },
+        {
+          "category": "feature",
           "text": "Shell المضيف مع تدفق الإدخال والإخراج وتفويض Shizuku وتنظيف العمليات في Bun وNode.js وWorkers"
         },
         {

@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Événements et notifications hôtes pour Bun et les Workers Node.js, avec nettoyage indépendant des abonnements et notifications"
+        },
+        {
+          "category": "feature",
           "text": "Shell hôte avec flux, autorisation Shizuku et nettoyage des processus pour Bun, Node.js et les Workers"
         },
         {

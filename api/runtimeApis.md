@@ -786,6 +786,65 @@ shizuku 同时可作为函数调用, 并提供 exec/spawn/open/checkAccess/getAc
 
 Bun 继续使用原有每次执行最多 1024 次桥接调用, 4 个并行任务, 64 KiB 请求, 256 KiB 响应及单次 RPC 10 秒的限制. start/poll 均消耗调用额度, Shell 流不能视为无限时长通道. 额度耗尽时宿主释放该执行的 Shell 进程. 长时间或大量数据可按实际场景使用 Node 原生 child_process 或 Bun.spawn, 它们的运行身份与宿主 Shell 不同.
 
+## Bun 与 Node.js Worker 事件和通知
+
+宿主 build 5584, Node.js Runtime 1.19.0 和 Bun Runtime 0.8.0 提供共同的事件与通知封装. Bun 使用 `host.events` 和 `host.notifications`; Node.js 主线程及 CommonJS/ESM/嵌套 Worker 使用 `autojs6:events` 和 `notifications` / `autojs6:notifications`. Node 原生 `events` 和 `node:events` 继续提供 EventEmitter, 不会被宿主事件模块替换.
+
+### 授权与系统条件
+
+| 操作 | Bun 授权 | Node.js 声明 | Android 条件 |
+| --- | --- | --- | --- |
+| 屏幕/电量监听 | events.observe | events | 系统广播 |
+| 通知监听 | events.observe + events.notification | events + events.notification | 当前应用已获得通知使用权, 且通知监听服务已连接 |
+| Toast 监听 | events.observe + events.toast | events + events.toast | 当前应用的无障碍服务已连接; 仅观察其他应用的 Toast |
+| 按键监听 | events.observe + events.key | events + events.key | 当前应用的无障碍服务已连接; 不拦截按键 |
+| 发送/取消通知 | notifications.post | notifications | Android 通知已启用; Android 13+ 需要 POST_NOTIFICATIONS |
+| 打开通知设置 | notifications.post + notifications.settings | notifications + notifications.settings | 系统存在通知设置入口 |
+
+六项 Bun 授权默认关闭, 在插件中心独立启用, 打包应用在 bun.hostCapabilities 中声明. Node.js 项目在 node.permissions 中声明. 通知发送权限与通知使用权不同, 任何一项都不隐式授予另一项. 打包配置会根据通知发送能力补入 POST_NOTIFICATIONS, 仍需实际系统授权. getPermissionStatus 查询的是发送通知的状态, 不代表已获通知读取权限.
+
+### 事件模块
+
+observeNotification/observeToast/observeKey/observeBroadcasts 均返回 `Promise<Subscription>`. 同一客户端重复观察同一来源会返回原有订阅. 主线程, 不同 Worker 和不同 Bun 客户端分别持有订阅, 不互相占用或关闭. observeBroadcasts 包含 screen_on, screen_off 和 battery_changed, 不提供任意 Intent 广播注册.
+
+通知监听服务已获得系统授权但尚未连接时, observeNotification 会请求重新绑定并在本次调用时限内等待, 最多 4 秒; 未授权时仍立即拒绝. 屏幕/电量订阅使用 Android 返回的真实粘性电量快照初始化, 不模拟电量数据.
+
+选项继承 timeoutMs/signal, 另有 drainIntervalMs, 默认 100 毫秒, 范围 25..60000. timeoutMs 用于单次桥接调用; signal 的作用覆盖订阅存续期. 注册前已取消会拒绝 Promise; 注册期间取消会回收迟到的注册结果; 已注册订阅取消时释放 Android 监听器.
+
+模块与订阅提供 on/once/off. 可监听 event 通用事件, 或 notification/toast/key/battery_changed/screen_on/screen_off/overflow/close/error. 订阅具有只读 id/source/closed 属性, drainEvents(options?) 返回只读事件数组, close(options?) 返回 `Promise<boolean>`. 模块 close(options?) 关闭本客户端全部订阅并移除模块监听器, 完成后可以再次订阅.
+
+事件是 JSON 快照, 包含 type/time/source. 通知增加 id/key/packageName/tag/title/text/postTime; Toast 增加 packageName/text; 按键增加 key/keyCode/action/repeatCount/eventTime, action 为 down/up; 电量增加 level/scale/percent/isCharging. 不返回 Notification/AccessibilityEvent 等 Java 对象, 不提供通知点击或回复动作.
+
+Node.js 主线程沿用事件推送. Bun 和 Worker 使用有界队列轮询, 每个宿主订阅最多保留 128 个事件, 每次最多取出 32 项; 溢出丢弃最旧项并产生带 dropped 数量的 overflow 事件. 客户端推送缓冲也最多保留 128 项. 有监听器时自动消费, 无监听器时可显式 drainEvents; 同一订阅应选择一种消费方式. 无障碍/通知服务断开会发出带 reason 的 close 事件. 轮询失败会释放订阅, 不持续重复失败请求.
+
+```js
+let { createHostClient } = await import(process.env.AUTOJS6_HOST_CLIENT_MODULE);
+let host = await createHostClient();
+let subscription = await host.events.observeNotification();
+subscription.on('notification', event => console.log(event.packageName, event.title));
+subscription.on('error', error => console.error(error));
+// 在业务结束时执行 await subscription.close().
+```
+
+### 通知模块
+
+notify(options, callOptions?) 返回 `Promise<number>`, options 包含 id/title/text/channel/channelName/ongoing/priority. title 或 text 至少提供一个. id 为 1..2147483647 的整数, 省略时分配; priority 支持 min/low/default/high/max 或 -2..2. 通道的重要性由首次创建确定, 之后由 Android 的通道设置控制. 使用独立 low 通道可发送无声音的通知.
+
+cancel(id, options?) 和 cancelAll(options?) 返回 `Promise<void>`, 仅取消当前客户端创建的通知. 不同执行或 Worker 即使使用相同数字 id 也不会互相覆盖. 同一客户端重复 id 会更新通知. Worker 退出, 宿主执行结束或取消期间迟到的发布结果均会清理, 不会删除父线程或其他执行的通知.
+
+getPermissionStatus(options?) 返回 sdkInt/notificationsEnabled/postNotificationsPermissionRequired/postNotificationsPermissionGranted/canOpenSettings 及 schema. openSettings(options?) 与 openNotificationSettings(options?) 等价, 另外返回 opened/dryRun/action/reason; dryRun 为 true 时只检查入口, 不打开系统设置. 打开设置不等于获得授权.
+
+```js
+import notifications from 'autojs6:notifications';
+let status = await notifications.getPermissionStatus();
+if (status.notificationsEnabled && status.postNotificationsPermissionGranted) {
+    let id = await notifications.notify({ title: '任务完成', channel: 'task-status-silent', priority: 'low' });
+    // 在业务结束时执行 await notifications.cancel(id).
+}
+```
+
+Bun 仍受每次执行 1024 次桥接调用, 四个并行任务, 64 KiB 请求, 256 KiB 响应和单次 RPC 10 秒的原有限制. start/poll 均计入额度, 不应视为无限时长事件通道. 额度耗尽会释放该执行的事件订阅和通知. 本批不提供任意 Android 广播, Rhino 全部 EventEmitter 扩展或任意原生通知操作.
+
 ## UI 与 Compose
 
 **`Async`**

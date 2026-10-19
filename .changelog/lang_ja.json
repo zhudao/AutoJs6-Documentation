@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Bun と Node.js Worker のホストイベントと通知 API, 独立した購読と通知の解放"
+        },
+        {
+          "category": "feature",
           "text": "Bun, Node.js と Worker のホスト Shell API, ストリーム入出力, Shizuku 許可とプロセス解放"
         },
         {

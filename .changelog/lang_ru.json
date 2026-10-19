@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "События и уведомления хоста для Bun и Node.js Workers с независимой очисткой подписок и уведомлений"
+        },
+        {
+          "category": "feature",
           "text": "Shell хоста с потоковым вводом и выводом, разрешением Shizuku и очисткой процессов для Bun, Node.js и Workers"
         },
         {

@@ -1,5 +1,7 @@
 # 文档部署进度 (Progress)
 
+2026-10-19 Bun 与 Node.js Worker 的事件订阅, 通知发送及独立生命周期文档已同步.
+
 2026-10-19 Bun 宿主 Shell 与 Node.js/Worker 的流式 Shell, Shizuku 授权, 进程生命周期接口已同步.
 
 2026-10-19 已对齐 shell/shizuku 进程接口的声明与 Ace 提示, 包含 Shell.Process 返回对象, 事件参数和管道 Shell 构造器.

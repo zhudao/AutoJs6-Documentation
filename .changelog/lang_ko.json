@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Bun 및 Node.js Worker의 호스트 이벤트 및 알림 API, 독립 구독과 알림 정리"
+        },
+        {
+          "category": "feature",
           "text": "Bun, Node.js 및 Worker의 호스트 Shell API, 스트리밍 입출력, Shizuku 승인 및 프로세스 정리"
         },
         {

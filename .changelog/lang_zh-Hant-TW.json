@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Bun 與 Node.js Worker 的宿主事件及通知 API, 支援獨立訂閱與通知清理"
+        },
+        {
+          "category": "feature",
           "text": "Bun, Node.js 及 Worker 的宿主 Shell API, 支援串流輸入輸出, Shizuku 授權與程序清理"
         },
         {
