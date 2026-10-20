@@ -2062,3 +2062,120 @@ speech.SpeechError 可以带 new 或直接调用, 其 name 为 SpeechError, code
 PCM 和返回数据分段传输, 长识别/下载通过短调用与事件轮询等待. Bun 的 speech.control 不计入普通能力的单次执行 1024 次调用额度, 保留单次 RPC 10 秒, 64 KiB 请求, 256 KiB 响应和四个并发请求限制. 其他能力的额度规则保持原样. 会话事件接收不及时仍可能以 LIMIT_EXCEEDED 和 end(overflow) 结束, 应持续消费并在不用时关闭.
 
 synthesize 生成文件而不播放; speak 可用 `{ volume: 0, usage: 'media' }` 静音, 不修改系统音量. 此接口不会自动下载缺失模型, 接受非商用许可, 申请插件麦克风权限或绕过 Android 后台限制.
+
+## Node.js / Bun / Worker 的 EPUB
+
+Node.js 1.26.0 与 Bun Runtime 0.15.0 的本地开发版本提供 EPUB 书籍与阅读器接口. Node 主线程及 CommonJS/ESM/嵌套 Worker 使用 `epub` 或 `autojs6:epub` 模块, 也可通过显式 `$autojs.epub` 访问; Bun 使用 `host.epub`. 书籍解析和阅读器由 3-Folio EPUB 插件提供.
+
+Node 项目声明 `epub` 能力. Bun 使用独立且默认关闭的 `epub.control` 授权, 打包项目也须声明该能力. 文件由宿主或打包应用的 Android 身份读取, 路径相对执行工作目录解析; 不接受 `content://`, `file://` 或网络 URI. 运行时插件私有目录里的文件应先转存到宿主或打包应用可读的路径.
+
+### EPUB 方法与异步结果
+
+全部远程操作返回 Promise. 带 Async 后缀的名称与不带后缀的名称指向同一函数, 不提供阻塞式 Node/Bun 调用. 下表的 `source` 为路径字符串或 `{ path, displayName? }`, 普通选项与 [EPUB](epub) 中对应参数一致.
+
+| 方法 | 参数 | Promise 结果 |
+| --- | --- | --- |
+| open / openAsync | source, callOptions? | Book |
+| metadata / metadataAsync | source, callOptions? | 元数据对象 |
+| toc / tocAsync | source, callOptions? | 目录树数组 |
+| readingOrder / readingOrderAsync | source, callOptions? | 阅读顺序数组 |
+| text / textAsync | source, target?, options?, callOptions? | 文本字符串 |
+| cover / coverAsync | source, outputPath?, options?, callOptions? | 图片字节或输出路径 |
+| search / searchAsync | source, query, options?, callOptions? | 搜索结果数组 |
+| annotations / annotationsAsync | source, callOptions? | 高亮与笔记数组 |
+| read / readAsync | source, options?, callOptions? | ReaderSession |
+| isAvailable / isAvailableAsync | callOptions? | 是否有可用插件 |
+| close | 无 | void |
+
+`callOptions` 可包含 `signal: AbortSignal` 和 `timeoutMs: number`. 单次操作期限默认 60000 ms, 必须为正有限数; 脚本自身期限与插件原有超时仍然生效. 超时或取消会拒绝 Promise, 并回收延迟返回的书籍或阅读器会话. read 的 signal 在返回会话后仍可取消该会话, 其 timeoutMs 仅限制创建操作.
+
+```js
+"nodejs";
+let epub = require('autojs6:epub');
+let book = await epub.open('/sdcard/Books/example.epub');
+try {
+    console.log(book.metadata.title, book.positions);
+    console.log(await book.text(0, { maxChars: 2000 }));
+    console.log(await book.search('chapter', { limit: 10 }));
+} finally {
+    await book.close();
+    await epub.close();
+}
+```
+
+Bun 中对应入口为:
+
+```js
+"bun";
+let { createHostClient } = await import(process.env.AUTOJS6_HOST_CLIENT_MODULE);
+let host = await createHostClient();
+console.log(await host.epub.metadata('/sdcard/Books/example.epub'));
+await host.epub.close();
+```
+
+### Book 属性与方法
+
+open 完成时, path, metadata, toc, readingOrder, positions 已作为当前 JS 线程中的只读属性提供, metadata 等文档对象可以直接访问. isClosed 是本地生命周期状态; 插件因空闲回收或进程退出关闭书籍时, 后续远程调用仍可能先返回 SESSION_CLOSED.
+
+| 方法 | 参数 | Promise 结果 |
+| --- | --- | --- |
+| text / textAsync | target?, options?, callOptions? | 单个资源或全书文本 |
+| textAll / textAllAsync | options?, callOptions? | 全书文本 |
+| cover / coverAsync | outputPath?, options?, callOptions? | 图片字节或输出路径 |
+| resource / resourceAsync | href, outputPath, options?, callOptions? | 输出路径 |
+| search / searchAsync | query, options?, callOptions? | 搜索结果数组 |
+| annotations / annotationsAsync | callOptions? | 高亮与笔记数组 |
+| close | callOptions? | void |
+
+text 的 target 可以是从 0 开始的阅读顺序索引, href, 带 href 的对象, 或省略以读取全书. options 支持 offset, maxChars 和 format; offset 仅适用于单个资源, maxChars 默认 4194304, format 为 text 或 markdown. textAll 不接受 offset. 返回文本分片传输并保留 Unicode, 无须调用方自行拼接.
+
+cover 不提供 outputPath 时返回原始编码图片的 Uint8Array, Node 中可表现为 Buffer. 该值不是 Rhino ImageWrapper; 可以交给已获图像权限的 `images.fromBytes()` 解码. 指定 outputPath 时直接导出原始封面资源, 与 resource 一样返回最终路径; 已存在的目标默认拒绝, `{ overwrite: true }` 才允许替换.
+
+search 的 offset 默认 0, limit 默认 50, offset + limit 不超过 500. annotations 每次查询插件中的当前数据, 不使用打开书籍时的缓存. 书籍方法沿用插件的资源大小和每个服务入口 8 本同时打开的限制; 5 分钟空闲回收规则保留. 一次性便捷方法会在成功或失败后关闭自己打开的书籍.
+
+### ReaderSession 状态, 控制与事件
+
+read 使用 href, progression 或 locator 中至多一个作为起始位置, 并可附带 preferences. Promise 完成表示会话已创建并请求打开阅读器, 页面就绪以 open 事件或 isOpen 为准. 页面尚未显示时, 翻页可能失败于 READER_NOT_VISIBLE.
+
+path, state, reason, locator, progress, title, chapterTitle, href, positions, isOpen 和 isClosed 在当前 JS 线程读取. state 为 pending/open/closed; progress 初始为 -1. 属性随事件更新, 不代表每次访问都会远程读取 Android 对象.
+
+| 方法 | 参数 | Promise 结果 |
+| --- | --- | --- |
+| goTo | href/总进度/locator, callOptions? | 会话本身 |
+| next / prev | callOptions? | 会话本身 |
+| nextChapter / prevChapter | callOptions? | 会话本身 |
+| setPreferences | partial, callOptions? | 会话本身 |
+| bookmarks | callOptions? | 书签数组 |
+| close | options?, callOptions? | 会话本身 |
+
+close 默认结束脚本会话并保留阅读器页面; `{ finish: true }` 同时关闭阅读器. 重复关闭安全. 页面控制完成表示请求已提交, 最终位置应从 progress 事件或状态属性确认. setPreferences 会更新插件的共享阅读偏好, 书签与批注也属于插件共享数据.
+
+on, once, addListener, off, removeListener, removeAllListeners 和 listenerCount 在 JS 线程同步执行. read 返回后应及时安装监听器. 创建期间到达的 open/error/close 等早期事件会短暂保留, 每个事件名称最多 32 条, 供首次监听器接收; 这不是完整历史事件存储.
+
+| 事件 | 回调数据 |
+| --- | --- |
+| open | locator, title, href, positions |
+| progress | locator, totalProgression, chapterTitle, href |
+| bookmark | action, locator, createdAt, title, text |
+| highlight | action, id, style, color, note, quote, title, locator, createdAt, updatedAt |
+| error | EpubError |
+| close | reason |
+
+```js
+"nodejs";
+let epub = require('epub');
+let reader = await epub.read('/sdcard/Books/example.epub');
+reader.on('progress', event => console.log(event.totalProgression, event.chapterTitle));
+reader.on('error', error => console.error(error.code, error.message));
+reader.on('close', event => console.log(event.reason));
+```
+
+阅读器仍遵循插件的一次一个可见脚本会话规则: 新 read 会替换旧会话并通知 replaced. 不需要继续接收事件时应关闭会话. 退出 Worker 或脚本会释放自己拥有的书籍和会话; 退出本身保留用户的阅读器页面. epub.close 释放当前 facade 的资源, 后续调用可以创建新客户端. 父线程的独立书籍不会因 Worker 退出而关闭.
+
+### 打包应用与错误
+
+独立签名的应用需要配套 Runtime Kit 和 3-Folio EPUB 2.1.0 或更高版本. Builder 根据声明的 epub/epub.control 能力添加 `org.autojs.plugin.epub.permission.RUNTIME`; 插件通过单独的服务和阅读器入口接受调用, 原宿主签名入口保留. 书籍与阅读器控制句柄只允许创建它们的 UID 调用. 不需要麦克风权限.
+
+epub.EpubError 可以直接调用或带 new 创建. name 为 EpubError, code 保留 NOT_EPUB, FILE_NOT_FOUND, INVALID_ARGUMENT, SESSION_CLOSED, TIMEOUT, CANCELLED 等错误. 未授权的 Bun 调用保留 NOT_GRANTED. isAvailable 对插件缺失/禁用/不兼容返回 false, 但不会掩盖运行时能力授权拒绝.
+
+Bun 的 epub.control 采用短请求等待和分片结果, 不计入普通能力的单次执行 1024 次调用额度. 单次 RPC 期限, 请求/响应大小和四个并发请求限制保留. 宿主待投递的阅读器事件达到 1024 条时以 LIMIT_EXCEEDED 和 close(overflow) 结束会话. 这些运行时封装不改变 Bun 原生二进制或 Android/ABI 兼容范围.

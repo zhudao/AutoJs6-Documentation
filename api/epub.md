@@ -2,13 +2,13 @@
 
 `epub` 模块用于在脚本中读取 EPUB 电子书的元数据, 目录, 正文与封面, 导出书内资源, 进行全文搜索, 读取阅读器中的高亮与笔记, 以及打开阅读器并接收阅读事件.
 
-从 AutoJs6 6.8.0 起, EPUB 功能由外置 Readium EPUB Reader 插件 (AutoJs6-Plugin-Readium-EPUB-Reader) 提供. 调用前需在插件中心安装并启用与当前 AutoJs6 兼容的插件. 插件缺失, 被禁用或版本不兼容时, 方法会抛出 (或以 Promise 拒绝) `code` 为 `PLUGIN_UNAVAILABLE`, `PLUGIN_DISABLED` 或 `PLUGIN_INCOMPATIBLE` 的 [EpubError](#c-epuberror), 其消息以插件中心的本地化提示开头. [epub.isAvailable](#m-isavailable) 可预先探测.
+从 AutoJs6 6.8.0 起, EPUB 功能由外置 3-Folio EPUB 插件 (AutoJs6-Plugin-Three-Folio-EPUB, 原 Readium EPUB Reader) 提供. 调用前需在插件中心安装并启用与当前 AutoJs6 兼容的插件. 插件缺失, 被禁用或版本不兼容时, 方法会抛出 (或以 Promise 拒绝) `code` 为 `PLUGIN_UNAVAILABLE`, `PLUGIN_DISABLED` 或 `PLUGIN_INCOMPATIBLE` 的 [EpubError](#c-epuberror), 其消息以插件中心的本地化提示开头. [epub.isAvailable](#m-isavailable) 可预先探测.
 
 书籍以文件路径指定, 相对路径按脚本工作目录解析 (与 [files.path](files#m-path) 相同), 不接受 `content://` 等 URI. [epub.open](#m-open) 返回 [EpubBook](epubBookType) 对象, 书籍在插件进程中保持打开直到 `close()` 或脚本退出; 便捷层方法 ([metadata](#m-metadata), [toc](#m-toc), [readingOrder](#m-readingorder), [text](#m-text), [cover](#m-cover), [search](#m-search), [annotations](#m-annotations)) 每次调用自行打开并关闭书籍, 适合一次性读取. [epub.read](#m-read) 打开插件的阅读器并返回 [EpubReaderSession](epubReaderSessionType), 阅读事件在脚本线程到达.
 
 每个方法都有同步形态 `x(...)` 与异步形态 `xAsync(...)`, 二者参数与结果完全一致. 同步形态阻塞当前脚本线程直至插件返回结果或调用失败, 停止脚本会取消尚未完成的调用; 异步形态立即返回 [Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise), 回调在脚本线程执行. 传给插件的参数会像 `JSON.stringify` 一样序列化, 函数与 `undefined` 值被忽略, 未知的选项键在此处以 `INVALID_ARGUMENT` 拒绝.
 
-本模块注册为全局名称 `epub`, 并提供 `$epub` 别名.
+本页的同步/Async 双形态适用于 Rhino, 模块注册为全局名称 `epub` 并提供 `$epub` 别名. Node.js/Bun/Worker 的显式模块, Promise 签名和独立授权见 [Runtime APIs](runtimeApis#nodejs--bun--worker-的-epub).
 
 ```js
 let book = epub.open('/sdcard/Books/moby-dick.epub');
@@ -33,7 +33,7 @@ book.close();
 - **path** { [string](dataTypes#string) } - EPUB 文件路径
 - <ins>**returns**</ins> { [EpubBook](epubBookType) } - 已打开的书籍
 
-在插件进程中打开书籍并返回 [EpubBook](epubBookType). 书籍保持打开直到 [close](epubBookType#m-close) 被调用或脚本退出 (脚本退出时自动关闭). 每个插件进程最多同时打开 8 本书, 超出时抛出 `LIMIT_EXCEEDED`; 一本书超过 5 分钟没有任何调用会被插件关闭, 之后的方法调用失败于 `SESSION_CLOSED`.
+在插件进程中打开书籍并返回 [EpubBook](epubBookType). 书籍保持打开直到 [close](epubBookType#m-close) 被调用或脚本退出 (脚本退出时自动关闭). 每个 EPUB 服务入口最多同时打开 8 本书, 超出时抛出 `LIMIT_EXCEEDED`; 一本书超过 5 分钟没有任何调用会被插件关闭, 之后的方法调用失败于 `SESSION_CLOSED`.
 
 打开失败的常见代码: `FILE_NOT_FOUND`, `FILE_UNREADABLE`, `NOT_EPUB` (扩展名与 ZIP 签名都不匹配, 或容器内没有 EPUB 包), `PARSE_FAILED`, `ENCRYPTED` (LCP 等 DRM 保护的出版物), `TIMEOUT` (打开超过 30 秒).
 
