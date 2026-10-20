@@ -1974,6 +1974,10 @@ Bun 需要单独开启 speech.control; 打包应用在 bunConfig.hostCapabilitie
 
 麦克风由语音插件进程录制. 插件自身必须持有 RECORD_AUDIO, 可通过 capabilities().microphoneGranted 查询. 宿主或打包应用的麦克风权限不能代替插件权限. Android 的后台收音和前台服务要求仍适用.
 
+普通签名的打包应用需要宿主 build 5621 的 Runtime Kit 和提供独立打包入口的 3-Macaw Speech 1.1.0 (build 69 及以上). 构建器按 speech/speech.control 声明保留 org.autojs.plugin.speech.permission.RUNTIME 权限, 原宿主签名接口保持不变. 文件/PCM 识别和模型管理不需要调用应用的麦克风权限; 使用 mic 听写或 wake 时, 项目的 permissions 还需包含 android.permission.RECORD_AUDIO, 并获得该应用自己的 Android 运行时授权. capabilities().microphoneGranted 仍仅表示语音插件的授权.
+
+各应用共用插件中的模型与默认模型配置. 模型管理变更作用于该共享模型库, 独立打包入口仅接受发起应用的长操作取消请求. 当前插件的 detectVoice 使用内置 vad.silero.v5; 此内置条目不能当作下载模型安装, 删除或切换默认值.
+
 ```js
 "nodejs";
 let speech = require('autojs6:speech');
@@ -2014,7 +2018,7 @@ Bun 通过 AUTOJS6_HOST_CLIENT_MODULE 加载 SDK 并 createHostClient, 再使用
 
 选项字段, 模型许可和识别结果沿用 [Speech](speech) 的定义. 模型安装与导入的 onProgress(done, total) 在当前 Node/Bun/Worker 的 JS 线程执行, 不作为 JSON 函数传给宿主. 快速进度可合并为最新值, 不保证观察到每个内部下载块.
 
-callOptions 支持 signal 和 timeoutMs (整数, 1..2147483647). signal 取消操作; timeoutMs 是本次操作的整体等待期限. 默认不增加额外的运行时期限, 仍遵守 speech 插件的原有操作超时与会话时长限制. 取消安装时由插件回收任务, 已完成的模型变更不会回滚.
+callOptions 支持 signal 和 timeoutMs (整数, 1..2147483647). signal 取消操作; timeoutMs 是本次操作的整体等待期限. 默认不增加额外的运行时期限, 仍遵守 speech 插件的原有操作超时, 会话时长限制及脚本自身的运行超时. 取消安装时由插件回收任务, 已完成的模型变更不会回滚.
 
 ### PCM 与会话事件
 
