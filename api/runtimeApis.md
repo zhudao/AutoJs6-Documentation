@@ -1961,3 +1961,100 @@ Utterance 提供只读 id, operation, text, state, isDone 和 result. `await tas
 引擎与音色需要在设备上实际可用. voices 的 installedOnly/offlineOnly 过滤不触发安装或联网下载; installData 仅请求系统或引擎提供的页面, 不保证该页面存在. 系统引擎失败, 不支持的语言或音色, 输出失败和超时通过 Promise 拒绝报告. 任务结果错误使用 ERR_AUTOJS6_TTS_ 前缀的 code, 例如 ERR_AUTOJS6_TTS_ABORTED; 引擎提供时另有 errorCode. Bun 的普通查询请求还可能返回 HostCallError 的桥接错误代码.
 
 此接口不等同于 speech 的语音识别, 唤醒词或模型管理接口. Android 后台执行限制仍然适用; TTS 不自动建立永久前台服务.
+
+## Node.js / Bun / Worker 的语音识别与模型管理
+
+宿主 build 5620, Node Runtime 1.25.0 和 Bun Runtime 0.14.0 的开发版本提供 speech 接口. Node 使用 `require('speech')` 或 `import speech from 'autojs6:speech'`, 显式兼容对象提供 `$autojs.speech`; Bun 使用 `host.speech`. Node 的 CJS, ESM 和嵌套 Worker 使用相同接口. 全局 speech/$speech 仍只属于 Rhino.
+
+此接口复用 [Speech](speech) 的 3-Macaw Speech 插件, 模型目录, 参数校验和文件处理. 需要安装并启用兼容的语音插件, 并准备对应模型. 识别音频不上传; models.install 与 models.refreshCatalog 会访问模型分发源. 安装模型和接受许可均由调用者显式请求.
+
+### 授权和入口
+
+Bun 需要单独开启 speech.control; 打包应用在 bunConfig.hostCapabilities 中声明 speech.control. Node 项目在 nodeConfig.permissions 中声明 speech. 该权限覆盖插件发现, 模型管理, 文件/PCM 识别, 麦克风会话, 唤醒及合成, 不要求同时授权 tts.control.
+
+麦克风由语音插件进程录制. 插件自身必须持有 RECORD_AUDIO, 可通过 capabilities().microphoneGranted 查询. 宿主或打包应用的麦克风权限不能代替插件权限. Android 的后台收音和前台服务要求仍适用.
+
+```js
+"nodejs";
+let speech = require('autojs6:speech');
+try {
+    let models = await speech.models.list({ kind: 'asr', installed: true });
+    if (!models.length) throw new Error('No installed recognition model');
+    let result = await speech.recognize('voice.wav', { model: models[0].id });
+    console.log(result.text);
+} finally {
+    await speech.close();
+}
+```
+
+Bun 通过 AUTOJS6_HOST_CLIENT_MODULE 加载 SDK 并 createHostClient, 再使用 host.speech. 输入/输出路径属于宿主执行应用, 按脚本工作目录解析相对路径, 也支持绝对路径. 不接受 content:// 等 URI.
+
+### 方法和返回值
+
+以下方法均返回 Promise; Rhino 的同步方法名在此保留, 调用时需要 await. recognizeAsync, synthesizeAsync 和 models.installAsync 也保留.
+
+| 方法 | Promise 的结果 |
+| --- | --- |
+| isAvailable(callOptions?) | 是否存在兼容且启用的插件; 未安装时为 false, 桥接授权错误仍会拒绝 |
+| capabilities(callOptions?) | 插件版本, 功能, 目录版本, 引擎及 microphoneGranted |
+| recognize(source, options?, callOptions?) / recognizeAsync | Recognition, 包含 text, segments, durationMillis, modelId 和 warnings |
+| detectVoice(source, options?, callOptions?) | segments 和 durationMillis |
+| listen(options?, callOptions?) | pending 状态的 Session |
+| wake(keywords, options?, callOptions?) | pending 状态的 WakeSession |
+| synthesize(text, path, options?, callOptions?) / synthesizeAsync | 已发布 WAV 文件的路径, 大小, 采样率, 时长与模型信息 |
+| speak(text, options?, callOptions?) | 使用插件系统 TTS 引擎完成朗读的结果 |
+| models.list(filter?, callOptions?) | ModelInfo 数组, 支持 kind/language/installed 过滤 |
+| models.install(id, options?, callOptions?) / models.installAsync | 安装后的 ModelInfo |
+| models.importFile(path, options?, callOptions?) | 导入本地 tar.bz2/zip 模型后的 ModelInfo |
+| models.remove(id, callOptions?) | 是否删除; 被会话使用的模型拒绝删除 |
+| models.setDefault(kind, id, callOptions?) | 该类别的新默认 ModelInfo |
+| models.getDefault(kind, callOptions?) | 默认 ModelInfo 或 null |
+| models.refreshCatalog(callOptions?) | version 和 updated |
+| close() | 是否关闭了一个客户端 |
+
+选项字段, 模型许可和识别结果沿用 [Speech](speech) 的定义. 模型安装与导入的 onProgress(done, total) 在当前 Node/Bun/Worker 的 JS 线程执行, 不作为 JSON 函数传给宿主. 快速进度可合并为最新值, 不保证观察到每个内部下载块.
+
+callOptions 支持 signal 和 timeoutMs (整数, 1..2147483647). signal 取消操作; timeoutMs 是本次操作的整体等待期限. 默认不增加额外的运行时期限, 仍遵守 speech 插件的原有操作超时与会话时长限制. 取消安装时由插件回收任务, 已完成的模型变更不会回滚.
+
+### PCM 与会话事件
+
+source 可以是 WAV 文件路径, ArrayBuffer 或任意 ArrayBufferView, 包括 Buffer 和 Int16Array. 只读取视图的 byteOffset/byteLength 范围, 不接受普通数字数组. PCM 为单声道 PCM16 LE, 字节数必须为偶数; 文件识别的 sampleRate 默认 16000, 允许 8000..192000. 音频文件含容器最多 200 MiB, 最长 30 分钟.
+
+```js
+"nodejs";
+let speech = require('speech');
+let session = await speech.listen({ source: 'external', timeoutMillis: 0 });
+let ready = new Promise((resolve, reject) => {
+    session.once('ready', resolve);
+    session.once('error', reject);
+});
+let ended = new Promise((resolve, reject) => {
+    session.once('end', resolve);
+    session.once('error', reject);
+});
+session.on('final', value => console.log(value.text));
+try {
+    await ready;
+    await session.feed(new Int16Array(16000));
+    await session.stop();
+    console.log((await ended).reason);
+} finally {
+    await speech.close();
+}
+```
+
+listen/wake 返回后应立即注册监听器. ready 之前的 state 为 pending; 插件打开或加载失败通过 error 与 end 事件报告. 普通 Session 事件为 ready, partial, final, endpoint, vad, warning, error 和 end. WakeSession 事件为 ready, wake, warning, error 和 end; thenListen 开启时, wake 事件的 listen 是对应轮次的 Session. 轮次事件等待 wake 回调注册监听器后再投递.
+
+Session 的 id, modelId, startedAt, source, round, state, reason, isEnded, result() 和 isActive() 在当前 JS 线程读取. on/once/off/removeListener/removeAllListeners 同步返回会话. stop(), cancel() 和 feed(pcm) 返回 Promise, resolve 为会话本身; feed 仅适用于 external 会话, 固定 16 kHz, 单次最多 1 MiB. 同一会话的 feed/stop/cancel 按调用顺序执行. stop 等待的是停止请求完成, 最终文本以 end 事件为准.
+
+WakeSession 提供 keywords 和共同状态属性, 支持 stop/isActive 及事件方法. 一个听写轮次的 stop/cancel 只结束该轮次; 旧轮次句柄不会停止后续轮次. WakeSession.stop 结束唤醒及仍活动的轮次.
+
+### 错误, 资源和运行条件
+
+speech.SpeechError 可以带 new 或直接调用, 其 name 为 SpeechError, code 保留 MODEL_MISSING, INVALID_OPTIONS, SESSION_BUSY 等插件代码. 识别, 模型操作等 Promise 拒绝时使用该错误类型; 会话错误经 error 事件送达, 随后 end. 原始桥接拒绝可能保留 NOT_GRANTED 等桥接错误代码.
+
+每个主线程/Worker/SDK 客户端分别拥有会话和操作. close 取消本客户端的操作并释放临时 PCM 文件和插件绑定, 活动会话收到 reason 为 script-exit 的 end. 客户端随后可以再次使用. Worker 退出清理自己的客户端, 父线程的会话保持有效; 脚本结束清理整个执行的客户端.
+
+PCM 和返回数据分段传输, 长识别/下载通过短调用与事件轮询等待. Bun 的 speech.control 不计入普通能力的单次执行 1024 次调用额度, 保留单次 RPC 10 秒, 64 KiB 请求, 256 KiB 响应和四个并发请求限制. 其他能力的额度规则保持原样. 会话事件接收不及时仍可能以 LIMIT_EXCEEDED 和 end(overflow) 结束, 应持续消费并在不用时关闭.
+
+synthesize 生成文件而不播放; speak 可用 `{ volume: 0, usage: 'media' }` 静音, 不修改系统音量. 此接口不会自动下载缺失模型, 接受非商用许可, 申请插件麦克风权限或绕过 Android 后台限制.

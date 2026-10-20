@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `新增` Node.js/Bun/Worker 的 speech 語音識別與模型管理介面, 支援 WAV/PCM, 聽寫與喚醒工作階段, 模型安裝/匯入, 語音合成及取消清理
 - `新增` Node.js/Bun/Worker 的文字轉語音介面, 支援引擎與音色查詢, 朗讀, 靜音任務, 音訊檔案合成和任務事件
 - `新增` [Speech](https://docs.autojs6.com/#/speech), [SpeechSession](https://docs.autojs6.com/#/speechSessionType), [SpeechWakeSession](https://docs.autojs6.com/#/speechWakeSessionType), [SpeechRecognitionResult](https://docs.autojs6.com/#/speechRecognitionResultType), [SpeechModelInfo](https://docs.autojs6.com/#/speechModelInfoType) 說明 3-Macaw Speech 的麥克風聽寫, 檔案與 PCM 識別, 語音活動, 喚醒詞, 合成, 模型目錄與許可, 背景收音, 喚醒工作階段接管, 錯誤與上限, 以及助理, 語音輸入, 識別服務和 VOICE_COMMAND 整合; [TTS](https://docs.autojs6.com/#/tts) 說明語音引擎, [Plugins](https://docs.autojs6.com/#/plugins) 列出腳本模組提供者
 - `新增` Node.js/Bun/Worker 的 Java 回調代理, 子類別產生和 JAR/DEX 載入, 支援 Promise 回傳值, 父類別呼叫及執行結束清理

@@ -71,6 +71,7 @@ generator\auto-generate-for-autojs6.bat
 
 ### v6.8.0
 
+- `新機能` Node.js/Bun/Worker の speech 音声認識とモデル管理 API で WAV/PCM, 書き起こしとウェイクワードのセッション, モデルのインストールとインポート, 音声合成とキャンセル時の解放に対応
 - `新機能` Node.js/Bun/Worker の音声合成 API でエンジンと音声の照会, 読み上げ, 無音, 音声ファイル合成とタスクイベントに対応
 - `新機能` [Speech](https://docs.autojs6.com/#/speech), [SpeechSession](https://docs.autojs6.com/#/speechSessionType), [SpeechWakeSession](https://docs.autojs6.com/#/speechWakeSessionType), [SpeechRecognitionResult](https://docs.autojs6.com/#/speechRecognitionResultType), [SpeechModelInfo](https://docs.autojs6.com/#/speechModelInfoType) で 3-Macaw Speech のマイク入力, ファイルと PCM 認識, 音声区間, ウェイクワード, 合成, モデルとライセンス, バックグラウンド録音, セッション引き継ぎ, エラーと制限, アシスタントと音声入力と認識サービスおよび VOICE_COMMAND を説明; [TTS](https://docs.autojs6.com/#/tts) は音声エンジン, [Plugins](https://docs.autojs6.com/#/plugins) はスクリプトモジュールの提供元を説明
 - `新機能` Node.js/Bun/Worker の Java コールバック, サブクラス生成と JAR/DEX 読み込みで Promise の戻り値, 親クラス呼び出しと終了時の解放に対応

@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Node.js/Bun/Worker 的 speech 语音识别与模型管理接口, 支持 WAV/PCM, 听写与唤醒会话, 模型安装/导入, 语音合成和取消清理"
+        },
+        {
+          "category": "feature",
           "text": "Node.js/Bun/Worker 的文字转语音接口, 支持引擎与音色查询, 朗读, 静音任务, 音频文件合成和任务事件"
         },
         {

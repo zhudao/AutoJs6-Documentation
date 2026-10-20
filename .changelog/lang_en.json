@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Speech recognition and model management APIs for Node.js, Bun and Workers, with WAV/PCM, dictation and wake sessions, model installation/import, synthesis and cancellation cleanup"
+        },
+        {
+          "category": "feature",
           "text": "Text-to-speech APIs for Node.js, Bun and Workers, with engine and voice queries, speech, silence, audio file synthesis and task events"
         },
         {

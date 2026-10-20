@@ -4,7 +4,7 @@
 
 从 AutoJs6 6.8.0 起, 本模块由外置 3-Macaw Speech 插件 (AutoJs6-Plugin-Three-Macaw-Speech) 1.0.0 及以上版本提供, 宿主不保留任何识别或合成实现. 调用前需在插件中心安装并启用与当前 AutoJs6 兼容的插件. 插件缺失时方法抛出 (或以 Promise 拒绝) `code` 为 `PLUGIN_UNAVAILABLE` 的 [SpeechError](#c-speecherror), 其消息为插件中心的本地化缺插件提示; 插件被禁用或未授权时为 `PLUGIN_DISABLED`; 插件版本或契约不兼容, 或插件未声明所需功能时为 `PLUGIN_INCOMPATIBLE`. [speech.isAvailable](#m-isavailable) 可预先探测.
 
-本模块注册为全局名称 `speech`, 并提供 `$speech` 别名, 二者指向同一对象. 本页描述 Rhino 脚本; Node.js 与 Bun 尚无对应的 `speech` 模块或全局对象, 不应根据 Rhino 的补全提示推断其可用性.
+本模块在 Rhino 中注册为全局名称 `speech`, 并提供 `$speech` 别名, 二者指向同一对象. 本页的签名与同步返回值描述 Rhino. Node.js, Bun 与 Node.js Worker 提供显式导入的异步接口, 参阅 [Runtime APIs 的语音识别与模型管理](runtimeApis#nodejs--bun--worker-的语音识别与模型管理); 这些运行时不注入 speech/$speech 全局.
 
 音频文件以路径指定, 相对路径按脚本工作目录解析 (与 [files.path](files#m-path) 相同), 也可使用绝对路径; 不接受 `content://`, `file://`, `http://` 等 URI. 输入文件由 AutoJs6 以只读方式打开后交给插件, 合成输出由 AutoJs6 暂存, 检查后再改名为目标文件. 插件不会得到任何路径.
 

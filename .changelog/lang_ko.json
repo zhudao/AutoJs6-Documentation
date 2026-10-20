@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Node.js/Bun/Worker의 speech 음성 인식 및 모델 관리 API로 WAV/PCM, 받아쓰기와 호출어 세션, 모델 설치와 가져오기, 음성 합성 및 취소 시 정리 지원"
+        },
+        {
+          "category": "feature",
           "text": "Node.js/Bun/Worker의 음성 합성 API로 엔진과 음성 조회, 읽기, 무음, 오디오 파일 합성 및 작업 이벤트 지원"
         },
         {

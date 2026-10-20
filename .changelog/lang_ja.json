@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Node.js/Bun/Worker の speech 音声認識とモデル管理 API で WAV/PCM, 書き起こしとウェイクワードのセッション, モデルのインストールとインポート, 音声合成とキャンセル時の解放に対応"
+        },
+        {
+          "category": "feature",
           "text": "Node.js/Bun/Worker の音声合成 API でエンジンと音声の照会, 読み上げ, 無音, 音声ファイル合成とタスクイベントに対応"
         },
         {

@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `新增` Node.js/Bun/Worker 的 speech 语音识别与模型管理接口, 支持 WAV/PCM, 听写与唤醒会话, 模型安装/导入, 语音合成和取消清理
 - `新增` Node.js/Bun/Worker 的文字转语音接口, 支持引擎与音色查询, 朗读, 静音任务, 音频文件合成和任务事件
 - `新增` [语音 (Speech)](https://docs.autojs6.com/#/speech) 与 [SpeechSession](https://docs.autojs6.com/#/speechSessionType), [SpeechWakeSession](https://docs.autojs6.com/#/speechWakeSessionType), [SpeechRecognitionResult](https://docs.autojs6.com/#/speechRecognitionResultType), [SpeechModelInfo](https://docs.autojs6.com/#/speechModelInfoType), 说明 3-Macaw Speech 插件提供的麦克风听写, 文件与 PCM 识别, 语音活动检测, 唤醒词, 合成与模型管理, 模型目录与许可, 后台收音与唤醒会话的临时接管, 错误代码与上限, 以及数字助理, 系统语音输入, 系统识别服务与 VOICE_COMMAND 入口契约; [TTS](https://docs.autojs6.com/#/tts) 增加 "使用 3-Macaw Speech 引擎" 一节, [插件 (Plugins)](https://docs.autojs6.com/#/plugins) 增加提供脚本模块的插件列表
 - `新增` Node.js/Bun/Worker 的 Java 回调代理, 子类生成和 JAR/DEX 加载, 支持 Promise 返回值, 父类调用及执行结束清理

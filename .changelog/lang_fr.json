@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "API speech de reconnaissance vocale et de gestion des modèles pour Node.js, Bun et Workers avec WAV/PCM, dictée et activation vocale, installation/importation, synthèse et annulation"
+        },
+        {
+          "category": "feature",
           "text": "API de synthèse vocale pour Node.js, Bun et Workers avec requêtes des moteurs et voix, lecture, silence, fichiers audio et événements des tâches"
         },
         {

@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "API speech de reconocimiento y gestión de modelos para Node.js, Bun y Workers con WAV/PCM, dictado y activación por voz, instalación/importación, síntesis y cancelación"
+        },
+        {
+          "category": "feature",
           "text": "API de síntesis de voz para Node.js, Bun y Workers con consultas de motores y voces, lectura, silencio, archivos de audio y eventos de tareas"
         },
         {

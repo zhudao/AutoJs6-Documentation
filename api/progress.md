@@ -1,5 +1,7 @@
 # 文档部署进度 (Progress)
 
+2026-10-20: Node.js/Bun/Worker speech 接口补齐识别, VAD, 听写与唤醒会话, 模型目录/安装/导入/默认值, 合成, 分段 PCM, 取消及客户端清理; 运行时异步签名与独立授权见 Runtime APIs. 此项描述本地开发版本, 不表示公开发布.
+
 2026-10-20 语音 (Speech) 补齐: 按 3-Macaw Speech 插件 1.0.0 (开发中) 与 AutoJs6 6.8.0 本地源码重写 speech 页面, 覆盖准备工作与麦克风授权, 模型目录 (目录版本 1 的 11 个模型) 与许可接受规则, 默认模型, 后台收音与插件唯一的麦克风, 唤醒会话被插件自己的听写入口临时接管, 全部方法的签名, 标签与失败条件, 各类选项, 返回对象, 错误代码与上限, 以及插件的系统入口 (系统 TTS 引擎, 系统语音输入, 数字助理, VOICE_COMMAND 入口契约, 系统识别服务); 新增 [SpeechSession](speechSessionType), [SpeechWakeSession](speechWakeSessionType), [SpeechRecognitionResult](speechRecognitionResultType) 与 [SpeechModelInfo](speechModelInfoType) 页面; [TTS](tts) 增加 "使用 3-Macaw Speech 引擎" 一节 (语音名称, 语言可用性, speech.speak 的语音选择); [Plugins](plugins) 增加提供脚本模块的插件列表. 依据为宿主 speech 模块与协议文档 docs/dev/speech-plugin-protocol-v1.md (宿主本地提交, 至 11f75efbe) 与插件源码 (b3489b0); 插件 1.0.0 与对应的 AutoJs6 6.8.0 尚未发布, 此条不表示官方发布.
 
 2026-10-20 Java 回调, 子类生成和 JAR/DEX 加载已同步到 Node.js, Bun 及 Worker 文档.

@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `추가` Node.js/Bun/Worker의 speech 음성 인식 및 모델 관리 API로 WAV/PCM, 받아쓰기와 호출어 세션, 모델 설치와 가져오기, 음성 합성 및 취소 시 정리 지원
 - `추가` Node.js/Bun/Worker의 음성 합성 API로 엔진과 음성 조회, 읽기, 무음, 오디오 파일 합성 및 작업 이벤트 지원
 - `추가` [Speech](https://docs.autojs6.com/#/speech), [SpeechSession](https://docs.autojs6.com/#/speechSessionType), [SpeechWakeSession](https://docs.autojs6.com/#/speechWakeSessionType), [SpeechRecognitionResult](https://docs.autojs6.com/#/speechRecognitionResultType), [SpeechModelInfo](https://docs.autojs6.com/#/speechModelInfoType) 에서 3-Macaw Speech의 마이크 받아쓰기, 파일 및 PCM 인식, 음성 활동, 호출어, 합성, 모델과 라이선스, 백그라운드 녹음, 세션 인계, 오류와 제한, 도우미와 음성 입력 및 인식 서비스와 VOICE_COMMAND 통합 설명; [TTS](https://docs.autojs6.com/#/tts)는 음성 엔진, [Plugins](https://docs.autojs6.com/#/plugins)는 스크립트 모듈 제공자 설명
 - `추가` Node.js/Bun/Worker의 Java 콜백, 하위 클래스 생성 및 JAR/DEX 로드로 Promise 반환값, 부모 클래스 호출 및 실행 종료 정리 지원
