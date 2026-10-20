@@ -71,6 +71,8 @@ generator\auto-generate-for-autojs6.bat
 
 ### v6.8.0
 
+- `新增` Node.js/Bun/Worker 的文字轉語音介面, 支援引擎與音色查詢, 朗讀, 靜音工作, 音訊檔案合成和工作事件
+- `新增` [Speech](https://docs.autojs6.com/#/speech), [SpeechSession](https://docs.autojs6.com/#/speechSessionType), [SpeechWakeSession](https://docs.autojs6.com/#/speechWakeSessionType), [SpeechRecognitionResult](https://docs.autojs6.com/#/speechRecognitionResultType), [SpeechModelInfo](https://docs.autojs6.com/#/speechModelInfoType) 說明 3-Macaw Speech 的麥克風聽寫, 檔案與 PCM 辨識, 語音活動, 喚醒詞, 合成, 模型目錄與授權, 背景收音, 喚醒工作階段接管, 錯誤與上限, 以及助理, 語音輸入, 辨識服務和 VOICE_COMMAND 整合; [TTS](https://docs.autojs6.com/#/tts) 說明語音引擎, [Plugins](https://docs.autojs6.com/#/plugins) 列出腳本模組提供者
 - `新增` Node.js/Bun/Worker 的 Java 回呼代理, 子類別產生和 JAR/DEX 載入, 支援 Promise 回傳值, 父類別呼叫及執行結束清理
 - `新增` Node.js/Bun/Worker 的 Java/Android 物件互操作, 支援公開建構函式和成員, 陣列, 精確 long 值, 明確多載及應用程式 Context 控制代碼
 - `新增` Node.js/Bun 的 Android 物件輔助介面及 Worker 封裝, 支援 Paint, ColorStateList, 主題色和 FileProvider URI

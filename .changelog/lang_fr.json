@@ -10,6 +10,14 @@
       "entries": [
         {
           "category": "feature",
+          "text": "API de synthèse vocale pour Node.js, Bun et Workers avec requêtes des moteurs et voix, lecture, silence, fichiers audio et événements des tâches"
+        },
+        {
+          "category": "feature",
+          "text": "[Speech](https://docs.autojs6.com/#/speech), [SpeechSession](https://docs.autojs6.com/#/speechSessionType), [SpeechWakeSession](https://docs.autojs6.com/#/speechWakeSessionType), [SpeechRecognitionResult](https://docs.autojs6.com/#/speechRecognitionResultType), [SpeechModelInfo](https://docs.autojs6.com/#/speechModelInfoType) décrivent la dictée, la reconnaissance de fichiers et PCM, les activités vocales, les mots de réveil, la synthèse, les modèles et licences, l'enregistrement en arrière-plan, la reprise des sessions, les erreurs et limites, ainsi que les assistants, la saisie vocale, le service de reconnaissance et VOICE_COMMAND; [TTS](https://docs.autojs6.com/#/tts) présente le moteur 3-Macaw Speech et [Plugins](https://docs.autojs6.com/#/plugins) les fournisseurs de modules"
+        },
+        {
+          "category": "feature",
           "text": "Callbacks Java, sous-classes générées et chargement JAR/DEX pour Node.js, Bun et Workers, avec retours Promise, appels de la superclasse et libération en fin de session"
         },
         {

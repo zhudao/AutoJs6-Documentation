@@ -1893,3 +1893,71 @@ CallbackOptions 提供 timeoutMs, signal, callbackTimeoutMs 和 onError. callbac
 对象快照的 value.string 使用对象标识, 避免序列化时隐式执行用户的 toString 并再次触发回调. 需要文字内容时明确 `await object.call('toString')`. 本批仍不注入 Rhino 的同步 Java 包全局, 不自动把任意函数实参转换为 Java 回调.
 
 Bun 打包应用隐藏启动页和日志页时, 与 Node 一样使用现有的 12 秒启动可见性窗口, 避免运行时尚在初始化就关闭启动 Activity. 实际脚本 UI 出现后由其窗口保持前台状态; 该启动窗口不承诺长期后台驻留.
+
+## Node.js / Bun / Worker 的文字转语音
+
+宿主 build 5603, Node Runtime 1.24.0 与 Bun Runtime 0.13.0 提供直接 TTS 接口. Node 使用 `require('tts')` 或 `import tts from 'autojs6:tts'`, 显式兼容对象提供 `$autojs.tts`; Bun 使用 `host.tts`. Node 的 CJS, ESM 和嵌套 Worker 使用同一接口. 不向 Node/Bun 注入 Rhino 的全局 tts/$tts.
+
+Bun 需要在插件中心单独开启 tts.control. 打包应用在 bunConfig.hostCapabilities 中声明 tts.control; Node 项目在 nodeConfig.permissions 中声明 tts. 此能力允许朗读及宿主执行应用可访问位置的音频文件输出, 不请求麦克风权限, 不自动安装引擎或下载音色.
+
+### 方法与返回值
+
+TTS 使用与 [Rhino TTS](tts) 相同的 Android 服务, 队列, 参数校验, 文本分段和文件发布逻辑. SpeechOptions, SynthesisOptions, EngineQuery, VoiceFilter 及查询结果字段沿用该模块定义. 字符串文本和文件路径须明确传入, 不隐式转换任意 Java 对象.
+
+| 方法 | 运行时客户端返回值 |
+| --- | --- |
+| tts(text, options?, callOptions?), speak, enqueue | Promise<Result>, 等待朗读完成 |
+| utterance/speakTask, enqueueUtterance/enqueueTask | Promise<Utterance>, 取得可观察的朗读任务 |
+| synthesize/synthesizeToFile | Promise<Result>, 等待音频文件完成 |
+| synthesis/synthesizeTask/synthesisTask | Promise<Utterance>, 取得文件合成任务 |
+| silence | Promise<Result>, 等待静音时段完成 |
+| silenceTask | Promise<Utterance>, 取得静音任务 |
+| ready, engines, voices, languages, isLanguageAvailable, languageAvailability | Promise, 返回对应引擎, 音色或语言结果 |
+| stop/stopAll, reset, isSpeaking, isBusy, status | Promise, 控制或查询当前客户端 |
+| defaults/config, configure | Promise<Defaults>, 读取或修改当前客户端默认值 |
+| openSettings, installData | Promise<boolean>, 请求打开系统设置或引擎数据安装页面 |
+| close | Promise<boolean>, 关闭当前客户端及其任务; 后续调用可重新创建客户端 |
+
+callOptions 是独立的最后一个参数, 提供桥接 timeoutMs 和 signal. 任务 options 中的 timeout/timeoutMillis/timeoutMs 控制 TTS 任务本身, 与桥接请求超时不同. 创建任务的桥接请求完成后, result 会继续等待任务结果.
+
+maxInputLength 为 3999, maxSynthesisFileSize 为 536870912, QUEUE_FLUSH 为 'flush', QUEUE_ADD 为 'add'. 常量访问和 getMaxInputLength 是本地同步操作. 模块与任务的 on/once/off/removeAllListeners 也同步返回原对象; 其他表内方法需要 await.
+
+engines 查询直接读取系统引擎目录, 不初始化默认引擎. 默认引擎初始化失败时仍可列出其他已安装引擎. engines 的 engine 参数仅标记结果中的 requested 字段; 如需验证引擎能否工作, 使用 ready 或实际合成.
+
+### 文件合成与任务事件
+
+```js
+"nodejs";
+let tts = require('autojs6:tts');
+try {
+    let voices = await tts.voices({ offlineOnly: true, installedOnly: true });
+    if (!voices.length) throw new Error('No installed offline voice');
+    let task = await tts.synthesis('你好', 'hello.wav', {
+        voice: voices[0].name,
+        audioEvents: true,
+    });
+    task.on('audio', info => console.log(info.data.byteLength));
+    let result = await task.result;
+    console.log(result.path);
+} finally {
+    await tts.close();
+}
+```
+
+Bun 先通过 AUTOJS6_HOST_CLIENT_MODULE 加载 SDK 并 createHostClient, 再将上例的 tts 替换为 host.tts. 文件合成不会播放声音. 朗读需要静音时使用 `{ volume: 0, usage: 'media' }`; 此选项不修改系统音量. silence/silenceTask 生成静音时间段, 不生成提示音.
+
+相对输出路径以宿主脚本执行目录为基准. 实际访问权限由执行应用的 Android UID 和存储授权决定, 不是运行时插件的私有目录. 文件先写入暂存位置, 完成后发布; overwrite 默认为 true. overwrite: false 保留原文件, 目标存在或文件系统不支持原子不覆盖发布时拒绝. createDirectories/mkdirs 控制目录创建. 文件合成最多接受 3999 个 UTF-16 单元, autoSplit 仅对朗读生效.
+
+Utterance 提供只读 id, operation, text, state, isDone 和 result. `await task.stop()` 与 `await task.cancel()` 请求停止该任务并返回任务本身; result 随后以 ABORTED 错误拒绝. 已完成任务的停止请求没有额外作用.
+
+任务事件为 queued, start, chunk, range, synthesis, audio, done, stop, cancelled 和 error. audio.data 为 Uint8Array; 只有 audioEvents/emitAudio 开启时才接收音频数据. 具体的 range/audio 事件仍取决于 Android 引擎实际提供的回调. 模块事件使用 `{ id, value }` 包装同类任务事件. 处理函数在创建任务的 JS 运行环境中执行.
+
+### 隔离, 取消和运行条件
+
+每个 Node 主线程, Worker 或 Bun SDK 客户端分别持有 TTS 服务与默认配置. stop/reset/close 作用于该客户端; Worker 退出释放自己的服务, 保留父线程的任务. 脚本结束释放本次执行的全部服务. 关闭客户端会使尚未完成的任务拒绝, 应等待结果并在 finally 中清理.
+
+桥接仅取回客户端已经取得句柄的任务事件, 防止并发创建时遗漏完成通知. 进度接收有容量上限, 音频数据消费不及时会以 AUDIO_BACKPRESSURE 失败, 不无限缓存 PCM. Bun 保留原有每次执行 1024 次宿主调用及并发预算; 事件轮询也消耗预算, 不适合无限期音频流.
+
+引擎与音色需要在设备上实际可用. voices 的 installedOnly/offlineOnly 过滤不触发安装或联网下载; installData 仅请求系统或引擎提供的页面, 不保证该页面存在. 系统引擎失败, 不支持的语言或音色, 输出失败和超时通过 Promise 拒绝报告. 任务结果错误使用 ERR_AUTOJS6_TTS_ 前缀的 code, 例如 ERR_AUTOJS6_TTS_ABORTED; 引擎提供时另有 errorCode. Bun 的普通查询请求还可能返回 HostCallError 的桥接错误代码.
+
+此接口不等同于 speech 的语音识别, 唤醒词或模型管理接口. Android 后台执行限制仍然适用; TTS 不自动建立永久前台服务.

@@ -71,6 +71,8 @@ Documentation may change at any time, and some descriptions may differ from actu
 
 ### v6.8.0
 
+- `Feature` Text-to-speech APIs for Node.js, Bun and Workers, with engine and voice queries, speech, silence, audio file synthesis and task events
+- `Feature` [Speech](https://docs.autojs6.com/#/speech), [SpeechSession](https://docs.autojs6.com/#/speechSessionType), [SpeechWakeSession](https://docs.autojs6.com/#/speechWakeSessionType), [SpeechRecognitionResult](https://docs.autojs6.com/#/speechRecognitionResultType), [SpeechModelInfo](https://docs.autojs6.com/#/speechModelInfoType) document microphone dictation, file and PCM recognition, voice activity, wake words, synthesis, model catalogs and licenses, background recording, wake-session takeover, errors and limits, and assistant, voice input, recognition service and VOICE_COMMAND integration; [TTS](https://docs.autojs6.com/#/tts) explains the 3-Macaw Speech engine and [Plugins](https://docs.autojs6.com/#/plugins) lists script-module providers
 - `Feature` Java callbacks, generated subclasses and JAR/DEX loading for Node.js, Bun and Workers, with Promise results, superclass calls and execution cleanup
 - `Feature` Java/Android object interop for Node.js, Bun and Workers, including public constructors and members, arrays, exact long values, explicit overloads and application Context handles
 - `Feature` Android object helpers for Node.js, Bun and Workers, including Paint, ColorStateList, theme colors and FileProvider URIs

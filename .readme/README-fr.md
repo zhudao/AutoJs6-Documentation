@@ -71,6 +71,8 @@ Les documents peuvent changer à tout moment et diverger du comportement réel. 
 
 ### v6.8.0
 
+- `Fonctionnalité` API de synthèse vocale pour Node.js, Bun et Workers avec requêtes des moteurs et voix, lecture, silence, fichiers audio et événements des tâches
+- `Fonctionnalité` [Speech](https://docs.autojs6.com/#/speech), [SpeechSession](https://docs.autojs6.com/#/speechSessionType), [SpeechWakeSession](https://docs.autojs6.com/#/speechWakeSessionType), [SpeechRecognitionResult](https://docs.autojs6.com/#/speechRecognitionResultType), [SpeechModelInfo](https://docs.autojs6.com/#/speechModelInfoType) décrivent la dictée, la reconnaissance de fichiers et PCM, les activités vocales, les mots de réveil, la synthèse, les modèles et licences, l'enregistrement en arrière-plan, la reprise des sessions, les erreurs et limites, ainsi que les assistants, la saisie vocale, le service de reconnaissance et VOICE_COMMAND; [TTS](https://docs.autojs6.com/#/tts) présente le moteur 3-Macaw Speech et [Plugins](https://docs.autojs6.com/#/plugins) les fournisseurs de modules
 - `Fonctionnalité` Callbacks Java, sous-classes générées et chargement JAR/DEX pour Node.js, Bun et Workers, avec retours Promise, appels de la superclasse et libération en fin de session
 - `Fonctionnalité` Interopérabilité Java/Android pour Node.js, Bun et Workers, avec constructeurs et membres publics, tableaux, valeurs long exactes, surcharges explicites et handles Context
 - `Fonctionnalité` Objets Android pour Node.js, Bun et les Workers, avec Paint, ColorStateList, couleurs du thème et URI FileProvider

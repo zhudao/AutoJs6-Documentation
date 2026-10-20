@@ -2,6 +2,8 @@
 
 tts 模块用于通过 Android 文本转语音引擎播放文本, 插入静音, 合成音频文件, 查询引擎和语音, 以及监听单次任务的执行事件.
 
+Node.js, Bun 与 Node.js Worker 的显式异步接口参阅 [Runtime APIs - 文字转语音](runtimeApis#nodejs--bun--worker-的文字转语音). 本页的全局调用方式及同步任务句柄针对 Rhino.
+
 `tts` 与 `$tts` 指向同一个可调用模块对象.
 
 tts 服务属于当前脚本运行时. 脚本退出时, 未完成的请求会停止, 相关引擎资源会释放.
@@ -221,6 +223,8 @@ tts.synthesize('Saved speech', './speech.wav').then((result) => {
 传入 `null` 时使用系统默认引擎.
 
 ## [m] engines
+
+engines 查询直接读取系统引擎目录, 不初始化默认引擎. 默认引擎初始化失败时仍可列出其他已安装引擎. engines 的 engine 参数仅标记结果中的 requested 字段; 如需验证引擎能否工作, 使用 ready 或实际合成.
 
 ### engines(engineOrOptions?)
 

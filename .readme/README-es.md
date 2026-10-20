@@ -71,6 +71,8 @@ La documentación puede cambiar en cualquier momento y diferir del comportamient
 
 ### v6.8.0
 
+- `Nuevo` API de síntesis de voz para Node.js, Bun y Workers con consultas de motores y voces, lectura, silencio, archivos de audio y eventos de tareas
+- `Nuevo` [Speech](https://docs.autojs6.com/#/speech), [SpeechSession](https://docs.autojs6.com/#/speechSessionType), [SpeechWakeSession](https://docs.autojs6.com/#/speechWakeSessionType), [SpeechRecognitionResult](https://docs.autojs6.com/#/speechRecognitionResultType), [SpeechModelInfo](https://docs.autojs6.com/#/speechModelInfoType) describen dictado, reconocimiento de archivos y PCM, actividad vocal, palabras de activación, síntesis, modelos y licencias, grabación en segundo plano, transferencia de sesiones, errores y límites, asistentes, entrada de voz, servicio de reconocimiento y VOICE_COMMAND; [TTS](https://docs.autojs6.com/#/tts) presenta el motor 3-Macaw Speech y [Plugins](https://docs.autojs6.com/#/plugins) los proveedores de módulos
 - `Nuevo` Callbacks Java, subclases generadas y carga de JAR/DEX para Node.js, Bun y Workers, con resultados Promise, llamadas a la superclase y limpieza al terminar
 - `Nuevo` Interoperabilidad Java/Android para Node.js, Bun y Workers, con constructores y miembros públicos, matrices, valores long exactos, sobrecargas explícitas y referencias Context
 - `Nuevo` Objetos Android para Node.js, Bun y Workers, con Paint, ColorStateList, colores del tema y URI FileProvider

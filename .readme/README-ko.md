@@ -71,6 +71,8 @@ generator\auto-generate-for-autojs6.bat
 
 ### v6.8.0
 
+- `추가` Node.js/Bun/Worker의 음성 합성 API로 엔진과 음성 조회, 읽기, 무음, 오디오 파일 합성 및 작업 이벤트 지원
+- `추가` [Speech](https://docs.autojs6.com/#/speech), [SpeechSession](https://docs.autojs6.com/#/speechSessionType), [SpeechWakeSession](https://docs.autojs6.com/#/speechWakeSessionType), [SpeechRecognitionResult](https://docs.autojs6.com/#/speechRecognitionResultType), [SpeechModelInfo](https://docs.autojs6.com/#/speechModelInfoType) 에서 3-Macaw Speech의 마이크 받아쓰기, 파일 및 PCM 인식, 음성 활동, 호출어, 합성, 모델과 라이선스, 백그라운드 녹음, 세션 인계, 오류와 제한, 도우미와 음성 입력 및 인식 서비스와 VOICE_COMMAND 통합 설명; [TTS](https://docs.autojs6.com/#/tts)는 음성 엔진, [Plugins](https://docs.autojs6.com/#/plugins)는 스크립트 모듈 제공자 설명
 - `추가` Node.js/Bun/Worker의 Java 콜백, 하위 클래스 생성 및 JAR/DEX 로드로 Promise 반환값, 부모 클래스 호출 및 실행 종료 정리 지원
 - `추가` Node.js/Bun/Worker의 Java/Android 상호 운용으로 공개 생성자와 멤버, 배열, 정확한 long 값, 명시적 오버로드 및 앱 Context 핸들 지원
 - `추가` Node.js, Bun 및 Worker의 Android 객체 도우미, Paint, ColorStateList, 테마 색상 및 FileProvider URI 지원
