@@ -332,6 +332,23 @@
   &quot;useFeatures&quot;: [ &quot;continuation&quot; ]
 }
 </code></pre>
+<p>挂起 (调用 <a href="#continuation_m_await">await</a>, 以及基于它的 <code>promise.await()</code>, <code>continuation.await(promise)</code> 与 <code>continuation.delay(millis)</code>) 可以发生在以下位置:</p>
+<ul>
+<li>脚本主体代码, 包括协程恢复后继续执行的代码.</li>
+<li>在脚本线程上派发, 且派发时没有脚本代码正在执行的事件监听器, 即注册到未关联线程的 EventEmitter 上的监听器. UI 模式下由主线程派发的 Activity 事件 (<code>ui.emitter</code>, 如 <code>back_pressed</code>), 控件事件 (如 <code>click</code>) 与对话框事件均属此类. 监听器挂起后, 同一事件的其他监听器照常执行, 挂起的监听器在恢复后继续; 挂起前对事件对象的修改 (如 <code>e.consumed = true</code>) 即时生效.</li>
+</ul>
+<p>定时器回调 (<code>setTimeout</code> / <code>setInterval</code> / <code>setImmediate</code>) 与关联了线程的 EventEmitter 的监听器 (经定时器派发), 其他线程 (如 <code>threads.start</code>) 中的代码, 以及由脚本代码同步触发的监听器中不能挂起, 调用 <a href="#continuation_m_await">await</a> 将抛出异常; 这些位置可改用 <code>promise.then(...)</code>.</p>
+<pre><code class="lang-js">&#39;ui&#39;;
+
+ui.layout(&lt;frame&gt;&lt;text text=&quot;协程&quot; /&gt;&lt;/frame&gt;);
+
+ui.emitter.on(&#39;back_pressed&#39;, function (e) {
+    e.consumed = true;
+    if (dialogs.confirm(&#39;确定要退出程序&#39;).await()) {
+        ui.finish();
+    }
+});
+</code></pre>
 <hr>
 <p style="font: bold 2em sans-serif; color: #FF7043">continuation</p>
 

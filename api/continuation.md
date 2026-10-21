@@ -11,6 +11,26 @@
 }
 ```
 
+挂起 (调用 [await](#m-await), 以及基于它的 `promise.await()`, `continuation.await(promise)` 与 `continuation.delay(millis)`) 可以发生在以下位置:
+
+- 脚本主体代码, 包括协程恢复后继续执行的代码.
+- 在脚本线程上派发, 且派发时没有脚本代码正在执行的事件监听器, 即注册到未关联线程的 EventEmitter 上的监听器. UI 模式下由主线程派发的 Activity 事件 (`ui.emitter`, 如 `back_pressed`), 控件事件 (如 `click`) 与对话框事件均属此类. 监听器挂起后, 同一事件的其他监听器照常执行, 挂起的监听器在恢复后继续; 挂起前对事件对象的修改 (如 `e.consumed = true`) 即时生效.
+
+定时器回调 (`setTimeout` / `setInterval` / `setImmediate`) 与关联了线程的 EventEmitter 的监听器 (经定时器派发), 其他线程 (如 `threads.start`) 中的代码, 以及由脚本代码同步触发的监听器中不能挂起, 调用 [await](#m-await) 将抛出异常; 这些位置可改用 `promise.then(...)`.
+
+```js
+'ui';
+
+ui.layout(<frame><text text="协程" /></frame>);
+
+ui.emitter.on('back_pressed', function (e) {
+    e.consumed = true;
+    if (dialogs.confirm('确定要退出程序').await()) {
+        ui.finish();
+    }
+});
+```
+
 ---
 
 <p style="font: bold 2em sans-serif; color: #FF7043">continuation</p>
