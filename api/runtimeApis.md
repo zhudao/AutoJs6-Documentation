@@ -2452,7 +2452,7 @@ Node 的原生工具入口需要 accessibility. 边界点击, 智能点击的默
 
 Bun 工具与事件等待使用独立且默认关闭的 flow.control. 宿主仍按操作检查 accessibility.control, accessibility.gesture, app.control, clipboard.control, events.observe, events.toast, events.notification 等既有授权. flow.control 本身不授予这些能力. 打包应用须在项目配置中声明所需能力, 并启用自己的 Android 无障碍服务; 授权不继承宿主或其他安装包.
 
-Bun 的界面事件长轮询为控制与回调调用保留执行机会, 总并发调用上限仍为 4. flow.control 的短轮询不计入 Bun 普通桥每次执行 1024 次累计调用预算; 仍保留请求/结果大小, 并发和单次期限限制. 旧的 accessibility.control 选择器轮询继续消耗普通预算. 工具结果使用 UTF-8 分片传递, 函数参数和回调答复仍受单次请求大小限制. 每个 facade 最多同时有 64 个原生操作, 宿主执行实例最多 128 个原生工具线程; 每个客户端排队结果限制为 64 MiB, 单个操作最多保留 100000 个私有节点. 此项未改变 Bun 原生载荷或 Android/ABI 兼容矩阵.
+Bun 的界面事件长轮询为控制与回调调用保留执行机会, 总并发调用上限仍为 4. flow.control 的短轮询不计入 Bun 普通桥每次执行 1024 次累计调用预算; 仍保留请求/结果大小, 并发和单次期限限制. 旧的 accessibility.control 选择器轮询继续消耗普通预算. Node 的无障碍查询沿用每秒 20 次的上限; 连续查询应控制间隔, 这同样适用于带 scope 的查询. 工具结果使用 UTF-8 分片传递, 函数参数和回调答复仍受单次请求大小限制. 每个 facade 最多同时有 64 个原生操作, 宿主执行实例最多 128 个原生工具线程; 每个客户端排队结果限制为 64 MiB, 单个操作最多保留 100000 个私有节点. 此项未改变 Bun 原生载荷或 Android/ABI 兼容矩阵.
 
 workers 现在表示当前 facade 尚未结算的原生工具/事件操作数, 纯本地链不增加它. cancelAll 取消当前待定 Flow 并向宿主传播取消. `await flow.dispose()` 取消待定工作, 关闭本 facade 的宿主客户端; 此后该 facade 的原生工具调用会拒绝. Node 主线程, 每个 Worker 与 Bun 各自拥有客户端; 延迟返回的创建结果也会在运行结束后关闭. Android 已经接受的点击/输入/启动无法通过取消撤销.
 
@@ -2471,7 +2471,7 @@ Node.js Runtime 1.30.0 与 Bun Runtime 0.19.0 增加 Flow 实例的范围设置,
 
 options 接受 root, compass, resultType. 返回新 Flow, 透传当前值. 非 null 字段覆盖继承值; null/undefined 保留原设置, 不表示恢复全屏. 需要全屏查找时另起一条根链. 选项在创建步骤时复制, 分支之间互不覆盖. 作用域在父步骤结算后继承, sleep/map/then/retry 等链式步骤继续保留它.
 
-- root: 从匹配宿主得到的 NodeSnapshot. 每次查询重新定位并验证, 不跨调用保存 Android 节点. 窗口变化, 陈旧或有歧义的根快照拒绝 INVALID_TARGET, 不回退到全屏.
+- root: 从匹配宿主得到的 NodeSnapshot. 每次查询重新定位并验证, 不跨调用保存 Android 节点. 作为只读查找根节点时允许布局坐标变化, 但窗口, 包名, 类名, ID, 文本/描述和树位置仍须匹配且唯一; 窗口变化, 身份变化或有歧义的根快照拒绝 INVALID_TARGET, 不回退到全屏. 作为动作目标的快照仍严格校验坐标.
 - compass: 复用宿主罗盘语法, 支持 p/c/s/k 导航与 `%`. 先在 root 内搜索, 再从匹配节点执行罗盘. 罗盘可以导航到 root 外的祖先或兄弟, 因此 scope 是查找范围, 不是访问隔离机制.
 - resultType: 下表的结果形式. 返回普通 JavaScript 数据, 不返回 Java UiObject/UiSelector/UiObjectCollection.
 
@@ -2481,7 +2481,7 @@ options 接受 root, compass, resultType. 返回新 Flow, 透传当前值. 非 n
 | --- | --- |
 | # / w / widget | 单个 NodeSnapshot |
 | [] / ws / widgets, {} / wc / collection / list, #[] / ## 等宿主别名 | NodeSnapshot 数组; ["#"] 或空数组也选择此形式 |
-| $ / txt / content | 首个节点的 content 字符串 |
+| $ / txt / content | 首个节点的 content 字符串, 与宿主一致, 优先 desc, 没有 desc 时使用 text |
 | contents / $$ / $[] 等别名, ["$"] | content 字符串数组 |
 | . / pt / point | { x, y } 中心坐标 |
 | points / pts / .. / .[] 等别名, ["."] | 中心坐标数组 |
