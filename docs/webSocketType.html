@@ -73,6 +73,7 @@
 <li><a class="nav-mail" href="mail.html">Mail - 邮件</a></li>
 <li><a class="nav-media" href="media.html">Media - 多媒体</a></li>
 <li><a class="nav-mediainfo" href="mediainfo.html">MediaInfo - 媒体信息</a></li>
+<li><a class="nav-memory" href="memory.html">Memory - 内存</a></li>
 <li><a class="nav-mime" href="mime.html">MIME - 媒体类型</a></li>
 <li><a class="nav-modules" href="modules.html">Module - 模块</a></li>
 <li><a class="nav-nanoid" href="nanoid.html">Nano ID - 随机 ID</a></li>
@@ -520,11 +521,25 @@ ws.close(WebSocket.CODE_CLOSE_NORMAL, &#39;用户正常关闭&#39;); /* 指定�
 <p>相当于 <code>close(WebSocket.CODE_CLOSE_NORMAL, reason)</code>.</p>
 <h2>[m] exitOnClose<span><a class="mark" href="#websockettype_m_exitonclose" id="websockettype_m_exitonclose">#</a></span></h2>
 <h3>exitOnClose()<span><a class="mark" href="#websockettype_exitonclose" id="websockettype_exitonclose">#</a></span></h3>
-<p><strong><code>Overload 1/2</code></strong></p>
-<p>... ...</p>
+<p><strong><code>[6.8.0]</code></strong> <strong><code>Overload 1/2</code></strong></p>
+<ul>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
+</ul>
+<p>让该 WebSocket 在所属脚本结束时以状态码 <code>1000</code> (<code>WebSocket.CODE_CLOSE_NORMAL</code>) 优雅关闭, 已排队的报文会先完成传送.</p>
+<p>脚本结束时, AutoJs6 只处理该脚本自己创建的 WebSocket, 其他仍在运行的脚本的连接不受影响:</p>
+<ul>
+<li>调用过 <code>exitOnClose</code> 的连接按上述方式优雅关闭.</li>
+<li>未调用 <code>exitOnClose</code> 的连接立即断开 (相当于 <a href="#websockettype_m_cancel">cancel</a>), 已排队的报文被丢弃.</li>
+</ul>
+<p>两种情况下, 脚本结束后连接都不再触发事件监听器.</p>
+<p>从 AutoJs6 6.8.0 起, 未调用 <code>exitOnClose</code> 的连接会在脚本结束时断开 (此前在脚本结束后仍保持连接); 调用过 <code>exitOnClose</code> 的连接只在所属脚本结束时关闭 (此前任意一个脚本结束时都会关闭).</p>
 <h3>exitOnClose(timeout)<span><a class="mark" href="#websockettype_exitonclose_timeout" id="websockettype_exitonclose_timeout">#</a></span></h3>
-<p><strong><code>Overload 2/2</code></strong></p>
-<p>... ...</p>
+<p><strong><code>[6.8.0]</code></strong> <strong><code>Overload 2/2</code></strong></p>
+<ul>
+<li><strong>timeout</strong> { <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> } - 所属脚本结束后延迟关闭的毫秒数, 负数按 <code>0</code> 处理</li>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
+</ul>
+<p>与 <code>exitOnClose()</code> 相同, 但在所属脚本结束 <code>timeout</code> 毫秒后再优雅关闭.</p>
 <h2>[m] cancel<span><a class="mark" href="#websockettype_m_cancel" id="websockettype_m_cancel">#</a></span></h2>
 <h3>cancel()<span><a class="mark" href="#websockettype_cancel" id="websockettype_cancel">#</a></span></h3>
 <div class="signature"><ul>

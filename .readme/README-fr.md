@@ -71,6 +71,8 @@ Les documents peuvent changer à tout moment et diverger du comportement réel. 
 
 ### v6.8.0
 
+- `Fonctionnalité` [Memory](https://docs.autojs6.com/#/memory) décrit le module memory qui permet aux scripts de lire les diagnostics mémoire du processus AutoJs6: instantanés de la mémoire, ramasse-miettes forcé, environnements d'exécution de scripts terminés mais non libérés, vidages du tas hprof (les versions release exigent "Autoriser les scripts à exporter un hprof") et surveillance LeakCanary
+- `Mise à jour` [WebSocket](https://docs.autojs6.com/#/webSocketType) complète exitOnClose: à la fin d'un script, seules ses propres connexions sont traitées, celles marquées par exitOnClose se ferment proprement et les autres sont coupées immédiatement
 - `Fonctionnalité` Chaînes asynchrones flow et attentes de condition/stabilité pour Node.js, Bun et Workers, avec annulation des branches, reprise des étapes et instantanés de l'interface hôte; Clics avancés, défilement, saisie, collecte de listes et attente des événements réels Flow pour Node.js, Bun et Workers, avec préparation des abonnements, validation des instantanés et annulation
 - `Fonctionnalité` API speech de reconnaissance vocale et de gestion des modèles pour Node.js, Bun et Workers avec WAV/PCM, dictée et activation vocale, installation/importation, synthèse et annulation
 - `Fonctionnalité` API de synthèse vocale pour Node.js, Bun et Workers avec requêtes des moteurs et voix, lecture, silence, fichiers audio et événements des tâches

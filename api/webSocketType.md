@@ -189,15 +189,29 @@ ws.close(WebSocket.CODE_CLOSE_NORMAL, '用户正常关闭'); /* 指定状态码,
 
 ### exitOnClose()
 
-**`Overload 1/2`**
+**`[6.8.0]`** **`Overload 1/2`**
 
-... ...
+- <ins>**returns**</ins> { [void](dataTypes#void) }
+
+让该 WebSocket 在所属脚本结束时以状态码 `1000` (`WebSocket.CODE_CLOSE_NORMAL`) 优雅关闭, 已排队的报文会先完成传送.
+
+脚本结束时, AutoJs6 只处理该脚本自己创建的 WebSocket, 其他仍在运行的脚本的连接不受影响:
+
+- 调用过 `exitOnClose` 的连接按上述方式优雅关闭.
+- 未调用 `exitOnClose` 的连接立即断开 (相当于 [cancel](#m-cancel)), 已排队的报文被丢弃.
+
+两种情况下, 脚本结束后连接都不再触发事件监听器.
+
+从 AutoJs6 6.8.0 起, 未调用 `exitOnClose` 的连接会在脚本结束时断开 (此前在脚本结束后仍保持连接); 调用过 `exitOnClose` 的连接只在所属脚本结束时关闭 (此前任意一个脚本结束时都会关闭).
 
 ### exitOnClose(timeout)
 
-**`Overload 2/2`**
+**`[6.8.0]`** **`Overload 2/2`**
 
-... ...
+- **timeout** { [number](dataTypes#number) } - 所属脚本结束后延迟关闭的毫秒数, 负数按 `0` 处理
+- <ins>**returns**</ins> { [void](dataTypes#void) }
+
+与 `exitOnClose()` 相同, 但在所属脚本结束 `timeout` 毫秒后再优雅关闭.
 
 ## [m] cancel
 

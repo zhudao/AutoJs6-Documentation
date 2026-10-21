@@ -15,6 +15,8 @@
 
 # v6.8.0
 
+- `新增` [記憶體 (Memory)](https://docs.autojs6.com/#/memory), 說明指令碼讀取 AutoJs6 處理程序記憶體診斷資料的 memory 模組: 記憶體快照, 強制回收, 已結束未回收的指令碼執行時, hprof 堆積傾印 (正式版本需開啟 "允許指令碼匯出 hprof") 與 LeakCanary 監視
+- `更新` [WebSocket](https://docs.autojs6.com/#/webSocketType) 補全 exitOnClose 的說明: 指令碼結束時只處理該指令碼自己的連線, 呼叫過 exitOnClose 的連線正常關閉, 其餘連線立即中斷
 - `新增` Node.js, Bun 及 Worker 的 flow 非同步鏈與條件/穩定性等待, 支援分支取消, 單一步驟重試及宿主介面快照; Node.js, Bun 及 Worker 的 Flow 進階點擊, 捲動, 輸入, 清單擷取與真實事件等待, 支援監聽就緒, 快照驗證和取消
 - `新增` Node.js/Bun/Worker 的 speech 語音辨識與模型管理介面, 支援 WAV/PCM, 聽寫與喚醒工作階段, 模型安裝/匯入, 語音合成及取消清理
 - `新增` Node.js/Bun/Worker 的文字轉語音介面, 支援引擎與音色查詢, 朗讀, 靜音工作, 音訊檔案合成和工作事件

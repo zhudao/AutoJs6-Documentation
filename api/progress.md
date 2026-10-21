@@ -1,5 +1,7 @@
 # 文档部署进度 (Progress)
 
+2026-10-21 内存 (Memory) 新增: 覆盖 AutoJs6 6.8.0 的 memory 全局对象 (内存路线图 P5), 包括 snapshot 的 13 个读数, collect 的强制回收与超时 (0 到 60000 毫秒), retained 列出的已结束未回收的脚本运行时与结束方式, dumpHeap 的路径解析, 默认文件名与正式版本的 "允许脚本导出 hprof" 开关, 以及 watch 与 LeakCanary 的关系. 依据为 AutoJs6 源码 (宿主提交 715801d0a), JVM 测试 MemoryModuleTest 与 2026-10-21 在 OPD2413 (Android 15) 上的真机核对. 同时补全 WebSocket#exitOnClose 的说明与脚本结束时的连接处理.
+
 2026-10-21: Node.js/Bun/Worker Flow 补齐高级点击, 滚动, 输入, 采集与四种系统事件等待, 覆盖全部 52 个已注册根方法名称. 事件 ready, flow.control 授权, 快照重定位及 Rhino 剩余差异见 Runtime APIs. 此项描述本地开发版本, 不表示公开发布.
 
 2026-10-21: Node.js/Bun/Worker mail 接口提供 52 个根方法名与 providers/accounts 的 5 个方法, 覆盖 IMAP/SMTP/POP3, 邮件与附件, 监听, 令牌回调和清理. 运行时 Promise 契约, mail.control 授权及打包应用只能使用显式凭据的边界见 Runtime APIs. 此项为本地开发版本, 不表示公开发布.
@@ -210,6 +212,7 @@
 | [Mail - 邮件](mail) | √ |
 | [Media - 多媒体](media) | √ |
 | [MediaInfo - 媒体信息](mediainfo) | √ |
+| [Memory - 内存](memory) | √ |
 | [MIME - 媒体类型](mime) | √ |
 | [Module - 模块](modules) | √ |
 | [Nano ID - 随机 ID](nanoid) | √ |
