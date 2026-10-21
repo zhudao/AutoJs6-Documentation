@@ -2,6 +2,8 @@
 
 ## v6.8.0
 
+- `新增` Node.js, Bun 和 Worker 的 AI 文本生成, 流式结果, 模型目录与持久会话, 以及独立签名应用的 Android AI 访问授权
+
 - `新增` Node.js, Bun 与 Worker 的 Flow within/scope 范围继承, 罗盘导航和结果投影, 以及 press/swipe/gesture/gestures 手势重载
 
 - `新增` [内存 (Memory)](memory), 说明脚本读取 AutoJs6 进程内存诊断数据的 memory 模块: 内存快照, 强制回收, 已结束未回收的脚本运行时, hprof 堆转储 (正式版本需开启 "允许脚本导出 hprof") 与 LeakCanary 监视

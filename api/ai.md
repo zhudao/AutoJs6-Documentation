@@ -6,6 +6,80 @@ ai 模块通过 AI Provider 插件目标发起文本生成, 对话, 流式请求
 
 可在 AutoJs6 开发者选项中打开 "AI 服务设置". 已安装并启用可信插件时会直接打开 3-Stone AI 设置; 其他状态会显示安装, Android 应用启用, 插件中心启用或更新指引. 设置入口是无参数且受插件权限保护的契约, 不传输目标配置或凭据.
 
+## Node.js, Bun 和 Worker
+
+Node.js 主线程和 CommonJS/ESM/嵌套 Worker 提供 `require('ai')`, `require('autojs6:ai')` 和对应 ESM 导入. 主线程的显式 `$autojs.ai` 指向同一封装. Node.js 项目需声明 `ai` 能力. Bun 通过 `createHostClient()` 返回的 `host.ai` 调用, 需要插件中心单独开启默认关闭的 `ai.control`; 打包项目需在 `hostCapabilities` 中声明该授权.
+
+本批覆盖可调用 `ai`, ask, chat, stream, session, catalog 及会话的 ask/chat/stream/close. 参数解析, 目标选择, 生成设置和 Provider 错误复用宿主 AI 实现. 三种运行环境均不注入 Rhino 的全局 ai/$ai; ai.agent 和 Java EventEmitter 原型不属于此封装.
+
+```js
+"nodejs";
+let ai = require('autojs6:ai');
+try {
+    let catalog = await ai.catalog();
+    let target = catalog.targets.find(item => item.available && item.locality === 'local');
+    if (!target) throw new Error('No available local AI model');
+    let response = await ai.chat('Reply briefly.', { target: target.id, maxTokens: 64 });
+    console.log(response.text, response.usage);
+} finally {
+    await ai.close();
+}
+```
+
+```js
+"bun";
+let { createHostClient } = await import(process.env.AUTOJS6_HOST_CLIENT_MODULE);
+let host = await createHostClient();
+try {
+    let stream = host.ai.stream('Reply briefly.', { maxTokens: 64 });
+    stream.on('delta', (text, chunk) => console.log(text, chunk.reasoning));
+    await stream.ready;
+    let response = await stream.result;
+    console.log(response.finishReason);
+} finally {
+    await host.ai.close();
+}
+```
+
+### 异步操作与取消
+
+ask/chat/stream 接受第三个 `callOptions` 参数; session/catalog 接受第二个 `callOptions` 参数; 会话的 ask/chat/stream 接受第二个 `callOptions` 参数. 其中 signal 为 AbortSignal, timeoutMs 为整个封装操作的等待期限. `options.timeout` 仍是 Provider 请求期限, 默认 120000 毫秒; 两者独立. 预先取消的调用不会创建 Provider 操作. 实际推理仍受插件的并发准入, 目标能力和生成限制约束.
+
+stream 立即返回事件对象, 保留 open/chunk/delta/usage/done/error/cancelled 事件, 以及 on/once/off/addListener/removeListener/removeAllListeners/listenerCount 方法. ready 在打开后兑现为该流, result 在完成后兑现为完整 AiResponse. 失败或取消会拒绝相应 Promise; cancel 返回流本身. chunk 先于同一片段的 delta, 分片传输保留完整 Unicode 字符. 事件监听函数抛出异常会取消该流并拒绝 result.
+
+会话配置在创建时固定, 后续只发送新的用户提示词. `await session.close()` 关闭当前轮次及原生会话; 重复关闭无额外影响. isClosed/state 是本地生命周期快照, 会在收到原生终止结果或下一次操作发现关闭时更新. 取消会话中的生成也会关闭会话. `await ai.close()` 取消该封装的所有操作和会话, 后续调用可创建新客户端. Worker 退出仅清理其拥有的客户端; 父线程的独立客户端保持有效.
+
+Bun 的单次 JSON 请求上限仍为 64 KiB. AI 长操作通过短请求轮询, 不占用普通的 1024 次累计调用额度; 授权, 请求/结果大小, 四个并发桥接请求和单次调用期限保持有效. 流式队列未及时读取而超限时返回 BACKPRESSURE 并取消对应操作. 本批不改变 Bun 原生运行时或 Android/ABI 兼容范围.
+
+### 独立签名打包应用
+
+3-Stone AI 的原宿主入口继续使用签名权限. 独立签名应用使用额外的 `org.autojs.permission.AI_RUNTIME` Android 运行时权限入口, 会话操作按调用 UID 校验. 此授权允许使用插件的本地模型和已保存的在线账户, 在线调用可能消耗付费额度; 不会把账户密钥交给脚本.
+
+#### ai.hasAccess(callOptions?)
+
+**`Async`**
+
+- **[ callOptions ]** {{ signal?: AbortSignal; timeoutMs?: [number](dataTypes#number) }} - 取消与等待期限
+- <ins>**returns**</ins> { Promise<[boolean](dataTypes#boolean)> } - 当前应用是否已有访问权限
+
+原宿主使用签名入口时返回 true. 打包应用返回其 Android 权限状态. 此方法不加载模型或请求授权.
+
+#### ai.requestAccess(callOptions?)
+
+**`Async`**
+
+- **[ callOptions ]** {{ signal?: AbortSignal; timeoutMs?: [number](dataTypes#number) }} - 取消与等待期限
+- <ins>**returns**</ins> { Promise<[boolean](dataTypes#boolean)> } - 请求后是否获授权
+
+由 Android 显示当前应用的授权提示. 应在当前应用位于前台时调用, Android 后台启动限制仍适用. 已授权时直接返回 true, 拒绝时返回 false. 缺少权限的生成和目录调用以 PERMISSION_DENIED 失败. 打包应用必须先安装兼容的 3-Stone AI 插件, 并声明 AI_RUNTIME 权限; Builder 会从 Node 的 ai 或 Bun 的 ai.control 能力派生该声明. 撤销授权后不能开始新调用, 仍允许原 UID 取消和关闭已有操作.
+
+```js
+let ai = require('autojs6:ai');
+if (!await ai.hasAccess() && !await ai.requestAccess()) {
+    throw new Error('AI access was not granted');
+}
+```
+
 ---
 
 <p style="font: bold 2em sans-serif; color: #FF7043">ai</p>

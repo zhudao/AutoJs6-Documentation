@@ -451,6 +451,7 @@
 <li><span class="stability_undefined"><a href="#runtimeapis_flow_2">Flow 手势重载</a></span></li>
 </ul>
 </li>
+<li><span class="stability_undefined"><a href="#runtimeapis_ai">AI 生成与持久会话</a></span></li>
 </ul>
 </li>
 </ul>
@@ -4196,6 +4197,10 @@ let result = await flow.of(&#39;完成&#39;)
     .gestures([300, [100, 500], [100, 200]], [40, 300, [300, 500], [300, 200]]);
 console.log(result); // 完成.
 </code></pre>
+<h2>AI 生成与持久会话<span><a class="mark" href="#runtimeapis_ai" id="runtimeapis_ai">#</a></span></h2>
+<p>Node.js 主线程和 CommonJS/ESM/嵌套 Worker 通过 ai / autojs6:ai 模块调用, Bun 使用 host.ai 和独立的 ai.control 授权. 本批提供 ask/chat/stream/session/catalog 五个根方法, 原生会话的 ask/chat/stream/close, 以及 hasAccess/requestAccess/close 访问与生命周期辅助方法. 输入校验, 模型选择和推理使用现有 AI Provider 核心. 流支持 ready/result Promise, 事件, 取消和 Unicode 分片回传.</p>
+<p>Node 项目声明 ai 能力. 独立签名应用还需要 Android AI_RUNTIME 运行时授权, 它允许使用 3-Stone AI 已配置的本地模型及在线账户; 在线调用可能消耗付费额度. 原宿主签名入口继续保留, 凭据不会交给脚本. Worker 退出只清理自己的操作与会话.</p>
+<p>完整签名和用法见 <a href="ai.html#ai_node_js_bun_worker">AI 的 Node.js, Bun 和 Worker 接口</a>. ai.agent, Rhino 全局和 Java EventEmitter 原型仍属于其他兼容范围. Bun 的单次 JSON 请求仍受 64 KiB 传输上限约束, AI 轮询不计入普通累计调用额度; 其他大小, 并发和单次期限保持有效.</p>
 
         </div>
     </div>

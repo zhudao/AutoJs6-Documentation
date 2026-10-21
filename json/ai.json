@@ -4,8 +4,63 @@
     {
       "textRaw": "人工智能 (AI)",
       "name": "人工智能_(ai)",
-      "desc": "<p>ai 模块通过 AI Provider 插件目标发起文本生成, 对话, 流式请求和持久会话. 官方 3-Stone AI 插件在同一目录中公开本地模型与用户配置的在线服务, 并负责目标配置, 在线凭据和实际推理. AutoJs6 宿主只负责可信插件发现, 协议协商, 精确目标路由, Binder 生命周期和错误规范化.</p>\n<p><code>ai</code> 与 <code>$ai</code> 指向同一个可调用模块对象. 省略 <code>plugin</code> 和 <code>target</code> 时, 所有生成方法均选择官方 3-Stone AI 插件声明的默认目标. 不会根据目标失败情况自动选择其他本地或在线目标.</p>\n<p>可在 AutoJs6 开发者选项中打开 &quot;AI 服务设置&quot;. 已安装并启用可信插件时会直接打开 3-Stone AI 设置; 其他状态会显示安装, Android 应用启用, 插件中心启用或更新指引. 设置入口是无参数且受插件权限保护的契约, 不传输目标配置或凭据.</p>\n<hr>\n<p style=\"font: bold 2em sans-serif; color: #FF7043\">ai</p>\n\n<hr>\n",
+      "desc": "<p>ai 模块通过 AI Provider 插件目标发起文本生成, 对话, 流式请求和持久会话. 官方 3-Stone AI 插件在同一目录中公开本地模型与用户配置的在线服务, 并负责目标配置, 在线凭据和实际推理. AutoJs6 宿主只负责可信插件发现, 协议协商, 精确目标路由, Binder 生命周期和错误规范化.</p>\n<p><code>ai</code> 与 <code>$ai</code> 指向同一个可调用模块对象. 省略 <code>plugin</code> 和 <code>target</code> 时, 所有生成方法均选择官方 3-Stone AI 插件声明的默认目标. 不会根据目标失败情况自动选择其他本地或在线目标.</p>\n<p>可在 AutoJs6 开发者选项中打开 &quot;AI 服务设置&quot;. 已安装并启用可信插件时会直接打开 3-Stone AI 设置; 其他状态会显示安装, Android 应用启用, 插件中心启用或更新指引. 设置入口是无参数且受插件权限保护的契约, 不传输目标配置或凭据.</p>\n",
       "modules": [
+        {
+          "textRaw": "Node.js, Bun 和 Worker",
+          "name": "node.js,_bun_和_worker",
+          "desc": "<p>Node.js 主线程和 CommonJS/ESM/嵌套 Worker 提供 <code>require(&#39;ai&#39;)</code>, <code>require(&#39;autojs6:ai&#39;)</code> 和对应 ESM 导入. 主线程的显式 <code>$autojs.ai</code> 指向同一封装. Node.js 项目需声明 <code>ai</code> 能力. Bun 通过 <code>createHostClient()</code> 返回的 <code>host.ai</code> 调用, 需要插件中心单独开启默认关闭的 <code>ai.control</code>; 打包项目需在 <code>hostCapabilities</code> 中声明该授权.</p>\n<p>本批覆盖可调用 <code>ai</code>, ask, chat, stream, session, catalog 及会话的 ask/chat/stream/close. 参数解析, 目标选择, 生成设置和 Provider 错误复用宿主 AI 实现. 三种运行环境均不注入 Rhino 的全局 ai/$ai; ai.agent 和 Java EventEmitter 原型不属于此封装.</p>\n<pre><code class=\"lang-js\">&quot;nodejs&quot;;\nlet ai = require(&#39;autojs6:ai&#39;);\ntry {\n    let catalog = await ai.catalog();\n    let target = catalog.targets.find(item =&gt; item.available &amp;&amp; item.locality === &#39;local&#39;);\n    if (!target) throw new Error(&#39;No available local AI model&#39;);\n    let response = await ai.chat(&#39;Reply briefly.&#39;, { target: target.id, maxTokens: 64 });\n    console.log(response.text, response.usage);\n} finally {\n    await ai.close();\n}\n</code></pre>\n<pre><code class=\"lang-js\">&quot;bun&quot;;\nlet { createHostClient } = await import(process.env.AUTOJS6_HOST_CLIENT_MODULE);\nlet host = await createHostClient();\ntry {\n    let stream = host.ai.stream(&#39;Reply briefly.&#39;, { maxTokens: 64 });\n    stream.on(&#39;delta&#39;, (text, chunk) =&gt; console.log(text, chunk.reasoning));\n    await stream.ready;\n    let response = await stream.result;\n    console.log(response.finishReason);\n} finally {\n    await host.ai.close();\n}\n</code></pre>\n",
+          "modules": [
+            {
+              "textRaw": "异步操作与取消",
+              "name": "异步操作与取消",
+              "desc": "<p>ask/chat/stream 接受第三个 <code>callOptions</code> 参数; session/catalog 接受第二个 <code>callOptions</code> 参数; 会话的 ask/chat/stream 接受第二个 <code>callOptions</code> 参数. 其中 signal 为 AbortSignal, timeoutMs 为整个封装操作的等待期限. <code>options.timeout</code> 仍是 Provider 请求期限, 默认 120000 毫秒; 两者独立. 预先取消的调用不会创建 Provider 操作. 实际推理仍受插件的并发准入, 目标能力和生成限制约束.</p>\n<p>stream 立即返回事件对象, 保留 open/chunk/delta/usage/done/error/cancelled 事件, 以及 on/once/off/addListener/removeListener/removeAllListeners/listenerCount 方法. ready 在打开后兑现为该流, result 在完成后兑现为完整 AiResponse. 失败或取消会拒绝相应 Promise; cancel 返回流本身. chunk 先于同一片段的 delta, 分片传输保留完整 Unicode 字符. 事件监听函数抛出异常会取消该流并拒绝 result.</p>\n<p>会话配置在创建时固定, 后续只发送新的用户提示词. <code>await session.close()</code> 关闭当前轮次及原生会话; 重复关闭无额外影响. isClosed/state 是本地生命周期快照, 会在收到原生终止结果或下一次操作发现关闭时更新. 取消会话中的生成也会关闭会话. <code>await ai.close()</code> 取消该封装的所有操作和会话, 后续调用可创建新客户端. Worker 退出仅清理其拥有的客户端; 父线程的独立客户端保持有效.</p>\n<p>Bun 的单次 JSON 请求上限仍为 64 KiB. AI 长操作通过短请求轮询, 不占用普通的 1024 次累计调用额度; 授权, 请求/结果大小, 四个并发桥接请求和单次调用期限保持有效. 流式队列未及时读取而超限时返回 BACKPRESSURE 并取消对应操作. 本批不改变 Bun 原生运行时或 Android/ABI 兼容范围.</p>\n",
+              "type": "module",
+              "displayName": "异步操作与取消"
+            },
+            {
+              "textRaw": "独立签名打包应用",
+              "name": "独立签名打包应用",
+              "desc": "<p>3-Stone AI 的原宿主入口继续使用签名权限. 独立签名应用使用额外的 <code>org.autojs.permission.AI_RUNTIME</code> Android 运行时权限入口, 会话操作按调用 UID 校验. 此授权允许使用插件的本地模型和已保存的在线账户, 在线调用可能消耗付费额度; 不会把账户密钥交给脚本.</p>\n",
+              "methods": [
+                {
+                  "textRaw": "ai.hasAccess(callOptions?)",
+                  "type": "method",
+                  "name": "hasAccess",
+                  "desc": "<p><strong><code>Async</code></strong></p>\n<ul>\n<li><strong>[ callOptions ]</strong> {{ signal?: AbortSignal; timeoutMs?: <a href=\"dataTypes#number\">number</a> }} - 取消与等待期限</li>\n<li><ins><strong>returns</strong></ins> { Promise&lt;<a href=\"dataTypes#boolean\">boolean</a>&gt; } - 当前应用是否已有访问权限</li>\n</ul>\n<p>原宿主使用签名入口时返回 true. 打包应用返回其 Android 权限状态. 此方法不加载模型或请求授权.</p>\n",
+                  "signatures": [
+                    {
+                      "params": [
+                        {
+                          "name": "callOptions?"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "textRaw": "ai.requestAccess(callOptions?)",
+                  "type": "method",
+                  "name": "requestAccess",
+                  "desc": "<p><strong><code>Async</code></strong></p>\n<ul>\n<li><strong>[ callOptions ]</strong> {{ signal?: AbortSignal; timeoutMs?: <a href=\"dataTypes#number\">number</a> }} - 取消与等待期限</li>\n<li><ins><strong>returns</strong></ins> { Promise&lt;<a href=\"dataTypes#boolean\">boolean</a>&gt; } - 请求后是否获授权</li>\n</ul>\n<p>由 Android 显示当前应用的授权提示. 应在当前应用位于前台时调用, Android 后台启动限制仍适用. 已授权时直接返回 true, 拒绝时返回 false. 缺少权限的生成和目录调用以 PERMISSION_DENIED 失败. 打包应用必须先安装兼容的 3-Stone AI 插件, 并声明 AI_RUNTIME 权限; Builder 会从 Node 的 ai 或 Bun 的 ai.control 能力派生该声明. 撤销授权后不能开始新调用, 仍允许原 UID 取消和关闭已有操作.</p>\n<pre><code class=\"lang-js\">let ai = require(&#39;autojs6:ai&#39;);\nif (!await ai.hasAccess() &amp;&amp; !await ai.requestAccess()) {\n    throw new Error(&#39;AI access was not granted&#39;);\n}\n</code></pre>\n<hr>\n<p style=\"font: bold 2em sans-serif; color: #FF7043\">ai</p>\n\n<hr>\n",
+                  "signatures": [
+                    {
+                      "params": [
+                        {
+                          "name": "callOptions?"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "type": "module",
+              "displayName": "独立签名打包应用"
+            }
+          ],
+          "type": "module",
+          "displayName": "Node.js, Bun 和 Worker"
+        },
         {
           "textRaw": "[@] ai",
           "name": "[@]_ai",
