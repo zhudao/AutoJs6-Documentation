@@ -2248,7 +2248,7 @@ client.watch(folder?, options?, callOptions?) 返回 Promise<MailWatch>, 也支�
 
 ### 邮件, 附件与监听结果
 
-fetch 返回邮件数组; search 返回邮件数组并保留不可枚举的 fallback 标记. get/fetchBody 与 message.load/loadAsync 返回完整邮件. date/receivedDate 数值转换为 JavaScript Date, 地址对象保留 toString. 附件及 bodyParts 条目保留 uid/folder 和 download/downloadAsync 方法. 方法不参与 JSON 序列化, 位置和 UID 可继续作为其他方法的参数.
+fetch 返回邮件数组; search 返回邮件数组并保留不可枚举的 fallback 标记. get/fetchBody 与 message.load/loadAsync 返回完整邮件. date/receivedDate 数值转换为 JavaScript Date, 地址对象保留 toString. 附件及 bodyParts 条目保留 uid/folder 和 download/downloadAsync 方法. 方法不参与 JSON 序列化, 位置和 UID 可继续作为其他方法的参数. 完整邮件对象用于 get/raw/标记/移动等方法时, 仅传输 uid/folder 引用, 不重复传输正文或其他无关字段.
 
 附件按文件路径传入 send/append. download/raw 及附件下载方法把结果写到调用应用的文件目录, 返回最终路径; 未给目标时使用脚本工作目录, 默认不覆盖已有文件. 下载通过描述符和临时文件传输, 成功后提交最终文件. options.onProgress(transferred, total) 在所属 JS 线程回调, total 可为 null.
 
@@ -2274,4 +2274,4 @@ MailError 可直接调用或通过 new 创建, 提供 name, code, message, detai
 
 独立签名应用需要匹配的 Runtime Kit 与 Builder. Builder 根据 mail/mail.control 能力添加 `org.autojs.plugin.mail.permission.RUNTIME`. 插件通过单独入口接受调用者显式提供的连接配置, 返回的会话和监听仅允许创建它们的 UID 调用. 已保存账户别名, accounts.list/accounts.has 和后台守望状态仍只允许原签名宿主访问; 打包应用尝试访问时以 PLUGIN_UNAVAILABLE 拒绝. 本入口不要求麦克风权限, 也不打开账户管理页面.
 
-Bun 的 mail.control 分片和监听调用不计入普通能力的单次执行 1024 次累计额度; 授权, 请求/响应大小, 四个并发请求及单次 RPC 期限仍保留. 大附件按文件流传输, 内联消息参数仍受运行时请求大小限制. mail 的根方法与 providers/accounts 共覆盖 57 个现有方法名, 不表示完整 Rhino 对象或 EventEmitter 原型一致. 本批不改变 Node/Bun 原生二进制或 Android/ABI 兼容范围.
+Bun 的 mail.control 分片和监听调用不计入普通能力的单次执行 1024 次累计额度; 授权, 请求/响应大小, 四个并发请求及单次 RPC 期限仍保留. 大附件按文件流传输, 内联消息参数仍受运行时请求大小限制. mail 的根方法与 providers/accounts 共覆盖 57 个现有方法名, 不表示完整 Rhino 对象或 EventEmitter 原型一致. 本批不改变 Node/Bun 引擎版本或 Android/ABI 兼容范围; Node 的宿主桥接库随封装实现重新构建.
