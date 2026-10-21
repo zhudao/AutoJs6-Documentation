@@ -53,16 +53,18 @@ Bun 的单次 JSON 请求上限仍为 64 KiB. AI 长操作通过短请求轮询,
 
 ### 独立签名打包应用
 
-3-Stone AI 的原宿主入口继续使用签名权限. 独立签名应用使用额外的 `org.autojs.permission.AI_RUNTIME` Android 运行时权限入口, 会话操作按调用 UID 校验. 此授权允许使用插件的本地模型和已保存的在线账户, 在线调用可能消耗付费额度; 不会把账户密钥交给脚本.
+运行时 AI 接口及打包授权需要宿主 build 5834 或以上和 3-Stone AI 1.5.0 / build 297 或以上. 原宿主入口继续使用签名权限. 独立签名应用声明普通入口权限 `org.autojs.permission.AI_RUNTIME`, 还必须由用户在 3-Stone AI 中明确确认该应用的访问. 声明入口权限本身不会获得模型或账户访问权.
+
+确认界面显示请求应用的名称和包名. 授权绑定应用的 UID, 签名和首次安装时间; 同签名覆盖更新保留授权, 重装或身份改变后需重新确认. 授权允许使用本地模型和已保存的在线账户, 在线调用可能消耗付费额度; 不会把账户密钥交给脚本. 在 3-Stone AI 设置中的 "获授权的应用" 可移除授权并停止该应用正在进行的请求. 两个服务入口共用原有的单会话准入, 会话仍按调用 UID 校验.
 
 #### ai.hasAccess(callOptions?)
 
 **`Async`**
 
 - **[ callOptions ]** {{ signal?: AbortSignal; timeoutMs?: [number](dataTypes#number) }} - 取消与等待期限
-- <ins>**returns**</ins> { Promise<[boolean](dataTypes#boolean)> } - 当前应用是否已有访问权限
+- <ins>**returns**</ins> { Promise<[boolean](dataTypes#boolean)> } - 当前应用是否已有访问授权
 
-原宿主使用签名入口时返回 true. 打包应用返回其 Android 权限状态. 此方法不加载模型或请求授权.
+原宿主使用签名入口时返回 true. 打包应用只查询自己的插件授权状态. 此方法不加载模型或弹出确认界面.
 
 #### ai.requestAccess(callOptions?)
 
@@ -71,7 +73,7 @@ Bun 的单次 JSON 请求上限仍为 64 KiB. AI 长操作通过短请求轮询,
 - **[ callOptions ]** {{ signal?: AbortSignal; timeoutMs?: [number](dataTypes#number) }} - 取消与等待期限
 - <ins>**returns**</ins> { Promise<[boolean](dataTypes#boolean)> } - 请求后是否获授权
 
-由 Android 显示当前应用的授权提示. 应在当前应用位于前台时调用, Android 后台启动限制仍适用. 已授权时直接返回 true, 拒绝时返回 false. 缺少权限的生成和目录调用以 PERMISSION_DENIED 失败. 打包应用必须先安装兼容的 3-Stone AI 插件, 并声明 AI_RUNTIME 权限; Builder 会从 Node 的 ai 或 Bun 的 ai.control 能力派生该声明. 撤销授权后不能开始新调用, 仍允许原 UID 取消和关闭已有操作.
+打开官方 3-Stone AI 插件的应用授权界面. 应在当前应用位于前台时调用, Android 后台启动限制仍适用. 已授权时直接返回 true; 拒绝, 返回或取消不会保存授权, 并返回 false. 未授权的目录或生成调用以 PERMISSION_DENIED 失败. Builder 从 Node 的 ai 或 Bun 的 ai.control 能力派生入口权限声明. 用户在插件设置撤销后不能开始新请求, 原 UID 仍可取消和关闭已有操作.
 
 ```js
 let ai = require('autojs6:ai');
