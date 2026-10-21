@@ -2315,7 +2315,7 @@ Flow 立即返回可被 await/Promise.resolve 接纳的对象. 回调在导入�
 | waitWhile | 等到条件不满足, 返回 true |
 | waitForStable, waitForVisible | 目标持续稳定, 或持续稳定且可见, 返回最后的样本 |
 | waitForHidden / waitForGone | 目标持续缺席或不可见, 返回 true |
-| waitForActivity, waitForPackage | 通过无障碍记录的前台组件名称匹配, 返回 true; Activity 名称只采纳已声明的 Activity, 同包的弹窗/容器事件不会覆盖它; 不隐式调用 Root/Shizuku |
+| waitForActivity, waitForPackage | 通过无障碍记录的前台组件名称匹配, 返回 true; Activity 名称只采纳已声明的 Activity, 同包的弹窗/容器事件不会覆盖它; 未知窗口的其他包非 Activity 事件不会覆盖已建立的前台身份; 不隐式调用 Root/Shizuku |
 | of(value), Flow(value), new Flow(value) | 接纳值或 Promise; 传入同一 facade 的 Flow 时复用它 |
 | run(fn) | 无参数调用回调, 接纳其返回值 |
 | sleep(min, max?), delay(min, max?) | 等待毫秒数, 或 min..max 范围内随机时长; 根调用返回 undefined |
@@ -2452,7 +2452,7 @@ Node 的原生工具入口需要 accessibility. 边界点击, 智能点击的默
 
 Bun 工具与事件等待使用独立且默认关闭的 flow.control. 宿主仍按操作检查 accessibility.control, accessibility.gesture, app.control, clipboard.control, events.observe, events.toast, events.notification 等既有授权. flow.control 本身不授予这些能力. 打包应用须在项目配置中声明所需能力, 并启用自己的 Android 无障碍服务; 授权不继承宿主或其他安装包.
 
-flow.control 的短轮询不计入 Bun 普通桥每次执行 1024 次累计调用预算; 仍保留请求/结果大小, 并发和单次期限限制. 旧的 accessibility.control 选择器轮询继续消耗普通预算. 工具结果使用 UTF-8 分片传递, 函数参数和回调答复仍受单次请求大小限制. 每个 facade 最多同时有 64 个原生操作, 宿主执行实例最多 128 个原生工具线程; 每个客户端排队结果限制为 64 MiB, 单个操作最多保留 100000 个私有节点. 此项未改变 Bun 原生载荷或 Android/ABI 兼容矩阵.
+Bun 的界面事件长轮询为控制与回调调用保留执行机会, 总并发调用上限仍为 4. flow.control 的短轮询不计入 Bun 普通桥每次执行 1024 次累计调用预算; 仍保留请求/结果大小, 并发和单次期限限制. 旧的 accessibility.control 选择器轮询继续消耗普通预算. 工具结果使用 UTF-8 分片传递, 函数参数和回调答复仍受单次请求大小限制. 每个 facade 最多同时有 64 个原生操作, 宿主执行实例最多 128 个原生工具线程; 每个客户端排队结果限制为 64 MiB, 单个操作最多保留 100000 个私有节点. 此项未改变 Bun 原生载荷或 Android/ABI 兼容矩阵.
 
 workers 现在表示当前 facade 尚未结算的原生工具/事件操作数, 纯本地链不增加它. cancelAll 取消当前待定 Flow 并向宿主传播取消. `await flow.dispose()` 取消待定工作, 关闭本 facade 的宿主客户端; 此后该 facade 的原生工具调用会拒绝. Node 主线程, 每个 Worker 与 Bun 各自拥有客户端; 延迟返回的创建结果也会在运行结束后关闭. Android 已经接受的点击/输入/启动无法通过取消撤销.
 
