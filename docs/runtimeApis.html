@@ -428,6 +428,12 @@
 <li><span class="stability_undefined"><a href="#runtimeapis_31">打包应用与错误</a></span></li>
 </ul>
 </li>
+<li><span class="stability_undefined"><a href="#runtimeapis_node_js_bun_worker_mail">Node.js / Bun / Worker 的 Mail</a></span><ul>
+<li><span class="stability_undefined"><a href="#runtimeapis_32">根方法与默认账户</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_33">邮件, 附件与监听结果</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_34">取消, 令牌回调与运行条件</a></span></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -3608,6 +3614,120 @@ reader.on(&#39;close&#39;, event =&gt; console.log(event.reason));
 <p>独立签名的应用需要配套 Runtime Kit 和 3-Folio EPUB 2.1.0 或更高版本. Builder 根据声明的 epub/epub.control 能力添加 <code>org.autojs.plugin.epub.permission.RUNTIME</code>; 插件通过单独的服务和阅读器入口接受调用, 原宿主签名入口保留. 书籍与阅读器控制句柄只允许创建它们的 UID 调用. 不需要麦克风权限.</p>
 <p>epub.EpubError 可以直接调用或带 new 创建. name 为 EpubError, code 保留 NOT_EPUB, FILE_NOT_FOUND, INVALID_ARGUMENT, SESSION_CLOSED, TIMEOUT, CANCELLED 等错误. 未授权的 Bun 调用保留 NOT_GRANTED. isAvailable 对插件缺失/禁用/不兼容返回 false, 但不会掩盖运行时能力授权拒绝.</p>
 <p>Bun 的 epub.control 采用短请求等待和分片结果, 不计入普通能力的单次执行 1024 次调用额度. 单次 RPC 期限, 请求/响应大小和四个并发请求限制保留. 宿主待投递的阅读器事件达到 1024 条时以 LIMIT_EXCEEDED 和 close(overflow) 结束会话. 这些运行时封装不改变 Bun 原生二进制或 Android/ABI 兼容范围.</p>
+<h2>Node.js / Bun / Worker 的 Mail<span><a class="mark" href="#runtimeapis_node_js_bun_worker_mail" id="runtimeapis_node_js_bun_worker_mail">#</a></span></h2>
+<p>Node.js Runtime 1.27.0 与 Bun Runtime 0.16.0 提供邮件客户端, 需要本批 AutoJs6 6.8.0 开发版与 3-Stamp Mail 2.1.0. 此处描述开发版本, 不表示已公开发布. 邮件协议与账户选项复用 <a href="mail.html">mail</a>, <a href="mailAccountOptionsType.html">MailAccountOptions</a> 和 <a href="mailClientType.html">MailClient</a> 的实现.</p>
+<p>Node.js 主线程与 CommonJS/ESM/嵌套 Worker 使用 <code>require(&#39;mail&#39;)</code>, <code>require(&#39;autojs6:mail&#39;)</code> 或对应的 ESM import. 主线程也可使用显式 <code>$autojs.mail</code>. Bun 通过 <code>createHostClient()</code> 返回的 <code>host.mail</code> 使用相同接口, 需要独立且默认关闭的 <code>mail.control</code> 授权. 不注入 Rhino 的 mail/$mail 全局变量.</p>
+<pre><code class="lang-js">&quot;nodejs&quot;;
+let mail = require(&#39;autojs6:mail&#39;);
+let client = await mail.connect({
+    provider: &#39;qq&#39;, address: &#39;user@qq.com&#39;, password: &#39;应用专用授权码&#39;,
+});
+try {
+    let messages = await client.fetch({ limit: 5 });
+    messages.forEach(message =&gt; console.log(message.subject, message.from.toString()));
+} finally {
+    await mail.dispose();
+}
+</code></pre>
+<h3>根方法与默认账户<span><a class="mark" href="#runtimeapis_32" id="runtimeapis_32">#</a></span></h3>
+<table>
+<thead>
+<tr>
+<th>成员</th>
+<th>运行时行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>connect / connectAsync</td>
+<td>Promise<MailClient>; 接受连接选项或已保存账户别名, 建立插件会话, 首次网络操作才登录服务器</td>
+</tr>
+<tr>
+<td>setDefault</td>
+<td>Promise<MailClient>; 接受当前 facade 的客户端, 连接选项或别名</td>
+</tr>
+<tr>
+<td>default</td>
+<td>当前默认客户端或 null</td>
+</tr>
+<tr>
+<td>close</td>
+<td>Promise<void>; 关闭默认账户并清除 default, 不关闭其他独立客户端</td>
+</tr>
+<tr>
+<td>dispose</td>
+<td>Promise<void>; 关闭本 facade 的全部账户与监听, 后续调用可重新创建资源</td>
+</tr>
+<tr>
+<td>providers.list</td>
+<td>Promise&lt;Provider[]&gt;; 插件的公开服务商预设</td>
+</tr>
+<tr>
+<td>providers.get</td>
+<td>Promise&lt;Provider \</td>
+<td>null&gt;; 按预设 ID 查询</td>
+</tr>
+<tr>
+<td>providers.resolve</td>
+<td>Promise&lt;Provider \</td>
+<td>null&gt;; 按地址域名查询预设, connect 本身不自动推断</td>
+</tr>
+<tr>
+<td>accounts.list</td>
+<td>Promise&lt;SavedAccount[]&gt;; 已保存账户的非秘密信息, 仅原签名宿主入口可用</td>
+</tr>
+<tr>
+<td>accounts.has</td>
+<td>Promise<boolean>; 查询已保存别名, 同样受入口限制</td>
+</tr>
+</tbody>
+</table>
+<p>下列网络方法在客户端及 mail 根对象上均可用. 根对象转发到 default; 未设置时以 NO_DEFAULT_ACCOUNT 拒绝. 每个 Async 名称都是对应 Promise 方法的别名, 不提供阻塞 Node/Bun 线程的同步形式:</p>
+<ul>
+<li>test / testAsync</li>
+<li>send / sendAsync</li>
+<li>folders / foldersAsync</li>
+<li>folderStatus / folderStatusAsync</li>
+<li>createFolder / createFolderAsync</li>
+<li>deleteFolder / deleteFolderAsync</li>
+<li>renameFolder / renameFolderAsync</li>
+<li>fetch / fetchAsync</li>
+<li>search / searchAsync</li>
+<li>get / getAsync</li>
+<li>fetchBody / fetchBodyAsync</li>
+<li>download / downloadAsync</li>
+<li>raw / rawAsync</li>
+<li>setFlags / setFlagsAsync</li>
+<li>markRead / markReadAsync</li>
+<li>markUnread / markUnreadAsync</li>
+<li>flag / flagAsync</li>
+<li>unflag / unflagAsync</li>
+<li>move / moveAsync</li>
+<li>copy / copyAsync</li>
+<li>delete / deleteAsync</li>
+<li>expunge / expungeAsync</li>
+<li>append / appendAsync</li>
+</ul>
+<p>client.folder(path) 与 mail.folder(path) 是本地同步辅助方法, 返回含 path/name 的对象. 其 status/statusAsync, create/createAsync, delete/deleteAsync, rename/renameAsync 都返回 Promise. rename 后原辅助对象仍保留原路径.</p>
+<p>client.watch(folder?, options?, callOptions?) 返回 Promise<MailWatch>, 也支持 client.watch(options, callOptions?). mail.watch 转发到默认账户. 这些 watch 方法没有 watchAsync 别名. client.close 返回 Promise<void>, 关闭自身连接和监听; client.account 是无密码/令牌的快照, isConnected/isClosed 表示当前客户端状态.</p>
+<h3>邮件, 附件与监听结果<span><a class="mark" href="#runtimeapis_33" id="runtimeapis_33">#</a></span></h3>
+<p>fetch 返回邮件数组; search 返回邮件数组并保留不可枚举的 fallback 标记. get/fetchBody 与 message.load/loadAsync 返回完整邮件. date/receivedDate 数值转换为 JavaScript Date, 地址对象保留 toString. 附件及 bodyParts 条目保留 uid/folder 和 download/downloadAsync 方法. 方法不参与 JSON 序列化, 位置和 UID 可继续作为其他方法的参数.</p>
+<p>附件按文件路径传入 send/append. download/raw 及附件下载方法把结果写到调用应用的文件目录, 返回最终路径; 未给目标时使用脚本工作目录, 默认不覆盖已有文件. 下载通过描述符和临时文件传输, 成功后提交最终文件. options.onProgress(transferred, total) 在所属 JS 线程回调, total 可为 null.</p>
+<pre><code class="lang-js">let client = await mail.connect(&#39;已保存账户别名&#39;); // 仅签名宿主内使用别名.
+let watcher = await client.watch({ folder: &#39;INBOX&#39;, mode: &#39;auto&#39;, reconnect: true });
+watcher.on(&#39;message&#39;, async (message, watch) =&gt; {
+    let full = await message.load();
+    console.log(full.subject, watch.mode);
+});
+// 不再监听时: await watcher.stop(); await client.close();
+</code></pre>
+<p>MailWatch 暴露 folder, mode, generation, state, reason, isActive 和 isClosed. on/once/addListener/off/removeListener/removeAllListeners/listenerCount 在本地操作订阅. message 回调参数为邮件与当前 watch; mode 为 idle/poll, resync 为原因字符串, error 为 MailError, close 为关闭原因. stop 返回 Promise<MailWatch>, 重复停止有效. 初始事件为 await watch 后添加的监听器短暂保留. 插件进程丢失时沿用原实现的重连, 代次过滤和有界退避.</p>
+<h3>取消, 令牌回调与运行条件<span><a class="mark" href="#runtimeapis_34" id="runtimeapis_34">#</a></span></h3>
+<p>远程方法在原参数之后接受可选 callOptions: <code>{ signal, timeoutMs }</code>. 整个操作默认期限为 60000 ms, 包括初始 tokenProvider 等待与传输; timeoutMs 必须为正有限数. 长期限不会溢出 JavaScript 定时器. watch 的 signal 在创建完成后仍可停止监听. 取消或超时释放本次操作产生的资源; Worker 退出和脚本结束关闭自己的账户与监听, 不关闭父线程的独立账户.</p>
+<p>tokenProvider 在所属 JS 线程调用, 可以返回字符串或 Promise<string>. 未提供 accessToken 时先调用一次; AUTH_FAILED 时沿用会话的令牌刷新与一次重试. 账户关闭后丢弃晚到的令牌回复. client.account 和 session.test 的账户快照不返回密码或令牌. debug 为 true 时, 通过 console.debug 输出插件已脱敏的诊断摘要.</p>
+<p>MailError 可直接调用或通过 new 创建, 提供 name, code, message, details 和 retryable. details 可为 JSON 对象/数组, 字符串或 null. 参数错误, 超时, 取消与关闭分别使用 INVALID_ARGUMENT, TIMEOUT, CANCELLED 和 SESSION_CLOSED; Bun 未授权时为 NOT_GRANTED. 服务商的协议限制保持原样, 例如 POP3 的 UIDL 字符串以及 IMAP 专用整理方法的 UNSUPPORTED_OPERATION.</p>
+<p>独立签名应用需要匹配的 Runtime Kit 与 Builder. Builder 根据 mail/mail.control 能力添加 <code>org.autojs.plugin.mail.permission.RUNTIME</code>. 插件通过单独入口接受调用者显式提供的连接配置, 返回的会话和监听仅允许创建它们的 UID 调用. 已保存账户别名, accounts.list/accounts.has 和后台守望状态仍只允许原签名宿主访问; 打包应用尝试访问时以 PLUGIN_UNAVAILABLE 拒绝. 本入口不要求麦克风权限, 也不打开账户管理页面.</p>
+<p>Bun 的 mail.control 分片和监听调用不计入普通能力的单次执行 1024 次累计额度; 授权, 请求/响应大小, 四个并发请求及单次 RPC 期限仍保留. 大附件按文件流传输, 内联消息参数仍受运行时请求大小限制. mail 的根方法与 providers/accounts 共覆盖 57 个现有方法名, 不表示完整 Rhino 对象或 EventEmitter 原型一致. 本批不改变 Node/Bun 原生二进制或 Android/ABI 兼容范围.</p>
 
         </div>
     </div>

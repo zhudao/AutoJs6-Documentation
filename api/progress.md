@@ -1,5 +1,7 @@
 # 文档部署进度 (Progress)
 
+2026-10-21: Node.js/Bun/Worker mail 接口提供 52 个根方法名与 providers/accounts 的 5 个方法, 覆盖 IMAP/SMTP/POP3, 邮件与附件, 监听, 令牌回调和清理. 运行时 Promise 契约, mail.control 授权及打包应用只能使用显式凭据的边界见 Runtime APIs. 此项为本地开发版本, 不表示公开发布.
+
 2026-10-21: Node.js/Bun/Worker EPUB 接口提供全部 20 个已注册根方法名, 书籍读取/资源导出/搜索/批注及阅读器会话与事件. Promise 签名, 图片字节返回, epub.control 独立授权和独立签名打包入口见 Runtime APIs. 此项描述本地开发版本, 不表示公开发布.
 
 2026-10-20: Node.js/Bun/Worker speech 接口补齐识别, VAD, 听写与唤醒会话, 模型目录/安装/导入/默认值, 合成, 分段 PCM, 取消及客户端清理; 运行时异步签名与独立授权见 Runtime APIs. 此项描述本地开发版本, 不表示公开发布.

@@ -2,7 +2,7 @@
 
 `mail` 模块用于在脚本中通过 IMAP, POP3 和 SMTP 协议收发, 搜索, 整理和监听邮件.
 
-从 AutoJs6 6.8.0 起, 邮件功能由外置 Angus Mail 插件 (AutoJs6-Plugin-Angus-Mail) 提供. 调用前需在插件中心安装, 启用并授权与当前 AutoJs6 兼容的插件. 插件缺失, 被禁用, 未授权, 版本不兼容, 服务绑定失败或插件进程退出时, 方法会抛出 (或以 Promise 拒绝) `code` 为 `PLUGIN_UNAVAILABLE` 的 [MailError](#c-mailerror).
+从 AutoJs6 6.8.0 起, 邮件功能由外置 3-Stamp Mail 插件 (AutoJs6-Plugin-Three-Stamp-Mail) 提供. 调用前需在插件中心安装, 启用并授权与当前 AutoJs6 兼容的插件. 插件缺失, 被禁用, 未授权, 版本不兼容, 服务绑定失败或插件进程退出时, 方法会抛出 (或以 Promise 拒绝) `code` 为 `PLUGIN_UNAVAILABLE` 的 [MailError](#c-mailerror).
 
 网络操作均由 [MailClient](mailClientType) 实例完成. [mail.connect](#m-connect) 建立客户端后, 可直接调用其方法, 也可通过 [mail.setDefault](#m-setdefault) 指定默认客户端, 再以 `mail.fetch()` 这类 [转发方法](#转发方法-forwarded-methods) 省略客户端引用.
 
@@ -10,7 +10,7 @@
 
 账户凭据 (授权码, 应用专用密码或 OAuth 令牌) 可写在 [MailAccountOptions](mailAccountOptionsType) 中, 也可在插件设置页保存为账户别名后以 `mail.connect('别名')` 使用. 后者不需要在脚本中保存任何凭据. 插件日志与 `debug` 输出只记录域名, 端口与耗时, 不记录凭据和邮件正文.
 
-本模块注册为全局名称 `mail`, 并提供 `$mail` 别名.
+本模块注册为全局名称 `mail`, 并提供 `$mail` 别名. 本页的同步/异步区分适用于 Rhino; Node.js/Bun/Worker 的 Promise 签名, 独立授权和打包应用账户边界见 [Runtime APIs](runtimeApis).
 
 ```js
 let client = mail.connect({ provider: 'qq', address: 'user@qq.com', password: '授权码' });
