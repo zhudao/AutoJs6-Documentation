@@ -2264,6 +2264,8 @@ watcher.on('message', async (message, watch) => {
 
 MailWatch 暴露 folder, mode, generation, state, reason, isActive 和 isClosed. on/once/addListener/off/removeListener/removeAllListeners/listenerCount 在本地操作订阅. message 回调参数为邮件与当前 watch; mode 为 idle/poll, resync 为原因字符串, error 为 MailError, close 为关闭原因. stop 返回 Promise<MailWatch>, 重复停止有效. 初始事件为 await watch 后添加的监听器短暂保留. 插件进程丢失时沿用原实现的重连, 代次过滤和有界退避.
 
+watch 创建完成表示监听任务已启动, 插件仍需异步连接并建立初始邮件游标. isActive 表示任务尚未关闭, 不保证服务器连接已就绪; 初始游标建立前已有的邮件不作为新邮件回放. 需要处理已有邮件时应显式 fetch/search, 不应把监听句柄的创建当作服务器已经进入 IDLE 的确认.
+
 ### 取消, 令牌回调与运行条件
 
 远程方法在原参数之后接受可选 callOptions: `{ signal, timeoutMs }`. 整个操作默认期限为 60000 ms, 包括初始 tokenProvider 等待与传输; timeoutMs 必须为正有限数. 长期限不会溢出 JavaScript 定时器. watch 的 signal 在创建完成后仍可停止监听. 取消或超时释放本次操作产生的资源; Worker 退出和脚本结束关闭自己的账户与监听, 不关闭父线程的独立账户.
