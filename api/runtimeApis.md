@@ -2315,7 +2315,7 @@ Flow 立即返回可被 await/Promise.resolve 接纳的对象. 回调在导入�
 | waitWhile | 等到条件不满足, 返回 true |
 | waitForStable, waitForVisible | 目标持续稳定, 或持续稳定且可见, 返回最后的样本 |
 | waitForHidden / waitForGone | 目标持续缺席或不可见, 返回 true |
-| waitForActivity, waitForPackage | 通过无障碍记录的前台组件名称匹配, 返回 true; 不隐式调用 Root/Shizuku |
+| waitForActivity, waitForPackage | 通过无障碍记录的前台组件名称匹配, 返回 true; Activity 名称只采纳已声明的 Activity, 同包的弹窗/容器事件不会覆盖它; 不隐式调用 Root/Shizuku |
 | of(value), Flow(value), new Flow(value) | 接纳值或 Promise; 传入同一 facade 的 Flow 时复用它 |
 | run(fn) | 无参数调用回调, 接纳其返回值 |
 | sleep(min, max?), delay(min, max?) | 等待毫秒数, 或 min..max 范围内随机时长; 根调用返回 undefined |
