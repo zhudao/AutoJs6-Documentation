@@ -1,6 +1,6 @@
 # 流程 (Flow)
 
-> Node.js/Bun/Worker 的异步链与等待核心参阅 [运行时 API](runtimeApis#flow-异步链与等待核心). 本页的同步终结方法, 工作线程与 Java 节点行为属于 Rhino.
+> Node.js/Bun/Worker 的异步链, 高级工具与事件等待参阅 [运行时 API](runtimeApis#flow-异步链与等待核心). 本页的同步终结方法, 工作线程与 Java 节点行为属于 Rhino.
 
 Flow 是 AutoJs6 6.8.0 引入的异步等待与动作链.
 

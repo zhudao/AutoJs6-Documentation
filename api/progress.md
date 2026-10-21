@@ -1,5 +1,7 @@
 # 文档部署进度 (Progress)
 
+2026-10-21: Node.js/Bun/Worker Flow 补齐高级点击, 滚动, 输入, 采集与四种系统事件等待, 覆盖全部 52 个已注册根方法名称. 事件 ready, flow.control 授权, 快照重定位及 Rhino 剩余差异见 Runtime APIs. 此项描述本地开发版本, 不表示公开发布.
+
 2026-10-21: Node.js/Bun/Worker mail 接口提供 52 个根方法名与 providers/accounts 的 5 个方法, 覆盖 IMAP/SMTP/POP3, 邮件与附件, 监听, 令牌回调和清理. 运行时 Promise 契约, mail.control 授权及打包应用只能使用显式凭据的边界见 Runtime APIs. 此项为本地开发版本, 不表示公开发布.
 
 2026-10-21: Node.js/Bun/Worker EPUB 接口提供全部 20 个已注册根方法名, 书籍读取/资源导出/搜索/批注及阅读器会话与事件. Promise 签名, 图片字节返回, epub.control 独立授权和独立签名打包入口见 Runtime APIs. 此项描述本地开发版本, 不表示公开发布.

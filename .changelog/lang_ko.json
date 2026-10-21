@@ -10,7 +10,7 @@
       "entries": [
         {
           "category": "feature",
-          "text": "Node.js, Bun, Worker의 flow 비동기 체인 및 조건/안정성 대기, 분기 취소, 단계 재시도, 호스트 화면 스냅샷 지원"
+          "text": "Node.js, Bun, Worker의 flow 비동기 체인 및 조건/안정성 대기, 분기 취소, 단계 재시도, 호스트 화면 스냅샷 지원; Node.js, Bun 및 Worker의 Flow 고급 클릭, 스크롤, 입력, 목록 수집 및 실제 이벤트 대기, 구독 준비, 스냅샷 검증 및 취소 지원"
         },
         {
           "category": "feature",

@@ -10,7 +10,7 @@
       "entries": [
         {
           "category": "feature",
-          "text": "Node.js, Bun, Worker 向けの flow 非同期チェーンと条件/安定性待機, 分岐のキャンセル, ステップの再試行, ホスト画面のスナップショットに対応"
+          "text": "Node.js, Bun, Worker 向けの flow 非同期チェーンと条件/安定性待機, 分岐のキャンセル, ステップの再試行, ホスト画面のスナップショットに対応; Node.js, Bun と Worker の Flow 高度なクリック, スクロール, 入力, リスト収集と実際のイベント待機, 監視準備完了, スナップショット検証とキャンセルに対応"
         },
         {
           "category": "feature",

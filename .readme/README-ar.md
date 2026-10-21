@@ -71,7 +71,7 @@ generator\auto-generate-for-autojs6.bat
 
 ### v6.8.0
 
-- `إضافة جديدة` سلاسل flow غير المتزامنة وانتظار الشروط والاستقرار في Node.js وBun وWorker, مع إلغاء الفروع وإعادة محاولة الخطوات ولقطات واجهة المضيف
+- `إضافة جديدة` سلاسل flow غير المتزامنة وانتظار الشروط والاستقرار في Node.js وBun وWorker, مع إلغاء الفروع وإعادة محاولة الخطوات ولقطات واجهة المضيف; نقرات Flow المتقدمة والتمرير والإدخال وجمع القوائم وانتظار الأحداث الفعلية في Node.js وBun وWorkers, مع جاهزية الاشتراك والتحقق من اللقطات والإلغاء
 - `إضافة جديدة` واجهات speech للتعرف على الكلام وإدارة النماذج في Node.js وBun وWorkers مع WAV/PCM والإملاء وكلمات التنبيه وتثبيت النماذج واستيرادها والتوليف والتنظيف عند الإلغاء
 - `إضافة جديدة` واجهات تحويل النص إلى كلام في Node.js وBun وWorkers مع استعلامات المحركات والأصوات والنطق والصمت وملفات الصوت وأحداث المهام
 - `إضافة جديدة` [Speech](https://docs.autojs6.com/#/speech), [SpeechSession](https://docs.autojs6.com/#/speechSessionType), [SpeechWakeSession](https://docs.autojs6.com/#/speechWakeSessionType), [SpeechRecognitionResult](https://docs.autojs6.com/#/speechRecognitionResultType), [SpeechModelInfo](https://docs.autojs6.com/#/speechModelInfoType) توضح الإملاء والتعرف على الملفات وPCM والنشاط الصوتي وكلمات التنبيه والتوليف والنماذج والتراخيص والتسجيل في الخلفية وتسليم الجلسات والأخطاء والحدود والمساعد والإدخال الصوتي وخدمة التعرف وVOICE_COMMAND; يوضح [TTS](https://docs.autojs6.com/#/tts) محرك 3-Macaw Speech ويسرد [Plugins](https://docs.autojs6.com/#/plugins) موفري الوحدات

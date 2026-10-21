@@ -15,7 +15,7 @@
 
 # v6.8.0
 
-- `Nuevo` Cadenas asíncronas flow y esperas de condición/estabilidad para Node.js, Bun y Workers, con cancelación de ramas, reintentos por paso e instantáneas de la interfaz del anfitrión
+- `Nuevo` Cadenas asíncronas flow y esperas de condición/estabilidad para Node.js, Bun y Workers, con cancelación de ramas, reintentos por paso e instantáneas de la interfaz del anfitrión; Clics avanzados, desplazamiento, entrada, recopilación de listas y espera de eventos reales de Flow para Node.js, Bun y Workers, con suscripciones listas, validación de instantáneas y cancelación
 - `Nuevo` API speech de reconocimiento y gestión de modelos para Node.js, Bun y Workers con WAV/PCM, dictado y activación por voz, instalación/importación, síntesis y cancelación
 - `Nuevo` API de síntesis de voz para Node.js, Bun y Workers con consultas de motores y voces, lectura, silencio, archivos de audio y eventos de tareas
 - `Nuevo` [Speech](https://docs.autojs6.com/#/speech), [SpeechSession](https://docs.autojs6.com/#/speechSessionType), [SpeechWakeSession](https://docs.autojs6.com/#/speechWakeSessionType), [SpeechRecognitionResult](https://docs.autojs6.com/#/speechRecognitionResultType), [SpeechModelInfo](https://docs.autojs6.com/#/speechModelInfoType) describen dictado, reconocimiento de archivos y PCM, actividad vocal, palabras de activación, síntesis, modelos y licencias, grabación en segundo plano, transferencia de sesiones, errores y límites, asistentes, entrada de voz, servicio de reconocimiento y VOICE_COMMAND; [TTS](https://docs.autojs6.com/#/tts) presenta el motor 3-Macaw Speech y [Plugins](https://docs.autojs6.com/#/plugins) los proveedores de módulos

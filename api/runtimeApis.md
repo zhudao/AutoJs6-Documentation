@@ -2280,7 +2280,7 @@ Bun 的 mail.control 分片和监听调用不计入普通能力的单次执行 1
 
 ## Flow 异步链与等待核心
 
-Node.js 1.28.0 与 Bun Runtime 0.17.0 提供显式的 flow 模块. Node 主线程与 CJS/ESM/嵌套 Worker 使用 `require('flow')`, `require('autojs6:flow')` 或对应 ESM 导入; `$autojs.flow` 也指向当前线程的 facade. Bun 使用 `host.flow`.
+Node.js 1.29.0 与 Bun Runtime 0.18.0 提供显式的 flow 模块. Node 主线程与 CJS/ESM/嵌套 Worker 使用 `require('flow')`, `require('autojs6:flow')` 或对应 ESM 导入; `$autojs.flow` 也指向当前线程的 facade. Bun 使用 `host.flow`.
 
 ```js
 "nodejs";
@@ -2303,9 +2303,9 @@ console.log(node.text, node.bounds);
 
 纯回调, Promise 组合与计时不调用宿主, 无须无障碍授权. 选择器与前台组件等待需要配套宿主的 Flow 查询接口, Node 的 accessibility 能力, 或 Bun 默认关闭的 accessibility.control 授权, 以及调用应用内已绑定的 Android 无障碍服务. 打包应用使用自己的服务与包身份; 在 Android 设置中授权后才能执行界面查询.
 
-Flow 立即返回可被 await/Promise.resolve 接纳的对象. 回调在导入它的 JavaScript 线程执行, 支持异步回调; 不额外创建调度线程, workers 恒为 0. 每个 Worker 有独立的 defaults, pending 和 cancelAll. 主线程停止执行或 Worker 退出时, 所属计时器和未完成查询随运行时结束.
+Flow 立即返回可被 await/Promise.resolve 接纳的对象. 回调在导入它的 JavaScript 线程执行, 支持异步回调; 纯本地链不创建宿主线程; 原生工具在宿主工作线程执行, workers 记录待定原生操作数. 每个 Worker 有独立的 defaults, pending 和 cancelAll. 主线程停止执行或 Worker 退出时, 所属计时器和未完成查询随运行时结束.
 
-本批提供 22 个已注册的根方法名称, Flow 构造器和核心链. 高级点击/滚动/输入工具, waitForIdle/waitForEvent/waitForToast/waitForNotification, within/scope, Rhino 的同步 sync/await 方法, 全局 `$flow`/waitAsync 注入与 Java UiObject 原型不在此 portable 契约内. 使用 JavaScript 的 `await value` 或 `value.toPromise()` 读取结果. 本节的限制优先于 [Rhino Flow](flow) 页面中的线程, 选择器和动作说明.
+本批覆盖 52 个已注册根方法名称, Flow 构造器, 核心链, 高级工具和四种事件等待. within/scope, Rhino 同步 sync/await, 全局 `$flow`/waitAsync 注入与 Java UiObject 原型仍不在 portable 契约内. 使用 JavaScript 的 `await value` 或 `value.toPromise()` 读取结果. 本节限制优先于 [Rhino Flow](flow) 页面中的线程, 选择器和动作说明.
 
 ### 根方法与 Flow 对象
 
@@ -2323,7 +2323,7 @@ Flow 立即返回可被 await/Promise.resolve 接纳的对象. 回调在导入�
 | whenPresent(cond, handler, options?) | 可选目标出现时等待 handler 完成, 然后保留原输入值; 仅目标缺席造成的超时可跳过 |
 | repeatUntil(action, cond, options?) | 动作前和动作后检查条件; 条件满足时返回样本 |
 | defaults(options?), trace(enabled?), cancelAll() | 读取/更新当前 facade 默认值, 开关步骤追踪, 或取消当前所有待定节点 |
-| pending, workers | 未结算节点数; portable 调度线程数固定为 0 |
+| pending, workers | 未结算节点数; 当前 facade 待定原生工具/事件操作数 |
 
 all 返回按输入顺序排列的结果; race 采用首个结算; any 采用首个成功, 全部失败时保留最后到达的错误. all([]) 返回空数组, race([])/any([]) 以 INVALID_TARGET 拒绝. 组合器结束后取消自己创建的条件等待, 不取消调用者提供的独立 Flow/Promise.
 
@@ -2339,17 +2339,17 @@ wait 系列接受 `(cond, timeout?, interval?)` 或 `(cond, options, onOk?, onEr
 | textContains, descContains | 子串匹配 |
 | textMatches, descMatches, idMatches, classNameMatches | 整值正则匹配 |
 | content, contentMatches | text/desc/id 任意一个匹配; 字符串条件转为 content, RegExp 转为 contentMatches |
-| clickable, enabled, scrollable, visibleToUser | 布尔条件 |
+| clickable, enabled, scrollable, visibleToUser, checkable, checked, editable, focused, selected | 布尔条件 |
 | depth | 距当前窗口根节点的非负整数深度 |
 | boundsInside, boundsContains | 含 left/top/right/bottom 的屏幕像素矩形 |
 
-不同字段之间为 AND. 正则可用字符串或 `{ pattern, flags }`, flags 仅接受 i/m/s, 使用 Android 正则语义. 不支持选择器数组, Java UiSelector, resultType/root/compass 或未知字段; 错误字段和非法正则会拒绝, 不会退化为无条件查找.
+不同字段之间为 AND. 正则可用字符串, RegExp 或 `{ pattern, flags }`, flags 仅接受 i/m/s, 使用 Android 正则语义. 核心 wait 不支持选择器数组, Java UiSelector, resultType/root/compass 或未知字段; 错误字段和非法正则会拒绝, 不会退化为无条件查找.
 
-选择器返回 JSON 快照: text, desc, id, className, bounds, clickable, enabled, visibleToUser, scrollable, checked, selected, packageName. 这不是可调用 click 的 UiObject; 查询结束就释放临时 Android 节点. 后续查询返回新的快照.
+选择器返回 JSON 快照: text, desc, id, className, bounds, clickable, enabled, visibleToUser, scrollable, checked, selected, packageName. 这不是可调用 click 的 UiObject; 查询结束就释放临时 Android 节点. 后续查询返回新的快照. 新版快照与动作重定位见下文高级工具.
 
 等待选项 timeout 默认 10000 ms, interval 默认 200 ms, times 默认 Infinity. timeout 为 Infinity 表示不限等待期限, 0 表示只尝试一次; 异步探测仍可被取消, 且受该等待和后续链的期限约束. times 必须为正整数或 Infinity. stableFor 默认 100 ms, 表示连续稳定时长. compare 可为 fingerprint (结构化快照), bounds, content 或异步比较函数. snapshot 可提供每次采样的无环数据投影, 与 compare 互斥, 用来检测原地修改的对象. missing 默认为 reset; fail 在已经出现的目标再次缺失时以 INVALID_TARGET 拒绝.
 
-recoverService 默认 false. 服务未绑定时以 A11Y_UNAVAILABLE 拒绝, 不把服务中断当作目标消失. 设为 true 时在原期限内静默重试, 不打开设置, 不自动授予权限. Node 能力缺失和 Bun NOT_GRANTED 仍直接拒绝. defaults 只接受 timeout/interval/stableFor/recoverService/trace, 整体校验成功后才修改, 后建步骤读取新值. trace 输出步骤开始/结束和耗时.
+recoverService 默认 false. 服务未绑定时以 A11Y_UNAVAILABLE 拒绝, 不把服务中断当作目标消失. 设为 true 时在原期限内静默重试, 不打开设置, 不自动授予权限. Node 能力缺失和 Bun NOT_GRANTED 仍直接拒绝. defaults 接受 timeout/interval/stableFor/recoverService/trace/strictActions/humanize, 整体校验成功后才修改, 后建步骤读取新值. trace 输出步骤开始/结束和耗时.
 
 ### 取消, 期限与重试
 
@@ -2359,6 +2359,101 @@ timeout(ms) 从该步骤运行时设置后续链的截止时间, 不回溯限制
 
 whenPresent 的选项为 timeout/interval/times/recoverService. handler 得到找到的样本, 返回值不会替换链输入. repeatUntil 的选项为有限 timeout, interval, maxAttempts (默认 0, 即不限制动作次数) 和 retryOn(error, attempt). action 收到从 1 开始的次数. 条件一开始已满足时不执行动作; timeout 为 0 时只检查一次. 动作异常仅在 retryOn 返回 true 时重试.
 
-FlowError 提供 code, step, selector, elapsed, attempts, reason. portable 核心使用 TIMEOUT/CANCELLED/A11Y_UNAVAILABLE/INVALID_TARGET; 回调异常和宿主授权/传输错误保留原错误. 拒绝也可以从 error/state 读取, 不会强制触发未处理 Promise 拒绝.
+FlowError 提供 code, step, selector, elapsed, attempts, reason. portable 核心使用 TIMEOUT/ACTION_FAILED/CANCELLED/A11Y_UNAVAILABLE/INVALID_TARGET; 回调异常和宿主授权/传输错误保留原错误. 拒绝也可以从 error/state 读取, 不会强制触发未处理 Promise 拒绝.
 
 Bun 选择器轮询沿用普通桥的每次执行 1024 次调用预算, 一次查询至少包含 start/poll 两次请求, 并共享 4 个并发请求与单次期限/大小限制. 长时间等待应设置合理 interval/timeout; 纯本地条件不消耗宿主调用预算. 本批不扩展 Bun 的 Android/ABI 支持范围或原生二进制.
+
+### 高级工具与节点动作
+
+从 Node Runtime 1.29.0 与 Bun Runtime 0.18.0 起, 配套宿主增加下列工具. 工具立即返回 Flow, 可使用 await, then, catch, retry 与 cancel. 根方法共覆盖 Rhino 注册表中的 52 个名称; 这不表示 Rhino 的全部重载, Java 类型和同步行为都已移植.
+
+工具的 target 接受上述选择器, 字符串, RegExp, 新版 NodeSnapshot, 或返回 NodeSnapshot/null 的同步或异步函数. 直接传入 Promise 作为工具参数会拒绝; 可使用返回 Promise 的函数. 快照增加 windowId, depth, indexInParent, checkable, editable, focused. 动作会在当前窗口中重新定位, 核对包名, 类名, ID, 文本, 描述, 路径位置和边界. 窗口变化, 目标缺失或匹配不唯一时拒绝 INVALID_TARGET. 节点没有 Java 原型; 使用 `flow.of(snapshot).click()` 等链方法执行动作. 输入和开关操作返回操作后的新快照.
+
+| 根调用 | 链调用 | 返回值 |
+| --- | --- | --- |
+| smartClick(target, options?) | .smartClick(options?) | { ok: true, method, target, verified }; method 为 node/ancestor/gesture |
+| smartClickBounds(target, options?) | .smartClickBounds(options?) | 同上, 始终点按目标边界 |
+| clickIfExists(target, options? 或 timeout?) | 同根调用 | boolean, 缺席返回 false |
+| clickBoundsIfExists(target, options? 或 timeout?) | 同根调用 | boolean, 使用边界点按 |
+| findAny(targets, options? 或 timeout?) | 同根调用 | { index, target, node } 或 null, 按候选顺序查找 |
+| clickAny / clickBoundsAny(targets, options? 或 timeout?) | 同根调用 | { index, target, node, method, verified } 或 null |
+| scrollUntil(target, options?) | .scrollUntil(target, options?) | 找到的 NodeSnapshot; 链输入作为缺省 container |
+| typeInto(target, text, options?) | .typeInto(text, options?) | 输入后的 NodeSnapshot; target 也可为可编辑节点索引或 null (当前焦点) |
+| dismissPopups(targets, options? 或 timeout?) | 同根调用 | 根调用返回一项/null 或数组; 链调用保留输入值 |
+| collectList(container, item, options?) | .collectList(item, options?) | 采集结果数组; null container 自动选取可滚动容器 |
+| launchAndWait(app, options? 或 timeout?) | 同根调用 | { packageName, launched, elapsed, attempts } |
+| backUntil(cond, options? 或 maxTimes?) | 同根调用 | 首个满足的条件值, 先检查条件再按返回 |
+| backToApp(app, options? 或 maxTimes?) | 同根调用 | 已到前台的包名 |
+| toggle(target, checked, options?) | .toggle(checked, options?) | { node, changed, checked, method }; 原本已符合时 changed 为 false, method 为 null |
+
+工具的公共选项为 timeout, interval, root, humanize. root 限定查询子树; 不等同于 Rhino 的 within/scope. 默认 timeout 来自创建步骤时的 flow.defaults().timeout, 并作为整个 portable 工具的期限, 包括查找, 滚动, 验证和异步回调. Infinity 不限期; timeout: 0 只查找一次, 整体仍使用捕获的默认期限 (默认值也为 0 时使用 10000 ms). 后续链的 timeout(ms) 可进一步缩短期限. launchAndWait 接受 timeout/interval/bringToFront, 不接受 root/humanize.
+
+| 工具选项 | 默认值与行为 |
+| --- | --- |
+| smartClick 的 climb, maxClimb, gestureFallback | true, 5, true; 先直接点击, 再尝试可点击祖先, 最后手势 |
+| verify, verifyTimeout, verifyInterval | 可选条件; 智能点击验证默认 2000/100 ms, 输入与开关验证默认 1000/100 ms |
+| offset | 像素数或 [dx, dy], 默认为 0; bounds 工具不接受 climb/maxClimb/gestureFallback |
+| scrollUntil 的 container, direction, maxSteps, method, stopAtEnd | 自动容器, down, 20, action, true; method 也可为 gesture |
+| settle, gestureDuration | 滚动后等待 300 ms, 手势 400 ms |
+| typeInto 的 clear, submit, verify | true, false, true; 密码框不通过明文回读验证 |
+| dismissPopups 的 once, maxRounds, settle, click | true, 10, 300 ms, 智能点击选项; Flow 拒绝 watch:true 及 onDismissed/onError |
+| collectList 的 resultType, dedupe, until, maxItems | "$", true, 无, 不限制条目数; 仍受总期限与资源上限约束 |
+| launchAndWait 的 bringToFront | true; false 且已在前台时不再次启动 |
+| backUntil/backToApp 的 maxTimes, delay, interval | 10, 500 ms, 100 ms |
+| toggle 的 click | 嵌套智能点击选项, 控件本身或首个可勾选后代用于验证 |
+
+collectList 的 resultType 可为 "$" (优先 text/desc/id), "#" (快照), text/desc/id/className/packageName/bounds/depth/indexInParent/clickable/enabled/scrollable/visibleToUser/checked/checkable/editable/focused/selected, 或接收节点快照的异步函数. until 接收已转换的一项, 按 JavaScript 真值决定是否停止. 不执行任意 Java getter 或方法名. verify 与目标回调仍遵循 Flow 等待真值规则; 回调在所属 JavaScript 线程运行, 可以再调用本模块, 其原始异常会保留.
+
+节点链动作包括 click, longClick, clickBounds(offsetX?, offsetY?), setText(text), appendText(text), clear, paste, copy, cut, select, focus, clearFocus, scrollForward, scrollBackward, scrollUp, scrollDown, scrollLeft, scrollRight, expand, collapse, dismiss, show, contextClick, imeEnter, performAction(action, arguments?). arguments 接受布尔值, 数值和字符串字段. 成功后返回新节点快照. strictActions 默认 true, Android 拒绝动作时产生 ACTION_FAILED; false 时保留节点结果. clickAfter/clickBoundsAfter/longClickAfter(min, max?) 先延迟再动作. 常用全局链动作 back/home/recents/notifications/quickSettings/powerDialog/splitScreen/lockScreen/takeScreenshot/dismissNotificationShade 保留链输入; Android 版本不支持或系统拒绝时仍遵循 strictActions.
+
+等待后点击的根与链方法为 waitThenClick/clickWait, waitThenClickBounds/clickBoundsWait, waitThenLongClick, waitForStableThenClick/clickWhenStable, waitForStableThenClickBounds/clickBoundsWhenStable. 它们接受等待条件与等待选项, 再执行对应节点动作, 最后调用尾随 onOk/onError. strict 可覆盖该动作的 strictActions. clickWhenStableAfter/clickBoundsWhenStableAfter 在稳定后增加延迟, 使用 options.delay (毫秒或 [min, max]), 或 `(cond, timeout, interval, delayMin, delayMax?)`.
+
+defaults 另接受 strictActions 和 humanize. humanize 为 false 或 `{ offset, delay }`; offset 是非负像素数或 [x, y], delay 是非负毫秒数或 [min, max]. 工具中 humanize:true 使用捕获的默认设置. 每个动作前可随机延迟, 边界手势可随机偏移. 配置在步骤创建时复制, 后续修改不影响已创建的步骤.
+
+```js
+"nodejs";
+let flow = require('flow');
+await flow.smartClick({ text: '确认' }, {
+    gestureFallback: false,
+    verify: async () => (await flow.findAny([{ text: '完成' }])) !== null,
+    timeout: 5000,
+});
+let field = await flow.typeInto({ desc: '用户名' }, 'example');
+await flow.of(field).appendText('1');
+```
+
+### 系统事件等待
+
+事件等待订阅真实 Android 无障碍与通知观察源, 不轮询 UI 来假装事件. 返回 EventFlow, 除一般 Flow 成员外提供只读 ready Promise. `await task.ready` 确认监听已建立后, 再触发测试点击或发送通知. 取消, 超时, 服务断开, 运行结束或 Worker 退出均移除所属监听; 不影响其他 Worker 或父线程的等待. 忽略 ready 不会强制产生未处理拒绝.
+
+| 调用 | 条件与结果 |
+| --- | --- |
+| waitForIdle(quietFor? 或 options?) | quietFor 默认 500 ms; options 接受 quietFor/timeout/eventTypes. 默认观察窗口状态, 窗口内容与窗口列表变化. 根调用返回 { quietFor, elapsed, events }, 链调用保留输入 |
+| waitForEvent(types?, filter?, timeout?) | types 是事件名, 数值类型, 数组, "*" 或 null. filter 是函数或 packageName/className/text 属性条件. 返回 type/eventType/packageName/className/text/contentDescription/eventTime/windowId/contentChangeTypes 快照 |
+| waitForToast(filter?, timeout?) | filter 为文本子串, RegExp, packageName/text 属性条件或函数. 返回 type:"toast", packageName, text |
+| waitForNotification(filter?, timeout?) | filter 为 title/text 任一匹配的文本子串或 RegExp, packageName/title/text 属性条件或函数. 返回 type:"notification", packageName, title, text |
+
+Toast/notification 的首个数值参数可单独表示 timeout; waitForEvent 的 filter 位置也可省略而直接传 timeout. 属性条件的 packageName/className 字符串精确匹配, text/title 字符串作子串匹配; 正则使用 i/m/s, 查找匹配片段. 函数可返回 Promise, 按 JavaScript 真值判断 (0 和空字符串为 false), 在等待线程转交所属 JS 回调, 不阻塞 Android 服务回调. 返回的是数据快照, 不提供点击通知等 Java 方法.
+
+Android 的通知投递权限与监听来源仍需满足. 无障碍通知观察器按既有行为忽略本应用自己的 Toast, 可用其他应用产生的 Toast 作为等待目标. 不承诺系统会为每次界面修改或每种通知发送相同事件. 服务在等待中断开时拒绝 A11Y_UNAVAILABLE; 高级工具与事件等待不支持 recoverService 的静默重连选项.
+
+```js
+"nodejs";
+let flow = require('flow');
+let event = flow.waitForEvent('view_clicked', { text: '确认' }, 5000);
+await event.ready;
+await flow.wait({ text: '确认' }).click();
+console.log((await event).packageName);
+```
+
+### 工具授权与清理
+
+Node 的原生工具入口需要 accessibility. 边界点击, 智能点击的默认手势后备, 或 method:'gesture' 滚动额外需要 accessibility.gesture, 并在任何动作之前检查. `gestureFallback:false` 可只使用节点/祖先动作. launchAndWait 需要 app.query/app.launch; backToApp 需要 app.query. copy/cut/paste 和对应 performAction 需要 clipboard. 事件等待需要 events, Toast/notification 另外需要 events.toast/events.notification. back/home/recents 之外的全局链动作需要 keys.
+
+Bun 工具与事件等待使用独立且默认关闭的 flow.control. 宿主仍按操作检查 accessibility.control, accessibility.gesture, app.control, clipboard.control, events.observe, events.toast, events.notification 等既有授权. flow.control 本身不授予这些能力. 打包应用须在项目配置中声明所需能力, 并启用自己的 Android 无障碍服务; 授权不继承宿主或其他安装包.
+
+flow.control 的短轮询不计入 Bun 普通桥每次执行 1024 次累计调用预算; 仍保留请求/结果大小, 并发和单次期限限制. 旧的 accessibility.control 选择器轮询继续消耗普通预算. 工具结果使用 UTF-8 分片传递, 函数参数和回调答复仍受单次请求大小限制. 每个 facade 最多同时有 64 个原生操作, 宿主执行实例最多 128 个原生工具线程; 每个客户端排队结果限制为 64 MiB, 单个操作最多保留 100000 个私有节点. 此项未改变 Bun 原生载荷或 Android/ABI 兼容矩阵.
+
+workers 现在表示当前 facade 尚未结算的原生工具/事件操作数, 纯本地链不增加它. cancelAll 取消当前待定 Flow 并向宿主传播取消. `await flow.dispose()` 取消待定工作, 关闭本 facade 的宿主客户端; 此后该 facade 的原生工具调用会拒绝. Node 主线程, 每个 Worker 与 Bun 各自拥有客户端; 延迟返回的创建结果也会在运行结束后关闭. Android 已经接受的点击/输入/启动无法通过取消撤销.
+
+within/scope, Rhino 同步终结方法 sync/await, 全局 `$flow` 注入, 任意 Java UiObject 方法, press/swipe/gesture/gestures 的 Flow 链重载仍不在此契约内. 上述 52 个根方法名称覆盖不代表这些差异已经消失.
