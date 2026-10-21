@@ -1,5 +1,7 @@
 # 流程对象 (Flow)
 
+> Node.js/Bun/Worker 的异步链与等待核心参阅 [运行时 API](runtimeApis#flow-异步链与等待核心). 本页的同步终结方法, 工作线程与 Java 节点行为属于 Rhino.
+
 Flow 对象是 [流程 (Flow)](flow) API 的核心类型, 由 [flow](flow#flow) 的起点函数 (如 [flow.wait](flow#m-wait), 全局函数 [waitAsync](flow#m-wait)) 创建, 代表异步等待与动作链上的一个步骤及其结算状态.
 
 本章节列出 Flow 对象的属性, 可追加的步骤 (等待, 动作, 工具, 事件等待, 计时与回调) 与终结方法; 起点函数, 条件与等待选项见 [流程 (Flow)](flow), 错误对象见 [FlowError](flowErrorType).

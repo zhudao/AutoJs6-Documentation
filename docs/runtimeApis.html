@@ -434,6 +434,13 @@
 <li><span class="stability_undefined"><a href="#runtimeapis_34">取消, 令牌回调与运行条件</a></span></li>
 </ul>
 </li>
+<li><span class="stability_undefined"><a href="#runtimeapis_flow">Flow 异步链与等待核心</a></span><ul>
+<li><span class="stability_undefined"><a href="#runtimeapis_35">运行条件与覆盖范围</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_flow_1">根方法与 Flow 对象</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_36">条件与稳定性</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_37">取消, 期限与重试</a></span></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -3729,6 +3736,142 @@ watcher.on(&#39;message&#39;, async (message, watch) =&gt; {
 <p>MailError 可直接调用或通过 new 创建, 提供 name, code, message, details 和 retryable. details 可为 JSON 对象/数组, 字符串或 null. 参数错误, 超时, 取消与关闭分别使用 INVALID_ARGUMENT, TIMEOUT, CANCELLED 和 SESSION_CLOSED; Bun 未授权时为 NOT_GRANTED. 服务商的协议限制保持原样, 例如 POP3 的 UIDL 字符串以及 IMAP 专用整理方法的 UNSUPPORTED_OPERATION.</p>
 <p>独立签名应用需要匹配的 Runtime Kit 与 Builder. Builder 根据 mail/mail.control 能力添加 <code>org.autojs.plugin.mail.permission.RUNTIME</code>. 插件通过单独入口接受调用者显式提供的连接配置, 返回的会话和监听仅允许创建它们的 UID 调用. 已保存账户别名, accounts.list/accounts.has 和后台守望状态仍只允许原签名宿主访问; 打包应用尝试访问时以 PLUGIN_UNAVAILABLE 拒绝. 本入口不要求麦克风权限, 也不打开账户管理页面.</p>
 <p>Bun 的 mail.control 分片和监听调用不计入普通能力的单次执行 1024 次累计额度; 授权, 请求/响应大小, 四个并发请求及单次 RPC 期限仍保留. 大附件按文件流传输, 内联消息参数仍受运行时请求大小限制. mail 的根方法与 providers/accounts 共覆盖 57 个现有方法名, 不表示完整 Rhino 对象或 EventEmitter 原型一致. 本批不改变 Node/Bun 引擎版本或 Android/ABI 兼容范围; Node 的宿主桥接库随封装实现重新构建.</p>
+<h2>Flow 异步链与等待核心<span><a class="mark" href="#runtimeapis_flow" id="runtimeapis_flow">#</a></span></h2>
+<p>Node.js 1.28.0 与 Bun Runtime 0.17.0 提供显式的 flow 模块. Node 主线程与 CJS/ESM/嵌套 Worker 使用 <code>require(&#39;flow&#39;)</code>, <code>require(&#39;autojs6:flow&#39;)</code> 或对应 ESM 导入; <code>$autojs.flow</code> 也指向当前线程的 facade. Bun 使用 <code>host.flow</code>.</p>
+<pre><code class="lang-js">&quot;nodejs&quot;;
+let flow = require(&#39;autojs6:flow&#39;);
+let result = await flow.of(3)
+    .map(async value =&gt; value + 2)
+    .sleep(100)
+    .filter(value =&gt; value &gt; 0);
+console.log(result); // 5.
+
+let node = await flow.waitForVisible({ text: &#39;登录&#39; }, {
+    timeout: 5000,
+    interval: 100,
+    stableFor: 200,
+});
+console.log(node.text, node.bounds);
+</code></pre>
+<h3>运行条件与覆盖范围<span><a class="mark" href="#runtimeapis_35" id="runtimeapis_35">#</a></span></h3>
+<p>纯回调, Promise 组合与计时不调用宿主, 无须无障碍授权. 选择器与前台组件等待需要配套宿主的 Flow 查询接口, Node 的 accessibility 能力, 或 Bun 默认关闭的 accessibility.control 授权, 以及调用应用内已绑定的 Android 无障碍服务. 打包应用使用自己的服务与包身份; 在 Android 设置中授权后才能执行界面查询.</p>
+<p>Flow 立即返回可被 await/Promise.resolve 接纳的对象. 回调在导入它的 JavaScript 线程执行, 支持异步回调; 不额外创建调度线程, workers 恒为 0. 每个 Worker 有独立的 defaults, pending 和 cancelAll. 主线程停止执行或 Worker 退出时, 所属计时器和未完成查询随运行时结束.</p>
+<p>本批提供 22 个已注册的根方法名称, Flow 构造器和核心链. 高级点击/滚动/输入工具, waitForIdle/waitForEvent/waitForToast/waitForNotification, within/scope, Rhino 的同步 sync/await 方法, 全局 <code>$flow</code>/waitAsync 注入与 Java UiObject 原型不在此 portable 契约内. 使用 JavaScript 的 <code>await value</code> 或 <code>value.toPromise()</code> 读取结果. 本节的限制优先于 <a href="flow.html">Rhino Flow</a> 页面中的线程, 选择器和动作说明.</p>
+<h3>根方法与 Flow 对象<span><a class="mark" href="#runtimeapis_flow_1" id="runtimeapis_flow_1">#</a></span></h3>
+<table>
+<thead>
+<tr>
+<th>成员</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>flow(cond, ...args), wait, waitAsync, waitUntil</td>
+<td>等到条件满足; waitAsync 是 wait 的别名</td>
+</tr>
+<tr>
+<td>waitWhile</td>
+<td>等到条件不满足, 返回 true</td>
+</tr>
+<tr>
+<td>waitForStable, waitForVisible</td>
+<td>目标持续稳定, 或持续稳定且可见, 返回最后的样本</td>
+</tr>
+<tr>
+<td>waitForHidden / waitForGone</td>
+<td>目标持续缺席或不可见, 返回 true</td>
+</tr>
+<tr>
+<td>waitForActivity, waitForPackage</td>
+<td>通过无障碍记录的前台组件名称匹配, 返回 true; 不隐式调用 Root/Shizuku</td>
+</tr>
+<tr>
+<td>of(value), Flow(value), new Flow(value)</td>
+<td>接纳值或 Promise; 传入同一 facade 的 Flow 时复用它</td>
+</tr>
+<tr>
+<td>run(fn)</td>
+<td>无参数调用回调, 接纳其返回值</td>
+</tr>
+<tr>
+<td>sleep(min, max?), delay(min, max?)</td>
+<td>等待毫秒数, 或 min..max 范围内随机时长; 根调用返回 undefined</td>
+</tr>
+<tr>
+<td>all, race, any</td>
+<td>接受一个数组或可变参数; Flow/Promise 直接接纳, 其他项作为等待条件</td>
+</tr>
+<tr>
+<td>whenPresent(cond, handler, options?)</td>
+<td>可选目标出现时等待 handler 完成, 然后保留原输入值; 仅目标缺席造成的超时可跳过</td>
+</tr>
+<tr>
+<td>repeatUntil(action, cond, options?)</td>
+<td>动作前和动作后检查条件; 条件满足时返回样本</td>
+</tr>
+<tr>
+<td>defaults(options?), trace(enabled?), cancelAll()</td>
+<td>读取/更新当前 facade 默认值, 开关步骤追踪, 或取消当前所有待定节点</td>
+</tr>
+<tr>
+<td>pending, workers</td>
+<td>未结算节点数; portable 调度线程数固定为 0</td>
+</tr>
+</tbody>
+</table>
+<p>all 返回按输入顺序排列的结果; race 采用首个结算; any 采用首个成功, 全部失败时保留最后到达的错误. all([]) 返回空数组, race([])/any([]) 以 INVALID_TARGET 拒绝. 组合器结束后取消自己创建的条件等待, 不取消调用者提供的独立 Flow/Promise.</p>
+<p>Flow 的 state 为 pending/fulfilled/rejected/cancelled, step 为当前步骤名, value/error 为已结算结果. toString 返回步骤和状态. 所有等待方法也可接在已有 Flow 后面. then/catch/else/finally/map/run/filter/peek/sleep/delay/timeout/retry/whenPresent/repeatUntil 返回新节点, 允许从同一父节点分叉. filter 为假时以 INVALID_TARGET 拒绝; peek 等待回调但保留原值; finally 等待回调并保留原结算, 其自身失败则覆盖原结算.</p>
+<h3>条件与稳定性<span><a class="mark" href="#runtimeapis_36" id="runtimeapis_36">#</a></span></h3>
+<p>wait 系列接受 <code>(cond, timeout?, interval?)</code> 或 <code>(cond, options, onOk?, onError?)</code>. 条件可为同步/异步函数, Flow/Promise, 字符串, RegExp 或下表的选择器描述符. 函数仅返回 null/undefined/false/NaN 时不满足; 0, 空字符串与空数组都算满足. 直接提供的 Promise 兑现即为满足, 包括兑现值 false/undefined; 拒绝会原样传播.</p>
+<table>
+<thead>
+<tr>
+<th>选择器字段</th>
+<th>语义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>text, desc, id, className</td>
+<td>非空白字符串的精确匹配, 不展开短 ID/类名</td>
+</tr>
+<tr>
+<td>textContains, descContains</td>
+<td>子串匹配</td>
+</tr>
+<tr>
+<td>textMatches, descMatches, idMatches, classNameMatches</td>
+<td>整值正则匹配</td>
+</tr>
+<tr>
+<td>content, contentMatches</td>
+<td>text/desc/id 任意一个匹配; 字符串条件转为 content, RegExp 转为 contentMatches</td>
+</tr>
+<tr>
+<td>clickable, enabled, scrollable, visibleToUser</td>
+<td>布尔条件</td>
+</tr>
+<tr>
+<td>depth</td>
+<td>距当前窗口根节点的非负整数深度</td>
+</tr>
+<tr>
+<td>boundsInside, boundsContains</td>
+<td>含 left/top/right/bottom 的屏幕像素矩形</td>
+</tr>
+</tbody>
+</table>
+<p>不同字段之间为 AND. 正则可用字符串或 <code>{ pattern, flags }</code>, flags 仅接受 i/m/s, 使用 Android 正则语义. 不支持选择器数组, Java UiSelector, resultType/root/compass 或未知字段; 错误字段和非法正则会拒绝, 不会退化为无条件查找.</p>
+<p>选择器返回 JSON 快照: text, desc, id, className, bounds, clickable, enabled, visibleToUser, scrollable, checked, selected, packageName. 这不是可调用 click 的 UiObject; 查询结束就释放临时 Android 节点. 后续查询返回新的快照.</p>
+<p>等待选项 timeout 默认 10000 ms, interval 默认 200 ms, times 默认 Infinity. timeout 为 Infinity 表示不限等待期限, 0 表示只尝试一次; 异步探测仍可被取消, 且受该等待和后续链的期限约束. times 必须为正整数或 Infinity. stableFor 默认 100 ms, 表示连续稳定时长. compare 可为 fingerprint (结构化快照), bounds, content 或异步比较函数. snapshot 可提供每次采样的无环数据投影, 与 compare 互斥, 用来检测原地修改的对象. missing 默认为 reset; fail 在已经出现的目标再次缺失时以 INVALID_TARGET 拒绝.</p>
+<p>recoverService 默认 false. 服务未绑定时以 A11Y_UNAVAILABLE 拒绝, 不把服务中断当作目标消失. 设为 true 时在原期限内静默重试, 不打开设置, 不自动授予权限. Node 能力缺失和 Bun NOT_GRANTED 仍直接拒绝. defaults 只接受 timeout/interval/stableFor/recoverService/trace, 整体校验成功后才修改, 后建步骤读取新值. trace 输出步骤开始/结束和耗时.</p>
+<h3>取消, 期限与重试<span><a class="mark" href="#runtimeapis_37" id="runtimeapis_37">#</a></span></h3>
+<p>cancel() 在节点仍待定时返回 true, 否则 false. 它取消该分支; 只有父节点的全部续接都已取消时才向上停止父节点. 其他分支仍可继续. 取消后来的回调结果不再推进该节点, 回调已经产生的外部副作用不能撤销. 普通用户 Promise 不具备强制中断能力, 但等待它的 Flow 可以及时结算取消或超时. 回调同步创建的子 Flow 归该步骤所有, 取消/超时会清理这些子 Flow; 在普通异步函数 await 之后另行创建且未返回的任务需要调用者自己管理.</p>
+<p>timeout(ms) 从该步骤运行时设置后续链的截止时间, 不回溯限制前序步骤. 等待中的异步回调也受期限约束. catch/finally 可观察期限失败. retry(times = 1, delay = 0) 只重跑紧前面的失败步骤, 不重跑整条链, 不重跑取消结果或已接纳的 Promise.</p>
+<p>whenPresent 的选项为 timeout/interval/times/recoverService. handler 得到找到的样本, 返回值不会替换链输入. repeatUntil 的选项为有限 timeout, interval, maxAttempts (默认 0, 即不限制动作次数) 和 retryOn(error, attempt). action 收到从 1 开始的次数. 条件一开始已满足时不执行动作; timeout 为 0 时只检查一次. 动作异常仅在 retryOn 返回 true 时重试.</p>
+<p>FlowError 提供 code, step, selector, elapsed, attempts, reason. portable 核心使用 TIMEOUT/CANCELLED/A11Y_UNAVAILABLE/INVALID_TARGET; 回调异常和宿主授权/传输错误保留原错误. 拒绝也可以从 error/state 读取, 不会强制触发未处理 Promise 拒绝.</p>
+<p>Bun 选择器轮询沿用普通桥的每次执行 1024 次调用预算, 一次查询至少包含 start/poll 两次请求, 并共享 4 个并发请求与单次期限/大小限制. 长时间等待应设置合理 interval/timeout; 纯本地条件不消耗宿主调用预算. 本批不扩展 Bun 的 Android/ABI 支持范围或原生二进制.</p>
 
         </div>
     </div>

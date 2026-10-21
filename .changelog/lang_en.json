@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Flow asynchronous chains and condition/stability waits for Node.js, Bun and Workers, with branch cancellation, step retries and host UI snapshots"
+        },
+        {
+          "category": "feature",
           "text": "Speech recognition and model management APIs for Node.js, Bun and Workers, with WAV/PCM, dictation and wake sessions, model installation/import, synthesis and cancellation cleanup"
         },
         {

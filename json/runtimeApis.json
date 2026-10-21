@@ -840,6 +840,43 @@
           ],
           "type": "misc",
           "displayName": "Node.js / Bun / Worker 的 Mail"
+        },
+        {
+          "textRaw": "Flow 异步链与等待核心",
+          "name": "flow_异步链与等待核心",
+          "desc": "<p>Node.js 1.28.0 与 Bun Runtime 0.17.0 提供显式的 flow 模块. Node 主线程与 CJS/ESM/嵌套 Worker 使用 <code>require(&#39;flow&#39;)</code>, <code>require(&#39;autojs6:flow&#39;)</code> 或对应 ESM 导入; <code>$autojs.flow</code> 也指向当前线程的 facade. Bun 使用 <code>host.flow</code>.</p>\n<pre><code class=\"lang-js\">&quot;nodejs&quot;;\nlet flow = require(&#39;autojs6:flow&#39;);\nlet result = await flow.of(3)\n    .map(async value =&gt; value + 2)\n    .sleep(100)\n    .filter(value =&gt; value &gt; 0);\nconsole.log(result); // 5.\n\nlet node = await flow.waitForVisible({ text: &#39;登录&#39; }, {\n    timeout: 5000,\n    interval: 100,\n    stableFor: 200,\n});\nconsole.log(node.text, node.bounds);\n</code></pre>\n",
+          "modules": [
+            {
+              "textRaw": "运行条件与覆盖范围",
+              "name": "运行条件与覆盖范围",
+              "desc": "<p>纯回调, Promise 组合与计时不调用宿主, 无须无障碍授权. 选择器与前台组件等待需要配套宿主的 Flow 查询接口, Node 的 accessibility 能力, 或 Bun 默认关闭的 accessibility.control 授权, 以及调用应用内已绑定的 Android 无障碍服务. 打包应用使用自己的服务与包身份; 在 Android 设置中授权后才能执行界面查询.</p>\n<p>Flow 立即返回可被 await/Promise.resolve 接纳的对象. 回调在导入它的 JavaScript 线程执行, 支持异步回调; 不额外创建调度线程, workers 恒为 0. 每个 Worker 有独立的 defaults, pending 和 cancelAll. 主线程停止执行或 Worker 退出时, 所属计时器和未完成查询随运行时结束.</p>\n<p>本批提供 22 个已注册的根方法名称, Flow 构造器和核心链. 高级点击/滚动/输入工具, waitForIdle/waitForEvent/waitForToast/waitForNotification, within/scope, Rhino 的同步 sync/await 方法, 全局 <code>$flow</code>/waitAsync 注入与 Java UiObject 原型不在此 portable 契约内. 使用 JavaScript 的 <code>await value</code> 或 <code>value.toPromise()</code> 读取结果. 本节的限制优先于 <a href=\"flow\">Rhino Flow</a> 页面中的线程, 选择器和动作说明.</p>\n",
+              "type": "module",
+              "displayName": "运行条件与覆盖范围"
+            },
+            {
+              "textRaw": "根方法与 Flow 对象",
+              "name": "根方法与_flow_对象",
+              "desc": "<table>\n<thead>\n<tr>\n<th>成员</th>\n<th>行为</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>flow(cond, ...args), wait, waitAsync, waitUntil</td>\n<td>等到条件满足; waitAsync 是 wait 的别名</td>\n</tr>\n<tr>\n<td>waitWhile</td>\n<td>等到条件不满足, 返回 true</td>\n</tr>\n<tr>\n<td>waitForStable, waitForVisible</td>\n<td>目标持续稳定, 或持续稳定且可见, 返回最后的样本</td>\n</tr>\n<tr>\n<td>waitForHidden / waitForGone</td>\n<td>目标持续缺席或不可见, 返回 true</td>\n</tr>\n<tr>\n<td>waitForActivity, waitForPackage</td>\n<td>通过无障碍记录的前台组件名称匹配, 返回 true; 不隐式调用 Root/Shizuku</td>\n</tr>\n<tr>\n<td>of(value), Flow(value), new Flow(value)</td>\n<td>接纳值或 Promise; 传入同一 facade 的 Flow 时复用它</td>\n</tr>\n<tr>\n<td>run(fn)</td>\n<td>无参数调用回调, 接纳其返回值</td>\n</tr>\n<tr>\n<td>sleep(min, max?), delay(min, max?)</td>\n<td>等待毫秒数, 或 min..max 范围内随机时长; 根调用返回 undefined</td>\n</tr>\n<tr>\n<td>all, race, any</td>\n<td>接受一个数组或可变参数; Flow/Promise 直接接纳, 其他项作为等待条件</td>\n</tr>\n<tr>\n<td>whenPresent(cond, handler, options?)</td>\n<td>可选目标出现时等待 handler 完成, 然后保留原输入值; 仅目标缺席造成的超时可跳过</td>\n</tr>\n<tr>\n<td>repeatUntil(action, cond, options?)</td>\n<td>动作前和动作后检查条件; 条件满足时返回样本</td>\n</tr>\n<tr>\n<td>defaults(options?), trace(enabled?), cancelAll()</td>\n<td>读取/更新当前 facade 默认值, 开关步骤追踪, 或取消当前所有待定节点</td>\n</tr>\n<tr>\n<td>pending, workers</td>\n<td>未结算节点数; portable 调度线程数固定为 0</td>\n</tr>\n</tbody>\n</table>\n<p>all 返回按输入顺序排列的结果; race 采用首个结算; any 采用首个成功, 全部失败时保留最后到达的错误. all([]) 返回空数组, race([])/any([]) 以 INVALID_TARGET 拒绝. 组合器结束后取消自己创建的条件等待, 不取消调用者提供的独立 Flow/Promise.</p>\n<p>Flow 的 state 为 pending/fulfilled/rejected/cancelled, step 为当前步骤名, value/error 为已结算结果. toString 返回步骤和状态. 所有等待方法也可接在已有 Flow 后面. then/catch/else/finally/map/run/filter/peek/sleep/delay/timeout/retry/whenPresent/repeatUntil 返回新节点, 允许从同一父节点分叉. filter 为假时以 INVALID_TARGET 拒绝; peek 等待回调但保留原值; finally 等待回调并保留原结算, 其自身失败则覆盖原结算.</p>\n",
+              "type": "module",
+              "displayName": "根方法与 Flow 对象"
+            },
+            {
+              "textRaw": "条件与稳定性",
+              "name": "条件与稳定性",
+              "desc": "<p>wait 系列接受 <code>(cond, timeout?, interval?)</code> 或 <code>(cond, options, onOk?, onError?)</code>. 条件可为同步/异步函数, Flow/Promise, 字符串, RegExp 或下表的选择器描述符. 函数仅返回 null/undefined/false/NaN 时不满足; 0, 空字符串与空数组都算满足. 直接提供的 Promise 兑现即为满足, 包括兑现值 false/undefined; 拒绝会原样传播.</p>\n<table>\n<thead>\n<tr>\n<th>选择器字段</th>\n<th>语义</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>text, desc, id, className</td>\n<td>非空白字符串的精确匹配, 不展开短 ID/类名</td>\n</tr>\n<tr>\n<td>textContains, descContains</td>\n<td>子串匹配</td>\n</tr>\n<tr>\n<td>textMatches, descMatches, idMatches, classNameMatches</td>\n<td>整值正则匹配</td>\n</tr>\n<tr>\n<td>content, contentMatches</td>\n<td>text/desc/id 任意一个匹配; 字符串条件转为 content, RegExp 转为 contentMatches</td>\n</tr>\n<tr>\n<td>clickable, enabled, scrollable, visibleToUser</td>\n<td>布尔条件</td>\n</tr>\n<tr>\n<td>depth</td>\n<td>距当前窗口根节点的非负整数深度</td>\n</tr>\n<tr>\n<td>boundsInside, boundsContains</td>\n<td>含 left/top/right/bottom 的屏幕像素矩形</td>\n</tr>\n</tbody>\n</table>\n<p>不同字段之间为 AND. 正则可用字符串或 <code>{ pattern, flags }</code>, flags 仅接受 i/m/s, 使用 Android 正则语义. 不支持选择器数组, Java UiSelector, resultType/root/compass 或未知字段; 错误字段和非法正则会拒绝, 不会退化为无条件查找.</p>\n<p>选择器返回 JSON 快照: text, desc, id, className, bounds, clickable, enabled, visibleToUser, scrollable, checked, selected, packageName. 这不是可调用 click 的 UiObject; 查询结束就释放临时 Android 节点. 后续查询返回新的快照.</p>\n<p>等待选项 timeout 默认 10000 ms, interval 默认 200 ms, times 默认 Infinity. timeout 为 Infinity 表示不限等待期限, 0 表示只尝试一次; 异步探测仍可被取消, 且受该等待和后续链的期限约束. times 必须为正整数或 Infinity. stableFor 默认 100 ms, 表示连续稳定时长. compare 可为 fingerprint (结构化快照), bounds, content 或异步比较函数. snapshot 可提供每次采样的无环数据投影, 与 compare 互斥, 用来检测原地修改的对象. missing 默认为 reset; fail 在已经出现的目标再次缺失时以 INVALID_TARGET 拒绝.</p>\n<p>recoverService 默认 false. 服务未绑定时以 A11Y_UNAVAILABLE 拒绝, 不把服务中断当作目标消失. 设为 true 时在原期限内静默重试, 不打开设置, 不自动授予权限. Node 能力缺失和 Bun NOT_GRANTED 仍直接拒绝. defaults 只接受 timeout/interval/stableFor/recoverService/trace, 整体校验成功后才修改, 后建步骤读取新值. trace 输出步骤开始/结束和耗时.</p>\n",
+              "type": "module",
+              "displayName": "条件与稳定性"
+            },
+            {
+              "textRaw": "取消, 期限与重试",
+              "name": "取消,_期限与重试",
+              "desc": "<p>cancel() 在节点仍待定时返回 true, 否则 false. 它取消该分支; 只有父节点的全部续接都已取消时才向上停止父节点. 其他分支仍可继续. 取消后来的回调结果不再推进该节点, 回调已经产生的外部副作用不能撤销. 普通用户 Promise 不具备强制中断能力, 但等待它的 Flow 可以及时结算取消或超时. 回调同步创建的子 Flow 归该步骤所有, 取消/超时会清理这些子 Flow; 在普通异步函数 await 之后另行创建且未返回的任务需要调用者自己管理.</p>\n<p>timeout(ms) 从该步骤运行时设置后续链的截止时间, 不回溯限制前序步骤. 等待中的异步回调也受期限约束. catch/finally 可观察期限失败. retry(times = 1, delay = 0) 只重跑紧前面的失败步骤, 不重跑整条链, 不重跑取消结果或已接纳的 Promise.</p>\n<p>whenPresent 的选项为 timeout/interval/times/recoverService. handler 得到找到的样本, 返回值不会替换链输入. repeatUntil 的选项为有限 timeout, interval, maxAttempts (默认 0, 即不限制动作次数) 和 retryOn(error, attempt). action 收到从 1 开始的次数. 条件一开始已满足时不执行动作; timeout 为 0 时只检查一次. 动作异常仅在 retryOn 返回 true 时重试.</p>\n<p>FlowError 提供 code, step, selector, elapsed, attempts, reason. portable 核心使用 TIMEOUT/CANCELLED/A11Y_UNAVAILABLE/INVALID_TARGET; 回调异常和宿主授权/传输错误保留原错误. 拒绝也可以从 error/state 读取, 不会强制触发未处理 Promise 拒绝.</p>\n<p>Bun 选择器轮询沿用普通桥的每次执行 1024 次调用预算, 一次查询至少包含 start/poll 两次请求, 并共享 4 个并发请求与单次期限/大小限制. 长时间等待应设置合理 interval/timeout; 纯本地条件不消耗宿主调用预算. 本批不扩展 Bun 的 Android/ABI 支持范围或原生二进制.</p>\n",
+              "type": "module",
+              "displayName": "取消, 期限与重试"
+            }
+          ],
+          "type": "misc",
+          "displayName": "Flow 异步链与等待核心"
         }
       ]
     }

@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `Новое` Асинхронные цепочки flow и ожидание условий/стабильности для Node.js, Bun и Worker с отменой ветвей, повтором шагов и снимками интерфейса хоста
 - `Новое` API speech для Node.js, Bun и Workers: распознавание WAV/PCM, диктовка и ключевые слова, установка и импорт моделей, синтез и освобождение ресурсов при отмене
 - `Новое` API синтеза речи для Node.js, Bun и Workers с запросами движков и голосов, озвучиванием, тишиной, аудиофайлами и событиями задач
 - `Новое` [Speech](https://docs.autojs6.com/#/speech), [SpeechSession](https://docs.autojs6.com/#/speechSessionType), [SpeechWakeSession](https://docs.autojs6.com/#/speechWakeSessionType), [SpeechRecognitionResult](https://docs.autojs6.com/#/speechRecognitionResultType), [SpeechModelInfo](https://docs.autojs6.com/#/speechModelInfoType) описывают диктовку, распознавание файлов и PCM, голосовую активность, слова пробуждения, синтез, модели и лицензии, фоновую запись, передачу сеансов, ошибки и ограничения, ассистента, голосовой ввод, службу распознавания и VOICE_COMMAND; [TTS](https://docs.autojs6.com/#/tts) описывает движок 3-Macaw Speech, а [Plugins](https://docs.autojs6.com/#/plugins) поставщиков модулей
