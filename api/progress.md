@@ -339,3 +339,8 @@
 - 2026/10/20: Node.js/Bun/Worker TTS 接口, 任务事件, 文件合成, 独立授权及客户端清理已同步到 Runtime APIs.
 
 2026-10-21: runtimeApis 补充 Node.js/Bun/Worker 的 flow 异步链与等待核心, 并明确高级动作/事件等待和 Rhino 专属语义仍在覆盖范围之外.
+
+
+## 2026-10-21 Runtime Flow scope and gestures
+
+Node.js 1.30.0 与 Bun Runtime 0.19.0 的 Flow 实例 within/scope, root/compass/resultType 继承和 press/swipe/gesture/gestures 重载已同步到 [运行时 API](runtimeApis). 同时说明快照重定位, 节点数组动作, 权限, 取消边界及 TypeScript 范围结果类型.

@@ -122,7 +122,7 @@ flow.wait('登录', 5e3).click()
 
 ```js
 /* 在设置页的列表容器内查找 "关于手机". */
-flow.within(className('RecyclerView'), 5e3)
+flow.of().within(className('RecyclerView'), 5e3)
     .wait('关于手机')
     .click();
 ```
@@ -353,7 +353,7 @@ flow.wait(id('dialog'), 5e3)
     .then(dialog => flow.of(dialog).scope({ root: dialog }).wait('确定').click());
 
 /* 更简洁的写法. */
-flow.within(id('dialog'), 5e3).wait('确定').click();
+flow.of().within(id('dialog'), 5e3).wait('确定').click();
 ```
 
 ## [m#] then

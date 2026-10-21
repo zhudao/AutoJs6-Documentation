@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Node.js, Bun 및 Worker의 Flow within/scope 검색 범위 상속, 나침반 탐색 및 결과 투영과 press/swipe/gesture/gestures 오버로드"
+        },
+        {
+          "category": "feature",
           "text": "[Memory](https://docs.autojs6.com/#/memory)에서 스크립트가 AutoJs6 프로세스의 메모리 진단 데이터를 읽는 memory 모듈을 설명: 메모리 스냅샷, 강제 가비지 컬렉션, 종료 후 회수되지 않은 스크립트 런타임, hprof 힙 덤프 (release 빌드에서는 \"스크립트의 hprof 내보내기 허용\" 필요) 와 LeakCanary 감시"
         },
         {

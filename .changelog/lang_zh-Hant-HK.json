@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Node.js, Bun 與 Worker 的 Flow within/scope 範圍繼承, 羅盤導航和結果投影, 以及 press/swipe/gesture/gestures 手勢重載"
+        },
+        {
+          "category": "feature",
           "text": "[記憶體 (Memory)](https://docs.autojs6.com/#/memory), 説明腳本讀取 AutoJs6 進程記憶體診斷數據的 memory 模組: 記憶體快照, 強制回收, 已結束未回收的腳本運行時, hprof 堆轉儲 (正式版本需開啟 \"允許腳本匯出 hprof\") 與 LeakCanary 監視"
         },
         {

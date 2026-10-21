@@ -443,6 +443,12 @@
 <li><span class="stability_undefined"><a href="#runtimeapis_38">高级工具与节点动作</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_39">系统事件等待</a></span></li>
 <li><span class="stability_undefined"><a href="#runtimeapis_40">工具授权与清理</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_within_scope">within 与 scope</a></span><ul>
+<li><span class="stability_undefined"><a href="#runtimeapis_within_cond_options_onok_onerror">within(cond, options?, onOk?, onError?)</a></span></li>
+<li><span class="stability_undefined"><a href="#runtimeapis_scope_options">scope(options)</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#runtimeapis_flow_2">Flow 手势重载</a></span></li>
 </ul>
 </li>
 </ul>
@@ -3741,7 +3747,7 @@ watcher.on(&#39;message&#39;, async (message, watch) =&gt; {
 <p>独立签名应用需要匹配的 Runtime Kit 与 Builder. Builder 根据 mail/mail.control 能力添加 <code>org.autojs.plugin.mail.permission.RUNTIME</code>. 插件通过单独入口接受调用者显式提供的连接配置, 返回的会话和监听仅允许创建它们的 UID 调用. 已保存账户别名, accounts.list/accounts.has 和后台守望状态仍只允许原签名宿主访问; 打包应用尝试访问时以 PLUGIN_UNAVAILABLE 拒绝. 本入口不要求麦克风权限, 也不打开账户管理页面.</p>
 <p>Bun 的 mail.control 分片和监听调用不计入普通能力的单次执行 1024 次累计额度; 授权, 请求/响应大小, 四个并发请求及单次 RPC 期限仍保留. 大附件按文件流传输, 内联消息参数仍受运行时请求大小限制. mail 的根方法与 providers/accounts 共覆盖 57 个现有方法名, 不表示完整 Rhino 对象或 EventEmitter 原型一致. 本批不改变 Node/Bun 引擎版本或 Android/ABI 兼容范围; Node 的宿主桥接库随封装实现重新构建.</p>
 <h2>Flow 异步链与等待核心<span><a class="mark" href="#runtimeapis_flow" id="runtimeapis_flow">#</a></span></h2>
-<p>Node.js 1.29.0 与 Bun Runtime 0.18.0 提供显式的 flow 模块. Node 主线程与 CJS/ESM/嵌套 Worker 使用 <code>require(&#39;flow&#39;)</code>, <code>require(&#39;autojs6:flow&#39;)</code> 或对应 ESM 导入; <code>$autojs.flow</code> 也指向当前线程的 facade. Bun 使用 <code>host.flow</code>.</p>
+<p>Node.js 1.30.0 与 Bun Runtime 0.19.0 提供显式的 flow 模块. Node 主线程与 CJS/ESM/嵌套 Worker 使用 <code>require(&#39;flow&#39;)</code>, <code>require(&#39;autojs6:flow&#39;)</code> 或对应 ESM 导入; <code>$autojs.flow</code> 也指向当前线程的 facade. Bun 使用 <code>host.flow</code>.</p>
 <pre><code class="lang-js">&quot;nodejs&quot;;
 let flow = require(&#39;autojs6:flow&#39;);
 let result = await flow.of(3)
@@ -3760,7 +3766,7 @@ console.log(node.text, node.bounds);
 <h3>运行条件与覆盖范围<span><a class="mark" href="#runtimeapis_35" id="runtimeapis_35">#</a></span></h3>
 <p>纯回调, Promise 组合与计时不调用宿主, 无须无障碍授权. 选择器与前台组件等待需要配套宿主的 Flow 查询接口, Node 的 accessibility 能力, 或 Bun 默认关闭的 accessibility.control 授权, 以及调用应用内已绑定的 Android 无障碍服务. 打包应用使用自己的服务与包身份; 在 Android 设置中授权后才能执行界面查询.</p>
 <p>Flow 立即返回可被 await/Promise.resolve 接纳的对象. 回调在导入它的 JavaScript 线程执行, 支持异步回调; 纯本地链不创建宿主线程; 原生工具在宿主工作线程执行, workers 记录待定原生操作数. 每个 Worker 有独立的 defaults, pending 和 cancelAll. 主线程停止执行或 Worker 退出时, 所属计时器和未完成查询随运行时结束.</p>
-<p>本批覆盖 52 个已注册根方法名称, Flow 构造器, 核心链, 高级工具和四种事件等待. within/scope, Rhino 同步 sync/await, 全局 <code>$flow</code>/waitAsync 注入与 Java UiObject 原型仍不在 portable 契约内. 使用 JavaScript 的 <code>await value</code> 或 <code>value.toPromise()</code> 读取结果. 本节限制优先于 <a href="flow.html">Rhino Flow</a> 页面中的线程, 选择器和动作说明.</p>
+<p>本批覆盖 52 个已注册根方法名称, Flow 构造器, 核心链, 高级工具和四种事件等待. Rhino 同步 sync/await, 全局 <code>$flow</code>/waitAsync 注入与 Java UiObject 原型仍不在 portable 契约内. 使用 JavaScript 的 <code>await value</code> 或 <code>value.toPromise()</code> 读取结果. 本节限制优先于 <a href="flow.html">Rhino Flow</a> 页面中的线程, 选择器和动作说明.</p>
 <h3>根方法与 Flow 对象<span><a class="mark" href="#runtimeapis_flow_1" id="runtimeapis_flow_1">#</a></span></h3>
 <table>
 <thead>
@@ -3866,7 +3872,7 @@ console.log(node.text, node.bounds);
 </tr>
 </tbody>
 </table>
-<p>不同字段之间为 AND. 正则可用字符串, RegExp 或 <code>{ pattern, flags }</code>, flags 仅接受 i/m/s, 使用 Android 正则语义. 核心 wait 不支持选择器数组, Java UiSelector, resultType/root/compass 或未知字段; 错误字段和非法正则会拒绝, 不会退化为无条件查找.</p>
+<p>不同字段之间为 AND. 正则可用字符串, RegExp 或 <code>{ pattern, flags }</code>, flags 仅接受 i/m/s, 使用 Android 正则语义. 核心 wait 不支持选择器数组, Java UiSelector 或未知字段; root/compass/resultType 的范围与投影规则见下文; 错误字段和非法正则会拒绝, 不会退化为无条件查找.</p>
 <p>选择器返回 JSON 快照: text, desc, id, className, bounds, clickable, enabled, visibleToUser, scrollable, checked, selected, packageName. 这不是可调用 click 的 UiObject; 查询结束就释放临时 Android 节点. 后续查询返回新的快照. 新版快照与动作重定位见下文高级工具.</p>
 <p>等待选项 timeout 默认 10000 ms, interval 默认 200 ms, times 默认 Infinity. timeout 为 Infinity 表示不限等待期限, 0 表示只尝试一次; 异步探测仍可被取消, 且受该等待和后续链的期限约束. times 必须为正整数或 Infinity. stableFor 默认 100 ms, 表示连续稳定时长. compare 可为 fingerprint (结构化快照), bounds, content 或异步比较函数. snapshot 可提供每次采样的无环数据投影, 与 compare 互斥, 用来检测原地修改的对象. missing 默认为 reset; fail 在已经出现的目标再次缺失时以 INVALID_TARGET 拒绝.</p>
 <p>recoverService 默认 false. 服务未绑定时以 A11Y_UNAVAILABLE 拒绝, 不把服务中断当作目标消失. 设为 true 时在原期限内静默重试, 不打开设置, 不自动授予权限. Node 能力缺失和 Bun NOT_GRANTED 仍直接拒绝. defaults 接受 timeout/interval/stableFor/recoverService/trace/strictActions/humanize, 整体校验成功后才修改, 后建步骤读取新值. trace 输出步骤开始/结束和耗时.</p>
@@ -4067,11 +4073,129 @@ await flow.wait({ text: &#39;确认&#39; }).click();
 console.log((await event).packageName);
 </code></pre>
 <h3>工具授权与清理<span><a class="mark" href="#runtimeapis_40" id="runtimeapis_40">#</a></span></h3>
-<p>Node 的原生工具入口需要 accessibility. 边界点击, 智能点击的默认手势后备, 或 method:&#39;gesture&#39; 滚动额外需要 accessibility.gesture, 并在任何动作之前检查. <code>gestureFallback:false</code> 可只使用节点/祖先动作. launchAndWait 需要 app.query/app.launch; backToApp 需要 app.query. copy/cut/paste 和对应 performAction 需要 clipboard. 事件等待需要 events, Toast/notification 另外需要 events.toast/events.notification. back/home/recents 之外的全局链动作需要 keys.</p>
+<p>Node 的原生工具入口需要 accessibility. 边界点击, 智能点击的默认手势后备, 或 method:&#39;gesture&#39; 滚动额外需要 accessibility.gesture, 并在任何动作之前检查. <code>gestureFallback:false</code> 可只使用节点/祖先动作. launchAndWait 需要 app.query/app.launch; backToApp 需要 app.query. copy/cut/paste 和对应 performAction 需要 clipboard. 事件等待需要 events, Toast/notification 另外需要 events.toast/events.notification. press/swipe/gesture/gestures 需要 accessibility.gesture; back/home/recents 之外的其余全局链动作需要 keys.</p>
 <p>Bun 工具与事件等待使用独立且默认关闭的 flow.control. 宿主仍按操作检查 accessibility.control, accessibility.gesture, app.control, clipboard.control, events.observe, events.toast, events.notification 等既有授权. flow.control 本身不授予这些能力. 打包应用须在项目配置中声明所需能力, 并启用自己的 Android 无障碍服务; 授权不继承宿主或其他安装包.</p>
 <p>Bun 的界面事件长轮询为控制与回调调用保留执行机会, 总并发调用上限仍为 4. flow.control 的短轮询不计入 Bun 普通桥每次执行 1024 次累计调用预算; 仍保留请求/结果大小, 并发和单次期限限制. 旧的 accessibility.control 选择器轮询继续消耗普通预算. 工具结果使用 UTF-8 分片传递, 函数参数和回调答复仍受单次请求大小限制. 每个 facade 最多同时有 64 个原生操作, 宿主执行实例最多 128 个原生工具线程; 每个客户端排队结果限制为 64 MiB, 单个操作最多保留 100000 个私有节点. 此项未改变 Bun 原生载荷或 Android/ABI 兼容矩阵.</p>
 <p>workers 现在表示当前 facade 尚未结算的原生工具/事件操作数, 纯本地链不增加它. cancelAll 取消当前待定 Flow 并向宿主传播取消. <code>await flow.dispose()</code> 取消待定工作, 关闭本 facade 的宿主客户端; 此后该 facade 的原生工具调用会拒绝. Node 主线程, 每个 Worker 与 Bun 各自拥有客户端; 延迟返回的创建结果也会在运行结束后关闭. Android 已经接受的点击/输入/启动无法通过取消撤销.</p>
-<p>within/scope, Rhino 同步终结方法 sync/await, 全局 <code>$flow</code> 注入, 任意 Java UiObject 方法, press/swipe/gesture/gestures 的 Flow 链重载仍不在此契约内. 上述 52 个根方法名称覆盖不代表这些差异已经消失.</p>
+<p>Rhino 同步终结方法 sync/await, 全局 <code>$flow</code> 注入与任意 Java UiObject 方法仍不在此契约内. 下列 within/scope 和手势是 Flow 实例方法, 不增加已注册根方法名称的数量. 52 个根方法名称覆盖不代表完整 Rhino 对象与调度器等价.</p>
+<h3>within 与 scope<span><a class="mark" href="#runtimeapis_within_scope" id="runtimeapis_within_scope">#</a></span></h3>
+<p>Node.js Runtime 1.30.0 与 Bun Runtime 0.19.0 增加 Flow 实例的范围设置, 需要配套宿主. <code>flow.of().within(...)</code> 和 <code>flow.of().scope(...)</code> 用于从空值开始; 根模块不额外导出 within/scope.</p>
+<h4>within(cond, options?, onOk?, onError?)<span><a class="mark" href="#runtimeapis_within_cond_options_onok_onerror" id="runtimeapis_within_cond_options_onok_onerror">#</a></span></h4>
+<p>也接受 <code>within(cond, timeout?, interval?, onOk?, onError?)</code>. 等待行为与 wait 相同, 成功结果必须是 NodeSnapshot, 否则拒绝 INVALID_TARGET. 找到的节点成为本分支后续等待和工具查找的 root, 同时作为本步骤的结果. 成功回调可以改变结果值, 查找根节点仍保留.</p>
+<h4>scope(options)<span><a class="mark" href="#runtimeapis_scope_options" id="runtimeapis_scope_options">#</a></span></h4>
+<p>options 接受 root, compass, resultType. 返回新 Flow, 透传当前值. 非 null 字段覆盖继承值; null/undefined 保留原设置, 不表示恢复全屏. 需要全屏查找时另起一条根链. 选项在创建步骤时复制, 分支之间互不覆盖. 作用域在父步骤结算后继承, sleep/map/then/retry 等链式步骤继续保留它.</p>
+<ul>
+<li>root: 从匹配宿主得到的 NodeSnapshot. 每次查询重新定位并验证, 不跨调用保存 Android 节点. 窗口变化, 陈旧或有歧义的根快照拒绝 INVALID_TARGET, 不回退到全屏.</li>
+<li>compass: 复用宿主罗盘语法, 支持 p/c/s/k 导航与 <code>%</code>. 先在 root 内搜索, 再从匹配节点执行罗盘. 罗盘可以导航到 root 外的祖先或兄弟, 因此 scope 是查找范围, 不是访问隔离机制.</li>
+<li>resultType: 下表的结果形式. 返回普通 JavaScript 数据, 不返回 Java UiObject/UiSelector/UiObjectCollection.</li>
+</ul>
+<p>单次 wait/稳定性等待/等待点击组合的同名选项优先, 不改变后续作用域. whenPresent 和 repeatUntil 的选择器条件也应用作用域. 函数与 Promise 条件按其返回值判断, 不自动套用 root/compass/resultType. 直接作为条件的节点快照会重新定位; 它不应用选择器投影. 高级工具继承 root, 其自身 root 选项优先; compass/resultType 只用于选择器等待, collectList 保留自己的 resultType.</p>
+<table>
+<thead>
+<tr>
+<th>resultType</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td># / w / widget</td>
+<td>单个 NodeSnapshot</td>
+</tr>
+<tr>
+<td>[] / ws / widgets, {} / wc / collection / list, #[] / ## 等宿主别名</td>
+<td>NodeSnapshot 数组; [&quot;#&quot;] 或空数组也选择此形式</td>
+</tr>
+<tr>
+<td>$ / txt / content</td>
+<td>首个节点的 content 字符串</td>
+</tr>
+<tr>
+<td>contents / $$ / $[] 等别名, [&quot;$&quot;]</td>
+<td>content 字符串数组</td>
+</tr>
+<tr>
+<td>. / pt / point</td>
+<td>{ <span class="type">x, y</span> } 中心坐标</td>
+</tr>
+<tr>
+<td>points / pts / .. / .[] 等别名, [&quot;.&quot;]</td>
+<td>中心坐标数组</td>
+</tr>
+<tr>
+<td>? / exists</td>
+<td>找到时为 true, 没找到时继续等待</td>
+</tr>
+<tr>
+<td>@ / selector / sel</td>
+<td>原选择器描述符, 不接受有效导航罗盘</td>
+</tr>
+<tr>
+<td>text/desc/id/className/packageName/bounds/depth/indexInParent 及声明列出的节点状态字段</td>
+<td>对应快照属性</td>
+</tr>
+<tr>
+<td>width/height/centerX/centerY/left/top/right/bottom/childCount</td>
+<td>数值属性</td>
+</tr>
+<tr>
+<td>[&quot;child&quot;, index], [&quot;parent&quot;], [&quot;compass&quot;, expression]</td>
+<td>导航后的节点快照</td>
+</tr>
+<tr>
+<td>[&quot;text&quot;] 等单元素属性数组</td>
+<td>对应属性, 不是属性数组</td>
+</tr>
+</tbody>
+</table>
+<p>空字符串, false, null 和空集合不满足选择器等待; 数值 0 满足. 这与函数条件允许空字符串/空数组的规则不同. 空 resultType 字符串产生空结果. 只支持声明列出的只读数据与导航投影, 不开放任意 Java 方法调用或带副作用的投影. 节点数组可继续执行节点动作, 对每个节点执行; strictActions=false 时任一失败返回 false, 成功返回刷新后的节点数组.</p>
+<pre><code class="lang-js">&quot;nodejs&quot;;
+let flow = require(&#39;flow&#39;);
+let dialog = flow.of().within({ desc: &#39;dialog&#39; });
+await dialog.wait({ text: &#39;确定&#39; }).click();
+let title = await dialog.scope({ resultType: &#39;text&#39; }).wait({ id: &#39;example:id/title&#39; });
+console.log(title.toUpperCase());
+</code></pre>
+<p>TypeScript 使用 <code>Flow&lt;T, S&gt;</code> 分别保留当前值与作用域的默认选择器结果类型. 字面量 resultType 会推断字符串, 坐标或节点数组, 单次覆盖不会改变后续 S.</p>
+<h3>Flow 手势重载<span><a class="mark" href="#runtimeapis_flow_2" id="runtimeapis_flow_2">#</a></span></h3>
+<p>press/swipe/gesture/gestures 都是 Flow 实例方法, 成功后透传进入该步骤的原值, 支持最后的 onOk/onError 回调, strictActions 和 humanize.delay. 它们需要 Node 的 accessibility/accessibility.gesture 或 Bun 的 flow.control/accessibility.control/accessibility.gesture. humanize.offset 不改写显式给出的手势路径.</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>接受的调用形式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>press</td>
+<td>press([x,y], duration?), press(x,y,duration?), press(duration,[x,y])</td>
+</tr>
+<tr>
+<td>swipe</td>
+<td>swipe(x1,y1,x2,y2,duration), swipe(pointA,pointB,duration), swipe([pointA,pointB],duration), swipe([x1,y1,x2,y2],duration), 以及后三种形式的 duration 前置版本</td>
+</tr>
+<tr>
+<td>gesture</td>
+<td>gesture(duration,pointA,...points), gesture(duration,[pointA,...points]), gesture(duration,[x1,y1,x2,y2,...])</td>
+</tr>
+<tr>
+<td>gestures</td>
+<td>gestures(strokeA,...strokes), stroke 为 [duration,pointA,...points] 或 [start,duration,pointA,...points]</td>
+</tr>
+</tbody>
+</table>
+<p>point 为 [x,y], 单位是调用应用屏幕的实际像素; 不隐式继承 Rhino screenMetrics. 时长与 start 为毫秒, 省略的 press 时长使用 Android tap timeout. 坐标必须是有限 32 位数值, 小数向零取整; 时长向零取整后须大于 0, start 须非负. Android 检查路径, 笔画数和总时长, 并按系统规则派发; 同时开始或时间重叠的 strokes 可形成多指手势.</p>
+<p>手势在宿主线程等待完成, JS 线程可继续运行. 整体受 Flow 操作预算, 链 timeout 和取消约束; 系统返回失败时, strictActions=true 拒绝 ACTION_FAILED, false 时仍透传原输入. 取消未开始的步骤阻止派发; 已交给 Android 的手势不能通过取消撤销. 手势取消不自动回滚已经产生的界面变化.</p>
+<pre><code class="lang-js">&quot;nodejs&quot;;
+let flow = require(&#39;flow&#39;);
+let result = await flow.of(&#39;完成&#39;)
+    .press([200, 300], 150)
+    .swipe(300, [200, 500], [200, 200])
+    .gesture(400, [[200, 500], [250, 350], [200, 200]])
+    .gestures([300, [100, 500], [100, 200]], [40, 300, [300, 500], [300, 200]]);
+console.log(result); // 完成.
+</code></pre>
 
         </div>
     </div>

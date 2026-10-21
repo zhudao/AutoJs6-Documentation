@@ -2280,7 +2280,7 @@ Bun 的 mail.control 分片和监听调用不计入普通能力的单次执行 1
 
 ## Flow 异步链与等待核心
 
-Node.js 1.29.0 与 Bun Runtime 0.18.0 提供显式的 flow 模块. Node 主线程与 CJS/ESM/嵌套 Worker 使用 `require('flow')`, `require('autojs6:flow')` 或对应 ESM 导入; `$autojs.flow` 也指向当前线程的 facade. Bun 使用 `host.flow`.
+Node.js 1.30.0 与 Bun Runtime 0.19.0 提供显式的 flow 模块. Node 主线程与 CJS/ESM/嵌套 Worker 使用 `require('flow')`, `require('autojs6:flow')` 或对应 ESM 导入; `$autojs.flow` 也指向当前线程的 facade. Bun 使用 `host.flow`.
 
 ```js
 "nodejs";
@@ -2305,7 +2305,7 @@ console.log(node.text, node.bounds);
 
 Flow 立即返回可被 await/Promise.resolve 接纳的对象. 回调在导入它的 JavaScript 线程执行, 支持异步回调; 纯本地链不创建宿主线程; 原生工具在宿主工作线程执行, workers 记录待定原生操作数. 每个 Worker 有独立的 defaults, pending 和 cancelAll. 主线程停止执行或 Worker 退出时, 所属计时器和未完成查询随运行时结束.
 
-本批覆盖 52 个已注册根方法名称, Flow 构造器, 核心链, 高级工具和四种事件等待. within/scope, Rhino 同步 sync/await, 全局 `$flow`/waitAsync 注入与 Java UiObject 原型仍不在 portable 契约内. 使用 JavaScript 的 `await value` 或 `value.toPromise()` 读取结果. 本节限制优先于 [Rhino Flow](flow) 页面中的线程, 选择器和动作说明.
+本批覆盖 52 个已注册根方法名称, Flow 构造器, 核心链, 高级工具和四种事件等待. Rhino 同步 sync/await, 全局 `$flow`/waitAsync 注入与 Java UiObject 原型仍不在 portable 契约内. 使用 JavaScript 的 `await value` 或 `value.toPromise()` 读取结果. 本节限制优先于 [Rhino Flow](flow) 页面中的线程, 选择器和动作说明.
 
 ### 根方法与 Flow 对象
 
@@ -2343,7 +2343,7 @@ wait 系列接受 `(cond, timeout?, interval?)` 或 `(cond, options, onOk?, onEr
 | depth | 距当前窗口根节点的非负整数深度 |
 | boundsInside, boundsContains | 含 left/top/right/bottom 的屏幕像素矩形 |
 
-不同字段之间为 AND. 正则可用字符串, RegExp 或 `{ pattern, flags }`, flags 仅接受 i/m/s, 使用 Android 正则语义. 核心 wait 不支持选择器数组, Java UiSelector, resultType/root/compass 或未知字段; 错误字段和非法正则会拒绝, 不会退化为无条件查找.
+不同字段之间为 AND. 正则可用字符串, RegExp 或 `{ pattern, flags }`, flags 仅接受 i/m/s, 使用 Android 正则语义. 核心 wait 不支持选择器数组, Java UiSelector 或未知字段; root/compass/resultType 的范围与投影规则见下文; 错误字段和非法正则会拒绝, 不会退化为无条件查找.
 
 选择器返回 JSON 快照: text, desc, id, className, bounds, clickable, enabled, visibleToUser, scrollable, checked, selected, packageName. 这不是可调用 click 的 UiObject; 查询结束就释放临时 Android 节点. 后续查询返回新的快照. 新版快照与动作重定位见下文高级工具.
 
@@ -2448,7 +2448,7 @@ console.log((await event).packageName);
 
 ### 工具授权与清理
 
-Node 的原生工具入口需要 accessibility. 边界点击, 智能点击的默认手势后备, 或 method:'gesture' 滚动额外需要 accessibility.gesture, 并在任何动作之前检查. `gestureFallback:false` 可只使用节点/祖先动作. launchAndWait 需要 app.query/app.launch; backToApp 需要 app.query. copy/cut/paste 和对应 performAction 需要 clipboard. 事件等待需要 events, Toast/notification 另外需要 events.toast/events.notification. back/home/recents 之外的全局链动作需要 keys.
+Node 的原生工具入口需要 accessibility. 边界点击, 智能点击的默认手势后备, 或 method:'gesture' 滚动额外需要 accessibility.gesture, 并在任何动作之前检查. `gestureFallback:false` 可只使用节点/祖先动作. launchAndWait 需要 app.query/app.launch; backToApp 需要 app.query. copy/cut/paste 和对应 performAction 需要 clipboard. 事件等待需要 events, Toast/notification 另外需要 events.toast/events.notification. press/swipe/gesture/gestures 需要 accessibility.gesture; back/home/recents 之外的其余全局链动作需要 keys.
 
 Bun 工具与事件等待使用独立且默认关闭的 flow.control. 宿主仍按操作检查 accessibility.control, accessibility.gesture, app.control, clipboard.control, events.observe, events.toast, events.notification 等既有授权. flow.control 本身不授予这些能力. 打包应用须在项目配置中声明所需能力, 并启用自己的 Android 无障碍服务; 授权不继承宿主或其他安装包.
 
@@ -2456,4 +2456,77 @@ Bun 的界面事件长轮询为控制与回调调用保留执行机会, 总并�
 
 workers 现在表示当前 facade 尚未结算的原生工具/事件操作数, 纯本地链不增加它. cancelAll 取消当前待定 Flow 并向宿主传播取消. `await flow.dispose()` 取消待定工作, 关闭本 facade 的宿主客户端; 此后该 facade 的原生工具调用会拒绝. Node 主线程, 每个 Worker 与 Bun 各自拥有客户端; 延迟返回的创建结果也会在运行结束后关闭. Android 已经接受的点击/输入/启动无法通过取消撤销.
 
-within/scope, Rhino 同步终结方法 sync/await, 全局 `$flow` 注入, 任意 Java UiObject 方法, press/swipe/gesture/gestures 的 Flow 链重载仍不在此契约内. 上述 52 个根方法名称覆盖不代表这些差异已经消失.
+Rhino 同步终结方法 sync/await, 全局 `$flow` 注入与任意 Java UiObject 方法仍不在此契约内. 下列 within/scope 和手势是 Flow 实例方法, 不增加已注册根方法名称的数量. 52 个根方法名称覆盖不代表完整 Rhino 对象与调度器等价.
+
+
+### within 与 scope
+
+Node.js Runtime 1.30.0 与 Bun Runtime 0.19.0 增加 Flow 实例的范围设置, 需要配套宿主. `flow.of().within(...)` 和 `flow.of().scope(...)` 用于从空值开始; 根模块不额外导出 within/scope.
+
+#### within(cond, options?, onOk?, onError?)
+
+也接受 `within(cond, timeout?, interval?, onOk?, onError?)`. 等待行为与 wait 相同, 成功结果必须是 NodeSnapshot, 否则拒绝 INVALID_TARGET. 找到的节点成为本分支后续等待和工具查找的 root, 同时作为本步骤的结果. 成功回调可以改变结果值, 查找根节点仍保留.
+
+#### scope(options)
+
+options 接受 root, compass, resultType. 返回新 Flow, 透传当前值. 非 null 字段覆盖继承值; null/undefined 保留原设置, 不表示恢复全屏. 需要全屏查找时另起一条根链. 选项在创建步骤时复制, 分支之间互不覆盖. 作用域在父步骤结算后继承, sleep/map/then/retry 等链式步骤继续保留它.
+
+- root: 从匹配宿主得到的 NodeSnapshot. 每次查询重新定位并验证, 不跨调用保存 Android 节点. 窗口变化, 陈旧或有歧义的根快照拒绝 INVALID_TARGET, 不回退到全屏.
+- compass: 复用宿主罗盘语法, 支持 p/c/s/k 导航与 `%`. 先在 root 内搜索, 再从匹配节点执行罗盘. 罗盘可以导航到 root 外的祖先或兄弟, 因此 scope 是查找范围, 不是访问隔离机制.
+- resultType: 下表的结果形式. 返回普通 JavaScript 数据, 不返回 Java UiObject/UiSelector/UiObjectCollection.
+
+单次 wait/稳定性等待/等待点击组合的同名选项优先, 不改变后续作用域. whenPresent 和 repeatUntil 的选择器条件也应用作用域. 函数与 Promise 条件按其返回值判断, 不自动套用 root/compass/resultType. 直接作为条件的节点快照会重新定位; 它不应用选择器投影. 高级工具继承 root, 其自身 root 选项优先; compass/resultType 只用于选择器等待, collectList 保留自己的 resultType.
+
+| resultType | 结果 |
+| --- | --- |
+| # / w / widget | 单个 NodeSnapshot |
+| [] / ws / widgets, {} / wc / collection / list, #[] / ## 等宿主别名 | NodeSnapshot 数组; ["#"] 或空数组也选择此形式 |
+| $ / txt / content | 首个节点的 content 字符串 |
+| contents / $$ / $[] 等别名, ["$"] | content 字符串数组 |
+| . / pt / point | { x, y } 中心坐标 |
+| points / pts / .. / .[] 等别名, ["."] | 中心坐标数组 |
+| ? / exists | 找到时为 true, 没找到时继续等待 |
+| @ / selector / sel | 原选择器描述符, 不接受有效导航罗盘 |
+| text/desc/id/className/packageName/bounds/depth/indexInParent 及声明列出的节点状态字段 | 对应快照属性 |
+| width/height/centerX/centerY/left/top/right/bottom/childCount | 数值属性 |
+| ["child", index], ["parent"], ["compass", expression] | 导航后的节点快照 |
+| ["text"] 等单元素属性数组 | 对应属性, 不是属性数组 |
+
+空字符串, false, null 和空集合不满足选择器等待; 数值 0 满足. 这与函数条件允许空字符串/空数组的规则不同. 空 resultType 字符串产生空结果. 只支持声明列出的只读数据与导航投影, 不开放任意 Java 方法调用或带副作用的投影. 节点数组可继续执行节点动作, 对每个节点执行; strictActions=false 时任一失败返回 false, 成功返回刷新后的节点数组.
+
+```js
+"nodejs";
+let flow = require('flow');
+let dialog = flow.of().within({ desc: 'dialog' });
+await dialog.wait({ text: '确定' }).click();
+let title = await dialog.scope({ resultType: 'text' }).wait({ id: 'example:id/title' });
+console.log(title.toUpperCase());
+```
+
+TypeScript 使用 `Flow<T, S>` 分别保留当前值与作用域的默认选择器结果类型. 字面量 resultType 会推断字符串, 坐标或节点数组, 单次覆盖不会改变后续 S.
+
+### Flow 手势重载
+
+press/swipe/gesture/gestures 都是 Flow 实例方法, 成功后透传进入该步骤的原值, 支持最后的 onOk/onError 回调, strictActions 和 humanize.delay. 它们需要 Node 的 accessibility/accessibility.gesture 或 Bun 的 flow.control/accessibility.control/accessibility.gesture. humanize.offset 不改写显式给出的手势路径.
+
+| 方法 | 接受的调用形式 |
+| --- | --- |
+| press | press([x,y], duration?), press(x,y,duration?), press(duration,[x,y]) |
+| swipe | swipe(x1,y1,x2,y2,duration), swipe(pointA,pointB,duration), swipe([pointA,pointB],duration), swipe([x1,y1,x2,y2],duration), 以及后三种形式的 duration 前置版本 |
+| gesture | gesture(duration,pointA,...points), gesture(duration,[pointA,...points]), gesture(duration,[x1,y1,x2,y2,...]) |
+| gestures | gestures(strokeA,...strokes), stroke 为 [duration,pointA,...points] 或 [start,duration,pointA,...points] |
+
+point 为 [x,y], 单位是调用应用屏幕的实际像素; 不隐式继承 Rhino screenMetrics. 时长与 start 为毫秒, 省略的 press 时长使用 Android tap timeout. 坐标必须是有限 32 位数值, 小数向零取整; 时长向零取整后须大于 0, start 须非负. Android 检查路径, 笔画数和总时长, 并按系统规则派发; 同时开始或时间重叠的 strokes 可形成多指手势.
+
+手势在宿主线程等待完成, JS 线程可继续运行. 整体受 Flow 操作预算, 链 timeout 和取消约束; 系统返回失败时, strictActions=true 拒绝 ACTION_FAILED, false 时仍透传原输入. 取消未开始的步骤阻止派发; 已交给 Android 的手势不能通过取消撤销. 手势取消不自动回滚已经产生的界面变化.
+
+```js
+"nodejs";
+let flow = require('flow');
+let result = await flow.of('完成')
+    .press([200, 300], 150)
+    .swipe(300, [200, 500], [200, 200])
+    .gesture(400, [[200, 500], [250, 350], [200, 200]])
+    .gestures([300, [100, 500], [100, 200]], [40, 300, [300, 500], [300, 200]]);
+console.log(result); // 完成.
+```

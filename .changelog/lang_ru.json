@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Flow within/scope для Node.js, Bun и Worker: наследование корня поиска, навигация по компасу, типизированные проекции и перегрузки press/swipe/gesture/gestures"
+        },
+        {
+          "category": "feature",
           "text": "[Memory](https://docs.autojs6.com/#/memory) описывает модуль memory для чтения в скриптах диагностики памяти процесса AutoJs6: снимки памяти, принудительная сборка мусора, завершенные, но не освобожденные среды выполнения скриптов, дампы кучи hprof (в release-сборках требуется \"Разрешить скриптам экспорт hprof\") и наблюдение LeakCanary"
         },
         {

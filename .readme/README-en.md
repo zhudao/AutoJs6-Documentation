@@ -71,6 +71,7 @@ Documentation may change at any time, and some descriptions may differ from actu
 
 ### v6.8.0
 
+- `Feature` Flow within/scope with inherited search roots, compass navigation and typed result projections, plus press/swipe/gesture/gestures overloads for Node.js, Bun and Workers
 - `Feature` [Memory](https://docs.autojs6.com/#/memory) describes the memory module for reading the memory diagnostics of the AutoJs6 process in scripts: memory snapshots, forced garbage collection, finished but unreclaimed script runtimes, hprof heap dumps (release builds need "Allow scripts to export hprof") and LeakCanary watching
 - `Update` [WebSocket](https://docs.autojs6.com/#/webSocketType) completes exitOnClose: when a script ends only its own connections are handled, those marked with exitOnClose close gracefully and the others are cut off at once
 - `Feature` Flow asynchronous chains and condition/stability waits for Node.js, Bun and Workers, with branch cancellation, step retries and host UI snapshots; Flow advanced clicks, scrolling, text entry, list collection and real event waits for Node.js, Bun and Workers, with subscription readiness, snapshot validation and cancellation

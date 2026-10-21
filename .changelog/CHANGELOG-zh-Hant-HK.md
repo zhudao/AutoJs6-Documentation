@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `新增` Node.js, Bun 與 Worker 的 Flow within/scope 範圍繼承, 羅盤導航和結果投影, 以及 press/swipe/gesture/gestures 手勢重載
 - `新增` [記憶體 (Memory)](https://docs.autojs6.com/#/memory), 説明腳本讀取 AutoJs6 進程記憶體診斷數據的 memory 模組: 記憶體快照, 強制回收, 已結束未回收的腳本運行時, hprof 堆轉儲 (正式版本需開啟 "允許腳本匯出 hprof") 與 LeakCanary 監視
 - `更新` [WebSocket](https://docs.autojs6.com/#/webSocketType) 補全 exitOnClose 的説明: 腳本結束時只處理該腳本自己的連接, 調用過 exitOnClose 的連接優雅關閉, 其餘連接立即斷開
 - `新增` Node.js, Bun 及 Worker 的 flow 非同步鏈與條件/穩定性等待, 支援分支取消, 單步驟重試及宿主介面快照; Node.js, Bun 及 Worker 的 Flow 進階點擊, 捲動, 輸入, 清單擷取與真實事件等待, 支援監聽就緒, 快照驗證和取消

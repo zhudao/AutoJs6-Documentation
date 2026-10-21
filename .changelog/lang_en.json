@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Flow within/scope with inherited search roots, compass navigation and typed result projections, plus press/swipe/gesture/gestures overloads for Node.js, Bun and Workers"
+        },
+        {
+          "category": "feature",
           "text": "[Memory](https://docs.autojs6.com/#/memory) describes the memory module for reading the memory diagnostics of the AutoJs6 process in scripts: memory snapshots, forced garbage collection, finished but unreclaimed script runtimes, hprof heap dumps (release builds need \"Allow scripts to export hprof\") and LeakCanary watching"
         },
         {

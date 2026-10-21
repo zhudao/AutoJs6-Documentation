@@ -488,7 +488,7 @@ console.log(f.state); /* fulfilled */
 </ul>
 <p>与 <a href="#flowtype_m_wait">wait</a> 相同, 但找到的节点同时成为之后所有等待的查找根节点 (相当于随后调用 <a href="#flowtype_m_scope">scope({ <span class="type">root</span> })</a>).</p>
 <pre><code class="lang-js">/* 在设置页的列表容器内查找 &quot;关于手机&quot;. */
-flow.within(className(&#39;RecyclerView&#39;), 5e3)
+flow.of().within(className(&#39;RecyclerView&#39;), 5e3)
     .wait(&#39;关于手机&#39;)
     .click();
 </code></pre>
@@ -858,7 +858,7 @@ flow.wait(&#39;结果&#39;, 5e3).retry(1).then(w =&gt; console.log(w.text()));
     .then(dialog =&gt; flow.of(dialog).scope({ root: dialog }).wait(&#39;确定&#39;).click());
 
 /* 更简洁的写法. */
-flow.within(id(&#39;dialog&#39;), 5e3).wait(&#39;确定&#39;).click();
+flow.of().within(id(&#39;dialog&#39;), 5e3).wait(&#39;确定&#39;).click();
 </code></pre>
 <h2>[m#] then<span><a class="mark" href="#flowtype_m_then" id="flowtype_m_then">#</a></span></h2>
 <h3>then(onOk?, onErr?)<span><a class="mark" href="#flowtype_then_onok_onerr" id="flowtype_then_onok_onerr">#</a></span></h3>

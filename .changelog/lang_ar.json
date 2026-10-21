@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Flow within/scope في Node.js وBun وWorker مع وراثة جذور البحث والتنقل بالبوصلة وإسقاط النتائج ودعم صيغ press/swipe/gesture/gestures"
+        },
+        {
+          "category": "feature",
           "text": "[Memory](https://docs.autojs6.com/#/memory) يشرح وحدة memory لقراءة تشخيص ذاكرة عملية AutoJs6 من البرامج النصية: لقطات الذاكرة, وجمع البيانات المهملة القسري, وبيئات تشغيل البرامج النصية المنتهية غير المحررة, وتفريغات الكومة hprof (تتطلب إصدارات release تفعيل \"السماح للبرامج النصية بتصدير hprof\") ومراقبة LeakCanary"
         },
         {

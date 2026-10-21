@@ -10,6 +10,10 @@
       "entries": [
         {
           "category": "feature",
+          "text": "Node.js, Bun と Worker の Flow within/scope による検索範囲の継承, コンパス移動と結果の射影, および press/swipe/gesture/gestures のオーバーロード"
+        },
+        {
+          "category": "feature",
           "text": "[Memory](https://docs.autojs6.com/#/memory) に, スクリプトから AutoJs6 プロセスのメモリ診断データを読み取る memory モジュールを追加し, メモリスナップショット, 強制ガベージコレクション, 終了後も回収されていないスクリプトのランタイム, hprof ヒープダンプ (release ビルドでは \"スクリプトによる hprof のエクスポートを許可\" が必要) と LeakCanary による監視を説明"
         },
         {
