@@ -1,6 +1,6 @@
 # 语音 (Speech)
 
-`speech` 模块用于在脚本中使用 3-Macaw Speech 插件的离线语音能力: 麦克风听写, WAV 文件或 PCM 数据识别, 语音活动检测, 唤醒词检测, 神经网络语音合成, 以及插件模型的下载与管理. 全部识别与合成都在设备上完成, 音频不会上传.
+`speech` 模块用于在脚本中使用 3-Macaw Speech 插件的离线语音能力: 麦克风听写, 音频文件或 PCM 数据识别, 语音活动检测, 唤醒词检测, 神经网络语音合成, 以及插件模型的下载与管理. 全部识别与合成都在设备上完成, 音频不会上传.
 
 从 AutoJs6 6.8.0 起, 本模块由外置 3-Macaw Speech 插件 (AutoJs6-Plugin-Three-Macaw-Speech) 1.0.0 及以上版本提供, 宿主不保留任何识别或合成实现. 调用前需在插件中心安装并启用与当前 AutoJs6 兼容的插件. 插件缺失时方法抛出 (或以 Promise 拒绝) `code` 为 `PLUGIN_UNAVAILABLE` 的 [SpeechError](#c-speecherror), 其消息为插件中心的本地化缺插件提示; 插件被禁用或未授权时为 `PLUGIN_DISABLED`; 插件版本或契约不兼容, 或插件未声明所需功能时为 `PLUGIN_INCOMPATIBLE`. [speech.isAvailable](#m-isavailable) 可预先探测.
 
@@ -146,13 +146,14 @@ session.on('end', e => console.log('结束:', e.reason));
 
 **`6.8.0`** **`Non-UI`**
 
-- **source** { [string](dataTypes#string) | [ArrayBuffer](dataTypes#arraybuffer) | [TypedArray](dataTypes#typedarray) | [ByteArray](dataTypes#bytearray) } - WAV 文件路径或 PCM 数据
+- **source** { [string](dataTypes#string) | [ArrayBuffer](dataTypes#arraybuffer) | [TypedArray](dataTypes#typedarray) | [ByteArray](dataTypes#bytearray) } - 音频文件路径或 PCM 数据
 - **[ options ]** { [SpeechRecognizeOptions](#speechrecognizeoptions) } - 识别选项
 - <ins>**returns**</ins> { [SpeechRecognitionResult](speechRecognitionResultType) } - 识别结果
 
 识别一段音频, 阻塞当前脚本线程直至得到结果. 需要插件声明 `asr` 功能.
 
-- 文件路径须指向 WAV 文件: PCM 8 / 16 / 24 / 32 位整数或浮点采样, 任意采样率, 单声道或双声道, 由插件重采样并混为单声道. 文件不超过 200 MiB 且时长不超过 30 分钟. AutoJs6 先检查文件存在, 可读, 大小与 `RIFF` / `WAVE` 文件头; 其他容器 (MP3, AAC, OGG 等) 失败于 `UNSUPPORTED_FORMAT`.
+- 文件路径须指向音频文件. WAV (PCM 8 / 16 / 24 / 32 位整数或浮点采样, 任意采样率与声道数) 由插件直接读取; 插件声明 `audioDecode` 功能时 (3-Macaw Speech 1.2.0 起), 还接受设备系统能解码的其他格式, 如 MP3, AAC (含 M4A), Ogg (Vorbis, Opus), FLAC 与 AMR, 以及视频文件 (MP4, WebM 等) 的第一条音轨. 插件按块解码, 重采样并混为单声道, 不把整段音频读入内存. 文件不超过 200 MiB 且时长不超过 30 分钟.
+- AutoJs6 先检查文件存在, 可读与大小. 文件不以 `RIFF` / `WAVE` 头开始而插件未声明 `audioDecode` 时失败于 `UNSUPPORTED_FORMAT`, 消息提示更新插件; 文件没有音轨, 设备缺少该编码的解码器 (例如多数设备没有 AC-3 解码器) 或文件损坏时, 插件同样以 `UNSUPPORTED_FORMAT` 失败, 消息写明原因. 被截断的文件识别其中完整的部分.
 - PCM 数据为单声道 PCM16 LE, 采样率由 `options.sampleRate` 指定. 可传入 `ArrayBuffer`, `Int16Array` 等类型化数组视图, 或 Java `byte[]` (例如 `files.readBytes` 的结果); 大端字节序的 `Int16Array` 会被转换为小端. 不接受普通 JavaScript 数字数组. AutoJs6 把 PCM 包装为临时 WAV 文件交给插件, 调用结束后删除.
 - 默认使用默认识别模型, 一次调用最多等待 10 分钟.
 
@@ -168,7 +169,7 @@ result.segments.forEach(s => console.log(s.startMillis, s.endMillis, s.text));
 
 **`6.8.0`** **`Async`**
 
-- **source** { [string](dataTypes#string) | [ArrayBuffer](dataTypes#arraybuffer) | [TypedArray](dataTypes#typedarray) | [ByteArray](dataTypes#bytearray) } - WAV 文件路径或 PCM 数据
+- **source** { [string](dataTypes#string) | [ArrayBuffer](dataTypes#arraybuffer) | [TypedArray](dataTypes#typedarray) | [ByteArray](dataTypes#bytearray) } - 音频文件路径或 PCM 数据
 - **[ options ]** { [SpeechRecognizeOptions](#speechrecognizeoptions) } - 识别选项
 - <ins>**returns**</ins> { [Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise) } - 兑现值为 [SpeechRecognitionResult](speechRecognitionResultType)
 
@@ -443,7 +444,7 @@ try {
 - **[ hotwords = `[]` ]** { [string](dataTypes#string)[[]](dataTypes#array) } - 热词, 最多 200 个
 - **[ punctuation = `true` ]** { [boolean](dataTypes#boolean) } - 是否保留模型输出的标点
 - **[ vad = `true` ]** { [boolean](dataTypes#boolean) } - 是否先按语音活动检测切段
-- **[ sampleRate = `16000` ]** { [number](dataTypes#number) } - PCM 数据的采样率, 范围 `8000..192000`; 文件识别读取 WAV 文件头, 忽略此项
+- **[ sampleRate = `16000` ]** { [number](dataTypes#number) } - PCM 数据的采样率, 范围 `8000..192000`; 文件识别以文件自身的采样率为准, 忽略此项
 
 ### SpeechVadOptions
 
@@ -522,7 +523,7 @@ try {
 [speech.capabilities](#m-capabilities) 的返回值.
 
 - **contractVersion** { [number](dataTypes#number) } - 语音插件契约版本, 当前为 `1`
-- **features** { [string](dataTypes#string)[[]](dataTypes#array) } - 插件实现的功能, 取自 `asr` (文件识别与外部 PCM 会话), `asrStreaming` (麦克风听写与 `thenListen`), `vad` (语音活动检测), `kws` (唤醒词), `tts` (合成到文件), `ttsSystemEngine` (系统 TTS 引擎), `models` (模型管理)
+- **features** { [string](dataTypes#string)[[]](dataTypes#array) } - 插件实现的功能, 取自 `asr` (文件识别与外部 PCM 会话), `asrStreaming` (麦克风听写与 `thenListen`), `vad` (语音活动检测), `kws` (唤醒词), `tts` (合成到文件), `ttsSystemEngine` (系统 TTS 引擎), `models` (模型管理), `audioDecode` (WAV 以外的音频文件, 3-Macaw Speech 1.2.0 起)
 - **catalogVersion** { [number](dataTypes#number) } - 插件当前的模型目录版本
 - **engineName** { [string](dataTypes#string) | [null](dataTypes#null) } - 语音运行时名称, 如 `'sherpa-onnx'`
 - **engineVersion** { [string](dataTypes#string) | [null](dataTypes#null) } - 语音运行时版本
@@ -566,7 +567,7 @@ try {
 | `MODEL_CHECKSUM_MISMATCH` | 下载或导入的文件校验失败, 或目录签名不符 |
 | `MODEL_LICENSE_NOT_ACCEPTED` | 模型须先接受许可 |
 | `INVALID_OPTIONS` | 参数, 选项或模型类别不正确, 或同步形态在 UI 线程调用 |
-| `UNSUPPORTED_FORMAT` | 音频不是 WAV, 或归档格式不受支持 |
+| `UNSUPPORTED_FORMAT` | 音频格式不受支持 (插件只读 WAV, 文件没有音轨, 设备缺少解码器或文件损坏), 或归档格式不受支持 |
 | `LIMIT_EXCEEDED` | 超过契约上限; 也用于脚本未及时消费会话事件 |
 | `SESSION_BUSY` | 麦克风正被另一个会话占用, 外部 PCM 会话已达上限, 或模型正被使用而无法删除 |
 | `SESSION_CLOSED` | 会话已结束, 插件进程退出, 或脚本正在退出 |
