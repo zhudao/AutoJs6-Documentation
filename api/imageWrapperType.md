@@ -174,6 +174,6 @@ let color = images.pixel(images.read("./picture.png").oneShot(), 0, 0);
 
 - <ins>**returns**</ins> { [ImageWrapper](imageWrapperType) } - 独立的新图片
 
-深拷贝当前图片. 新图片具有独立的像素存储和生命周期, 回收任一对象不会回收另一个对象.
+深拷贝当前图片. 新图片具有独立的像素存储和生命周期, 回收任一对象不会回收另一个对象. 新图片不继承原图片的一次性标记 (`setOneShot` / `oneShot`).
 
 也可使用 [`images.copy()`](image#m-images-copy-image).

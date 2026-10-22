@@ -142,7 +142,7 @@
             {
               "textRaw": "[m#] clone()",
               "name": "[m#]_clone()",
-              "desc": "<ul>\n<li><ins><strong>returns</strong></ins> { <a href=\"imageWrapperType\">ImageWrapper</a> } - 独立的新图片</li>\n</ul>\n<p>深拷贝当前图片. 新图片具有独立的像素存储和生命周期, 回收任一对象不会回收另一个对象.</p>\n<p>也可使用 <a href=\"image#m-images-copy-image\"><code>images.copy()</code></a>.</p>\n",
+              "desc": "<ul>\n<li><ins><strong>returns</strong></ins> { <a href=\"imageWrapperType\">ImageWrapper</a> } - 独立的新图片</li>\n</ul>\n<p>深拷贝当前图片. 新图片具有独立的像素存储和生命周期, 回收任一对象不会回收另一个对象. 新图片不继承原图片的一次性标记 (<code>setOneShot</code> / <code>oneShot</code>).</p>\n<p>也可使用 <a href=\"image#m-images-copy-image\"><code>images.copy()</code></a>.</p>\n",
               "type": "module",
               "displayName": "[m#] clone()"
             }

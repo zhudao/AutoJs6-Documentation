@@ -462,7 +462,7 @@ if (image !== null) {
 <div class="signature"><ul>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="imageWrapperType.html">ImageWrapper</a></span> } - 独立的新图片</li>
 </ul>
-</div><p>深拷贝当前图片. 新图片具有独立的像素存储和生命周期, 回收任一对象不会回收另一个对象.</p>
+</div><p>深拷贝当前图片. 新图片具有独立的像素存储和生命周期, 回收任一对象不会回收另一个对象. 新图片不继承原图片的一次性标记 (<code>setOneShot</code> / <code>oneShot</code>).</p>
 <p>也可使用 <a href="image.html#image_m_images_copy_image"><code>images.copy()</code></a>.</p>
 
         </div>

@@ -329,7 +329,7 @@
               "textRaw": "loadDex(...paths)",
               "type": "method",
               "name": "loadDex",
-              "desc": "<p><strong><code>[6.3.2]</code></strong> <strong><code>Overload 1/2</code></strong></p>\n<ul>\n<li><strong>...paths</strong> { <a href=\"documentation#可变参数\">...</a><a href=\"dataTypes#string\">string</a><a href=\"documentation#可变参数\">[]</a> } - DEX 文件或目录路径</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#void\">void</a> }</li>\n</ul>\n<p>加载一个或多个 <code>.dex</code> 文件.</p>\n<p>参数为目录路径时只加载目录直接包含的 <code>.dex</code> 文件. 相对路径按照当前脚本引擎的工作目录解析.</p>\n",
+              "desc": "<p><strong><code>[6.3.2]</code></strong> <strong><code>Overload 1/2</code></strong></p>\n<ul>\n<li><strong>...paths</strong> { <a href=\"documentation#可变参数\">...</a><a href=\"dataTypes#string\">string</a><a href=\"documentation#可变参数\">[]</a> } - DEX 文件或目录路径</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#void\">void</a> }</li>\n</ul>\n<p>加载一个或多个 <code>.dex</code> 文件.</p>\n<p>参数为目录路径时只加载目录直接包含的 <code>.dex</code> 文件. 相对路径按照当前脚本引擎的工作目录解析.</p>\n<p>加载过某个文件的脚本全部结束后, 该文件的类加载器随之释放, 之后启动的脚本需要使用其中的类时应再次加载该文件. 只要仍有加载过该文件的脚本在运行, 其中的类对所有脚本可见.</p>\n",
               "signatures": [
                 {
                   "params": [
@@ -370,7 +370,7 @@
               "textRaw": "loadJar(...paths)",
               "type": "method",
               "name": "loadJar",
-              "desc": "<p><strong><code>[6.3.2]</code></strong> <strong><code>Overload 1/2</code></strong></p>\n<ul>\n<li><strong>...paths</strong> { <a href=\"documentation#可变参数\">...</a><a href=\"dataTypes#string\">string</a><a href=\"documentation#可变参数\">[]</a> } - JAR 文件或目录路径</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#void\">void</a> }</li>\n</ul>\n<p>加载一个或多个 <code>.jar</code> 文件中的 Java 类.</p>\n<p>JAR 中的 JVM 字节码会先转换为 Android 可加载的 DEX 产物, 然后加入当前脚本使用的类加载器. 参数为目录路径时只加载目录直接包含的 <code>.jar</code> 文件. 相对路径按照当前脚本引擎的工作目录解析.</p>\n<pre><code class=\"lang-js\">runtime.loadJar(&quot;./libs/jsoup.jar&quot;);\nimportClass(org.jsoup.Jsoup);\n\nlet document = Jsoup.parse(&quot;&lt;p&gt;AutoJs6&lt;/p&gt;&quot;);\nconsole.log(document.text());\n</code></pre>\n",
+              "desc": "<p><strong><code>[6.3.2]</code></strong> <strong><code>Overload 1/2</code></strong></p>\n<ul>\n<li><strong>...paths</strong> { <a href=\"documentation#可变参数\">...</a><a href=\"dataTypes#string\">string</a><a href=\"documentation#可变参数\">[]</a> } - JAR 文件或目录路径</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#void\">void</a> }</li>\n</ul>\n<p>加载一个或多个 <code>.jar</code> 文件中的 Java 类.</p>\n<p>JAR 中的 JVM 字节码会先转换为 Android 可加载的 DEX 产物, 然后加入当前脚本使用的类加载器. 参数为目录路径时只加载目录直接包含的 <code>.jar</code> 文件. 相对路径按照当前脚本引擎的工作目录解析.</p>\n<p>加载过某个文件的脚本全部结束后, 该文件的类加载器随之释放, 之后启动的脚本需要使用其中的类时应再次加载该文件. 只要仍有加载过该文件的脚本在运行, 其中的类对所有脚本可见.</p>\n<pre><code class=\"lang-js\">runtime.loadJar(&quot;./libs/jsoup.jar&quot;);\nimportClass(org.jsoup.Jsoup);\n\nlet document = Jsoup.parse(&quot;&lt;p&gt;AutoJs6&lt;/p&gt;&quot;);\nconsole.log(document.text());\n</code></pre>\n",
               "signatures": [
                 {
                   "params": [
@@ -589,7 +589,7 @@
               "textRaw": "loadAar(...paths)",
               "type": "method",
               "name": "loadAar",
-              "desc": "<p><strong><code>6.8.0</code></strong> <strong><code>Overload 1/2</code></strong></p>\n<ul>\n<li><strong>...paths</strong> { <a href=\"documentation#可变参数\">...</a><a href=\"dataTypes#string\">string</a><a href=\"documentation#可变参数\">[]</a> } - AAR 文件或目录路径</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#void\">void</a> }</li>\n</ul>\n<p>加载一个或多个 <code>.aar</code> 文件中的 Java 或 Kotlin 类.</p>\n<p>AutoJs6 会合并 AAR 根目录中的 <code>classes.jar</code> 和 <code>libs/*.jar</code> 内可加载的条目, 再按 JAR 加载流程转换并加载. AAR 中的 Android Manifest, <code>res/</code> 资源和原生库不会被安装或注册. 因此此方法适用于不依赖 AAR Android 资源注册过程的类库.</p>\n<p>参数为目录路径时只加载目录直接包含的 <code>.aar</code> 文件. 相对路径按照当前脚本引擎的工作目录解析.</p>\n<pre><code class=\"lang-js\">runtime.loadAar(&quot;./libs/example.aar&quot;);\n</code></pre>\n",
+              "desc": "<p><strong><code>6.8.0</code></strong> <strong><code>Overload 1/2</code></strong></p>\n<ul>\n<li><strong>...paths</strong> { <a href=\"documentation#可变参数\">...</a><a href=\"dataTypes#string\">string</a><a href=\"documentation#可变参数\">[]</a> } - AAR 文件或目录路径</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#void\">void</a> }</li>\n</ul>\n<p>加载一个或多个 <code>.aar</code> 文件中的 Java 或 Kotlin 类.</p>\n<p>AutoJs6 会合并 AAR 根目录中的 <code>classes.jar</code> 和 <code>libs/*.jar</code> 内可加载的条目, 再按 JAR 加载流程转换并加载. AAR 中的 Android Manifest, <code>res/</code> 资源和原生库不会被安装或注册. 因此此方法适用于不依赖 AAR Android 资源注册过程的类库.</p>\n<p>参数为目录路径时只加载目录直接包含的 <code>.aar</code> 文件. 相对路径按照当前脚本引擎的工作目录解析.</p>\n<p>加载过某个文件的脚本全部结束后, 该文件的类加载器随之释放, 之后启动的脚本需要使用其中的类时应再次加载该文件. 只要仍有加载过该文件的脚本在运行, 其中的类对所有脚本可见.</p>\n<pre><code class=\"lang-js\">runtime.loadAar(&quot;./libs/example.aar&quot;);\n</code></pre>\n",
               "signatures": [
                 {
                   "params": [
