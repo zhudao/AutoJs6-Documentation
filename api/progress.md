@@ -1,5 +1,7 @@
 # 文档部署进度 (Progress)
 
+2026-10-22 应用设置 (Settings) 增补: settings.export 与 settings.categories, 脚本可将 AutoJs6 设置导出为与导出向导格式相同的设置归档 (不含凭据), 并列出分类及条目数. 说明默认位置与文件名, 分类选择, skipped 原因及不能在 UI 线程调用的限制.
+
 2026-10-22: Node.js/Bun/Worker ai.agent 提供九个根方法, 异步 AgentRun 控制与事件, 注册脚本上下文和结果回传. Node ai.agent 与 Bun agent.control 使用独立授权; 打包应用通过已安装的 AutoJs6 宿主执行任务, 需明确应用授权且只查询自己的任务. Promise 签名, detached 生命周期与撤销行为见 AI 和 Runtime APIs. 此项为本地开发版本, 不表示公开发布.
 
 2026-10-21 内存 (Memory) 新增: 覆盖 AutoJs6 6.8.0 的 memory 全局对象 (内存路线图 P5), 包括 snapshot 的 13 个读数, collect 的强制回收与超时 (0 到 60000 毫秒), retained 列出的已结束未回收的脚本运行时与结束方式, dumpHeap 的路径解析, 默认文件名与正式版本的 "允许脚本导出 hprof" 开关, 以及 watch 与 LeakCanary 的关系. 依据为 AutoJs6 源码 (宿主提交 715801d0a), JVM 测试 MemoryModuleTest 与 2026-10-21 在 OPD2413 (Android 15) 上的真机核对. 同时补全 WebSocket#exitOnClose 的说明与脚本结束时的连接处理.
