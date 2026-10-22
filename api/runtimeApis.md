@@ -2538,4 +2538,10 @@ Node.js 主线程和 CommonJS/ESM/嵌套 Worker 通过 ai / autojs6:ai 模块调
 
 Node 项目声明 ai 能力. 独立签名应用声明普通入口权限 AI_RUNTIME, 并由用户在 3-Stone AI 确认该应用的访问. 授权绑定应用身份且可在插件设置中撤销, 允许使用已配置的本地模型及在线账户; 在线调用可能消耗付费额度. 原宿主签名入口继续保留, 凭据不会交给脚本. Worker 退出只清理自己的操作与会话.
 
-完整签名和用法见 [AI 的 Node.js, Bun 和 Worker 接口](ai#nodejs-bun-和-worker). ai.agent, Rhino 全局和 Java EventEmitter 原型仍属于其他兼容范围. Bun 的单次 JSON 请求仍受 64 KiB 传输上限约束, AI 轮询不计入普通累计调用额度; 其他大小, 并发和单次期限保持有效.
+完整签名和用法见 [AI 的 Node.js, Bun 和 Worker 接口](ai#nodejs-bun-和-worker). Rhino 全局和 Java EventEmitter 原型仍属于其他兼容范围. Bun 的单次 JSON 请求仍受 64 KiB 传输上限约束, AI 轮询不计入普通累计调用额度; 其他大小, 并发和单次期限保持有效.
+
+## Agent 任务控制
+
+Node.js 主线程及 CommonJS/ESM/嵌套 Worker 使用 ai.agent, Bun 使用 host.ai.agent. 九个根方法 run/create/get/list/catalog/presets/status/result/context 和 AgentRun 的 on/once/off/respond/confirm/cancel/join 均有对应封装. run/get 返回 Promise 句柄; respond/confirm/cancel/join 异步完成, join 超时不取消任务. 事件和 JSON 结果保留类型与 Unicode, 注册脚本的上下文和结果槽可由其 Node Worker 访问. 任务循环和设备执行沿用 3-Stove Agent 与原宿主实现.
+
+Node 的 ai.agent 与 Bun 默认关闭的 agent.control 为独立授权. 生成应用还需在已安装的 AutoJs6 build 5850 或以上明确授权, 通过该宿主使用 Agent 的模型, 登记脚本和设备能力. 应用只能查询或控制自己的委托任务, 授权按安装身份保存并可在插件中心设置撤销. Worker 退出只取消其创建的非 detached 任务, get 的观察句柄不取得取消所有权. 详见 [Agent 任务与注册脚本](ai#agent-任务与注册脚本).

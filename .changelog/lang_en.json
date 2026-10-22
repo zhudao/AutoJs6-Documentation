@@ -10,6 +10,14 @@
       "entries": [
         {
           "category": "feature",
+          "text": "API documentation: ai.agent task controls, events and registered-script context/results for Node.js, Bun and Workers, with explicit authorization for packaged applications"
+        },
+        {
+          "category": "feature",
+          "text": "AI text generation, streaming results, model catalogs and persistent sessions for Node.js, Bun and Workers, with per-application consent and revocation in 3-Stone AI for independently signed applications"
+        },
+        {
+          "category": "feature",
           "text": "Flow within/scope with inherited search roots, compass navigation and typed result projections, plus press/swipe/gesture/gestures overloads for Node.js, Bun and Workers"
         },
         {
@@ -23,6 +31,10 @@
         {
           "category": "feature",
           "text": "Flow asynchronous chains and condition/stability waits for Node.js, Bun and Workers, with branch cancellation, step retries and host UI snapshots; Flow advanced clicks, scrolling, text entry, list collection and real event waits for Node.js, Bun and Workers, with subscription readiness, snapshot validation and cancellation"
+        },
+        {
+          "category": "update",
+          "text": "[Speech](https://docs.autojs6.com/#/speech) recognize, recognizeAsync and detectVoice describe audio beyond WAV when audioDecode is advertised (3-Macaw Speech 1.2.0 or newer), including MP3, AAC, Ogg, FLAC, AMR, other device-decodable formats and video audio tracks, with the corresponding UNSUPPORTED_FORMAT reasons"
         },
         {
           "category": "feature",

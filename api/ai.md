@@ -10,7 +10,7 @@ ai 模块通过 AI Provider 插件目标发起文本生成, 对话, 流式请求
 
 Node.js 主线程和 CommonJS/ESM/嵌套 Worker 提供 `require('ai')`, `require('autojs6:ai')` 和对应 ESM 导入. 主线程的显式 `$autojs.ai` 指向同一封装. Node.js 项目需声明 `ai` 能力. Bun 通过 `createHostClient()` 返回的 `host.ai` 调用, 需要插件中心单独开启默认关闭的 `ai.control`; 打包项目需在 `hostCapabilities` 中声明该授权.
 
-本批覆盖可调用 `ai`, ask, chat, stream, session, catalog 及会话的 ask/chat/stream/close. 参数解析, 目标选择, 生成设置和 Provider 错误复用宿主 AI 实现. 三种运行环境均不注入 Rhino 的全局 ai/$ai; ai.agent 和 Java EventEmitter 原型不属于此封装.
+生成接口覆盖可调用 `ai`, ask, chat, stream, session, catalog 及会话的 ask/chat/stream/close. 参数解析, 目标选择, 生成设置和 Provider 错误复用宿主 AI 实现. 嵌套的 `ai.agent` 另提供任务控制和注册脚本通道, 使用下文的独立授权. 三种运行环境均不注入 Rhino 的全局 ai/$ai; Java EventEmitter 原型不属于此封装.
 
 ```js
 "nodejs";
@@ -82,6 +82,71 @@ if (!await ai.hasAccess() && !await ai.requestAccess()) {
 }
 ```
 
+### Agent 任务与注册脚本
+
+宿主 build 5850 起, Node.js 主线程及 CommonJS/ESM/嵌套 Worker 通过 `ai.agent` 调用 3-Stove Agent. Bun 使用 `host.ai.agent`. Node 项目声明独立的 `ai.agent` 能力; `ai` 不隐含此能力. Bun 在插件中心开启默认关闭的 `agent.control`, 打包项目在 `hostCapabilities` 中声明同名授权; `ai.control` 不隐含任务控制授权.
+
+任务循环, 工具确认, 预设, 预算及模型选择继续由原有 Agent 实现负责. 选项沿用 [AgentRunOptions](agentRunOptionsType), 在任务提交前按宿主规则校验. `create` 保存可复用的 JSON 选项快照, 每次读取 assistant.options 都得到独立副本; run 的覆盖选项不能扩大基础工具范围, 脚本根目录或预算, 也不能放宽审慎确认策略.
+
+| 接口 | 返回值 | 行为 |
+|---|---|---|
+| agent.run(goal, options?, callOptions?) | Promise&lt;[AgentRun](agentRunType)&gt; | 提交任务, 返回异步句柄 |
+| agent.create(options) | [AgentAssistant](#aiagentcreateoptions) | 创建本地选项快照, assistant.run 返回 Promise&lt;AgentRun&gt; |
+| agent.get(id, callOptions?) | Promise&lt;AgentRun \| null&gt; | 观察已有任务, 不取得退出时取消该任务的所有权 |
+| agent.list(filter?, callOptions?) | Promise&lt;[AgentRunSummary](#aiagentlistfilter)[]&gt; | 按状态, 预设和时间筛选历史 |
+| agent.catalog(query?, callOptions?) | Promise&lt;[AgentScriptEntry](agentScriptEntryType)[]&gt; | 查询登记脚本元数据 |
+| agent.presets(callOptions?) | Promise&lt;string[]&gt; | 查询预设名称 |
+| agent.status(callOptions?) | Promise&lt;object&gt; | 读取连接状态快照, 不主动连接 |
+| agent.context() | Promise&lt;[AgentExecutionContext](#aiagentcontext) \| null&gt; | 读取本次注册脚本的上下文 |
+| agent.result(value) | Promise&lt;boolean&gt; | 回传 JSON 结果, 执行结束前最后一次成功报告生效 |
+
+callOptions 接受 signal 和 timeoutMs, 控制该次接口操作的等待和取消. run 的 callOptions 只控制任务提交及句柄取得; 任务取得句柄后的执行期限由 options.budget.maxDurationMs 控制. result/context 在非注册脚本中分别返回 false/null. Node Worker 共享其所属注册执行的上下文和结果槽; 不会把 Java 或 Rhino 对象传入工作线程.
+
+#### 异步 AgentRun
+
+句柄提供 id, goal, startedAt, detached, state, error 和 result, 以及 on/once/off/respond/confirm/cancel/join. state 是已收到事件的状态快照. result 在任务终止时兑现为 [AgentResult](agentResultType), 包括 failed/blocked/cancelled 等任务状态; 控制或连接失败时拒绝为带 code/message/hint 的 AgentError.
+
+on/once/off 在当前 JS 线程登记或移除 state/progress/step/input/confirmation/done/error 监听并返回句柄. 事件载荷沿用 [Agent 事件](agentEventType), 分片传输保留 Unicode. 监听函数同步抛出异常时拒绝该观察句柄的 result, 并清理它拥有的普通任务. 异步监听函数应自行处理其 Promise 拒绝.
+
+respond(requestId, value, callOptions?) 与 confirm(requestId, allowed, scope?, callOptions?) 返回 Promise&lt;boolean&gt;. 只有 interaction: 'script' 的当前待处理请求可由脚本应答; readOnly 事件不授予应答权. plan 输入仍使用 1 至 8 个非空步骤, 每项不超过 200 个字符. confirm 的 scope 为 once 或 run, 任务策略必须允许后者.
+
+cancel(reason?, callOptions?) 返回 Promise&lt;AgentRun&gt;, 请求取消后仍通过 result 等待最终状态. join(timeoutMs?) 返回 Promise&lt;AgentResult&gt;, 不阻塞 JS 线程; 超时产生 JOIN_TIMEOUT, 任务继续运行. state/error/result 的对象快照不保留 Rhino 原型.
+
+Worker 退出或 `await agent.close()` 释放其客户端和观察器, 取消它创建且未设置 detached 的任务. 通过 get 取得的观察句柄不使退出操作取消原任务. detached 任务可以继续由宿主和插件执行; 对 result 或 join 的等待仍可保持当前 JS 执行. 宿主死亡, 插件断开和任务预算继续适用, 不会重放已完成的动作. `await ai.close()` 同时关闭此 ai 封装的普通 Agent 任务及 AI 生成会话.
+
+```js
+"nodejs";
+let ai = require('autojs6:ai');
+try {
+    let assistant = ai.agent.create({ tools: [], budget: { maxSteps: 4 } });
+    let run = await assistant.run('Reply with a short greeting.');
+    run.on('progress', event => console.log(event.message));
+    let result = await run.join(60000);
+    console.log(result.status, result.summary);
+} finally {
+    await ai.agent.close();
+}
+```
+
+#### 打包应用的 Agent 授权
+
+3-Stove Agent 继续通过已安装的 AutoJs6 宿主取得模型和设备能力. 独立签名应用的 Agent 任务委托给该宿主执行, 使用宿主的模型配置, 登记脚本及设备权限. catalog 查询宿主目录; result/context 属于当前脚本执行. 生成应用需要匹配的 Runtime Kit/Builder, 已安装的官方 AutoJs6 build 5850 或以上及已启用的 3-Stove Agent. 直接调用 ai.chat 等生成接口仍使用前一节的独立 AI 授权.
+
+Builder 根据 ai.agent/agent.control 添加普通入口权限 `org.autojs.permission.AGENT_RUNTIME`. 用户还须在 AutoJs6 中明确授权该应用. hasAccess() 只查询当前应用的授权, requestAccess() 在前台打开确认界面并返回 Promise&lt;boolean&gt;; 拒绝或返回时为 false. Node/Bun 原宿主脚本不需要此额外应用确认, 项目能力与 Bun 授权开关仍生效.
+
+授权绑定包名, UID, 当前签名和首次安装时间. 同身份覆盖更新保留授权, 重装或身份变化不继承授权. 委托应用的 get/list/status 只返回它自己的任务记录, 不公开其他应用的任务 ID. 在 AutoJs6 插件中心设置中的 "Agent 应用授权" 可撤销访问, 并停止该应用的普通和 detached 任务. 工具组, 预算及 Agent 确认规则仍然生效; 模型和在线凭据不会交给生成应用, 在线模型调用可能产生服务商费用.
+
+```js
+let ai = require('autojs6:ai');
+if (!await ai.agent.hasAccess() && !await ai.agent.requestAccess()) {
+    throw new Error('Agent application access was not granted');
+}
+let run = await ai.agent.run('Reply briefly.', { tools: [] });
+console.log(await run.result);
+```
+
+Agent 的短请求轮询不计入 Bun 普通 1024 次累计调用额度, 仍受单次大小, 并发和期限限制. 本接口不改变 Bun 原生二进制或设备兼容范围.
+
 ---
 
 <p style="font: bold 2em sans-serif; color: #FF7043">ai</p>
@@ -113,6 +178,8 @@ ai('Reply with OK').then((text) => {
 **`6.8.0`** **`Getter`**
 
 - { [object](dataTypes#object) } - Agent 任务控制, 登记脚本目录, 执行上下文与结果通道
+
+下列签名以 Rhino 为准. Node.js/Bun/Worker 的异步返回值和应用授权见 [Agent 任务与注册脚本](#agent-任务与注册脚本).
 
 `result` 与 `context` 要求宿主构建号不低于 `5287`; 任务控制方法自 `5293` 起提供, 当前 3-Stove Agent 插件要求宿主构建号不低于 `5298`. 任务循环由已启用的 3-Stove Agent 插件执行, 模型与设备能力经宿主代理提供. `catalog`, `result` 与 `context` 的宿主侧功能不要求插件在线.
 

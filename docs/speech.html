@@ -424,7 +424,7 @@
 
         <div id="apicontent">
             <h1>语音 (Speech)<span><a class="mark" href="#speech_speech" id="speech_speech">#</a></span></h1>
-<p><code>speech</code> 模块用于在脚本中使用 3-Macaw Speech 插件的离线语音能力: 麦克风听写, WAV 文件或 PCM 数据识别, 语音活动检测, 唤醒词检测, 神经网络语音合成, 以及插件模型的下载与管理. 全部识别与合成都在设备上完成, 音频不会上传.</p>
+<p><code>speech</code> 模块用于在脚本中使用 3-Macaw Speech 插件的离线语音能力: 麦克风听写, 音频文件或 PCM 数据识别, 语音活动检测, 唤醒词检测, 神经网络语音合成, 以及插件模型的下载与管理. 全部识别与合成都在设备上完成, 音频不会上传.</p>
 <p>从 AutoJs6 6.8.0 起, 本模块由外置 3-Macaw Speech 插件 (AutoJs6-Plugin-Three-Macaw-Speech) 1.0.0 及以上版本提供, 宿主不保留任何识别或合成实现. 调用前需在插件中心安装并启用与当前 AutoJs6 兼容的插件. 插件缺失时方法抛出 (或以 Promise 拒绝) <code>code</code> 为 <code>PLUGIN_UNAVAILABLE</code> 的 <a href="#speech_c_speecherror">SpeechError</a>, 其消息为插件中心的本地化缺插件提示; 插件被禁用或未授权时为 <code>PLUGIN_DISABLED</code>; 插件版本或契约不兼容, 或插件未声明所需功能时为 <code>PLUGIN_INCOMPATIBLE</code>. <a href="#speech_m_isavailable">speech.isAvailable</a> 可预先探测.</p>
 <p>本模块在 Rhino 中注册为全局名称 <code>speech</code>, 并提供 <code>$speech</code> 别名, 二者指向同一对象. 本页的签名与同步返回值描述 Rhino. Node.js, Bun 与 Node.js Worker 提供显式导入的异步接口, 参阅 <a href="runtimeApis.html#runtimeapis_node_js_bun_worker_1">Runtime APIs 的语音识别与模型管理</a>; 这些运行时不注入 speech/$speech 全局.</p>
 <p>音频文件以路径指定, 相对路径按脚本工作目录解析 (与 <a href="files.html#files_m_path">files.path</a> 相同), 也可使用绝对路径; 不接受 <code>content://</code>, <code>file://</code>, <code>http://</code> 等 URI. 输入文件由 AutoJs6 以只读方式打开后交给插件, 合成输出由 AutoJs6 暂存, 检查后再改名为目标文件. 插件不会得到任何路径.</p>
@@ -620,13 +620,14 @@ session.on(&#39;end&#39;, e =&gt; console.log(&#39;结束:&#39;, e.reason));
 <h3>speech.recognize(source, options?)<span><a class="mark" href="#speech_speech_recognize_source_options" id="speech_speech_recognize_source_options">#</a></span></h3>
 <p><strong><code>6.8.0</code></strong> <strong><code>Non-UI</code></strong></p>
 <ul>
-<li><strong>source</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> | <span class="type"><a href="dataTypes.html#datatypes_arraybuffer">ArrayBuffer</a></span> | <span class="type"><a href="dataTypes.html#datatypes_typedarray">TypedArray</a></span> | <span class="type"><a href="dataTypes.html#datatypes_bytearray">ByteArray</a></span> } - WAV 文件路径或 PCM 数据</li>
+<li><strong>source</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> | <span class="type"><a href="dataTypes.html#datatypes_arraybuffer">ArrayBuffer</a></span> | <span class="type"><a href="dataTypes.html#datatypes_typedarray">TypedArray</a></span> | <span class="type"><a href="dataTypes.html#datatypes_bytearray">ByteArray</a></span> } - 音频文件路径或 PCM 数据</li>
 <li><strong>[ options ]</strong> { <span class="type"><a href="#speech_speechrecognizeoptions">SpeechRecognizeOptions</a></span> } - 识别选项</li>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="speechRecognitionResultType.html">SpeechRecognitionResult</a></span> } - 识别结果</li>
 </ul>
 <p>识别一段音频, 阻塞当前脚本线程直至得到结果. 需要插件声明 <code>asr</code> 功能.</p>
 <ul>
-<li>文件路径须指向 WAV 文件: PCM 8 / 16 / 24 / 32 位整数或浮点采样, 任意采样率, 单声道或双声道, 由插件重采样并混为单声道. 文件不超过 200 MiB 且时长不超过 30 分钟. AutoJs6 先检查文件存在, 可读, 大小与 <code>RIFF</code> / <code>WAVE</code> 文件头; 其他容器 (MP3, AAC, OGG 等) 失败于 <code>UNSUPPORTED_FORMAT</code>.</li>
+<li>文件路径须指向音频文件. WAV (PCM 8 / 16 / 24 / 32 位整数或浮点采样, 任意采样率与声道数) 由插件直接读取; 插件声明 <code>audioDecode</code> 功能时 (3-Macaw Speech 1.2.0 起), 还接受设备系统能解码的其他格式, 如 MP3, AAC (含 M4A), Ogg (Vorbis, Opus), FLAC 与 AMR, 以及视频文件 (MP4, WebM 等) 的第一条音轨. 插件按块解码, 重采样并混为单声道, 不把整段音频读入内存. 文件不超过 200 MiB 且时长不超过 30 分钟.</li>
+<li>AutoJs6 先检查文件存在, 可读与大小. 文件不以 <code>RIFF</code> / <code>WAVE</code> 头开始而插件未声明 <code>audioDecode</code> 时失败于 <code>UNSUPPORTED_FORMAT</code>, 消息提示更新插件; 文件没有音轨, 设备缺少该编码的解码器 (例如多数设备没有 AC-3 解码器) 或文件损坏时, 插件同样以 <code>UNSUPPORTED_FORMAT</code> 失败, 消息写明原因. 被截断的文件识别其中完整的部分.</li>
 <li>PCM 数据为单声道 PCM16 LE, 采样率由 <code>options.sampleRate</code> 指定. 可传入 <code>ArrayBuffer</code>, <code>Int16Array</code> 等类型化数组视图, 或 Java <code>byte[]</code> (例如 <code>files.readBytes</code> 的结果); 大端字节序的 <code>Int16Array</code> 会被转换为小端. 不接受普通 JavaScript 数字数组. AutoJs6 把 PCM 包装为临时 WAV 文件交给插件, 调用结束后删除.</li>
 <li>默认使用默认识别模型, 一次调用最多等待 10 分钟.</li>
 </ul>
@@ -638,7 +639,7 @@ result.segments.forEach(s =&gt; console.log(s.startMillis, s.endMillis, s.text))
 <h3>speech.recognizeAsync(source, options?)<span><a class="mark" href="#speech_speech_recognizeasync_source_options" id="speech_speech_recognizeasync_source_options">#</a></span></h3>
 <p><strong><code>6.8.0</code></strong> <strong><code>Async</code></strong></p>
 <ul>
-<li><strong>source</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> | <span class="type"><a href="dataTypes.html#datatypes_arraybuffer">ArrayBuffer</a></span> | <span class="type"><a href="dataTypes.html#datatypes_typedarray">TypedArray</a></span> | <span class="type"><a href="dataTypes.html#datatypes_bytearray">ByteArray</a></span> } - WAV 文件路径或 PCM 数据</li>
+<li><strong>source</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> | <span class="type"><a href="dataTypes.html#datatypes_arraybuffer">ArrayBuffer</a></span> | <span class="type"><a href="dataTypes.html#datatypes_typedarray">TypedArray</a></span> | <span class="type"><a href="dataTypes.html#datatypes_bytearray">ByteArray</a></span> } - 音频文件路径或 PCM 数据</li>
 <li><strong>[ options ]</strong> { <span class="type"><a href="#speech_speechrecognizeoptions">SpeechRecognizeOptions</a></span> } - 识别选项</li>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a></span> } - 兑现值为 <a href="speechRecognitionResultType.html">SpeechRecognitionResult</a></li>
 </ul>
@@ -847,7 +848,7 @@ speech.speak(&#39;你好&#39;, { model: &#39;tts.vits.icefall.zh-aishell3&#39;, 
 <li><strong>[ hotwords = <code>[]</code> ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a><a href="dataTypes.html#datatypes_array">[]</a></span> } - 热词, 最多 200 个</li>
 <li><strong>[ punctuation = <code>true</code> ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> } - 是否保留模型输出的标点</li>
 <li><strong>[ vad = <code>true</code> ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> } - 是否先按语音活动检测切段</li>
-<li><strong>[ sampleRate = <code>16000</code> ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> } - PCM 数据的采样率, 范围 <code>8000..192000</code>; 文件识别读取 WAV 文件头, 忽略此项</li>
+<li><strong>[ sampleRate = <code>16000</code> ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> } - PCM 数据的采样率, 范围 <code>8000..192000</code>; 文件识别以文件自身的采样率为准, 忽略此项</li>
 </ul>
 <h3>SpeechVadOptions<span><a class="mark" href="#speech_speechvadoptions" id="speech_speechvadoptions">#</a></span></h3>
 <p><a href="#speech_m_detectvoice">speech.detectVoice</a> 的选项. 省略的阈值与时长使用模型默认值.</p>
@@ -916,7 +917,7 @@ speech.speak(&#39;你好&#39;, { model: &#39;tts.vits.icefall.zh-aishell3&#39;, 
 <p><a href="#speech_m_capabilities">speech.capabilities</a> 的返回值.</p>
 <ul>
 <li><strong>contractVersion</strong> { <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> } - 语音插件契约版本, 当前为 <code>1</code></li>
-<li><strong>features</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a><a href="dataTypes.html#datatypes_array">[]</a></span> } - 插件实现的功能, 取自 <code>asr</code> (文件识别与外部 PCM 会话), <code>asrStreaming</code> (麦克风听写与 <code>thenListen</code>), <code>vad</code> (语音活动检测), <code>kws</code> (唤醒词), <code>tts</code> (合成到文件), <code>ttsSystemEngine</code> (系统 TTS 引擎), <code>models</code> (模型管理)</li>
+<li><strong>features</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a><a href="dataTypes.html#datatypes_array">[]</a></span> } - 插件实现的功能, 取自 <code>asr</code> (文件识别与外部 PCM 会话), <code>asrStreaming</code> (麦克风听写与 <code>thenListen</code>), <code>vad</code> (语音活动检测), <code>kws</code> (唤醒词), <code>tts</code> (合成到文件), <code>ttsSystemEngine</code> (系统 TTS 引擎), <code>models</code> (模型管理), <code>audioDecode</code> (WAV 以外的音频文件, 3-Macaw Speech 1.2.0 起)</li>
 <li><strong>catalogVersion</strong> { <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> } - 插件当前的模型目录版本</li>
 <li><strong>engineName</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> | <span class="type"><a href="dataTypes.html#datatypes_null">null</a></span> } - 语音运行时名称, 如 <code>&#39;sherpa-onnx&#39;</code></li>
 <li><strong>engineVersion</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> | <span class="type"><a href="dataTypes.html#datatypes_null">null</a></span> } - 语音运行时版本</li>
@@ -991,7 +992,7 @@ speech.speak(&#39;你好&#39;, { model: &#39;tts.vits.icefall.zh-aishell3&#39;, 
 </tr>
 <tr>
 <td><code>UNSUPPORTED_FORMAT</code></td>
-<td>音频不是 WAV, 或归档格式不受支持</td>
+<td>音频格式不受支持 (插件只读 WAV, 文件没有音轨, 设备缺少解码器或文件损坏), 或归档格式不受支持</td>
 </tr>
 <tr>
 <td><code>LIMIT_EXCEEDED</code></td>

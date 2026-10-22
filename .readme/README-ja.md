@@ -71,10 +71,13 @@ generator\auto-generate-for-autojs6.bat
 
 ### v6.8.0
 
+- `新機能` API ドキュメント: Node.js/Bun/Worker の ai.agent タスク制御とイベント, 登録済みスクリプトのコンテキストと結果, パッケージ化アプリの明示的な認可
+- `新機能` Node.js, Bun, Worker の AI テキスト生成, ストリーミング結果, モデル一覧と永続セッション, 独立署名アプリに対する 3-Stone AI での個別同意と取り消し
 - `新機能` Node.js, Bun と Worker の Flow within/scope による検索範囲の継承, コンパス移動と結果の射影, および press/swipe/gesture/gestures のオーバーロード
 - `新機能` [Memory](https://docs.autojs6.com/#/memory) に, スクリプトから AutoJs6 プロセスのメモリ診断データを読み取る memory モジュールを追加し, メモリスナップショット, 強制ガベージコレクション, 終了後も回収されていないスクリプトのランタイム, hprof ヒープダンプ (release ビルドでは "スクリプトによる hprof のエクスポートを許可" が必要) と LeakCanary による監視を説明
 - `更新` [WebSocket](https://docs.autojs6.com/#/webSocketType) の exitOnClose の説明を補完: スクリプト終了時はそのスクリプト自身の接続だけを処理し, exitOnClose を呼び出した接続は正常に閉じ, それ以外の接続は直ちに切断
 - `新機能` Node.js, Bun, Worker 向けの flow 非同期チェーンと条件/安定性待機, 分岐のキャンセル, ステップの再試行, ホスト画面のスナップショットに対応; Node.js, Bun と Worker の Flow 高度なクリック, スクロール, 入力, リスト収集と実際のイベント待機, 監視準備完了, スナップショット検証とキャンセルに対応
+- `更新` [Speech](https://docs.autojs6.com/#/speech) の recognize, recognizeAsync, detectVoice で WAV 以外の音声を説明: audioDecode 対応時 (3-Macaw Speech 1.2.0 以降) は MP3, AAC, Ogg, FLAC, AMR など端末でデコード可能な形式と動画の音声トラックを受け付け, 対応する UNSUPPORTED_FORMAT の理由も記載
 - `新機能` Node.js/Bun/Worker の speech 音声認識とモデル管理 API で WAV/PCM, 書き起こしとウェイクワードのセッション, モデルのインストールとインポート, 音声合成とキャンセル時の解放に対応
 - `新機能` Node.js/Bun/Worker の音声合成 API でエンジンと音声の照会, 読み上げ, 無音, 音声ファイル合成とタスクイベントに対応
 - `新機能` [Speech](https://docs.autojs6.com/#/speech), [SpeechSession](https://docs.autojs6.com/#/speechSessionType), [SpeechWakeSession](https://docs.autojs6.com/#/speechWakeSessionType), [SpeechRecognitionResult](https://docs.autojs6.com/#/speechRecognitionResultType), [SpeechModelInfo](https://docs.autojs6.com/#/speechModelInfoType) で 3-Macaw Speech のマイク入力, ファイルと PCM 認識, 音声区間, ウェイクワード, 合成, モデルとライセンス, バックグラウンド録音, セッション引き継ぎ, エラーと制限, アシスタントと音声入力と認識サービスおよび VOICE_COMMAND を説明; [TTS](https://docs.autojs6.com/#/tts) は音声エンジン, [Plugins](https://docs.autojs6.com/#/plugins) はスクリプトモジュールの提供元を説明

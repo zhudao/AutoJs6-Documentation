@@ -10,6 +10,14 @@
       "entries": [
         {
           "category": "feature",
+          "text": "API 文件: Node.js/Bun/Worker 的 ai.agent 任務控制與事件, 註冊指令碼上下文和結果回傳, 以及封裝應用程式的獨立授權"
+        },
+        {
+          "category": "feature",
+          "text": "Node.js, Bun 和 Worker 的 AI 文字生成, 串流結果, 模型目錄與持續會話, 以及獨立簽署應用程式在 3-Stone AI 中的逐應用程式確認與撤銷授權"
+        },
+        {
+          "category": "feature",
           "text": "Node.js, Bun 與 Worker 的 Flow within/scope 範圍繼承, 羅盤導覽和結果投影, 以及 press/swipe/gesture/gestures 手勢多載"
         },
         {
@@ -23,6 +31,10 @@
         {
           "category": "feature",
           "text": "Node.js, Bun 及 Worker 的 flow 非同步鏈與條件/穩定性等待, 支援分支取消, 單一步驟重試及宿主介面快照; Node.js, Bun 及 Worker 的 Flow 進階點擊, 捲動, 輸入, 清單擷取與真實事件等待, 支援監聽就緒, 快照驗證和取消"
+        },
+        {
+          "category": "update",
+          "text": "[語音 (Speech)](https://docs.autojs6.com/#/speech) 的 recognize, recognizeAsync 與 detectVoice 說明 WAV 以外的音訊檔案: 外掛程式宣告 audioDecode 功能時 (3-Macaw Speech 1.2.0 起) 接受 MP3, AAC, Ogg, FLAC, AMR 等裝置可解碼的格式與影片音軌, 以及相應的 UNSUPPORTED_FORMAT 原因"
         },
         {
           "category": "feature",

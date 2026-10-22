@@ -10,6 +10,14 @@
       "entries": [
         {
           "category": "feature",
+          "text": "API ドキュメント: Node.js/Bun/Worker の ai.agent タスク制御とイベント, 登録済みスクリプトのコンテキストと結果, パッケージ化アプリの明示的な認可"
+        },
+        {
+          "category": "feature",
+          "text": "Node.js, Bun, Worker の AI テキスト生成, ストリーミング結果, モデル一覧と永続セッション, 独立署名アプリに対する 3-Stone AI での個別同意と取り消し"
+        },
+        {
+          "category": "feature",
           "text": "Node.js, Bun と Worker の Flow within/scope による検索範囲の継承, コンパス移動と結果の射影, および press/swipe/gesture/gestures のオーバーロード"
         },
         {
@@ -23,6 +31,10 @@
         {
           "category": "feature",
           "text": "Node.js, Bun, Worker 向けの flow 非同期チェーンと条件/安定性待機, 分岐のキャンセル, ステップの再試行, ホスト画面のスナップショットに対応; Node.js, Bun と Worker の Flow 高度なクリック, スクロール, 入力, リスト収集と実際のイベント待機, 監視準備完了, スナップショット検証とキャンセルに対応"
+        },
+        {
+          "category": "update",
+          "text": "[Speech](https://docs.autojs6.com/#/speech) の recognize, recognizeAsync, detectVoice で WAV 以外の音声を説明: audioDecode 対応時 (3-Macaw Speech 1.2.0 以降) は MP3, AAC, Ogg, FLAC, AMR など端末でデコード可能な形式と動画の音声トラックを受け付け, 対応する UNSUPPORTED_FORMAT の理由も記載"
         },
         {
           "category": "feature",

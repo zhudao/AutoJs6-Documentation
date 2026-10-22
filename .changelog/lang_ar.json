@@ -10,6 +10,14 @@
       "entries": [
         {
           "category": "feature",
+          "text": "توثيق API: التحكم في مهام ai.agent والأحداث وسياق ونتائج النصوص المسجلة في Node.js وBun وWorker, مع تفويض صريح للتطبيقات المحزمة"
+        },
+        {
+          "category": "feature",
+          "text": "توليد نصوص الذكاء الاصطناعي والنتائج المتدفقة وفهارس النماذج والجلسات المستمرة في Node.js وBun وWorker, مع موافقة وسحب وصول لكل تطبيق مستقل التوقيع داخل 3-Stone AI"
+        },
+        {
+          "category": "feature",
           "text": "Flow within/scope في Node.js وBun وWorker مع وراثة جذور البحث والتنقل بالبوصلة وإسقاط النتائج ودعم صيغ press/swipe/gesture/gestures"
         },
         {
@@ -23,6 +31,10 @@
         {
           "category": "feature",
           "text": "سلاسل flow غير المتزامنة وانتظار الشروط والاستقرار في Node.js وBun وWorker, مع إلغاء الفروع وإعادة محاولة الخطوات ولقطات واجهة المضيف; نقرات Flow المتقدمة والتمرير والإدخال وجمع القوائم وانتظار الأحداث الفعلية في Node.js وBun وWorkers, مع جاهزية الاشتراك والتحقق من اللقطات والإلغاء"
+        },
+        {
+          "category": "update",
+          "text": "توضح [Speech](https://docs.autojs6.com/#/speech) recognize وrecognizeAsync وdetectVoice الصوت غير WAV عند إعلان audioDecode (من 3-Macaw Speech 1.2.0), بما يشمل MP3 وAAC وOgg وFLAC وAMR والصيغ التي يفك الجهاز ترميزها والمسارات الصوتية للفيديو, مع أسباب UNSUPPORTED_FORMAT المقابلة"
         },
         {
           "category": "feature",

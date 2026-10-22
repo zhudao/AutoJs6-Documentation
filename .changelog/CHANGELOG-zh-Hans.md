@@ -15,10 +15,13 @@
 
 # v6.8.0
 
+- `新增` API 文档: Node.js/Bun/Worker 的 ai.agent 任务控制与事件, 注册脚本上下文和结果回传, 以及打包应用的独立授权
+- `新增` Node.js, Bun 和 Worker 的 AI 文本生成, 流式结果, 模型目录与持久会话, 以及独立签名应用在 3-Stone AI 中的逐应用确认与撤销授权
 - `新增` Node.js, Bun 与 Worker 的 Flow within/scope 范围继承, 罗盘导航和结果投影, 以及 press/swipe/gesture/gestures 手势重载
 - `新增` [内存 (Memory)](https://docs.autojs6.com/#/memory), 说明脚本读取 AutoJs6 进程内存诊断数据的 memory 模块: 内存快照, 强制回收, 已结束未回收的脚本运行时, hprof 堆转储 (正式版本需开启 "允许脚本导出 hprof") 与 LeakCanary 监视
 - `更新` [WebSocket](https://docs.autojs6.com/#/webSocketType) 补全 exitOnClose 的说明: 脚本结束时只处理该脚本自己的连接, 调用过 exitOnClose 的连接优雅关闭, 其余连接立即断开
 - `新增` Node.js, Bun 及 Worker 的 flow 异步链与条件/稳定性等待, 支持分支取消, 单步骤重试及宿主界面快照; Node.js, Bun 及 Worker 的 Flow 高级点击, 滚动, 输入, 列表采集与真实事件等待, 支持监听就绪, 快照校验和取消
+- `更新` [语音 (Speech)](https://docs.autojs6.com/#/speech) 的 recognize, recognizeAsync 与 detectVoice 说明 WAV 以外的音频文件: 插件声明 audioDecode 功能时 (3-Macaw Speech 1.2.0 起) 接受 MP3, AAC, Ogg, FLAC, AMR 等设备能解码的格式与视频文件的音轨, 以及相应的 UNSUPPORTED_FORMAT 原因
 - `新增` Node.js/Bun/Worker 的 speech 语音识别与模型管理接口, 支持 WAV/PCM, 听写与唤醒会话, 模型安装/导入, 语音合成和取消清理
 - `新增` Node.js/Bun/Worker 的文字转语音接口, 支持引擎与音色查询, 朗读, 静音任务, 音频文件合成和任务事件
 - `新增` [语音 (Speech)](https://docs.autojs6.com/#/speech) 与 [SpeechSession](https://docs.autojs6.com/#/speechSessionType), [SpeechWakeSession](https://docs.autojs6.com/#/speechWakeSessionType), [SpeechRecognitionResult](https://docs.autojs6.com/#/speechRecognitionResultType), [SpeechModelInfo](https://docs.autojs6.com/#/speechModelInfoType), 说明 3-Macaw Speech 插件提供的麦克风听写, 文件与 PCM 识别, 语音活动检测, 唤醒词, 合成与模型管理, 模型目录与许可, 后台收音与唤醒会话的临时接管, 错误代码与上限, 以及数字助理, 系统语音输入, 系统识别服务与 VOICE_COMMAND 入口契约; [TTS](https://docs.autojs6.com/#/tts) 增加 "使用 3-Macaw Speech 引擎" 一节, [插件 (Plugins)](https://docs.autojs6.com/#/plugins) 增加提供脚本模块的插件列表

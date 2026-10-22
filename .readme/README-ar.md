@@ -71,10 +71,13 @@ generator\auto-generate-for-autojs6.bat
 
 ### v6.8.0
 
+- `إضافة جديدة` توثيق API: التحكم في مهام ai.agent والأحداث وسياق ونتائج النصوص المسجلة في Node.js وBun وWorker, مع تفويض صريح للتطبيقات المحزمة
+- `إضافة جديدة` توليد نصوص الذكاء الاصطناعي والنتائج المتدفقة وفهارس النماذج والجلسات المستمرة في Node.js وBun وWorker, مع موافقة وسحب وصول لكل تطبيق مستقل التوقيع داخل 3-Stone AI
 - `إضافة جديدة` Flow within/scope في Node.js وBun وWorker مع وراثة جذور البحث والتنقل بالبوصلة وإسقاط النتائج ودعم صيغ press/swipe/gesture/gestures
 - `إضافة جديدة` [Memory](https://docs.autojs6.com/#/memory) يشرح وحدة memory لقراءة تشخيص ذاكرة عملية AutoJs6 من البرامج النصية: لقطات الذاكرة, وجمع البيانات المهملة القسري, وبيئات تشغيل البرامج النصية المنتهية غير المحررة, وتفريغات الكومة hprof (تتطلب إصدارات release تفعيل "السماح للبرامج النصية بتصدير hprof") ومراقبة LeakCanary
 - `تحديث` [WebSocket](https://docs.autojs6.com/#/webSocketType) يكمل شرح exitOnClose: عند انتهاء البرنامج النصي تعالج اتصالاته فقط, وتغلق الاتصالات المعلمة بـ exitOnClose بشكل طبيعي وتقطع الاتصالات الأخرى فورا
 - `إضافة جديدة` سلاسل flow غير المتزامنة وانتظار الشروط والاستقرار في Node.js وBun وWorker, مع إلغاء الفروع وإعادة محاولة الخطوات ولقطات واجهة المضيف; نقرات Flow المتقدمة والتمرير والإدخال وجمع القوائم وانتظار الأحداث الفعلية في Node.js وBun وWorkers, مع جاهزية الاشتراك والتحقق من اللقطات والإلغاء
+- `تحديث` توضح [Speech](https://docs.autojs6.com/#/speech) recognize وrecognizeAsync وdetectVoice الصوت غير WAV عند إعلان audioDecode (من 3-Macaw Speech 1.2.0), بما يشمل MP3 وAAC وOgg وFLAC وAMR والصيغ التي يفك الجهاز ترميزها والمسارات الصوتية للفيديو, مع أسباب UNSUPPORTED_FORMAT المقابلة
 - `إضافة جديدة` واجهات speech للتعرف على الكلام وإدارة النماذج في Node.js وBun وWorkers مع WAV/PCM والإملاء وكلمات التنبيه وتثبيت النماذج واستيرادها والتوليف والتنظيف عند الإلغاء
 - `إضافة جديدة` واجهات تحويل النص إلى كلام في Node.js وBun وWorkers مع استعلامات المحركات والأصوات والنطق والصمت وملفات الصوت وأحداث المهام
 - `إضافة جديدة` [Speech](https://docs.autojs6.com/#/speech), [SpeechSession](https://docs.autojs6.com/#/speechSessionType), [SpeechWakeSession](https://docs.autojs6.com/#/speechWakeSessionType), [SpeechRecognitionResult](https://docs.autojs6.com/#/speechRecognitionResultType), [SpeechModelInfo](https://docs.autojs6.com/#/speechModelInfoType) توضح الإملاء والتعرف على الملفات وPCM والنشاط الصوتي وكلمات التنبيه والتوليف والنماذج والتراخيص والتسجيل في الخلفية وتسليم الجلسات والأخطاء والحدود والمساعد والإدخال الصوتي وخدمة التعرف وVOICE_COMMAND; يوضح [TTS](https://docs.autojs6.com/#/tts) محرك 3-Macaw Speech ويسرد [Plugins](https://docs.autojs6.com/#/plugins) موفري الوحدات

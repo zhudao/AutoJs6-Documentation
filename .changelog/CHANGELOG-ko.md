@@ -15,10 +15,13 @@
 
 # v6.8.0
 
+- `추가` API 문서: Node.js/Bun/Worker의 ai.agent 작업 제어와 이벤트, 등록된 스크립트의 컨텍스트와 결과, 패키징된 앱의 명시적 승인
+- `추가` Node.js, Bun 및 Worker의 AI 텍스트 생성, 스트리밍 결과, 모델 목록과 지속 세션, 독립 서명 앱에 대한 3-Stone AI의 앱별 승인 및 취소
 - `추가` Node.js, Bun 및 Worker의 Flow within/scope 검색 범위 상속, 나침반 탐색 및 결과 투영과 press/swipe/gesture/gestures 오버로드
 - `추가` [Memory](https://docs.autojs6.com/#/memory)에서 스크립트가 AutoJs6 프로세스의 메모리 진단 데이터를 읽는 memory 모듈을 설명: 메모리 스냅샷, 강제 가비지 컬렉션, 종료 후 회수되지 않은 스크립트 런타임, hprof 힙 덤프 (release 빌드에서는 "스크립트의 hprof 내보내기 허용" 필요) 와 LeakCanary 감시
 - `업데이트` [WebSocket](https://docs.autojs6.com/#/webSocketType)의 exitOnClose 설명 보완: 스크립트가 끝나면 그 스크립트의 연결만 처리하며, exitOnClose 를 호출한 연결은 정상적으로 닫고 나머지 연결은 즉시 끊음
 - `추가` Node.js, Bun, Worker의 flow 비동기 체인 및 조건/안정성 대기, 분기 취소, 단계 재시도, 호스트 화면 스냅샷 지원; Node.js, Bun 및 Worker의 Flow 고급 클릭, 스크롤, 입력, 목록 수집 및 실제 이벤트 대기, 구독 준비, 스냅샷 검증 및 취소 지원
+- `업데이트` [Speech](https://docs.autojs6.com/#/speech)의 recognize, recognizeAsync 및 detectVoice에서 WAV 이외의 오디오 설명: audioDecode 지원 시 (3-Macaw Speech 1.2.0 이상) MP3, AAC, Ogg, FLAC, AMR 등 기기에서 디코딩 가능한 형식과 동영상 오디오 트랙을 허용하며 해당 UNSUPPORTED_FORMAT 이유도 설명
 - `추가` Node.js/Bun/Worker의 speech 음성 인식 및 모델 관리 API로 WAV/PCM, 받아쓰기와 호출어 세션, 모델 설치와 가져오기, 음성 합성 및 취소 시 정리 지원
 - `추가` Node.js/Bun/Worker의 음성 합성 API로 엔진과 음성 조회, 읽기, 무음, 오디오 파일 합성 및 작업 이벤트 지원
 - `추가` [Speech](https://docs.autojs6.com/#/speech), [SpeechSession](https://docs.autojs6.com/#/speechSessionType), [SpeechWakeSession](https://docs.autojs6.com/#/speechWakeSessionType), [SpeechRecognitionResult](https://docs.autojs6.com/#/speechRecognitionResultType), [SpeechModelInfo](https://docs.autojs6.com/#/speechModelInfoType) 에서 3-Macaw Speech의 마이크 받아쓰기, 파일 및 PCM 인식, 음성 활동, 호출어, 합성, 모델과 라이선스, 백그라운드 녹음, 세션 인계, 오류와 제한, 도우미와 음성 입력 및 인식 서비스와 VOICE_COMMAND 통합 설명; [TTS](https://docs.autojs6.com/#/tts)는 음성 엔진, [Plugins](https://docs.autojs6.com/#/plugins)는 스크립트 모듈 제공자 설명

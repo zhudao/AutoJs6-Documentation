@@ -10,6 +10,14 @@
       "entries": [
         {
           "category": "feature",
+          "text": "API 문서: Node.js/Bun/Worker의 ai.agent 작업 제어와 이벤트, 등록된 스크립트의 컨텍스트와 결과, 패키징된 앱의 명시적 승인"
+        },
+        {
+          "category": "feature",
+          "text": "Node.js, Bun 및 Worker의 AI 텍스트 생성, 스트리밍 결과, 모델 목록과 지속 세션, 독립 서명 앱에 대한 3-Stone AI의 앱별 승인 및 취소"
+        },
+        {
+          "category": "feature",
           "text": "Node.js, Bun 및 Worker의 Flow within/scope 검색 범위 상속, 나침반 탐색 및 결과 투영과 press/swipe/gesture/gestures 오버로드"
         },
         {
@@ -23,6 +31,10 @@
         {
           "category": "feature",
           "text": "Node.js, Bun, Worker의 flow 비동기 체인 및 조건/안정성 대기, 분기 취소, 단계 재시도, 호스트 화면 스냅샷 지원; Node.js, Bun 및 Worker의 Flow 고급 클릭, 스크롤, 입력, 목록 수집 및 실제 이벤트 대기, 구독 준비, 스냅샷 검증 및 취소 지원"
+        },
+        {
+          "category": "update",
+          "text": "[Speech](https://docs.autojs6.com/#/speech)의 recognize, recognizeAsync 및 detectVoice에서 WAV 이외의 오디오 설명: audioDecode 지원 시 (3-Macaw Speech 1.2.0 이상) MP3, AAC, Ogg, FLAC, AMR 등 기기에서 디코딩 가능한 형식과 동영상 오디오 트랙을 허용하며 해당 UNSUPPORTED_FORMAT 이유도 설명"
         },
         {
           "category": "feature",

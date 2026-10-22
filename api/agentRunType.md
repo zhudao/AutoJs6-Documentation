@@ -2,6 +2,8 @@
 
 由 [ai.agent.run](ai#aiagentrungoal-options) 或 [ai.agent.get](ai#aiagentgetid) 返回的宿主侧 Rhino 对象. 句柄的方法和事件属于创建它的脚本线程, 不应跨脚本线程传递使用.
 
+Node.js/Bun/Worker 提供对应的异步句柄: run/get 先返回 Promise, respond/confirm/cancel/join 也返回 Promise. 属性与事件载荷沿用本页定义, state 为最近收到的事件快照, 不提供 Rhino 原型或同步阻塞等待. 详见 [跨运行时 Agent 接口](ai#agent-任务与注册脚本).
+
 ## 只读属性
 
 | 属性 | 类型 | 说明 |
