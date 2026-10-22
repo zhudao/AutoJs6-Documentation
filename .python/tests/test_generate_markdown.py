@@ -168,7 +168,8 @@ class DocumentationTest(unittest.TestCase):
 
     def test_translated_links_must_preserve_targets(self):
         def change(data):
-            item = next(iter(data["$data"].values()))["entries"][0]
+            item = next(item for version in data["$data"].values() for item in version["entries"]
+                        if "https://docs.autojs6.com" in item.get("text", ""))
             item["text"] = item["text"].replace("https://docs.autojs6.com", "https://example.com")
         self.change_json(".changelog/lang_ja.json", change)
         with self.assertRaisesRegex(markdown.MarkdownGenerationError, "link targets differ"):
