@@ -9,6 +9,10 @@
     "v6.8.0": {
       "entries": [
         {
+          "category": "update",
+          "text": "[Speech](https://docs.autojs6.com/#/speech) completa la opción punctuation: se conserva la puntuación de los modelos que la generan (SenseVoice), los resultados de los modelos en streaming reciben puntuación de un modelo de puntuación instalado en 3-Macaw Speech (1.2.0 o posterior, chino e inglés) y false elimina toda la puntuación"
+        },
+        {
           "category": "feature",
           "text": "Documentación de API: Control de tareas ai.agent, eventos y contexto/resultados de scripts registrados para Node.js, Bun y Workers, con autorización explícita para las aplicaciones empaquetadas"
         },

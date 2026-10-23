@@ -71,6 +71,7 @@ La documentación puede cambiar en cualquier momento y diferir del comportamient
 
 ### v6.8.0
 
+- `Actualización` [Speech](https://docs.autojs6.com/#/speech) completa la opción punctuation: se conserva la puntuación de los modelos que la generan (SenseVoice), los resultados de los modelos en streaming reciben puntuación de un modelo de puntuación instalado en 3-Macaw Speech (1.2.0 o posterior, chino e inglés) y false elimina toda la puntuación
 - `Nuevo` Documentación de API: Control de tareas ai.agent, eventos y contexto/resultados de scripts registrados para Node.js, Bun y Workers, con autorización explícita para las aplicaciones empaquetadas
 - `Nuevo` Generación de texto de IA, resultados en streaming, catálogos de modelos y sesiones persistentes para Node.js, Bun y Workers, con consentimiento y revocación por aplicación en 3-Stone AI para aplicaciones firmadas de forma independiente
 - `Nuevo` Flow within/scope para Node.js, Bun y Workers, con raíces de búsqueda heredadas, navegación por brújula, proyecciones tipadas y sobrecargas press/swipe/gesture/gestures

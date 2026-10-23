@@ -431,7 +431,7 @@ try {
 - **[ maxDurationMillis = `300000` ]** { [number](dataTypes#number) } - 会话时长上限, 正整数, 最大 `1800000` (30 分钟, 超出为 `LIMIT_EXCEEDED`)
 - **[ timeoutMillis = `15000` ]** { [number](dataTypes#number) } - 没有语音或新文字时自动结束的时长, 范围 `0..1800000`, `0` 表示不限
 - **[ hotwords = `[]` ]** { [string](dataTypes#string)[[]](dataTypes#array) } - 热词, 去重后最多 200 个, 每个不超过 128 个字符
-- **[ punctuation = `true` ]** { [boolean](dataTypes#boolean) } - 是否保留模型输出的标点
+- **[ punctuation = `true` ]** { [boolean](dataTypes#boolean) } - 是否加标点: 模型自带标点 (SenseVoice) 时保留; 流式模型的结果由插件中已安装的标点模型补上标点 (3-Macaw Speech 1.2.0 起, 中文与英文, 英文同时恢复大小写), 没有覆盖该语言的标点模型时保持原样; `false` 去掉所有标点
 
 `timeoutMillis` 与 `maxDurationMillis` 按插件已处理的音频时长计算, 而不是墙钟时间: 麦克风会话按实时计算, 外部 PCM 会话按已输入的音频计算 (暂停输入时不会超时). `timeoutMillis` 从最近一次语音或新文字起算. 到达时会话以 `end` 结束, 原因分别为 `'timeout'` 与 `'maxDuration'`. 插件在静音达到 `silenceEndMillis` 或连续说话满 20 秒时结束一句话.
 
@@ -442,7 +442,7 @@ try {
 - **[ model ]** { [string](dataTypes#string) } - 识别模型 ID, 默认为默认识别模型
 - **[ language ]** { [string](dataTypes#string) } - 语言提示, 同 [SpeechListenOptions](#speechlistenoptions)
 - **[ hotwords = `[]` ]** { [string](dataTypes#string)[[]](dataTypes#array) } - 热词, 最多 200 个
-- **[ punctuation = `true` ]** { [boolean](dataTypes#boolean) } - 是否保留模型输出的标点
+- **[ punctuation = `true` ]** { [boolean](dataTypes#boolean) } - 是否加标点, 同 [SpeechListenOptions](#speechlistenoptions)
 - **[ vad = `true` ]** { [boolean](dataTypes#boolean) } - 是否先按语音活动检测切段
 - **[ sampleRate = `16000` ]** { [number](dataTypes#number) } - PCM 数据的采样率, 范围 `8000..192000`; 文件识别以文件自身的采样率为准, 忽略此项
 

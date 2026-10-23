@@ -9,6 +9,10 @@
     "v6.8.0": {
       "entries": [
         {
+          "category": "update",
+          "text": "[Speech](https://docs.autojs6.com/#/speech) の punctuation オプションの説明を補足: 句読点を出力するモデル (SenseVoice) はそのまま残し, ストリーミングモデルの結果には 3-Macaw Speech にインストールした句読点モデルで句読点を付け (1.2.0 以降, 中国語と英語), false ですべての句読点を除去"
+        },
+        {
           "category": "feature",
           "text": "API ドキュメント: Node.js/Bun/Worker の ai.agent タスク制御とイベント, 登録済みスクリプトのコンテキストと結果, パッケージ化アプリの明示的な認可"
         },

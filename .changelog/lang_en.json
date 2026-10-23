@@ -9,6 +9,10 @@
     "v6.8.0": {
       "entries": [
         {
+          "category": "update",
+          "text": "[Speech](https://docs.autojs6.com/#/speech) completes the punctuation option: the punctuation of models that emit their own (SenseVoice) is kept, results of streaming models get punctuation from a punctuation model installed in 3-Macaw Speech (1.2.0 or newer, Chinese and English), and false removes all punctuation"
+        },
+        {
           "category": "feature",
           "text": "API documentation: ai.agent task controls, events and registered-script context/results for Node.js, Bun and Workers, with explicit authorization for packaged applications"
         },

@@ -71,6 +71,7 @@ Les documents peuvent changer à tout moment et diverger du comportement réel. 
 
 ### v6.8.0
 
+- `Mise à jour` [Speech](https://docs.autojs6.com/#/speech) complète l'option punctuation: la ponctuation des modèles qui en produisent (SenseVoice) est conservée, les résultats des modèles en continu sont ponctués par un modèle de ponctuation installé dans 3-Macaw Speech (1.2.0 ou ultérieur, chinois et anglais) et false supprime toute la ponctuation
 - `Fonctionnalité` Documentation API: Contrôle des tâches ai.agent, événements et contexte/résultats des scripts enregistrés pour Node.js, Bun et Workers, avec autorisation explicite des applications empaquetées
 - `Fonctionnalité` Génération de texte IA, résultats en streaming, catalogues de modèles et sessions persistantes pour Node.js, Bun et Workers, avec consentement et révocation par application dans 3-Stone AI pour les applications signées indépendamment
 - `Fonctionnalité` Flow within/scope pour Node.js, Bun et les Workers, avec racines de recherche héritées, navigation par boussole, projections typées et surcharges press/swipe/gesture/gestures

@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `更新` [語音 (Speech)](https://docs.autojs6.com/#/speech) 的 punctuation 選項補全說明: 模型自帶標點 (SenseVoice) 時保留, 串流模型的結果由 3-Macaw Speech 中已安裝的標點模型補上標點 (1.2.0 起, 中文與英文), 設為 false 去掉所有標點
 - `新增` API 文件: Node.js/Bun/Worker 的 ai.agent 任務控制與事件, 註冊指令碼上下文和結果回傳, 以及封裝應用程式的獨立授權
 - `新增` Node.js, Bun 和 Worker 的 AI 文字生成, 串流結果, 模型目錄與持續會話, 以及獨立簽署應用程式在 3-Stone AI 中的逐應用程式確認與撤銷授權
 - `新增` Node.js, Bun 與 Worker 的 Flow within/scope 範圍繼承, 羅盤導覽和結果投影, 以及 press/swipe/gesture/gestures 手勢多載
