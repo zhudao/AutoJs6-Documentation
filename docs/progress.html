@@ -306,6 +306,7 @@
 
         <div id="apicontent">
             <h1>文档部署进度 (Progress)<span><a class="mark" href="#progress_progress" id="progress_progress">#</a></span></h1>
+<p>2026-10-24 SQLite 增补: DatabaseCallback#onDowngrade (AutoJs6 6.8.0), 打开时请求的 version 低于现有数据库版本时调用, 在 Android 管理的事务内执行, 抛出异常会回滚降级; 未实现时降级不执行任何操作并保留表与数据 (此前由 Android 默认行为抛出异常). 同步 SQLiteOpenOptions 的版本说明, DatabaseCallback 的说明与示例. 依据为宿主 core/database/Database.java (宿主提交 e03d82e0f) 与 2026-10-24 在临时 AVD (Android 7.0 与 15) 上的设备用例 (宿主 tools/db-downgrade/sqlite_ondowngrade.py). AutoJs6 6.8.0 尚未发布, 此条不表示官方发布.</p>
 <p>2026-10-22 应用设置 (Settings) 增补: settings.export 与 settings.categories, 脚本可将 AutoJs6 设置导出为与导出向导格式相同的设置归档 (不含凭据), 并列出分类及条目数. 说明默认位置与文件名, 分类选择, skipped 原因及不能在 UI 线程调用的限制.</p>
 <p>2026-10-22: Node.js/Bun/Worker ai.agent 提供九个根方法, 异步 AgentRun 控制与事件, 注册脚本上下文和结果回传. Node ai.agent 与 Bun agent.control 使用独立授权; 打包应用通过已安装的 AutoJs6 宿主执行任务, 需明确应用授权且只查询自己的任务. Promise 签名, detached 生命周期与撤销行为见 AI 和 Runtime APIs. 此项为本地开发版本, 不表示公开发布.</p>
 <p>2026-10-21 内存 (Memory) 新增: 覆盖 AutoJs6 6.8.0 的 memory 全局对象 (内存路线图 P5), 包括 snapshot 的 13 个读数, collect 的强制回收与超时 (0 到 60000 毫秒), retained 列出的已结束未回收的脚本运行时与结束方式, dumpHeap 的路径解析, 默认文件名与正式版本的 &quot;允许脚本导出 hprof&quot; 开关, 以及 watch 与 LeakCanary 的关系. 依据为 AutoJs6 源码 (宿主提交 715801d0a), JVM 测试 MemoryModuleTest 与 2026-10-21 在 OPD2413 (Android 15) 上的真机核对. 同时补全 WebSocket#exitOnClose 的说明与脚本结束时的连接处理.</p>

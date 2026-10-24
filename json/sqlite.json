@@ -68,21 +68,21 @@
         {
           "textRaw": "SQLiteOpenOptions",
           "name": "sqliteopenoptions",
-          "desc": "<ul>\n<li><strong>[ version = 1 ]</strong> { <a href=\"dataTypes#number\">number</a> } - 数据库架构版本, 先转换为 32 位整数, 结果必须不小于 <code>1</code></li>\n<li><strong>[ readOnly = false ]</strong> { <a href=\"dataTypes#boolean\">boolean</a> } - 是否使用 Android <code>getReadableDatabase()</code> 打开</li>\n</ul>\n<p><code>version</code> 高于现有数据库版本时触发 <code>onUpgrade</code>. 首次创建数据库时触发 <code>onCreate</code>. 版本低于现有数据库版本时, 当前实现没有自定义 <code>onDowngrade</code>, Android 默认行为会抛出异常.</p>\n<p><code>readOnly</code> 为 <code>false</code> 时使用 <code>getWritableDatabase()</code>. 为 <code>true</code> 时使用 <code>getReadableDatabase()</code>. Android 的 <code>getReadableDatabase()</code> 在可写句柄可用时仍可能返回可写数据库, 因此此选项不是强制只读保证. 实际状态应通过 <a href=\"#m-database-isreadonly\">Database#isReadOnly</a> 检查.</p>\n",
+          "desc": "<ul>\n<li><strong>[ version = 1 ]</strong> { <a href=\"dataTypes#number\">number</a> } - 数据库架构版本, 先转换为 32 位整数, 结果必须不小于 <code>1</code></li>\n<li><strong>[ readOnly = false ]</strong> { <a href=\"dataTypes#boolean\">boolean</a> } - 是否使用 Android <code>getReadableDatabase()</code> 打开</li>\n</ul>\n<p><code>version</code> 高于现有数据库版本时触发 <code>onUpgrade</code>, 低于现有数据库版本时触发 <code>onDowngrade</code>. 首次创建数据库时触发 <code>onCreate</code>. 这些回调正常返回后, 数据库版本设为 <code>version</code>. 未实现 <code>onDowngrade</code> (或未提供回调) 时, 降级不执行任何操作, 现有的表与数据保持不变. AutoJs6 6.8.0 之前的版本没有 <code>onDowngrade</code>, 版本低于现有数据库版本时由 Android 默认行为抛出异常.</p>\n<p><code>readOnly</code> 为 <code>false</code> 时使用 <code>getWritableDatabase()</code>. 为 <code>true</code> 时使用 <code>getReadableDatabase()</code>. Android 的 <code>getReadableDatabase()</code> 在可写句柄可用时仍可能返回可写数据库, 因此此选项不是强制只读保证. 实际状态应通过 <a href=\"#m-database-isreadonly\">Database#isReadOnly</a> 检查.</p>\n",
           "type": "module",
           "displayName": "SQLiteOpenOptions"
         },
         {
           "textRaw": "[I] DatabaseCallback",
           "name": "[i]_databasecallback",
-          "desc": "<p>DatabaseCallback 是由 JavaScript 对象适配的生命周期接口. 对象应实现本节列出的 4 个方法.</p>\n<p>回调在 <code>sqlite</code> 或 <code>sqlite.open</code> 返回前同步执行. 此时外部接收返回值的变量尚未赋值, 应使用回调参数中的 Database.</p>\n<p>未提供回调时, 新数据库不会自动建表, 升级时也不会自动迁移架构.</p>\n",
+          "desc": "<p>DatabaseCallback 是由 JavaScript 对象适配的生命周期接口. 对象可只实现需要的方法, 未实现的方法在触发时被忽略. 本节列出全部 5 个方法.</p>\n<p>回调在 <code>sqlite</code> 或 <code>sqlite.open</code> 返回前同步执行. 此时外部接收返回值的变量尚未赋值, 应使用回调参数中的 Database.</p>\n<p>未提供回调时, 新数据库不会自动建表, 升级时也不会自动迁移架构, 降级时保留现有的表与数据.</p>\n",
           "type": "module",
           "displayName": "[I] DatabaseCallback"
         },
         {
           "textRaw": "DatabaseCallback 示例",
           "name": "databasecallback_示例",
-          "desc": "<pre><code class=\"lang-js\">let db = sqlite(&quot;./data/app.db&quot;, {\n    version: 1,\n    readOnly: false,\n}, {\n    onCorruption(rawDatabase) {\n        console.error(&quot;Database corrupted: &quot; + rawDatabase.getPath());\n    },\n    onCreate(database) {\n        database.execSQL(\n            &quot;CREATE TABLE IF NOT EXISTS notes (&quot; +\n            &quot;id INTEGER PRIMARY KEY AUTOINCREMENT, &quot; +\n            &quot;title TEXT NOT NULL, &quot; +\n            &quot;done INTEGER NOT NULL DEFAULT 0)&quot;\n        );\n    },\n    onOpen(database) {\n        console.log(&quot;Opened: &quot; + database.getPath());\n    },\n    onUpgrade(database, oldVersion, newVersion) {\n        console.log(&quot;Upgrade: &quot; + oldVersion + &quot; -&gt; &quot; + newVersion);\n    },\n});\n\ntry {\n    db.insert(&quot;notes&quot;, {\n        title: &quot;Read SQLite documentation&quot;,\n        done: false,\n    });\n    let rows = db.rawQuery(\n        &quot;SELECT id, title, done FROM notes ORDER BY id&quot;,\n        []\n    ).all();\n    console.log(rows);\n} finally {\n    db.close();\n}\n</code></pre>\n",
+          "desc": "<pre><code class=\"lang-js\">let db = sqlite(&quot;./data/app.db&quot;, {\n    version: 1,\n    readOnly: false,\n}, {\n    onCorruption(rawDatabase) {\n        console.error(&quot;Database corrupted: &quot; + rawDatabase.getPath());\n    },\n    onCreate(database) {\n        database.execSQL(\n            &quot;CREATE TABLE IF NOT EXISTS notes (&quot; +\n            &quot;id INTEGER PRIMARY KEY AUTOINCREMENT, &quot; +\n            &quot;title TEXT NOT NULL, &quot; +\n            &quot;done INTEGER NOT NULL DEFAULT 0)&quot;\n        );\n    },\n    onOpen(database) {\n        console.log(&quot;Opened: &quot; + database.getPath());\n    },\n    onUpgrade(database, oldVersion, newVersion) {\n        console.log(&quot;Upgrade: &quot; + oldVersion + &quot; -&gt; &quot; + newVersion);\n    },\n    onDowngrade(database, oldVersion, newVersion) {\n        console.log(&quot;Downgrade: &quot; + oldVersion + &quot; -&gt; &quot; + newVersion);\n    },\n});\n\ntry {\n    db.insert(&quot;notes&quot;, {\n        title: &quot;Read SQLite documentation&quot;,\n        done: false,\n    });\n    let rows = db.rawQuery(\n        &quot;SELECT id, title, done FROM notes ORDER BY id&quot;,\n        []\n    ).all();\n    console.log(rows);\n} finally {\n    db.close();\n}\n</code></pre>\n",
           "type": "module",
           "displayName": "DatabaseCallback 示例"
         },
@@ -250,11 +250,40 @@
                   ]
                 }
               ],
-              "desc": "<p>请求版本高于现有数据库版本时调用. 此回调在 Android 管理的事务内执行, 抛出异常会回滚升级.</p>\n<hr>\n<p style=\"font: bold 2em sans-serif; color: #FF7043\">Database</p>\n\n<hr>\n"
+              "desc": "<p>请求版本高于现有数据库版本时调用. 此回调在 Android 管理的事务内执行, 抛出异常会回滚升级.</p>\n"
             }
           ],
           "type": "module",
           "displayName": "[m!] DatabaseCallback#onUpgrade"
+        },
+        {
+          "textRaw": "[m!] DatabaseCallback#onDowngrade",
+          "name": "[m!]_databasecallback#ondowngrade",
+          "methods": [
+            {
+              "textRaw": "onDowngrade(database, oldVersion, newVersion)",
+              "type": "method",
+              "name": "onDowngrade",
+              "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li><strong>database</strong> { <a href=\"#c-database\">Database</a> } - 当前数据库</li>\n<li><strong>oldVersion</strong> { <a href=\"dataTypes#number\">number</a> } - 旧版本, 即现有数据库版本</li>\n<li><strong>newVersion</strong> { <a href=\"dataTypes#number\">number</a> } - 新版本, 即请求的 <code>version</code></li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#void\">void</a> }</li>\n</ul>\n<p>请求版本低于现有数据库版本时调用, 之后调用 <code>onOpen</code>. 此回调在 Android 管理的事务内执行, 期间 <code>database.getVersion()</code> 仍返回旧版本. 正常返回后, 回调中的修改与新版本号一并提交. 抛出异常会回滚降级, 数据库版本与数据保持不变, 异常由 <code>sqlite</code> 或 <code>sqlite.open</code> 抛出. 需要拒绝降级 (即 6.8.0 之前的行为) 时, 可在此回调中抛出异常.</p>\n<p>未实现此方法时, 降级不执行任何操作, 现有的表与数据保持不变.</p>\n<pre><code class=\"lang-js\">let db = sqlite(&quot;./data/app.db&quot;, { version: 1 }, {\n    onDowngrade(database, oldVersion, newVersion) {\n        if (oldVersion - newVersion &gt; 1) {\n            throw new Error(&quot;Unsupported downgrade: &quot; + oldVersion + &quot; -&gt; &quot; + newVersion);\n        }\n    },\n});\ndb.close();\n</code></pre>\n<hr>\n<p style=\"font: bold 2em sans-serif; color: #FF7043\">Database</p>\n\n<hr>\n",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "name": "database"
+                    },
+                    {
+                      "name": "oldVersion"
+                    },
+                    {
+                      "name": "newVersion"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "type": "module",
+          "displayName": "[m!] DatabaseCallback#onDowngrade"
         },
         {
           "textRaw": "[C] Database",

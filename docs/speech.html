@@ -837,7 +837,7 @@ speech.speak(&#39;你好&#39;, { model: &#39;tts.vits.icefall.zh-aishell3&#39;, 
 <li><strong>[ maxDurationMillis = <code>300000</code> ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> } - 会话时长上限, 正整数, 最大 <code>1800000</code> (30 分钟, 超出为 <code>LIMIT_EXCEEDED</code>)</li>
 <li><strong>[ timeoutMillis = <code>15000</code> ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> } - 没有语音或新文字时自动结束的时长, 范围 <code>0..1800000</code>, <code>0</code> 表示不限</li>
 <li><strong>[ hotwords = <code>[]</code> ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a><a href="dataTypes.html#datatypes_array">[]</a></span> } - 热词, 去重后最多 200 个, 每个不超过 128 个字符</li>
-<li><strong>[ punctuation = <code>true</code> ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> } - 是否保留模型输出的标点</li>
+<li><strong>[ punctuation = <code>true</code> ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> } - 是否加标点: 模型自带标点 (SenseVoice) 时保留; 流式模型的结果由插件中已安装的标点模型补上标点 (3-Macaw Speech 1.2.0 起, 中文与英文, 英文同时恢复大小写), 没有覆盖该语言的标点模型时保持原样; <code>false</code> 去掉所有标点</li>
 </ul>
 <p><code>timeoutMillis</code> 与 <code>maxDurationMillis</code> 按插件已处理的音频时长计算, 而不是墙钟时间: 麦克风会话按实时计算, 外部 PCM 会话按已输入的音频计算 (暂停输入时不会超时). <code>timeoutMillis</code> 从最近一次语音或新文字起算. 到达时会话以 <code>end</code> 结束, 原因分别为 <code>&#39;timeout&#39;</code> 与 <code>&#39;maxDuration&#39;</code>. 插件在静音达到 <code>silenceEndMillis</code> 或连续说话满 20 秒时结束一句话.</p>
 <h3>SpeechRecognizeOptions<span><a class="mark" href="#speech_speechrecognizeoptions" id="speech_speechrecognizeoptions">#</a></span></h3>
@@ -846,7 +846,7 @@ speech.speak(&#39;你好&#39;, { model: &#39;tts.vits.icefall.zh-aishell3&#39;, 
 <li><strong>[ model ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 识别模型 ID, 默认为默认识别模型</li>
 <li><strong>[ language ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 语言提示, 同 <a href="#speech_speech_listen_options">SpeechListenOptions</a></li>
 <li><strong>[ hotwords = <code>[]</code> ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a><a href="dataTypes.html#datatypes_array">[]</a></span> } - 热词, 最多 200 个</li>
-<li><strong>[ punctuation = <code>true</code> ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> } - 是否保留模型输出的标点</li>
+<li><strong>[ punctuation = <code>true</code> ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> } - 是否加标点, 同 <a href="#speech_speech_listen_options">SpeechListenOptions</a></li>
 <li><strong>[ vad = <code>true</code> ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> } - 是否先按语音活动检测切段</li>
 <li><strong>[ sampleRate = <code>16000</code> ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> } - PCM 数据的采样率, 范围 <code>8000..192000</code>; 文件识别以文件自身的采样率为准, 忽略此项</li>
 </ul>

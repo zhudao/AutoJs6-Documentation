@@ -57,17 +57,17 @@ log(typeof sqlite.open); // "function"
 - **[ version = 1 ]** { [number](dataTypes#number) } - 数据库架构版本, 先转换为 32 位整数, 结果必须不小于 `1`
 - **[ readOnly = false ]** { [boolean](dataTypes#boolean) } - 是否使用 Android `getReadableDatabase()` 打开
 
-`version` 高于现有数据库版本时触发 `onUpgrade`. 首次创建数据库时触发 `onCreate`. 版本低于现有数据库版本时, 当前实现没有自定义 `onDowngrade`, Android 默认行为会抛出异常.
+`version` 高于现有数据库版本时触发 `onUpgrade`, 低于现有数据库版本时触发 `onDowngrade`. 首次创建数据库时触发 `onCreate`. 这些回调正常返回后, 数据库版本设为 `version`. 未实现 `onDowngrade` (或未提供回调) 时, 降级不执行任何操作, 现有的表与数据保持不变. AutoJs6 6.8.0 之前的版本没有 `onDowngrade`, 版本低于现有数据库版本时由 Android 默认行为抛出异常.
 
 `readOnly` 为 `false` 时使用 `getWritableDatabase()`. 为 `true` 时使用 `getReadableDatabase()`. Android 的 `getReadableDatabase()` 在可写句柄可用时仍可能返回可写数据库, 因此此选项不是强制只读保证. 实际状态应通过 [Database#isReadOnly](#m-database-isreadonly) 检查.
 
 ## [I] DatabaseCallback
 
-DatabaseCallback 是由 JavaScript 对象适配的生命周期接口. 对象应实现本节列出的 4 个方法.
+DatabaseCallback 是由 JavaScript 对象适配的生命周期接口. 对象可只实现需要的方法, 未实现的方法在触发时被忽略. 本节列出全部 5 个方法.
 
 回调在 `sqlite` 或 `sqlite.open` 返回前同步执行. 此时外部接收返回值的变量尚未赋值, 应使用回调参数中的 Database.
 
-未提供回调时, 新数据库不会自动建表, 升级时也不会自动迁移架构.
+未提供回调时, 新数据库不会自动建表, 升级时也不会自动迁移架构, 降级时保留现有的表与数据.
 
 ## DatabaseCallback 示例
 
@@ -92,6 +92,9 @@ let db = sqlite("./data/app.db", {
     },
     onUpgrade(database, oldVersion, newVersion) {
         console.log("Upgrade: " + oldVersion + " -> " + newVersion);
+    },
+    onDowngrade(database, oldVersion, newVersion) {
+        console.log("Downgrade: " + oldVersion + " -> " + newVersion);
     },
 });
 
@@ -147,6 +150,32 @@ Android 检测到数据库损坏时调用.
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
 请求版本高于现有数据库版本时调用. 此回调在 Android 管理的事务内执行, 抛出异常会回滚升级.
+
+## [m!] DatabaseCallback#onDowngrade
+
+### onDowngrade(database, oldVersion, newVersion)
+
+**`6.8.0`**
+
+- **database** { [Database](#c-database) } - 当前数据库
+- **oldVersion** { [number](dataTypes#number) } - 旧版本, 即现有数据库版本
+- **newVersion** { [number](dataTypes#number) } - 新版本, 即请求的 `version`
+- <ins>**returns**</ins> { [void](dataTypes#void) }
+
+请求版本低于现有数据库版本时调用, 之后调用 `onOpen`. 此回调在 Android 管理的事务内执行, 期间 `database.getVersion()` 仍返回旧版本. 正常返回后, 回调中的修改与新版本号一并提交. 抛出异常会回滚降级, 数据库版本与数据保持不变, 异常由 `sqlite` 或 `sqlite.open` 抛出. 需要拒绝降级 (即 6.8.0 之前的行为) 时, 可在此回调中抛出异常.
+
+未实现此方法时, 降级不执行任何操作, 现有的表与数据保持不变.
+
+```js
+let db = sqlite("./data/app.db", { version: 1 }, {
+    onDowngrade(database, oldVersion, newVersion) {
+        if (oldVersion - newVersion > 1) {
+            throw new Error("Unsupported downgrade: " + oldVersion + " -> " + newVersion);
+        }
+    },
+});
+db.close();
+```
 
 ---
 
