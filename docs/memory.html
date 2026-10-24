@@ -325,7 +325,7 @@
 
         <div id="apicontent">
             <h1>内存 (Memory)<span><a class="mark" href="#memory_memory" id="memory_memory">#</a></span></h1>
-<p>memory 模块用于在脚本中读取 AutoJs6 进程自身的内存诊断数据, 包括 Java 堆与原生堆用量, 存活的脚本引擎, 已结束但尚未被回收的脚本运行时, 未释放的图像与脚本线程等, 以便检查脚本反复运行后内存是否持续增长.</p>
+<p>memory 模块用于在脚本中读取 AutoJs6 进程自身的内存诊断数据, 包括 Java 堆与原生堆用量, 存活的脚本引擎, 已结束但尚未被回收的脚本运行时与插件引擎桥接会话, 未释放的图像与脚本线程等, 以便检查脚本反复运行后内存是否持续增长.</p>
 <p>数据来源与 AutoJs6 &quot;设置 &gt; 关于 &gt; 开发者选项 &gt; 内存诊断&quot; 页面相同. 此模块只读取诊断数据, 不提供释放其他脚本资源的能力.</p>
 <p><code>memory</code> 与 <code>$memory</code> 指向同一个模块对象.</p>
 <blockquote>
@@ -348,6 +348,7 @@
 <li>pss: <a href="dataTypes.html#datatypes_number">number</a>;</li>
 <li>engines: <a href="dataTypes.html#datatypes_number">number</a>;</li>
 <li>retainedRuntimes: <a href="dataTypes.html#datatypes_number">number</a>;</li>
+<li>bridgeSessions: { <span class="type">{ node: <a href="dataTypes.html#datatypes_number">number</a>; bun: <a href="dataTypes.html#datatypes_number">number</a>; quickjs: <a href="dataTypes.html#datatypes_number">number</a>; lua: <a href="dataTypes.html#datatypes_number">number</a>; python: <a href="dataTypes.html#datatypes_number">number</a></span> }};</li>
 <li>images: <a href="dataTypes.html#datatypes_number">number</a>;</li>
 <li>threads: <a href="dataTypes.html#datatypes_number">number</a>;</li>
 <li>allThreads: <a href="dataTypes.html#datatypes_number">number</a>;</li>
@@ -358,7 +359,7 @@
 <li>}} - 内存快照</li>
 </ul>
 <p>读取当前的内存数据. 此方法不会先执行垃圾回收, 因此 Java 堆用量包含尚未回收的垃圾; 需要回收后的数据时使用 <a href="#memory_m_collect">collect</a>.</p>
-<p>快照对象的各属性均为数值, 字节数以字节 (B) 为单位:</p>
+<p>快照对象的属性除 bridgeSessions 外均为数值, 字节数以字节 (B) 为单位:</p>
 <table>
 <thead>
 <tr>
@@ -400,6 +401,10 @@
 <td>已结束但尚未被回收的脚本运行时数, 与 <a href="#memory_m_retained">retained</a> 返回的数组长度相同</td>
 </tr>
 <tr>
+<td>bridgeSessions</td>
+<td>各插件引擎已结束但尚未被回收的桥接会话数, 属性 <code>node</code>, <code>bun</code>, <code>quickjs</code>, <code>lua</code>, <code>python</code> 依次对应 Node.js, Bun, QuickJS, Lua 与 Python 引擎, 均为数值</td>
+</tr>
+<tr>
 <td>images</td>
 <td>既未调用 <code>recycle</code> 也未被垃圾回收的脚本图像数</td>
 </tr>
@@ -422,20 +427,22 @@
 </tbody>
 </table>
 <p>读取 PSS 需要遍历进程的内存映射, 一次调用通常需要几毫秒.</p>
+<p>桥接会话指插件引擎的一次执行在 AutoJs6 进程内创建的会话对象, 例如宿主能力代理 (broker) 与输出回调. 执行结束后这些对象仍未被回收时, 该次执行计入 bridgeSessions, 全部被回收后不再计入. 与 retainedRuntimes 相同, 刚结束的执行在下一次垃圾回收之前也会计入, 需要判断是否泄漏时先调用 <a href="#memory_m_collect">collect</a>.</p>
 <pre><code class="lang-js">let s = memory.snapshot();
 console.log(&#39;Java 堆: &#39; + fmt.bytes(s.javaHeapUsed) + &#39; / &#39; + fmt.bytes(s.javaHeapMax));
 console.log(&#39;原生堆: &#39; + fmt.bytes(s.nativeHeapAllocated));
 console.log(&#39;存活引擎: &#39; + s.engines + &#39;, 未回收的运行时: &#39; + s.retainedRuntimes);
+console.log(&#39;未回收的 Python 桥接会话: &#39; + s.bridgeSessions.python);
 </code></pre>
 <h2>[m] collect<span><a class="mark" href="#memory_m_collect" id="memory_m_collect">#</a></span></h2>
 <h3>collect(timeout?)<span><a class="mark" href="#memory_collect_timeout" id="memory_collect_timeout">#</a></span></h3>
 <p><strong><code>6.8.0</code></strong></p>
 <ul>
-<li><strong>[ timeout = <code>10000</code> ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> } - 等待已结束的脚本运行时被回收的最长时间 (毫秒), 取值范围为 <code>0</code> 到 <code>60000</code></li>
+<li><strong>[ timeout = <code>10000</code> ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> } - 等待已结束的脚本运行时与桥接会话被回收的最长时间 (毫秒), 取值范围为 <code>0</code> 到 <code>60000</code></li>
 <li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_object">Object</a></span> } - 回收后的内存快照, 属性与 <a href="#memory_m_snapshot">snapshot</a> 的返回值相同</li>
 </ul>
-<p>强制执行垃圾回收, 并等待已结束的脚本运行时被回收, 然后返回新的内存快照.</p>
-<p>此方法先执行 3 次垃圾回收与 finalization, 之后每 100 毫秒检查一次, 每 500 毫秒再执行一次垃圾回收. 已结束的脚本运行时全部被回收时立即返回, 否则在 <code>timeout</code> 毫秒后返回. 返回的快照中 <code>retainedRuntimes</code> 不为 <code>0</code> 时, 说明仍有对象持有已结束脚本的运行时, 可用 <a href="#memory_m_retained">retained</a> 查看是哪些脚本.</p>
+<p>强制执行垃圾回收, 并等待已结束的脚本运行时与桥接会话被回收, 然后返回新的内存快照.</p>
+<p>此方法先执行 3 次垃圾回收与 finalization, 之后每 100 毫秒检查一次, 每 500 毫秒再执行一次垃圾回收. 已结束的脚本运行时与桥接会话全部被回收时立即返回, 否则在 <code>timeout</code> 毫秒后返回. 返回的快照中 <code>retainedRuntimes</code> 不为 <code>0</code> 时, 说明仍有对象持有已结束脚本的运行时, 可用 <a href="#memory_m_retained">retained</a> 查看是哪些脚本; <code>bridgeSessions</code> 中某个引擎不为 <code>0</code> 时, 说明仍有对象持有该引擎已结束执行的会话对象.</p>
 <p>此方法会阻塞当前线程, 最长约 <code>timeout</code> 毫秒, 不要在 UI 线程中调用. 脚本被停止时, 等待立即中止.</p>
 <p><code>timeout</code> 不是 <code>0</code> 到 <code>60000</code> 之间的数值时抛出异常.</p>
 <pre><code class="lang-js">let before = memory.snapshot();
@@ -491,10 +498,15 @@ console.log(&#39;仍未回收的运行时: &#39; + after.retainedRuntimes);
 <td><a href="dataTypes.html#datatypes_string">string</a></td>
 <td>结束方式: <code>normal</code> 为自行结束, <code>error</code> 为因未捕获的错误结束, <code>stopped</code> 为被停止 (在任务列表中停止, <code>engines.stopAll</code> 等强制停止, 或脚本自身调用 <code>exit</code>)</td>
 </tr>
+<tr>
+<td>engine</td>
+<td><a href="dataTypes.html#datatypes_string">string</a></td>
+<td>脚本引擎: <code>rhino</code> 为 JavaScript (Rhino) 脚本, <code>node</code> 为 Node.js 脚本</td>
+</tr>
 </tbody>
 </table>
 <p>脚本刚结束时, 其运行时在下一次垃圾回收之前也会出现在此列表中. 先调用 <a href="#memory_m_collect">collect</a>, 之后仍在列表中的脚本运行时才是被其他对象持有的, 通常意味着内存泄漏.</p>
-<p>此列表只包含 JavaScript (Rhino) 脚本.</p>
+<p>此列表只包含带有脚本运行时的 JavaScript (Rhino) 脚本与 Node.js 脚本. Bun, QuickJS, Lua 与 Python 脚本已结束未回收的会话只计入 <a href="#memory_m_snapshot">snapshot</a> 返回值的 bridgeSessions.</p>
 <pre><code class="lang-js">memory.collect();
 memory.retained().forEach((r) =&gt; {
     console.log(r.name + &#39; (&#39; + r.exitKind + &#39;), 已结束 &#39; + Math.round(r.elapsedMs / 1000) + &#39; 秒&#39;);

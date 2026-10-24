@@ -306,6 +306,7 @@
 
         <div id="apicontent">
             <h1>文档部署进度 (Progress)<span><a class="mark" href="#progress_progress" id="progress_progress">#</a></span></h1>
+<p>2026-10-24 内存 (Memory) 增补: snapshot 的 bridgeSessions (Node.js, Bun, QuickJS, Lua 与 Python 五个插件引擎已结束但未被回收的桥接会话数), collect 同时等待桥接会话被回收, retained 元素的 engine (<code>rhino</code> / <code>node</code>). 依据为 AutoJs6 源码 (内存路线图第二期 P4.4, 宿主提交 446d2ff42) 与 JVM 测试 MemoryModuleTest / MemoryDiagnosticsCoreTest.</p>
 <p>2026-10-24 SQLite 增补: DatabaseCallback#onDowngrade (AutoJs6 6.8.0), 打开时请求的 version 低于现有数据库版本时调用, 在 Android 管理的事务内执行, 抛出异常会回滚降级; 未实现时降级不执行任何操作并保留表与数据 (此前由 Android 默认行为抛出异常). 同步 SQLiteOpenOptions 的版本说明, DatabaseCallback 的说明与示例. 依据为宿主 core/database/Database.java (宿主提交 e03d82e0f) 与 2026-10-24 在临时 AVD (Android 7.0 与 15) 上的设备用例 (宿主 tools/db-downgrade/sqlite_ondowngrade.py). AutoJs6 6.8.0 尚未发布, 此条不表示官方发布.</p>
 <p>2026-10-22 应用设置 (Settings) 增补: settings.export 与 settings.categories, 脚本可将 AutoJs6 设置导出为与导出向导格式相同的设置归档 (不含凭据), 并列出分类及条目数. 说明默认位置与文件名, 分类选择, skipped 原因及不能在 UI 线程调用的限制.</p>
 <p>2026-10-22: Node.js/Bun/Worker ai.agent 提供九个根方法, 异步 AgentRun 控制与事件, 注册脚本上下文和结果回传. Node ai.agent 与 Bun agent.control 使用独立授权; 打包应用通过已安装的 AutoJs6 宿主执行任务, 需明确应用授权且只查询自己的任务. Promise 签名, detached 生命周期与撤销行为见 AI 和 Runtime APIs. 此项为本地开发版本, 不表示公开发布.</p>

@@ -1,6 +1,6 @@
 # 内存 (Memory)
 
-memory 模块用于在脚本中读取 AutoJs6 进程自身的内存诊断数据, 包括 Java 堆与原生堆用量, 存活的脚本引擎, 已结束但尚未被回收的脚本运行时, 未释放的图像与脚本线程等, 以便检查脚本反复运行后内存是否持续增长.
+memory 模块用于在脚本中读取 AutoJs6 进程自身的内存诊断数据, 包括 Java 堆与原生堆用量, 存活的脚本引擎, 已结束但尚未被回收的脚本运行时与插件引擎桥接会话, 未释放的图像与脚本线程等, 以便检查脚本反复运行后内存是否持续增长.
 
 数据来源与 AutoJs6 "设置 > 关于 > 开发者选项 > 内存诊断" 页面相同. 此模块只读取诊断数据, 不提供释放其他脚本资源的能力.
 
@@ -29,6 +29,7 @@ memory 模块用于在脚本中读取 AutoJs6 进程自身的内存诊断数据,
     - pss: [number](dataTypes#number);
     - engines: [number](dataTypes#number);
     - retainedRuntimes: [number](dataTypes#number);
+    - bridgeSessions: {{ node: [number](dataTypes#number); bun: [number](dataTypes#number); quickjs: [number](dataTypes#number); lua: [number](dataTypes#number); python: [number](dataTypes#number) }};
     - images: [number](dataTypes#number);
     - threads: [number](dataTypes#number);
     - allThreads: [number](dataTypes#number);
@@ -38,7 +39,7 @@ memory 模块用于在脚本中读取 AutoJs6 进程自身的内存诊断数据,
 
 读取当前的内存数据. 此方法不会先执行垃圾回收, 因此 Java 堆用量包含尚未回收的垃圾; 需要回收后的数据时使用 [collect](#m-collect).
 
-快照对象的各属性均为数值, 字节数以字节 (B) 为单位:
+快照对象的属性除 bridgeSessions 外均为数值, 字节数以字节 (B) 为单位:
 
 | 属性 | 含义 |
 | --- | --- |
@@ -50,6 +51,7 @@ memory 模块用于在脚本中读取 AutoJs6 进程自身的内存诊断数据,
 | pss | AutoJs6 进程的 PSS (按比例计算的实际占用内存) |
 | engines | 存活的脚本引擎数, 包括当前脚本 |
 | retainedRuntimes | 已结束但尚未被回收的脚本运行时数, 与 [retained](#m-retained) 返回的数组长度相同 |
+| bridgeSessions | 各插件引擎已结束但尚未被回收的桥接会话数, 属性 `node`, `bun`, `quickjs`, `lua`, `python` 依次对应 Node.js, Bun, QuickJS, Lua 与 Python 引擎, 均为数值 |
 | images | 既未调用 `recycle` 也未被垃圾回收的脚本图像数 |
 | threads | 为脚本创建的线程数, 按线程名判断 (脚本线程, `threads.start` 与 `threads.pool` 的线程, 定时器线程, 截屏线程与 Looper 线程) |
 | allThreads | AutoJs6 进程内全部存活的线程数 |
@@ -58,11 +60,14 @@ memory 模块用于在脚本中读取 AutoJs6 进程自身的内存诊断数据,
 
 读取 PSS 需要遍历进程的内存映射, 一次调用通常需要几毫秒.
 
+桥接会话指插件引擎的一次执行在 AutoJs6 进程内创建的会话对象, 例如宿主能力代理 (broker) 与输出回调. 执行结束后这些对象仍未被回收时, 该次执行计入 bridgeSessions, 全部被回收后不再计入. 与 retainedRuntimes 相同, 刚结束的执行在下一次垃圾回收之前也会计入, 需要判断是否泄漏时先调用 [collect](#m-collect).
+
 ```js
 let s = memory.snapshot();
 console.log('Java 堆: ' + fmt.bytes(s.javaHeapUsed) + ' / ' + fmt.bytes(s.javaHeapMax));
 console.log('原生堆: ' + fmt.bytes(s.nativeHeapAllocated));
 console.log('存活引擎: ' + s.engines + ', 未回收的运行时: ' + s.retainedRuntimes);
+console.log('未回收的 Python 桥接会话: ' + s.bridgeSessions.python);
 ```
 
 ## [m] collect
@@ -71,12 +76,12 @@ console.log('存活引擎: ' + s.engines + ', 未回收的运行时: ' + s.retai
 
 **`6.8.0`**
 
-- **[ timeout = `10000` ]** { [number](dataTypes#number) } - 等待已结束的脚本运行时被回收的最长时间 (毫秒), 取值范围为 `0` 到 `60000`
+- **[ timeout = `10000` ]** { [number](dataTypes#number) } - 等待已结束的脚本运行时与桥接会话被回收的最长时间 (毫秒), 取值范围为 `0` 到 `60000`
 - <ins>**returns**</ins> { [Object](dataTypes#object) } - 回收后的内存快照, 属性与 [snapshot](#m-snapshot) 的返回值相同
 
-强制执行垃圾回收, 并等待已结束的脚本运行时被回收, 然后返回新的内存快照.
+强制执行垃圾回收, 并等待已结束的脚本运行时与桥接会话被回收, 然后返回新的内存快照.
 
-此方法先执行 3 次垃圾回收与 finalization, 之后每 100 毫秒检查一次, 每 500 毫秒再执行一次垃圾回收. 已结束的脚本运行时全部被回收时立即返回, 否则在 `timeout` 毫秒后返回. 返回的快照中 `retainedRuntimes` 不为 `0` 时, 说明仍有对象持有已结束脚本的运行时, 可用 [retained](#m-retained) 查看是哪些脚本.
+此方法先执行 3 次垃圾回收与 finalization, 之后每 100 毫秒检查一次, 每 500 毫秒再执行一次垃圾回收. 已结束的脚本运行时与桥接会话全部被回收时立即返回, 否则在 `timeout` 毫秒后返回. 返回的快照中 `retainedRuntimes` 不为 `0` 时, 说明仍有对象持有已结束脚本的运行时, 可用 [retained](#m-retained) 查看是哪些脚本; `bridgeSessions` 中某个引擎不为 `0` 时, 说明仍有对象持有该引擎已结束执行的会话对象.
 
 此方法会阻塞当前线程, 最长约 `timeout` 毫秒, 不要在 UI 线程中调用. 脚本被停止时, 等待立即中止.
 
@@ -110,10 +115,11 @@ console.log('仍未回收的运行时: ' + after.retainedRuntimes);
 | endedAt | [number](dataTypes#number) | 脚本结束的时刻, 自 1970-01-01 00:00:00 UTC 起的毫秒数 |
 | elapsedMs | [number](dataTypes#number) | 脚本结束后经过的毫秒数 |
 | exitKind | [string](dataTypes#string) | 结束方式: `normal` 为自行结束, `error` 为因未捕获的错误结束, `stopped` 为被停止 (在任务列表中停止, `engines.stopAll` 等强制停止, 或脚本自身调用 `exit`) |
+| engine | [string](dataTypes#string) | 脚本引擎: `rhino` 为 JavaScript (Rhino) 脚本, `node` 为 Node.js 脚本 |
 
 脚本刚结束时, 其运行时在下一次垃圾回收之前也会出现在此列表中. 先调用 [collect](#m-collect), 之后仍在列表中的脚本运行时才是被其他对象持有的, 通常意味着内存泄漏.
 
-此列表只包含 JavaScript (Rhino) 脚本.
+此列表只包含带有脚本运行时的 JavaScript (Rhino) 脚本与 Node.js 脚本. Bun, QuickJS, Lua 与 Python 脚本已结束未回收的会话只计入 [snapshot](#m-snapshot) 返回值的 bridgeSessions.
 
 ```js
 memory.collect();
