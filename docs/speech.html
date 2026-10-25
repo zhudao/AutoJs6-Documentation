@@ -553,11 +553,145 @@ session.on(&#39;end&#39;, e =&gt; console.log(e.reason, session.result()));
 </tr>
 </tbody>
 </table>
+<p>3-Macaw Speech 1.2.0 (目录版本 2) 与 1.3.0 (目录版本 3) 的目录另增以下模型, 最后一栏为最早提供该模型的插件版本. 1.2.0 起目录还有标点模型 (<code>punct</code>), 它们只供插件给识别结果补标点, 不出现在 <a href="#speech_m_models_list">speech.models.list</a> 中.</p>
+<table>
+<thead>
+<tr>
+<th>模型 ID</th>
+<th>类型</th>
+<th>语言</th>
+<th>安装后约</th>
+<th>许可</th>
+<th>可商用</th>
+<th>插件版本</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>asr.zipformer-streaming.fr.2023-04-14.int8</code></td>
+<td>asr, <code>online-transducer</code> (流式, 推荐)</td>
+<td>fr</td>
+<td>123 MiB</td>
+<td>Apache-2.0</td>
+<td>是</td>
+<td>1.2.0</td>
+</tr>
+<tr>
+<td><code>asr.zipformer-streaming.ru.2025-08-16.int8</code></td>
+<td>asr, <code>online-transducer</code> (流式, 推荐)</td>
+<td>ru</td>
+<td>27 MiB</td>
+<td>Apache-2.0</td>
+<td>是</td>
+<td>1.2.0</td>
+</tr>
+<tr>
+<td><code>asr.zipformer-streaming.ko.2024-06-16.int8</code></td>
+<td>asr, <code>online-transducer</code> (流式)</td>
+<td>ko</td>
+<td>134 MiB</td>
+<td>Apache-2.0</td>
+<td>否</td>
+<td>1.2.0</td>
+</tr>
+<tr>
+<td><code>tts.vits.piper.fr-fr-siwis-medium.int8</code></td>
+<td>tts, <code>vits</code>, 1 个说话人, 22.05 kHz</td>
+<td>fr</td>
+<td>35 MiB</td>
+<td>MIT 与 GPL-3.0-or-later</td>
+<td>否</td>
+<td>1.2.0</td>
+</tr>
+<tr>
+<td><code>tts.vits.piper.es-es-davefx-medium.int8</code></td>
+<td>tts, <code>vits</code>, 1 个说话人, 22.05 kHz</td>
+<td>es</td>
+<td>35 MiB</td>
+<td>MIT 与 GPL-3.0-or-later</td>
+<td>否</td>
+<td>1.2.0</td>
+</tr>
+<tr>
+<td><code>tts.vits.piper.de-de-thorsten-medium.int8</code></td>
+<td>tts, <code>vits</code>, 1 个说话人, 22.05 kHz</td>
+<td>de</td>
+<td>35 MiB</td>
+<td>MIT 与 GPL-3.0-or-later</td>
+<td>否</td>
+<td>1.2.0</td>
+</tr>
+<tr>
+<td><code>tts.vits.piper.ru-ru-denis-medium.int8</code></td>
+<td>tts, <code>vits</code>, 1 个说话人, 22.05 kHz</td>
+<td>ru</td>
+<td>35 MiB</td>
+<td>MIT 与 GPL-3.0-or-later</td>
+<td>否</td>
+<td>1.2.0</td>
+</tr>
+<tr>
+<td><code>asr.nemo-transducer.es.2026-05-03.int8</code></td>
+<td>asr, <code>offline-transducer</code> (离线, 推荐)</td>
+<td>es</td>
+<td>130 MiB</td>
+<td>CC-BY-4.0</td>
+<td>是</td>
+<td>1.3.0</td>
+</tr>
+<tr>
+<td><code>asr.zipformer-streaming.ar-en-id-ja-ru-th-vi-zh.2025-02-10.int8</code></td>
+<td>asr, <code>online-transducer</code> (流式)</td>
+<td>ar, en, id, ja, ru, th, vi, zh</td>
+<td>323 MiB</td>
+<td>Apache-2.0</td>
+<td>未知</td>
+<td>1.3.0</td>
+</tr>
+<tr>
+<td><code>tts.kokoro.multi-lang.v1_0.int8</code></td>
+<td>tts, <code>kokoro</code>, 49 个说话人, 24 kHz</td>
+<td>en, zh, es, fr, hi, it, pt</td>
+<td>161 MiB</td>
+<td>Apache-2.0 与 GPL-3.0-or-later</td>
+<td>是</td>
+<td>1.3.0</td>
+</tr>
+<tr>
+<td><code>tts.vits.piper.ar-jo-sa-dii-high.int8</code></td>
+<td>tts, <code>vits</code>, 1 个说话人, 22.05 kHz</td>
+<td>ar</td>
+<td>35 MiB</td>
+<td>CC-BY-NC-SA-4.0 与 GPL-3.0-or-later</td>
+<td>否</td>
+<td>1.3.0</td>
+</tr>
+<tr>
+<td><code>tts.vits.piper.ar-jo-sa-miro-v2-high.int8</code></td>
+<td>tts, <code>vits</code>, 1 个说话人, 22.05 kHz</td>
+<td>ar</td>
+<td>35 MiB</td>
+<td>CC-BY-NC-ND-4.0 与 GPL-3.0-or-later</td>
+<td>否</td>
+<td>1.3.0</td>
+</tr>
+<tr>
+<td><code>tts.vits.mimic3.ko-ko-kss-low</code></td>
+<td>tts, <code>vits</code>, 1 个说话人, 22.05 kHz</td>
+<td>ko</td>
+<td>77 MiB</td>
+<td>CC0-1.0 与 GPL-3.0-or-later</td>
+<td>否</td>
+<td>1.3.0</td>
+</tr>
+</tbody>
+</table>
 <ul>
-<li><code>asr.zipformer-streaming.zh.2025-06-30.int8</code> 不经镜像分发, 只从 sherpa-onnx 的上游发布安装.</li>
-<li>流式模型 (<code>online-transducer</code>) 逐字给出部分结果; 离线模型 (<code>sense-voice</code>) 由语音活动检测切段后逐段识别, 部分结果按段给出. 两类模型在会话上触发同样的事件.</li>
+<li><code>asr.zipformer-streaming.zh.2025-06-30.int8</code>, <code>asr.zipformer-streaming.ko.2024-06-16.int8</code> 与 <code>tts.vits.piper.ar-jo-sa-miro-v2-high.int8</code> 不经镜像分发, 只从 sherpa-onnx 的上游发布安装.</li>
+<li>流式模型 (<code>online-transducer</code>) 逐字给出部分结果; 离线模型 (<code>sense-voice</code>, <code>offline-transducer</code>) 由语音活动检测切段后逐段识别, 部分结果按段给出. 两类模型在会话上触发同样的事件.</li>
 <li>热词 (<code>hotwords</code>) 只对带 <code>bpe.vocab</code> 的流式模型生效 (目录中为 <code>asr.zipformer-streaming.zh-en.2023-02-20.int8</code>), 其他模型收到热词时忽略并给出警告.</li>
-<li><code>tts.kokoro.multi-lang.v1_1</code> 的 0 - 2 号说话人为英文, 3 号及以后为中文, 默认说话人为 3 号; 其他模型的默认说话人为 0 号.</li>
+<li><code>asr.nemo-transducer.es.2026-05-03.int8</code> 只识别西班牙语, 结果自带标点与大小写. <code>asr.zipformer-streaming.ar-en-id-ja-ru-th-vi-zh.2025-02-10.int8</code> 自行判断语种, 不能指定语言, 句首偶尔被识别成其他语言, 结果不带标点; 其权重为 Apache-2.0, 但训练数据未公开, 因此可商用一栏为 &quot;未知&quot;.</li>
+<li><code>tts.kokoro.multi-lang.v1_1</code> 的 0 - 2 号说话人为英文, 3 号及以后为中文, 默认说话人为 3 号. <code>tts.kokoro.multi-lang.v1_0.int8</code> 的说话人按语言划分: 0 - 19 号美式英语, 20 - 27 号英式英语, 28, 29 与 53 号西班牙语, 30 号法语, 31 - 34 号印地语, 35, 36 号意大利语, 42 - 44 号巴西葡萄牙语, 45 - 52 号中文 (也能读英文); 37 - 41 号为日语说话人, 不开放, 指定它们时调用失败于 <code>INVALID_OPTIONS</code>; 默认说话人为 3 号. 其他模型的默认说话人为 0 号.</li>
 </ul>
 <p>每个模型对象的 <code>license</code> 给出许可表达式 (<code>spdx</code>) 与是否可商用 (<code>commercialUse</code>). 仅限非商业用途或未声明许可的模型 (目录中可商用一栏为 &quot;否&quot; 或 &quot;未知&quot; 的条目, 其 <code>commercialUse</code> 为 <code>false</code>) 须先接受许可才能安装: 脚本以 <code>acceptLicense: true</code> 调用 <a href="#speech_m_models_install">speech.models.install</a> 或 <a href="#speech_m_models_importfile">speech.models.importFile</a>, 或者用户在插件界面的许可提示中确认. 接受记录按模型版本与许可表达式保存在插件中, 之后再次安装同一版本无需重复接受; 否则调用失败于 <code>MODEL_LICENSE_NOT_ACCEPTED</code>. <code>acceptLicense</code> 只表示接受许可条款, 不改变模型许可本身, 使用者需自行遵守.</p>
 <p>插件源码采用 MPL-2.0 许可. 插件内的语音运行时 sherpa-onnx (Apache-2.0) 静态链接了 eSpeak NG 等 GPL-3.0-or-later 组件, 因此插件 APK 整体按 GPL-3.0-or-later 传播. 第三方组件与许可全文见插件的 &quot;关于&quot; 页面.</p>
@@ -906,7 +1040,7 @@ speech.speak(&#39;你好&#39;, { model: &#39;tts.vits.icefall.zh-aishell3&#39;, 
 <ul>
 <li><strong>[ id ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 目录模型 ID (要求归档包含该模型), 或导入模型的新 ID</li>
 <li><strong>[ kind ]</strong> { <code>&#39;asr&#39;</code> | <code>&#39;tts&#39;</code> | <code>&#39;kws&#39;</code> | <code>&#39;vad&#39;</code> } - 导入模型的类别</li>
-<li><strong>[ modelType ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 导入模型的类型, 如 <code>&#39;online-transducer&#39;</code>, <code>&#39;sense-voice&#39;</code>, <code>&#39;kws-transducer&#39;</code>, <code>&#39;vits&#39;</code>, <code>&#39;matcha&#39;</code>, <code>&#39;kokoro&#39;</code></li>
+<li><strong>[ modelType ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 导入模型的类型, 如 <code>&#39;online-transducer&#39;</code>, <code>&#39;sense-voice&#39;</code>, <code>&#39;offline-transducer&#39;</code>, <code>&#39;kws-transducer&#39;</code>, <code>&#39;vits&#39;</code>, <code>&#39;matcha&#39;</code>, <code>&#39;kokoro&#39;</code></li>
 <li><strong>[ name ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 显示名称, 最多 128 个字符</li>
 <li><strong>[ languages ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a><a href="dataTypes.html#datatypes_array">[]</a></span> } - 支持的语言, 1 - 32 个语言标签</li>
 <li><strong>[ acceptLicense = <code>false</code> ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> } - 同 <a href="#speech_speechinstalloptions">SpeechInstallOptions</a></li>
@@ -1092,7 +1226,7 @@ speech.speak(&#39;你好&#39;, { model: &#39;tts.vits.icefall.zh-aishell3&#39;, 
 <ul>
 <li>第一句话结束 (静音端点, 或点按 &quot;停止&quot;) 即返回 <code>RESULT_OK</code>, <code>RecognizerIntent.EXTRA_RESULTS</code> 中恰好 1 条文字, 不返回置信度.</li>
 <li>静音时长取插件设置中的端点灵敏度; 调用方给出 <code>EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS</code> 时优先使用 (限制在 300 - 5000 毫秒). 开始收音后 8 秒内没有语音返回 <code>RESULT_NO_MATCH</code>, 一句话最长 60 秒.</li>
-<li><code>EXTRA_LANGUAGE</code> 只用于选择识别模型: 默认识别模型覆盖该语言时使用它, 否则使用覆盖该语言的其他已安装识别模型 (目录推荐的优先), 都不覆盖时仍用默认识别模型. SenseVoice 始终自动识别语种.</li>
+<li><code>EXTRA_LANGUAGE</code> 只用于选择识别模型: 默认识别模型覆盖该语言时使用它, 否则使用覆盖该语言的其他已安装识别模型 (目录推荐的优先, 覆盖五种以上语言的模型排在其他模型之后), 都不覆盖时仍用默认识别模型. SenseVoice 与八语流式模型始终自动识别语种.</li>
 <li><code>EXTRA_PROMPT</code> 显示为弹层标题; <code>EXTRA_BIASING_STRINGS</code> (Android 13 及以上) 作为热词交给支持热词的模型; <code>EXTRA_MAX_RESULTS</code> 被接受但只返回 1 条; 其他 extra 被忽略.</li>
 <li>返回码: 用户取消为 <code>RESULT_CANCELED</code>; 没有语音或结果为空为 <code>RESULT_NO_MATCH</code>; 麦克风权限被拒绝, 麦克风被占用或录音失败为 <code>RESULT_AUDIO_ERROR</code>; 没有识别模型, 模型加载或引擎失败为 <code>RESULT_SERVER_ERROR</code>.</li>
 <li>插件设置 &quot;识别&quot; 组中的 &quot;作为系统语音输入&quot; 开关可停用该入口. 设备上还有其他语音输入应用时, Android 会让用户选择.</li>
