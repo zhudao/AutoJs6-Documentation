@@ -68,6 +68,19 @@ test('differences: other capability, compat, exclusions with equivalents, pendin
     assert.ok(!block.text.includes('`demo.read`'), 'rows in the column majority state are not listed');
 });
 
+test('member aliases name the module they go through', () => {
+    const alias = { via: 'member-alias' };
+    const data = matrix();
+    data.rows.push(
+        row('tool.tap', 'tool', 'tap', [bridged('accessibility', 'tap'), bridged('accessibility', 'tap'), gated('accessibility', 'tap', 'a11y.control')]),
+        row('tool.clickAny', 'tool', 'clickAny', [bridged('autojs6:flow', 'clickAny', alias), bridged('autojs6:flow', 'clickAny', alias), gated('flow', 'clickAny', 'flow.control', alias)]),
+    );
+    const lines = runtimeSupport.renderBlock(data, ['tool']).text.split('\n').filter(line => line.startsWith('| `tool.clickAny`'));
+    assert.strictEqual(lines.length, 1);
+    assert.ok(lines[0].includes('<span title="bridged">已支持</span>, 经 flow: `clickAny` (`autojs6:flow`)'), lines[0]);
+    assert.ok(lines[0].includes('<span title="capability-gated">需授权</span> `flow.control`, 经 flow: `host.flow.clickAny`'), lines[0]);
+});
+
 test('a column whose cells all read the same is described above only', () => {
     const pendingOnly = runtimeSupport.renderBlock(matrix(), ['other']);
     assert.strictEqual(pendingOnly.differences, 0);

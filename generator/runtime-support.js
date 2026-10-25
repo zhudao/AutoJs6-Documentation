@@ -92,6 +92,14 @@ function isCompat(cell) {
     return cell.via === 'compat' || cell.module === COMPAT;
 }
 
+// Rows that runtime-policy.json memberAliases map to a member of another module (roadmap Q28: the
+// automator Toolkit helpers through flow) name that module like the compat facade.
+function aliasText(column, cell) {
+    if (cell.via !== 'member-alias') return '';
+    const entry = entryOf(column, cell);
+    return `, 经 ${entry ? entry.replace(/^autojs6:/, '') : 'host'}`;
+}
+
 function cellKey(column, cell) {
     return JSON.stringify([cell.status, entryOf(column, cell), cell.capability || null, isCompat(cell)]);
 }
@@ -137,6 +145,7 @@ function cellText(row, column, defaults) {
     let text = word(status);
     if (status === 'capability-gated') text += cell.capability ? ' ' + code(cell.capability) : ' (能力待定)';
     if (isCompat(cell)) text += ', 经 compat';
+    text += aliasText(column, cell);
     if (entryOf(column, cell) !== defaults[column].entry || cell.member !== row.member) text += ': ' + entryText(column, cell);
     return text;
 }

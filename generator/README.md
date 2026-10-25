@@ -179,7 +179,10 @@ node generator/test-runtime-support.js
 | 不提供 | `denied` |
 | 待补 | `pending` |
 
-经 Node.js `autojs6:compat` 兼容门面提供的入口标注 "经 compat". 差异项中的
+经 Node.js `autojs6:compat` 兼容门面提供的入口标注 "经 compat"; 矩阵按成员别名
+(`via` 为 `member-alias`) 对到其他模块成员的入口标注 "经 <模块>", 例如 automator
+的 Toolkit 助手标注 "经 flow". 运行时声明只返回 never 的拒绝入口在矩阵中记为
+`pending`, 表中写 "待补". 差异项中的
 状态词带 `title` 属性, 值为矩阵状态名 (不适用与不提供另附理由分类). 标记块第二行
 记录矩阵的数据源 (`ksp` 或 `kotlin`); 与当前矩阵的数据源不同时 `--check`
 只报告 `skipped`, 不计为失败. 标记块内的注释不得包含 `=`, 因为 `json.js`
