@@ -102,42 +102,55 @@ function counted(values) {
     return [...counts].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
 }
 
-// The state most supported cells of a column share; cells that differ from it, and every
-// cell without an entry, make their row a "difference".
+function signature(row, column) {
+    const cell = row[column];
+    return JSON.stringify([cellKey(column, cell), cell.reason || null, cell.equivalent || null, cell.member === undefined || cell.member === row.member]);
+}
+
+// A column whose cells all read the same (all pending, say) is described by the upper table
+// alone (roadmap Q21). Otherwise the state most supported cells share is the column default;
+// cells that differ from it, and every cell without an entry, make their row a "difference".
 function columnDefault(rows, column) {
     const keys = rows.map(row => row[column]).filter(cell => SUPPORTED.includes(cell.status)).map(cell => cellKey(column, cell));
-    return keys.length ? counted(keys)[0][0] : null;
+    const key = keys.length ? counted(keys)[0][0] : null;
+    return { key, entry: key && JSON.parse(key)[1], uniform: new Set(rows.map(row => signature(row, column))).size === 1 };
 }
 
 function differs(row, column, defaults) {
     const cell = row[column];
+    const columnState = defaults[column];
+    if (columnState.uniform) return false;
     if (!SUPPORTED.includes(cell.status)) return true;
-    return cellKey(column, cell) !== defaults[column] || (cell.member !== undefined && cell.member !== row.member);
+    return cellKey(column, cell) !== columnState.key || (cell.member !== undefined && cell.member !== row.member);
+}
+
+function exclusionText(cell) {
+    const text = `(${REASON_WORDS[cell.reason] || cell.reason})`;
+    return cell.equivalent ? `${text}, 等价写法: ${code(cell.equivalent)}` : text;
 }
 
 function cellText(row, column, defaults) {
     const cell = row[column];
     const status = cell.status;
-    if (status === 'not-portable' || status === 'denied') {
-        let text = `${word(status, `${status}: ${cell.reason}`)} (${REASON_WORDS[cell.reason] || cell.reason})`;
-        return cell.equivalent ? `${text}, 等价写法: ${code(cell.equivalent)}` : text;
-    }
+    if (status === 'not-portable' || status === 'denied') return `${word(status, `${status}: ${cell.reason}`)} ${exclusionText(cell)}`;
     if (status === 'pending') return word(status);
     let text = word(status);
     if (status === 'capability-gated') text += cell.capability ? ' ' + code(cell.capability) : ' (能力待定)';
     if (isCompat(cell)) text += ', 经 compat';
-    const defaultEntry = defaults[column] && JSON.parse(defaults[column])[1];
-    if (entryOf(column, cell) !== defaultEntry || cell.member !== row.member) text += ': ' + entryText(column, cell);
+    if (entryOf(column, cell) !== defaults[column].entry || cell.member !== row.member) text += ': ' + entryText(column, cell);
     return text;
 }
 
-function countsText(rows, column) {
+function countsText(rows, column, defaults) {
     const counts = counted(rows.map(row => column === 'rhino' ? row.rhino : row[column].status));
-    return STATUS_ORDER.concat(['native'])
+    const text = STATUS_ORDER.concat(['native'])
         .map(status => counts.find(([value]) => value === status))
         .filter(Boolean)
         .map(([status, count]) => `${status === 'native' ? '已支持' : STATUS_WORDS[status]} ${count} 项`)
         .join(', ');
+    const first = rows.length && column !== 'rhino' ? rows[0][column] : null;
+    const excluded = first && defaults[column].uniform && (first.status === 'not-portable' || first.status === 'denied');
+    return excluded ? `${text} ${exclusionText(first)}` : text;
 }
 
 function rhinoEntry(rows) {
@@ -200,7 +213,7 @@ function renderBlock(matrix, roots) {
         '| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |',
         '| --- | --- | --- | --- | --- |',
         `| 入口 | ${rhinoEntry(rows)} | ${COLUMNS.map(column => runtimeEntry(rows, column)).join(' | ')} |`,
-        `| 状态 | ${countsText(rows, 'rhino')} | ${COLUMNS.map(column => countsText(rows, column)).join(' | ')} |`,
+        `| 状态 | ${countsText(rows, 'rhino', defaults)} | ${COLUMNS.map(column => countsText(rows, column, defaults)).join(' | ')} |`,
     ];
     const capabilities = capabilityText(rows);
     if (capabilities) out.push(`| 授权 | - | - | - | ${capabilities} |`);

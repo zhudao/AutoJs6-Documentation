@@ -13,6 +13,7 @@ const runtimeSupport = require('./runtime-support.js');
 const bridged = (module, member, extra) => Object.assign({ status: 'bridged', module, member, async: true, via: 'same-name' }, extra);
 const gated = (namespace, member, capability, extra) => Object.assign({ status: 'capability-gated', namespace, member, capability, async: true, via: 'same-name' }, extra);
 const pending = { status: 'pending' };
+const legacy = { status: 'not-portable', reason: 'sync-only', equivalent: 'await x()', rule: 'sync' };
 
 function row(id, module, member, cells, extra) {
     return Object.assign({
@@ -33,6 +34,8 @@ function matrix(kind) {
             row('demo.sleep', 'demo', 'sleep', [bridged('autojs6:compat', 'demo.sleep', { via: 'compat' }), { status: 'not-portable', reason: 'runtime-native', equivalent: 'a | b', rule: 'r' }, { status: 'denied', reason: 'sync-only' }]),
             row('demo.later', 'demo', 'later', [pending, pending, gated('demo', 'later')]),
             row('other.x', 'other', 'x', [pending, pending, pending]),
+            row('legacy.a', 'legacy', 'a', [legacy, legacy, pending]),
+            row('legacy.b', 'legacy', 'b', [legacy, legacy, pending]),
             row('Thing#member', null, 'member', [pending, pending, pending], { kind: 'returned-member', ownerModule: null }),
         ],
     };
@@ -63,6 +66,18 @@ test('differences: other capability, compat, exclusions with equivalents, pendin
     assert.ok(lines[1].includes('<span title="denied: sync-only">不提供</span> (依赖同步阻塞) |'));
     assert.ok(lines[2].includes('需授权</span> (能力待定) |'));
     assert.ok(!block.text.includes('`demo.read`'), 'rows in the column majority state are not listed');
+});
+
+test('a column whose cells all read the same is described above only', () => {
+    const pendingOnly = runtimeSupport.renderBlock(matrix(), ['other']);
+    assert.strictEqual(pendingOnly.differences, 0);
+    assert.ok(pendingOnly.text.includes('| 状态 | 已支持 1 项 | 待补 1 项 | 待补 1 项 | 待补 1 项 |'));
+    assert.ok(pendingOnly.text.includes('没有差异项'));
+    const excluded = runtimeSupport.renderBlock(matrix(), ['legacy']);
+    assert.strictEqual(excluded.differences, 0);
+    assert.ok(excluded.text.includes('| 状态 | 已支持 2 项 | 不适用 2 项 (依赖同步阻塞), 等价写法: `await x()` | 不适用 2 项 (依赖同步阻塞), 等价写法: `await x()` | 待补 2 项 |'));
+    const mixed = runtimeSupport.renderBlock(matrix(), ['other', 'legacy']);
+    assert.strictEqual(mixed.differences, 3, 'not uniform once the roots are shown together');
 });
 
 test('block comments never carry json.js page metadata', () => {
@@ -119,7 +134,7 @@ test('command: --insert writes, --check passes, edits and --require-all fail', (
         assert.deepStrictEqual(written.pages.map(page => [page.page, page.status]), [['api/demo.md', 'inserted']]);
         assert.deepStrictEqual(written.problems, []);
         assert.deepStrictEqual(runtimeSupport.run(Object.assign({}, base, { check: true })).problems, []);
-        assert.deepStrictEqual(runtimeSupport.run(Object.assign({}, base, { check: true })).uncovered, ['other']);
+        assert.deepStrictEqual(runtimeSupport.run(Object.assign({}, base, { check: true })).uncovered, ['legacy', 'other']);
         assert.strictEqual(runtimeSupport.run(Object.assign({}, base, { check: true, requireAll: true })).problems.length, 1);
         const file = path.join(api, 'demo.md');
         fs.writeFileSync(file, fs.readFileSync(file, 'utf8').replace('待补 1 项', '待补 2 项'));
