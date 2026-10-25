@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `업데이트` [Speech](https://docs.autojs6.com/#/speech)에 3-Macaw Speech 1.2.0과 1.3.0에서 카탈로그에 추가된 모델 (프랑스어, 러시아어, 한국어, 스페인어, 8개 언어 인식, Kokoro v1.0 다국어 음성, 아랍어와 한국어 음성 등)을 싣고, 오프라인 인식 유형 offline-transducer와 Kokoro v1.0의 화자 구분을 설명
 - `업데이트` [Speech](https://docs.autojs6.com/#/speech)의 punctuation 옵션 설명 보완: 문장 부호를 출력하는 모델 (SenseVoice)은 그대로 유지하고, 스트리밍 모델 결과에는 3-Macaw Speech에 설치한 문장 부호 모델로 문장 부호를 붙이며 (1.2.0 이상, 중국어와 영어), false는 모든 문장 부호를 제거
 - `추가` API 문서: Node.js/Bun/Worker의 ai.agent 작업 제어와 이벤트, 등록된 스크립트의 컨텍스트와 결과, 패키징된 앱의 명시적 승인
 - `추가` Node.js, Bun 및 Worker의 AI 텍스트 생성, 스트리밍 결과, 모델 목록과 지속 세션, 독립 서명 앱에 대한 3-Stone AI의 앱별 승인 및 취소

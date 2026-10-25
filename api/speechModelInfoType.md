@@ -59,7 +59,7 @@ speech.models.list({ kind: 'tts' }).forEach((m) => {
 
 - { [string](dataTypes#string) }
 
-模型的结构类型, 决定插件如何加载它. 目录中的取值为 `'online-transducer'` (流式识别), `'sense-voice'` (离线识别), `'kws-transducer'` (唤醒词), `'vits'`, `'matcha'`, `'kokoro'` (合成) 与 `'silero'` (内置语音活动检测).
+模型的结构类型, 决定插件如何加载它. 目录中的取值为 `'online-transducer'` (流式识别), `'sense-voice'` 与 `'offline-transducer'` (离线识别, 后者自 3-Macaw Speech 1.3.0 起), `'kws-transducer'` (唤醒词), `'vits'`, `'matcha'`, `'kokoro'` (合成) 与 `'silero'` (内置语音活动检测).
 
 ## [p] name
 

@@ -71,6 +71,7 @@ generator\auto-generate-for-autojs6.bat
 
 ### v6.8.0
 
+- `更新` [Speech](https://docs.autojs6.com/#/speech) に 3-Macaw Speech 1.2.0 と 1.3.0 でカタログに追加されたモデル (フランス語, ロシア語, 韓国語, スペイン語, 8 言語の認識. Kokoro v1.0 の多言語音声, アラビア語と韓国語の音声など) を掲載し, オフライン認識の種類 offline-transducer と Kokoro v1.0 の話者の区分を説明
 - `更新` [Speech](https://docs.autojs6.com/#/speech) の punctuation オプションの説明を補足: 句読点を出力するモデル (SenseVoice) はそのまま残し, ストリーミングモデルの結果には 3-Macaw Speech にインストールした句読点モデルで句読点を付け (1.2.0 以降, 中国語と英語), false ですべての句読点を除去
 - `新機能` API ドキュメント: Node.js/Bun/Worker の ai.agent タスク制御とイベント, 登録済みスクリプトのコンテキストと結果, パッケージ化アプリの明示的な認可
 - `新機能` Node.js, Bun, Worker の AI テキスト生成, ストリーミング結果, モデル一覧と永続セッション, 独立署名アプリに対する 3-Stone AI での個別同意と取り消し

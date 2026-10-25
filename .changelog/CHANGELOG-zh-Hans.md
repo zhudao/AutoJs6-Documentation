@@ -15,6 +15,7 @@
 
 # v6.8.0
 
+- `更新` [语音 (Speech)](https://docs.autojs6.com/#/speech) 的模型目录补上 3-Macaw Speech 1.2.0 与 1.3.0 新增的模型 (法语, 俄语, 韩语, 西班牙语与八语识别, Kokoro v1.0 多语言及阿拉伯语, 韩语等合成声音), 并说明离线识别类型 offline-transducer 与 Kokoro v1.0 的说话人划分
 - `更新` [语音 (Speech)](https://docs.autojs6.com/#/speech) 的 punctuation 选项补全说明: 模型自带标点 (SenseVoice) 时保留, 流式模型的结果由 3-Macaw Speech 中已安装的标点模型补上标点 (1.2.0 起, 中文与英文), 设为 false 去掉所有标点
 - `新增` API 文档: Node.js/Bun/Worker 的 ai.agent 任务控制与事件, 注册脚本上下文和结果回传, 以及打包应用的独立授权
 - `新增` Node.js, Bun 和 Worker 的 AI 文本生成, 流式结果, 模型目录与持久会话, 以及独立签名应用在 3-Stone AI 中的逐应用确认与撤销授权
