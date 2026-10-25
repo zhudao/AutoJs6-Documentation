@@ -6,10 +6,10 @@
 | 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
 | --- | --- | --- | --- | --- |
 | 入口 | `files`, `files.batchRename`, 全局 1 项 | `files` | - | `host.files` |
-| 状态 | 已支持 22 项 | 已支持 (本地实现) 5 项, 待补 17 项 | 待补 22 项 | 需授权 5 项, 待补 17 项 |
-| 授权 | - | - | - | `files.control` 5 项 |
+| 状态 | 已支持 22 项 | 已支持 (本地实现) 2 项, 待补 20 项 | 待补 22 项 | 需授权 2 项, 待补 20 项 |
+| 授权 | - | - | - | `files.control` 2 项 |
 
-差异项 (17 项): 下表列出入口, 状态或授权与同列多数 API 不同的 API, 未列出的 API 与同列多数一致.
+差异项 (19 项): 下表列出入口, 状态或授权与同列多数 API 不同的 API, 未列出的 API 与同列多数一致.
 
 | API | Node.js 主线程 | Node.js Worker | Bun |
 | --- | --- | --- | --- |
@@ -30,6 +30,8 @@
 | `files.batchRename.previewAsync` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
 | `files.batchRename.undo` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
 | `files.batchRename.undoAsync` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
+| `files.open`, `open` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
+| `files.toFile` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
 
 Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
 
