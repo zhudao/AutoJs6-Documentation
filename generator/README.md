@@ -166,7 +166,9 @@ node generator/test-runtime-support.js
 表格分两部分: 上方按 Rhino, Node.js 主线程, Node.js Worker 与 Bun 四列给出
 入口, 各状态的 API 数与 Bun 所需授权; 下方 "差异项" 列出入口, 状态或授权与同列
 多数 API 不同的 API, 同一函数的多个放置位置 (如 `images.captureScreen` 与全局
-`captureScreen`) 状态相同时合并为一行. 状态词与矩阵状态的对应关系:
+`captureScreen`) 状态相同时合并为一行. 某列全部 API 状态相同 (例如全部待补, 或因同一
+理由不适用) 时只在上方写明状态, 理由与等价写法, 不因该列逐行列出. 状态词与矩阵状态的
+对应关系:
 
 | 表中文字 | 矩阵状态 |
 | --- | --- |
