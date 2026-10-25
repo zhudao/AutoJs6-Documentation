@@ -1,5 +1,24 @@
 # 流程 (Flow)
 
+<!-- runtime-support:begin flow -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `flow`, 全局 16 项 | `autojs6:flow`, `$autojs.flow` | `autojs6:flow`, `$autojs.flow` | `host.flow` |
+| 状态 | 已支持 71 项 | 已支持 70 项, 待补 1 项 | 已支持 70 项, 待补 1 项 | 需授权 70 项, 待补 1 项 |
+| 授权 | - | - | - | `flow.control` 70 项 |
+
+差异项 (1 项): 下表列出入口, 状态或授权与同列多数 API 不同的 API, 未列出的 API 与同列多数一致.
+
+| API | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- |
+| `wait.async` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
 > Node.js/Bun/Worker 的异步链, 高级工具与事件等待参阅 [运行时 API](runtimeApis#flow-异步链与等待核心). 本页的同步终结方法, 工作线程与 Java 节点行为属于 Rhino.
 
 Flow 是 AutoJs6 6.8.0 引入的异步等待与动作链.

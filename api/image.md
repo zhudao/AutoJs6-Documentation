@@ -1,5 +1,35 @@
 # 图像 (Images)
 
+<!-- runtime-support:begin images -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `images`, 全局 9 项 | `autojs6:images` | `autojs6:images` | `host.images` |
+| 状态 | 已支持 91 项 | 已支持 91 项 | 已支持 91 项 | 需授权 91 项 |
+| 授权 | - | - | - | `image.process` 76 项, `screen.capture` 8 项, `image.files` 7 项 |
+
+差异项 (12 项): 下表列出入口, 状态或授权与同列多数 API 不同的 API, 未列出的 API 与同列多数一致.
+
+| API | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- |
+| `images.captureScreen`, `captureScreen` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `screen.capture` |
+| `images.getScreenCaptureOptions` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `screen.capture` |
+| `images.imread` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `image.files` |
+| `images.load` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `image.files` |
+| `images.loadAsync` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `image.files` |
+| `images.quantizeToFile` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `image.files` |
+| `images.read` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `image.files` |
+| `images.requestScreenCapture`, `requestScreenCapture` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `screen.capture` |
+| `images.requestScreenCaptureAsync`, `requestScreenCaptureAsync` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `screen.capture` |
+| `images.save` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `image.files` |
+| `images.saveImage` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `image.files` |
+| `images.stopScreenCapture` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `screen.capture` |
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
 `images` 模块提供图像读取, 编解码, 截图, 图像处理, 找色, 找图, 特征匹配和相似度计算等功能.
 
 本页以 Rhino 的 `ImageWrapper` API 为基准. Node.js 与 Bun 的图像接口使用显式导入或客户端, 异步返回宿主图像句柄, 不提供 `ImageWrapper` / `Bitmap` 实例方法. 当前支持的操作, 字节传输与生命周期见 [运行时图像接口](runtimeApis#图像句柄与处理).

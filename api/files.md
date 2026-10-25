@@ -1,5 +1,44 @@
 # 文件 (Files)
 
+<!-- runtime-support:begin files -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `files`, `files.batchRename`, 全局 1 项 | `files` | - | `host.files` |
+| 状态 | 已支持 22 项 | 已支持 (本地实现) 5 项, 待补 17 项 | 待补 22 项 | 需授权 5 项, 待补 17 项 |
+| 授权 | - | - | - | `files.control` 5 项 |
+
+差异项 (21 项): 下表列出入口, 状态或授权与同列多数 API 不同的 API, 未列出的 API 与同列多数一致.
+
+| API | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- |
+| `files.batchRename.BatchRenameError` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
+| `files.batchRename.apply` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
+| `files.batchRename.applyAsync` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
+| `files.batchRename.clearHistory` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
+| `files.batchRename.deleteHistory` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
+| `files.batchRename.history` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
+| `files.batchRename.importPresets` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
+| `files.batchRename.importPresetsAsync` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
+| `files.batchRename.isAvailable` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
+| `files.batchRename.plan` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
+| `files.batchRename.planAsync` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
+| `files.batchRename.presets` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
+| `files.batchRename.presetsAsync` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
+| `files.batchRename.preview` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
+| `files.batchRename.previewAsync` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
+| `files.batchRename.undo` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
+| `files.batchRename.undoAsync` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
+| `files.join` | <span title="local-shim">已支持 (本地实现)</span> | <span title="pending">待补</span> | <span title="capability-gated">需授权</span> `files.control` |
+| `files.open`, `open` | <span title="local-shim">已支持 (本地实现)</span> | <span title="pending">待补</span> | <span title="capability-gated">需授权</span> `files.control` |
+| `files.path` | <span title="local-shim">已支持 (本地实现)</span> | <span title="pending">待补</span> | <span title="capability-gated">需授权</span> `files.control` |
+| `files.toFile` | <span title="local-shim">已支持 (本地实现)</span> | <span title="pending">待补</span> | <span title="capability-gated">需授权</span> `files.control` |
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
 ---
 
 <aside class="doc-status doc-status--incomplete" data-marked-by="SuperMonster003" data-marked-on="2022-10-22">

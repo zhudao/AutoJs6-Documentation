@@ -1,5 +1,7 @@
 # 文档部署进度 (Progress)
 
+2026-10-25 运行时支持表试点: [图像](image), [文件](files) 与 [流程](flow) 三页顶部新增 "运行时支持" 表, 列出 Rhino, Node.js 主线程, Node.js Worker 与 Bun 的入口, 各状态的 API 数, Bun 所需授权, 以及入口, 状态或授权与同列多数不同的差异项. 表格由新生成器 `generator/runtime-support.js` 根据 AutoJs6 运行时覆盖矩阵 (宿主 api-coverage 路线图 P0.5, 2026-10-25 本地矩阵) 生成, 不手改; 其余模块页在 P2.5 统一插入. 矩阵记录的是已声明的入口, 不代表这些入口已在公开发布的插件版本中提供.
+
 2026-10-24 内存 (Memory) 增补: snapshot 的 bridgeSessions (Node.js, Bun, QuickJS, Lua 与 Python 五个插件引擎已结束但未被回收的桥接会话数), collect 同时等待桥接会话被回收, retained 元素的 engine (`rhino` / `node`). 依据为 AutoJs6 源码 (内存路线图第二期 P4.4, 宿主提交 446d2ff42) 与 JVM 测试 MemoryModuleTest / MemoryDiagnosticsCoreTest.
 
 2026-10-24 SQLite 增补: DatabaseCallback#onDowngrade (AutoJs6 6.8.0), 打开时请求的 version 低于现有数据库版本时调用, 在 Android 管理的事务内执行, 抛出异常会回滚降级; 未实现时降级不执行任何操作并保留表与数据 (此前由 Android 默认行为抛出异常). 同步 SQLiteOpenOptions 的版本说明, DatabaseCallback 的说明与示例. 依据为宿主 core/database/Database.java (宿主提交 e03d82e0f) 与 2026-10-24 在临时 AVD (Android 7.0 与 15) 上的设备用例 (宿主 tools/db-downgrade/sqlite_ondowngrade.py). AutoJs6 6.8.0 尚未发布, 此条不表示官方发布.

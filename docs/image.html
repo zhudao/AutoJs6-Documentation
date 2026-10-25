@@ -491,6 +491,129 @@
 
         <div id="apicontent">
             <h1>图像 (Images)<span><a class="mark" href="#image_images" id="image_images">#</a></span></h1>
+<!-- runtime-support:begin images -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+<table>
+<thead>
+<tr>
+<th>运行时支持</th>
+<th>Rhino</th>
+<th>Node.js 主线程</th>
+<th>Node.js Worker</th>
+<th>Bun</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>入口</td>
+<td><code>images</code>, 全局 9 项</td>
+<td><code>autojs6:images</code></td>
+<td><code>autojs6:images</code></td>
+<td><code>host.images</code></td>
+</tr>
+<tr>
+<td>状态</td>
+<td>已支持 91 项</td>
+<td>已支持 91 项</td>
+<td>已支持 91 项</td>
+<td>需授权 91 项</td>
+</tr>
+<tr>
+<td>授权</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td><code>image.process</code> 76 项, <code>screen.capture</code> 8 项, <code>image.files</code> 7 项</td>
+</tr>
+</tbody>
+</table>
+<p>差异项 (12 项): 下表列出入口, 状态或授权与同列多数 API 不同的 API, 未列出的 API 与同列多数一致.</p>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>Node.js 主线程</th>
+<th>Node.js Worker</th>
+<th>Bun</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>images.captureScreen</code>, <code>captureScreen</code></td>
+<td><span title="bridged">已支持</span></td>
+<td><span title="bridged">已支持</span></td>
+<td><span title="capability-gated">需授权</span> <code>screen.capture</code></td>
+</tr>
+<tr>
+<td><code>images.getScreenCaptureOptions</code></td>
+<td><span title="bridged">已支持</span></td>
+<td><span title="bridged">已支持</span></td>
+<td><span title="capability-gated">需授权</span> <code>screen.capture</code></td>
+</tr>
+<tr>
+<td><code>images.imread</code></td>
+<td><span title="bridged">已支持</span></td>
+<td><span title="bridged">已支持</span></td>
+<td><span title="capability-gated">需授权</span> <code>image.files</code></td>
+</tr>
+<tr>
+<td><code>images.load</code></td>
+<td><span title="bridged">已支持</span></td>
+<td><span title="bridged">已支持</span></td>
+<td><span title="capability-gated">需授权</span> <code>image.files</code></td>
+</tr>
+<tr>
+<td><code>images.loadAsync</code></td>
+<td><span title="bridged">已支持</span></td>
+<td><span title="bridged">已支持</span></td>
+<td><span title="capability-gated">需授权</span> <code>image.files</code></td>
+</tr>
+<tr>
+<td><code>images.quantizeToFile</code></td>
+<td><span title="bridged">已支持</span></td>
+<td><span title="bridged">已支持</span></td>
+<td><span title="capability-gated">需授权</span> <code>image.files</code></td>
+</tr>
+<tr>
+<td><code>images.read</code></td>
+<td><span title="bridged">已支持</span></td>
+<td><span title="bridged">已支持</span></td>
+<td><span title="capability-gated">需授权</span> <code>image.files</code></td>
+</tr>
+<tr>
+<td><code>images.requestScreenCapture</code>, <code>requestScreenCapture</code></td>
+<td><span title="bridged">已支持</span></td>
+<td><span title="bridged">已支持</span></td>
+<td><span title="capability-gated">需授权</span> <code>screen.capture</code></td>
+</tr>
+<tr>
+<td><code>images.requestScreenCaptureAsync</code>, <code>requestScreenCaptureAsync</code></td>
+<td><span title="bridged">已支持</span></td>
+<td><span title="bridged">已支持</span></td>
+<td><span title="capability-gated">需授权</span> <code>screen.capture</code></td>
+</tr>
+<tr>
+<td><code>images.save</code></td>
+<td><span title="bridged">已支持</span></td>
+<td><span title="bridged">已支持</span></td>
+<td><span title="capability-gated">需授权</span> <code>image.files</code></td>
+</tr>
+<tr>
+<td><code>images.saveImage</code></td>
+<td><span title="bridged">已支持</span></td>
+<td><span title="bridged">已支持</span></td>
+<td><span title="capability-gated">需授权</span> <code>image.files</code></td>
+</tr>
+<tr>
+<td><code>images.stopScreenCapture</code></td>
+<td><span title="bridged">已支持</span></td>
+<td><span title="bridged">已支持</span></td>
+<td><span title="capability-gated">需授权</span> <code>screen.capture</code></td>
+</tr>
+</tbody>
+</table>
+<p>Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 <a href="runtimeApis.html#runtimeapis">运行时 API</a>.</p>
+<!-- runtime-support:end -->
 <p><code>images</code> 模块提供图像读取, 编解码, 截图, 图像处理, 找色, 找图, 特征匹配和相似度计算等功能.</p>
 <p>本页以 Rhino 的 <code>ImageWrapper</code> API 为基准. Node.js 与 Bun 的图像接口使用显式导入或客户端, 异步返回宿主图像句柄, 不提供 <code>ImageWrapper</code> / <code>Bitmap</code> 实例方法. 当前支持的操作, 字节传输与生命周期见 <a href="runtimeApis.html#runtimeapis_1">运行时图像接口</a>.</p>
 <p>从 AutoJs6 6.8.0 起, 依赖 OpenCV 的方法需要外部 OpenCV 插件. 调用这些方法前, 需在插件中心安装, 启用并授权兼容插件. 插件不可用时, 方法将抛出插件加载异常.</p>
