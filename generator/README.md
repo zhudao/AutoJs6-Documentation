@@ -124,6 +124,65 @@ AutoJs6-Plugin-Offline-Docs/version.properties:
 插件的 contentVersion, source provenance 和版本号. 插件发版时仍需按其项目
 约定审查 CHANGELOG, 提交变更并执行完整 APK 门禁.
 
+## 运行时支持表
+
+模块页顶部的 "运行时支持" 表 (AutoJs6 `docs/api-coverage/ROADMAP.md` 的 D13)
+由 `runtime-support.js` 根据宿主的运行时覆盖矩阵
+`build/reports/api-coverage/runtime-matrix.json` 生成 (在宿主运行
+`python tools/api-coverage/check.py --matrix` 产出). 页面用标记块声明要展示的
+模块, 生成器只改写两个标记之间的内容, 标记块可以随页面结构移动:
+
+```md
+<!-- runtime-support:begin images -->
+<!-- runtime-support:end -->
+```
+
+`begin` 后面是一个或多个模块根名, 与宿主文档门禁按模块查找页面的规则相同:
+显式导出取其所在模块的第一段 (`files.batchRename.apply` -> `files`),
+全局对象上的成员取其所属模块 (`captureScreen` -> `images`), 其余为 `global`.
+返回对象的成员 (`ImageWrapper#getWidth` 一类) 不在模块页的表中.
+
+```powershell
+# 按矩阵改写全部标记块.
+node generator/runtime-support.js
+
+# 只检查, 标记块与矩阵不一致时退出码为 1.
+node generator/runtime-support.js --check
+
+# 在页面 H1 标题后插入标记块并生成内容 (可重复给出).
+node generator/runtime-support.js --insert image:images --insert files:files
+
+# 自检.
+node generator/test-runtime-support.js
+```
+
+矩阵默认取 `local-config.json` 中 `autoJs6Project` 下的
+`build/reports/api-coverage/runtime-matrix.json`, 没有配置时取兄弟目录
+`../AutoJs6`; `--matrix <file>` 或 `--host <AutoJs6 目录>` 可另行指定.
+`--json` 输出机读摘要, `--require-all` 把没有标记块的模块根计为失败.
+宿主 `python tools/api-coverage/check.py --docs-support` 调用本脚本的
+`--check` 校验文档与矩阵一致.
+
+表格分两部分: 上方按 Rhino, Node.js 主线程, Node.js Worker 与 Bun 四列给出
+入口, 各状态的 API 数与 Bun 所需授权; 下方 "差异项" 列出入口, 状态或授权与同列
+多数 API 不同的 API, 同一函数的多个放置位置 (如 `images.captureScreen` 与全局
+`captureScreen`) 状态相同时合并为一行. 状态词与矩阵状态的对应关系:
+
+| 表中文字 | 矩阵状态 |
+| --- | --- |
+| 已支持 | `bridged` (Rhino 列为 `native`) |
+| 已支持 (本地实现) | `local-shim` |
+| 需授权 | `capability-gated`, 后附能力名; 矩阵未给出能力名时写 "能力待定" |
+| 不适用 | `not-portable`, 括号内为理由, 有 `equivalent` 时附等价写法 |
+| 不提供 | `denied` |
+| 待补 | `pending` |
+
+经 Node.js `autojs6:compat` 兼容门面提供的入口标注 "经 compat". 差异项中的
+状态词带 `title` 属性, 值为矩阵状态名 (不适用与不提供另附理由分类). 标记块第二行
+记录矩阵的数据源 (`ksp` 或 `kotlin`); 与当前矩阵的数据源不同时 `--check`
+只报告 `skipped`, 不计为失败. 标记块内的注释不得包含 `=`, 因为 `json.js`
+会把 `<!-- key=value -->` 读作页面元数据.
+
 ## 离线搜索
 
 全量生成时, `generator/search_index.py` 会从最终 HTML 的 `#apicontent`
