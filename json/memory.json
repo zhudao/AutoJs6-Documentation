@@ -1,0 +1,124 @@
+{
+  "source": "..\\api\\memory.md",
+  "modules": [
+    {
+      "textRaw": "内存 (Memory)",
+      "name": "内存_(memory)",
+      "desc": "<p>memory 模块用于在脚本中读取 AutoJs6 进程自身的内存诊断数据, 包括 Java 堆与原生堆用量, 存活的脚本引擎, 已结束但尚未被回收的脚本运行时与插件引擎桥接会话, 未释放的图像与脚本线程等, 以便检查脚本反复运行后内存是否持续增长.</p>\n<p>数据来源与 AutoJs6 &quot;设置 &gt; 关于 &gt; 开发者选项 &gt; 内存诊断&quot; 页面相同. 此模块只读取诊断数据, 不提供释放其他脚本资源的能力.</p>\n<p><code>memory</code> 与 <code>$memory</code> 指向同一个模块对象.</p>\n<blockquote>\n<p>注: 读取设备整体的内存信息 (总内存, 可用内存) 请使用 <a href=\"device#m-gettotalmem\">device.getTotalMem</a> 与 <a href=\"device#m-getavailmem\">device.getAvailMem</a>.</p>\n</blockquote>\n<hr>\n<p style=\"font: bold 2em sans-serif; color: #FF7043\">memory</p>\n\n<hr>\n",
+      "modules": [
+        {
+          "textRaw": "[m] snapshot",
+          "name": "[m]_snapshot",
+          "methods": [
+            {
+              "textRaw": "snapshot()",
+              "type": "method",
+              "name": "snapshot",
+              "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li><ins><strong>returns</strong></ins> {{<ul>\n<li>javaHeapUsed: <a href=\"dataTypes#number\">number</a>;</li>\n<li>javaHeapTotal: <a href=\"dataTypes#number\">number</a>;</li>\n<li>javaHeapMax: <a href=\"dataTypes#number\">number</a>;</li>\n<li>nativeHeapAllocated: <a href=\"dataTypes#number\">number</a>;</li>\n<li>nativeHeapSize: <a href=\"dataTypes#number\">number</a>;</li>\n<li>pss: <a href=\"dataTypes#number\">number</a>;</li>\n<li>engines: <a href=\"dataTypes#number\">number</a>;</li>\n<li>retainedRuntimes: <a href=\"dataTypes#number\">number</a>;</li>\n<li>bridgeSessions: {{ node: <a href=\"dataTypes#number\">number</a>; bun: <a href=\"dataTypes#number\">number</a>; quickjs: <a href=\"dataTypes#number\">number</a>; lua: <a href=\"dataTypes#number\">number</a>; python: <a href=\"dataTypes#number\">number</a> }};</li>\n<li>images: <a href=\"dataTypes#number\">number</a>;</li>\n<li>threads: <a href=\"dataTypes#number\">number</a>;</li>\n<li>allThreads: <a href=\"dataTypes#number\">number</a>;</li>\n<li>contexts: <a href=\"dataTypes#number\">number</a>;</li>\n<li>timestamp: <a href=\"dataTypes#number\">number</a>;</li>\n</ul>\n</li>\n<li>}} - 内存快照</li>\n</ul>\n<p>读取当前的内存数据. 此方法不会先执行垃圾回收, 因此 Java 堆用量包含尚未回收的垃圾; 需要回收后的数据时使用 <a href=\"#m-collect\">collect</a>.</p>\n<p>快照对象的属性除 bridgeSessions 外均为数值, 字节数以字节 (B) 为单位:</p>\n<table>\n<thead>\n<tr>\n<th>属性</th>\n<th>含义</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>javaHeapUsed</td>\n<td>已用 Java 堆, 即 <code>Runtime.totalMemory() - Runtime.freeMemory()</code></td>\n</tr>\n<tr>\n<td>javaHeapTotal</td>\n<td>虚拟机当前已分配的 Java 堆, 即 <code>Runtime.totalMemory()</code></td>\n</tr>\n<tr>\n<td>javaHeapMax</td>\n<td>Java 堆上限, 即 <code>Runtime.maxMemory()</code></td>\n</tr>\n<tr>\n<td>nativeHeapAllocated</td>\n<td>原生堆已分配的字节数, 即 <code>Debug.getNativeHeapAllocatedSize()</code></td>\n</tr>\n<tr>\n<td>nativeHeapSize</td>\n<td>原生堆总大小, 即 <code>Debug.getNativeHeapSize()</code></td>\n</tr>\n<tr>\n<td>pss</td>\n<td>AutoJs6 进程的 PSS (按比例计算的实际占用内存)</td>\n</tr>\n<tr>\n<td>engines</td>\n<td>存活的脚本引擎数, 包括当前脚本</td>\n</tr>\n<tr>\n<td>retainedRuntimes</td>\n<td>已结束但尚未被回收的脚本运行时数, 与 <a href=\"#m-retained\">retained</a> 返回的数组长度相同</td>\n</tr>\n<tr>\n<td>bridgeSessions</td>\n<td>各插件引擎已结束但尚未被回收的桥接会话数, 属性 <code>node</code>, <code>bun</code>, <code>quickjs</code>, <code>lua</code>, <code>python</code> 依次对应 Node.js, Bun, QuickJS, Lua 与 Python 引擎, 均为数值</td>\n</tr>\n<tr>\n<td>images</td>\n<td>既未调用 <code>recycle</code> 也未被垃圾回收的脚本图像数</td>\n</tr>\n<tr>\n<td>threads</td>\n<td>为脚本创建的线程数, 按线程名判断 (脚本线程, <code>threads.start</code> 与 <code>threads.pool</code> 的线程, 定时器线程, 截屏线程与 Looper 线程)</td>\n</tr>\n<tr>\n<td>allThreads</td>\n<td>AutoJs6 进程内全部存活的线程数</td>\n</tr>\n<tr>\n<td>contexts</td>\n<td>已进入且尚未释放的 Rhino Context 数, 无法统计时为 <code>-1</code></td>\n</tr>\n<tr>\n<td>timestamp</td>\n<td>读数时刻, 自 1970-01-01 00:00:00 UTC 起的毫秒数</td>\n</tr>\n</tbody>\n</table>\n<p>读取 PSS 需要遍历进程的内存映射, 一次调用通常需要几毫秒.</p>\n<p>桥接会话指插件引擎的一次执行在 AutoJs6 进程内创建的会话对象, 例如宿主能力代理 (broker) 与输出回调. 执行结束后这些对象仍未被回收时, 该次执行计入 bridgeSessions, 全部被回收后不再计入. 与 retainedRuntimes 相同, 刚结束的执行在下一次垃圾回收之前也会计入, 需要判断是否泄漏时先调用 <a href=\"#m-collect\">collect</a>.</p>\n<pre><code class=\"lang-js\">let s = memory.snapshot();\nconsole.log(&#39;Java 堆: &#39; + fmt.bytes(s.javaHeapUsed) + &#39; / &#39; + fmt.bytes(s.javaHeapMax));\nconsole.log(&#39;原生堆: &#39; + fmt.bytes(s.nativeHeapAllocated));\nconsole.log(&#39;存活引擎: &#39; + s.engines + &#39;, 未回收的运行时: &#39; + s.retainedRuntimes);\nconsole.log(&#39;未回收的 Python 桥接会话: &#39; + s.bridgeSessions.python);\n</code></pre>\n",
+              "signatures": [
+                {
+                  "params": []
+                }
+              ]
+            }
+          ],
+          "type": "module",
+          "displayName": "[m] snapshot"
+        },
+        {
+          "textRaw": "[m] collect",
+          "name": "[m]_collect",
+          "methods": [
+            {
+              "textRaw": "collect(timeout?)",
+              "type": "method",
+              "name": "collect",
+              "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li><strong>[ timeout = <code>10000</code> ]</strong> { <a href=\"dataTypes#number\">number</a> } - 等待已结束的脚本运行时与桥接会话被回收的最长时间 (毫秒), 取值范围为 <code>0</code> 到 <code>60000</code></li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#object\">Object</a> } - 回收后的内存快照, 属性与 <a href=\"#m-snapshot\">snapshot</a> 的返回值相同</li>\n</ul>\n<p>强制执行垃圾回收, 并等待已结束的脚本运行时与桥接会话被回收, 然后返回新的内存快照.</p>\n<p>此方法先执行 3 次垃圾回收与 finalization, 之后每 100 毫秒检查一次, 每 500 毫秒再执行一次垃圾回收. 已结束的脚本运行时与桥接会话全部被回收时立即返回, 否则在 <code>timeout</code> 毫秒后返回. 返回的快照中 <code>retainedRuntimes</code> 不为 <code>0</code> 时, 说明仍有对象持有已结束脚本的运行时, 可用 <a href=\"#m-retained\">retained</a> 查看是哪些脚本; <code>bridgeSessions</code> 中某个引擎不为 <code>0</code> 时, 说明仍有对象持有该引擎已结束执行的会话对象.</p>\n<p>此方法会阻塞当前线程, 最长约 <code>timeout</code> 毫秒, 不要在 UI 线程中调用. 脚本被停止时, 等待立即中止.</p>\n<p><code>timeout</code> 不是 <code>0</code> 到 <code>60000</code> 之间的数值时抛出异常.</p>\n<pre><code class=\"lang-js\">let before = memory.snapshot();\nlet after = memory.collect();\nconsole.log(&#39;回收前 Java 堆: &#39; + fmt.bytes(before.javaHeapUsed));\nconsole.log(&#39;回收后 Java 堆: &#39; + fmt.bytes(after.javaHeapUsed));\nconsole.log(&#39;仍未回收的运行时: &#39; + after.retainedRuntimes);\n</code></pre>\n",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "name": "timeout?"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "type": "module",
+          "displayName": "[m] collect"
+        },
+        {
+          "textRaw": "[m] retained",
+          "name": "[m]_retained",
+          "methods": [
+            {
+              "textRaw": "retained()",
+              "type": "method",
+              "name": "retained",
+              "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#object\">Object</a>[] } - 已结束但尚未被回收的脚本运行时, 先结束的在前</li>\n</ul>\n<p>列出已结束但仍未被回收的脚本运行时.</p>\n<p>数组元素的属性如下:</p>\n<table>\n<thead>\n<tr>\n<th>属性</th>\n<th>类型</th>\n<th>含义</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>id</td>\n<td><a href=\"dataTypes#number\">number</a></td>\n<td>脚本引擎的 ID</td>\n</tr>\n<tr>\n<td>name</td>\n<td><a href=\"dataTypes#string\">string</a></td>\n<td>脚本名称</td>\n</tr>\n<tr>\n<td>source</td>\n<td><a href=\"dataTypes#string\">string</a></td>\n<td>脚本开始运行时控制台显示的脚本路径</td>\n</tr>\n<tr>\n<td>endedAt</td>\n<td><a href=\"dataTypes#number\">number</a></td>\n<td>脚本结束的时刻, 自 1970-01-01 00:00:00 UTC 起的毫秒数</td>\n</tr>\n<tr>\n<td>elapsedMs</td>\n<td><a href=\"dataTypes#number\">number</a></td>\n<td>脚本结束后经过的毫秒数</td>\n</tr>\n<tr>\n<td>exitKind</td>\n<td><a href=\"dataTypes#string\">string</a></td>\n<td>结束方式: <code>normal</code> 为自行结束, <code>error</code> 为因未捕获的错误结束, <code>stopped</code> 为被停止 (在任务列表中停止, <code>engines.stopAll</code> 等强制停止, 或脚本自身调用 <code>exit</code>)</td>\n</tr>\n<tr>\n<td>engine</td>\n<td><a href=\"dataTypes#string\">string</a></td>\n<td>脚本引擎: <code>rhino</code> 为 JavaScript (Rhino) 脚本, <code>node</code> 为 Node.js 脚本</td>\n</tr>\n</tbody>\n</table>\n<p>脚本刚结束时, 其运行时在下一次垃圾回收之前也会出现在此列表中. 先调用 <a href=\"#m-collect\">collect</a>, 之后仍在列表中的脚本运行时才是被其他对象持有的, 通常意味着内存泄漏.</p>\n<p>此列表只包含带有脚本运行时的 JavaScript (Rhino) 脚本与 Node.js 脚本. Bun, QuickJS, Lua 与 Python 脚本已结束未回收的会话只计入 <a href=\"#m-snapshot\">snapshot</a> 返回值的 bridgeSessions.</p>\n<pre><code class=\"lang-js\">memory.collect();\nmemory.retained().forEach((r) =&gt; {\n    console.log(r.name + &#39; (&#39; + r.exitKind + &#39;), 已结束 &#39; + Math.round(r.elapsedMs / 1000) + &#39; 秒&#39;);\n});\n</code></pre>\n",
+              "signatures": [
+                {
+                  "params": []
+                }
+              ]
+            }
+          ],
+          "type": "module",
+          "displayName": "[m] retained"
+        },
+        {
+          "textRaw": "[m] dumpHeap",
+          "name": "[m]_dumpheap",
+          "methods": [
+            {
+              "textRaw": "dumpHeap(path?)",
+              "type": "method",
+              "name": "dumpHeap",
+              "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li><strong>[ path ]</strong> { <a href=\"dataTypes#string\">string</a> } - hprof 文件的路径或其所在目录</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#string\">string</a> } - 写出的 hprof 文件的绝对路径</li>\n</ul>\n<p>把 AutoJs6 进程的 Java 堆转储为 hprof 文件. 该文件可用 Android Studio 打开, 查看对象数量, 大小与引用关系.</p>\n<p><code>path</code> 的相对路径与 <a href=\"files#m-path\">files.path</a> 一样相对于脚本的工作目录解析. <code>path</code> 为已存在的目录或以 <code>/</code> 结尾时, 文件写入该目录; 省略 <code>path</code> 时写入工作目录. 这两种情况下的文件名为 <code>AutoJs6-heap-&lt;yyyyMMdd-HHmmss&gt;.hprof</code>. 同名文件会被覆盖. <code>path</code> 为空字符串或不是字符串时抛出异常.</p>\n<p>转储期间 AutoJs6 进程会暂停, 堆越大耗时越长 (例如 50 MB 的堆约需 2 秒).</p>\n<p>hprof 文件包含堆中的全部数据, 包括所有正在运行的脚本的变量, 以及其中的账户, 令牌等敏感内容, 请谨慎保存与分享. 因此:</p>\n<ul>\n<li>AutoJs6 的 debug 版本中, 此方法始终可用.</li>\n<li>AutoJs6 的正式 (release) 版本中, 需要先在 &quot;开发者选项 &gt; 内存诊断&quot; 中开启 &quot;允许脚本导出 hprof&quot;, 否则抛出异常. 此开关默认关闭.</li>\n</ul>\n<pre><code class=\"lang-js\">let file = memory.dumpHeap(&#39;./heap/before-cleanup.hprof&#39;);\nconsole.log(&#39;已写出: &#39; + file);\n</code></pre>\n",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "name": "path?"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "type": "module",
+          "displayName": "[m] dumpHeap"
+        },
+        {
+          "textRaw": "[m] watch",
+          "name": "[m]_watch",
+          "methods": [
+            {
+              "textRaw": "watch(obj, name?)",
+              "type": "method",
+              "name": "watch",
+              "desc": "<p><strong><code>6.8.0</code></strong></p>\n<ul>\n<li><strong>obj</strong> { <a href=\"dataTypes#object\">Object</a> } - 预期很快会被回收的对象</li>\n<li><strong>[ name ]</strong> { <a href=\"dataTypes#string\">string</a> } - 说明文字, 显示在 LeakCanary 的报告中</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#boolean\">boolean</a> } - LeakCanary 是否开始监视该对象</li>\n</ul>\n<p>把对象交给 <a href=\"https://square.github.io/leakcanary/\">LeakCanary</a> 监视. 若该对象在一段时间后 (LeakCanary 默认为 5 秒) 仍未被回收, LeakCanary 会将其计为残留对象并通过通知提示, 分析堆转储后可在其 &quot;Leaks&quot; 应用中查看引用链.</p>\n<p>此方法仅在 AutoJs6 的 debug 版本中, 且 &quot;开发者选项 &gt; 内存诊断 &gt; LeakCanary&quot; 开启时有效, 此时返回 <code>true</code>. 其他情况下此方法不做任何事, 并返回 <code>false</code>.</p>\n<p><code>obj</code> 为 Java 对象时监视该 Java 对象本身, 而不是其在脚本中的包装. <code>obj</code> 为 <code>null</code>, <code>undefined</code>, 字符串, 数字或布尔值等原始值时抛出异常. 省略 <code>name</code> 时, 说明文字为 <code>memory.watch(&lt;类名&gt;) in &lt;脚本名称&gt;</code>.</p>\n<pre><code class=\"lang-js\">let cache = { items: [] };\nmemory.watch(cache, &#39;临时缓存&#39;);\ncache = null;\n</code></pre>\n",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "name": "obj"
+                    },
+                    {
+                      "name": "name?"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "type": "module",
+          "displayName": "[m] watch"
+        }
+      ],
+      "type": "module",
+      "displayName": "内存 (Memory)"
+    }
+  ]
+}

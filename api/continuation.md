@@ -1,10 +1,91 @@
-# 协程 (Continuation)
+# 续体 (Continuation)
+
+`continuation` 模块用于捕获和恢复 Rhino 脚本执行状态.
+
+此模块仅在脚本项目配置的 `useFeatures` 数组包含 `"continuation"` 时可用:
+
+```json
+{
+  "scripts": {},
+  "useFeatures": [ "continuation" ]
+}
+```
+
+挂起 (调用 [await](#m-await), 以及基于它的 `promise.await()`, `continuation.await(promise)` 与 `continuation.delay(millis)`) 可以发生在以下位置:
+
+- 脚本主体代码, 包括协程恢复后继续执行的代码.
+- 在脚本线程上派发, 且派发时没有脚本代码正在执行的事件监听器, 即注册到未关联线程的 EventEmitter 上的监听器. UI 模式下由主线程派发的 Activity 事件 (`ui.emitter`, 如 `back_pressed`), 控件事件 (如 `click`) 与对话框事件均属此类. 监听器挂起后, 同一事件的其他监听器照常执行, 挂起的监听器在恢复后继续; 挂起前对事件对象的修改 (如 `e.consumed = true`) 即时生效.
+
+定时器回调 (`setTimeout` / `setInterval` / `setImmediate`) 与关联了线程的 EventEmitter 的监听器 (经定时器派发), 其他线程 (如 `threads.start`) 中的代码, 以及由脚本代码同步触发的监听器中不能挂起, 调用 [await](#m-await) 将抛出异常; 这些位置可改用 `promise.then(...)`.
+
+```js
+'ui';
+
+ui.layout(<frame><text text="协程" /></frame>);
+
+ui.emitter.on('back_pressed', function (e) {
+    e.consumed = true;
+    if (dialogs.confirm('确定要退出程序').await()) {
+        ui.finish();
+    }
+});
+```
 
 ---
 
-<p style="font: italic 1em sans-serif; color: #78909C">此章节待补充或完善...</p>
-<p style="font: italic 1em sans-serif; color: #78909C">Marked by SuperMonster003 on Oct 22, 2022.</p>
+<p style="font: bold 2em sans-serif; color: #FF7043">continuation</p>
 
 ---
 
+## [p] enabled
 
+**`Getter`** **`READONLY`**
+
+- { [boolean](dataTypes#boolean) }
+
+当前脚本引擎是否启用了 `continuation` 特性.
+
+---
+
+## [m] create
+
+### create(scope?)
+
+- **[ scope ]** { [Object](dataTypes#object) } - 捕获续体时使用的 Rhino 作用域
+- <ins>**returns**</ins> { [ContinuationCreator](#continuationcreator) } - 续体控制对象
+
+创建续体控制对象. 省略 **scope** 时使用当前脚本作用域.
+
+未启用 `continuation` 特性时, 调用返回对象的 [await](#m-await) 将抛出异常.
+
+---
+
+## ContinuationCreator
+
+`continuation.create()` 返回的续体控制对象.
+
+### [m] await
+
+#### await()
+
+- <ins>**returns**</ins> { [any](dataTypes#any) } - 恢复续体时提供的结果
+
+挂起当前执行并等待 [resume](#m-resume) 或 [resumeError](#m-resumeerror) 恢复.
+
+### [m] resume
+
+#### resume(result?)
+
+- **[ result ]** { [any](dataTypes#any) } - 恢复结果, 默认为 `undefined`
+- <ins>**returns**</ins> { [void](dataTypes#void) }
+
+成功恢复续体. **result** 将成为 [await](#m-await) 的返回值.
+
+### [m] resumeError
+
+#### resumeError(error)
+
+- **error** { [any](dataTypes#any) } - 非 `null` 且非 `undefined` 的失败结果
+- <ins>**returns**</ins> { [void](dataTypes#void) }
+
+以失败结果恢复续体. [await](#m-await) 将按 Rhino 续体错误语义处理 **error**.

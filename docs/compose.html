@@ -1,0 +1,1417 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>3-Block Compose (Compose) | AutoJs6 文档 - 6.8.0</title>
+    <link rel="stylesheet" href="assets/fonts.css">
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="assets/sh.css">
+    <link rel="stylesheet" href="plugins/docsify-copy-code@2-styles.css">
+    <link rel="stylesheet" href="plugins/zoom-image-styles.css">
+    <link rel="canonical" href="https://nodejs.org/api/compose.html">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="viewport" content="user-scalable=no">
+</head>
+<body class="alt apidoc" id="api-section-compose">
+<div id="content" class="clearfix">
+    <div id="column2" class="interior">
+        <div id="intro" class="interior">
+            <a href="/" title="返回首页">
+                AutoJs6
+            </a>
+        </div>
+        <ul>
+<li><a class="nav-overview" href="overview.html">Overview - 综述</a></li>
+<li><a class="nav-documentation" href="documentation.html">About - 关于文档</a></li>
+<li><a class="nav-progress" href="progress.html">Progress - 文档部署进度</a></li>
+<li><a class="nav-changelog" href="changelog.html">Changelog - 文档更新日志</a></li>
+</ul>
+<div class="line"></div>
+
+<ul>
+<li><a class="nav-manual" href="manual.html">Manual - AutoJs6 使用手册</a></li>
+<li><a class="nav-runtimeApis" href="runtimeApis.html">Runtime APIs - 运行时 API</a></li>
+<li><a class="nav-qa" href="qa.html">Q &amp; A - 疑难解答</a></li>
+<li><a class="nav-suspicious" href="suspicious.html">Suspicious - 存疑内容</a></li>
+</ul>
+<div class="line"></div>
+
+<ul>
+<li><a class="nav-ai" href="ai.html">AI - 人工智能</a></li>
+<li><a class="nav-app" href="app.html">App - 通用应用</a></li>
+<li><a class="nav-autojs4Runtime" href="autojs4Runtime.html">AutoJs4 Runtime - AutoJs4 运行时</a></li>
+<li><a class="nav-autojs" href="autojs.html">AutoJs6 - 本体应用</a></li>
+<li><a class="nav-automator" href="automator.html">Automator - 自动化</a></li>
+<li><a class="nav-barcode" href="barcode.html">Barcode - 条码</a></li>
+<li><a class="nav-base64" href="base64.html">Base64</a></li>
+<li><a class="nav-canvas" href="canvas.html">Canvas - 画布</a></li>
+<li><a class="nav-color" href="color.html">Color - 颜色</a></li>
+<li><a class="nav-compose active" href="compose.html">3-Block Compose</a></li>
+<li><a class="nav-composeDesigner" href="composeDesigner.html">3-Block Compose Designer - 设计器</a></li>
+<li><a class="nav-console" href="console.html">Console - 控制台</a></li>
+<li><a class="nav-continuation" href="continuation.html">Continuation - 续体</a></li>
+<li><a class="nav-cvt" href="cvt.html">Converter - 单位转换</a></li>
+<li><a class="nav-crypto" href="crypto.html">Crypto - 密文</a></li>
+<li><a class="nav-device" href="device.html">Device - 设备</a></li>
+<li><a class="nav-dialogs" href="dialogs.html">Dialogs - 对话框</a></li>
+<li><a class="nav-e4x" href="e4x.html">E4X</a></li>
+<li><a class="nav-engines" href="engines.html">Engines - 引擎</a></li>
+<li><a class="nav-epub" href="epub.html">EPUB - 电子书</a></li>
+<li><a class="nav-events" href="events.html">Events - 事件监听</a></li>
+<li><a class="nav-files" href="files.html">Files - 文件</a></li>
+<li><a class="nav-floaty" href="floaty.html">Floaty - 悬浮窗</a></li>
+<li><a class="nav-flow" href="flow.html">Flow - 流程</a></li>
+<li><a class="nav-fmt" href="fmt.html">Formatter - 格式化</a></li>
+<li><a class="nav-gallery" href="gallery.html">Gallery - 相册</a></li>
+<li><a class="nav-global" href="global.html">Global - 全局对象</a></li>
+<li><a class="nav-http" href="http.html">HTTP</a></li>
+<li><a class="nav-image" href="image.html">Images - 图像</a></li>
+<li><a class="nav-installer" href="installer.html">Installer - 安装器</a></li>
+<li><a class="nav-i18n" href="i18n.html">Internationalization - 国际化</a></li>
+<li><a class="nav-jsox" href="jsox.html">Jsox - JavaScript 对象扩展</a></li>
+<li><a class="nav-keys" href="keys.html">Keys - 按键</a></li>
+<li><a class="nav-mail" href="mail.html">Mail - 邮件</a></li>
+<li><a class="nav-media" href="media.html">Media - 多媒体</a></li>
+<li><a class="nav-mediainfo" href="mediainfo.html">MediaInfo - 媒体信息</a></li>
+<li><a class="nav-memory" href="memory.html">Memory - 内存</a></li>
+<li><a class="nav-mime" href="mime.html">MIME - 媒体类型</a></li>
+<li><a class="nav-modules" href="modules.html">Module - 模块</a></li>
+<li><a class="nav-nanoid" href="nanoid.html">Nano ID - 随机 ID</a></li>
+<li><a class="nav-notice" href="notice.html">Notice - 消息通知</a></li>
+<li><a class="nav-ocr" href="ocr.html">OCR - 光学字符识别</a></li>
+<li><a class="nav-opencc" href="opencc.html">OpenCC - 中文转换</a></li>
+<li><a class="nav-pangu" href="pangu.html">Pangu - 文本间距</a></li>
+<li><a class="nav-pinyin" href="pinyin.html">Pinyin - 拼音</a></li>
+<li><a class="nav-pinyin4j" href="pinyin4j.html">Pinyin4j</a></li>
+<li><a class="nav-plugins" href="plugins.html">Plugins - 插件</a></li>
+<li><a class="nav-powerManager" href="powerManager.html">PowerManager - 电源管理</a></li>
+<li><a class="nav-qrcode" href="qrcode.html">QR Code - 二维码</a></li>
+<li><a class="nav-recorder" href="recorder.html">Recorder - 记录器</a></li>
+<li><a class="nav-sensors" href="sensors.html">Sensors - 传感器</a></li>
+<li><a class="nav-settings" href="settings.html">Settings - 应用设置</a></li>
+<li><a class="nav-shell" href="shell.html">Shell</a></li>
+<li><a class="nav-shizuku" href="shizuku.html">Shizuku</a></li>
+<li><a class="nav-speech" href="speech.html">Speech - 语音</a></li>
+<li><a class="nav-sqlite" href="sqlite.html">SQLite - 数据库</a></li>
+<li><a class="nav-s13n" href="s13n.html">Standardization - 标准化</a></li>
+<li><a class="nav-storages" href="storages.html">Storages - 存储</a></li>
+<li><a class="nav-sysprops" href="sysprops.html">Sysprops - 系统属性</a></li>
+<li><a class="nav-tasks" href="tasks.html">Tasks - 任务</a></li>
+<li><a class="nav-terminal" href="terminal.html">Terminal - 终端</a></li>
+<li><a class="nav-threads" href="threads.html">Threads - 线程</a></li>
+<li><a class="nav-timers" href="timers.html">Timers - 定时器</a></li>
+<li><a class="nav-toast" href="toast.html">Toast - 消息浮动框</a></li>
+<li><a class="nav-tts" href="tts.html">TTS - 文本转语音</a></li>
+<li><a class="nav-ui" href="ui.html">UI - 用户界面</a></li>
+<li><a class="nav-uiAttributes" href="uiAttributes.html">UI Attributes - UI 布局属性</a></li>
+<li><a class="nav-util" href="util.html">Util - 工具</a></li>
+<li><a class="nav-web" href="web.html">Web - 万维网</a></li>
+<li><a class="nav-workManager" href="workManager.html">WorkManager - 计划任务兼容接口</a></li>
+<li><a class="nav-yolo" href="yolo.html">YOLO - 目标检测</a></li>
+<li><a class="nav-zip" href="zip.html">Zip - 压缩文件</a></li>
+</ul>
+<div class="line"></div>
+
+<ul>
+<li><a class="nav-uiSelectorType" href="uiSelectorType.html">UiSelector - 选择器</a></li>
+<li><a class="nav-uiObjectType" href="uiObjectType.html">UiObject - 控件节点</a></li>
+<li><a class="nav-uiObjectCollectionType" href="uiObjectCollectionType.html">UiObjectCollection - 控件集合</a></li>
+<li><a class="nav-uiObjectActionsType" href="uiObjectActionsType.html">UiObjectActions - 控件节点行为</a></li>
+<li><a class="nav-composeNodeType" href="composeNodeType.html">ComposeNode - Compose 节点</a></li>
+<li><a class="nav-composeStateType" href="composeStateType.html">ComposeState - Compose 状态</a></li>
+<li><a class="nav-composeModifierType" href="composeModifierType.html">ComposeModifier - Compose 修饰链</a></li>
+<li><a class="nav-composeThemeType" href="composeThemeType.html">ComposeTheme - Compose 主题</a></li>
+<li><a class="nav-composeSessionType" href="composeSessionType.html">ComposeSession - Compose 会话</a></li>
+<li><a class="nav-composeFloatyWindowType" href="composeFloatyWindowType.html">ComposeFloatyWindow - Compose 悬浮窗</a></li>
+<li><a class="nav-composeComponents" href="composeComponents.html">Compose 组件目录</a></li>
+<li><a class="nav-epubBookType" href="epubBookType.html">EpubBook - 电子书对象</a></li>
+<li><a class="nav-epubReaderSessionType" href="epubReaderSessionType.html">EpubReaderSession - 阅读器会话</a></li>
+<li><a class="nav-flowType" href="flowType.html">Flow - 流程对象</a></li>
+<li><a class="nav-flowErrorType" href="flowErrorType.html">FlowError - 流程错误</a></li>
+<li><a class="nav-galleryViewSessionType" href="galleryViewSessionType.html">GalleryViewSession - 查看器会话</a></li>
+<li><a class="nav-mailClientType" href="mailClientType.html">MailClient - 邮件客户端</a></li>
+<li><a class="nav-mailMessageType" href="mailMessageType.html">MailMessage - 邮件消息</a></li>
+<li><a class="nav-speechSessionType" href="speechSessionType.html">SpeechSession - 听写会话</a></li>
+<li><a class="nav-speechWakeSessionType" href="speechWakeSessionType.html">SpeechWakeSession - 唤醒会话</a></li>
+<li><a class="nav-webSocketType" href="webSocketType.html">WebSocket</a></li>
+<li><a class="nav-eventEmitterType" href="eventEmitterType.html">EventEmitter - 事件发射器</a></li>
+<li><a class="nav-imageWrapperType" href="imageWrapperType.html">ImageWrapper - 包装图像类</a></li>
+<li><a class="nav-appType" href="appType.html">App - 应用枚举类</a></li>
+<li><a class="nav-colorType" href="colorType.html">Color - 颜色类</a></li>
+<li><a class="nav-versionType" href="versionType.html">Version - 版本工具类</a></li>
+<li><a class="nav-polyfill" href="polyfill.html">Polyfill - 代码填泥</a></li>
+<li><a class="nav-arrayx" href="arrayx.html">Arrayx - Array 扩展</a></li>
+<li><a class="nav-numberx" href="numberx.html">Numberx - Number 扩展</a></li>
+<li><a class="nav-mathx" href="mathx.html">Mathx - Math 扩展</a></li>
+</ul>
+<div class="line"></div>
+
+<ul>
+<li><a class="nav-exceptions" href="exceptions.html">Exceptions - 异常</a></li>
+<li><a class="nav-intentType" href="intentType.html">Intent - 意图</a></li>
+<li><a class="nav-runtime" href="runtime.html">Runtime - 运行时</a></li>
+<li><a class="nav-context" href="context.html">Context - 上下文</a></li>
+<li><a class="nav-activity" href="activity.html">Activity - 活动</a></li>
+</ul>
+<div class="line"></div>
+
+<ul>
+<li><a class="nav-scriptingJava" href="scriptingJava.html">Scripting Java - 脚本化 Java</a></li>
+<li><a class="nav-apiLevel" href="apiLevel.html">Android API Level - 安卓 API 级别</a></li>
+<li><a class="nav-colorTable" href="colorTable.html">Color Table - 颜色列表</a></li>
+</ul>
+<div class="line"></div>
+
+<ul>
+<li><a class="nav-glossaries" href="glossaries.html">Glossaries - 术语</a></li>
+<li><a class="nav-httpHeaderGlossary" href="httpHeaderGlossary.html">HttpHeader - HTTP 标头</a></li>
+<li><a class="nav-httpRequestMethodsGlossary" href="httpRequestMethodsGlossary.html">HttpRequestMethods - HTTP 请求方法</a></li>
+<li><a class="nav-mimeTypeGlossary" href="mimeTypeGlossary.html">MimeType - MIME 类型</a></li>
+<li><a class="nav-notificationChannelGlossary" href="notificationChannelGlossary.html">NotificationChannel - 通知渠道</a></li>
+</ul>
+<div class="line"></div>
+
+<ul>
+<li><a class="nav-dataTypes" href="dataTypes.html">Data Types - 数据类型</a></li>
+<li><a class="nav-omniTypes" href="omniTypes.html">Omnipotent Types - 全能类型</a></li>
+<li><a class="nav-storageType" href="storageType.html">Storage - 存储类</a></li>
+<li><a class="nav-androidBundleType" href="androidBundleType.html">AndroidBundle</a></li>
+<li><a class="nav-androidRectType" href="androidRectType.html">AndroidRect</a></li>
+<li><a class="nav-cryptoCipherOptionsType" href="cryptoCipherOptionsType.html">CryptoCipherOptions</a></li>
+<li><a class="nav-cryptoKeyType" href="cryptoKeyType.html">CryptoKey</a></li>
+<li><a class="nav-cryptoKeyPairType" href="cryptoKeyPairType.html">CryptoKeyPair</a></li>
+<li><a class="nav-consoleBuildOptionsType" href="consoleBuildOptionsType.html">ConsoleBuildOptions</a></li>
+<li><a class="nav-epubLocatorType" href="epubLocatorType.html">EpubLocator</a></li>
+<li><a class="nav-httpRequestBuilderOptionsType" href="httpRequestBuilderOptionsType.html">HttpRequestBuilderOptions</a></li>
+<li><a class="nav-httpRequestHeadersType" href="httpRequestHeadersType.html">HttpRequestHeaders</a></li>
+<li><a class="nav-httpResponseBodyType" href="httpResponseBodyType.html">HttpResponseBody</a></li>
+<li><a class="nav-httpResponseHeadersType" href="httpResponseHeadersType.html">HttpResponseHeaders</a></li>
+<li><a class="nav-httpResponseType" href="httpResponseType.html">HttpResponse</a></li>
+<li><a class="nav-injectableWebClientType" href="injectableWebClientType.html">InjectableWebClient</a></li>
+<li><a class="nav-injectableWebViewType" href="injectableWebViewType.html">InjectableWebView</a></li>
+<li><a class="nav-mailAccountOptionsType" href="mailAccountOptionsType.html">MailAccountOptions</a></li>
+<li><a class="nav-mailSearchQueryType" href="mailSearchQueryType.html">MailSearchQuery</a></li>
+<li><a class="nav-noticeOptionsType" href="noticeOptionsType.html">NoticeOptions</a></li>
+<li><a class="nav-noticeChannelOptionsType" href="noticeChannelOptionsType.html">NoticeChannelOptions</a></li>
+<li><a class="nav-noticePresetConfigurationType" href="noticePresetConfigurationType.html">NoticePresetConfiguration</a></li>
+<li><a class="nav-noticeBuilderType" href="noticeBuilderType.html">NoticeBuilder</a></li>
+<li><a class="nav-okhttp3HttpUrlType" href="okhttp3HttpUrlType.html">Okhttp3HttpUrl</a></li>
+<li><a class="nav-ocrOptionsType" href="ocrOptionsType.html">OcrOptions</a></li>
+<li><a class="nav-okhttp3RequestType" href="okhttp3RequestType.html">Okhttp3Request</a></li>
+<li><a class="nav-opencvPointType" href="opencvPointType.html">OpenCVPoint</a></li>
+<li><a class="nav-opencvRectType" href="opencvRectType.html">OpenCVRect</a></li>
+<li><a class="nav-opencvSizeType" href="opencvSizeType.html">OpenCVSize</a></li>
+<li><a class="nav-openCCConversionType" href="openCCConversionType.html">OpenCCConversion</a></li>
+<li><a class="nav-speechModelInfoType" href="speechModelInfoType.html">SpeechModelInfo</a></li>
+<li><a class="nav-speechRecognitionResultType" href="speechRecognitionResultType.html">SpeechRecognitionResult</a></li>
+</ul>
+<div class="line"></div>
+
+<ul>
+<li><a class="nav-http-project-autojs6-com" href="http://project.autojs6.com">GitHub - 应用项目地址</a></li>
+<li><p><a class="nav-http-docs-project-autojs6-com" href="http://docs-project.autojs6.com">GitHub - 文档项目地址</a></p>
+</li>
+<li><p><a class="nav-terminalSessionType" href="terminalSessionType.html">TerminalSession - 终端会话</a></p>
+</li>
+<li><a class="nav-terminalOpenOptionsType" href="terminalOpenOptionsType.html">TerminalOpenOptions - 终端选项</a></li>
+<li><a class="nav-terminalErrorType" href="terminalErrorType.html">TerminalError - 终端错误</a></li>
+<li><a class="nav-shellProcessType" href="shellProcessType.html">ShellProcess - Shell 进程</a></li>
+</ul>
+
+    </div>
+
+    <div id="column1" data-id="compose" class="interior">
+        <header>
+            <h1>AutoJs6 文档 - 6.8.0</h1>
+            <div id="gtoc">
+                <p class="index">
+                    <a href="index.html" name="toc">索引</a>
+                    <span class="offline-search-entry"> |
+                        <button type="button"
+                                class="offline-search-toggle"
+                                aria-controls="offline-search-panel"
+                                aria-expanded="false"
+                                data-offline-search-toggle>搜索文档</button>
+                    </span>
+                </p>
+            </div>
+            <hr>
+        </header>
+
+        <section id="offline-search-panel"
+                 class="offline-search"
+                 aria-labelledby="offline-search-title"
+                 data-offline-search
+                 data-index-src="assets/offline-search-index.js"
+                 data-state="idle"
+                 hidden>
+            <div class="offline-search-heading">
+                <h2 id="offline-search-title">搜索文档</h2>
+                <button type="button"
+                        class="offline-search-icon-button offline-search-close"
+                        aria-label="关闭搜索文档"
+                        data-offline-search-close>
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true"
+                         focusable="false">
+                        <path d="M6 6L18 18M18 6L6 18"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="offline-search-control">
+                <input id="offline-search-input"
+                       type="search"
+                       role="combobox"
+                       inputmode="search"
+                       autocomplete="off"
+                       spellcheck="false"
+                       placeholder="搜索文档内容"
+                       aria-labelledby="offline-search-title"
+                       aria-controls="offline-search-results"
+                       aria-autocomplete="list"
+                       aria-expanded="false"
+                       data-offline-search-input>
+                <button type="button"
+                        class="offline-search-icon-button offline-search-clear"
+                        aria-label="清除搜索内容"
+                        data-offline-search-clear
+                        hidden>
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true"
+                         focusable="false">
+                        <path d="M6 6L18 18M18 6L6 18"></path>
+                    </svg>
+                </button>
+            </div>
+            <p class="offline-search-status"
+               aria-live="polite"
+               data-offline-search-status>输入关键词搜索全部离线文档</p>
+            <div id="offline-search-results"
+                 class="offline-search-results"
+                 role="listbox"
+                 hidden
+                 data-offline-search-results></div>
+        </section>
+
+        <div id="toc">
+            <h2>目录</h2>
+<ul>
+<li><span class="stability_undefined"><a href="#compose_3_block_compose_compose">3-Block Compose (Compose)</a></span><ul>
+<li><span class="stability_undefined"><a href="#compose">两层使用方式</a></span><ul>
+<li><span class="stability_undefined"><a href="#compose_1">节点句柄</a></span></li>
+<li><span class="stability_undefined"><a href="#compose_state_render">state 与 render</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#compose_tsx">TSX 接入</a></span><ul>
+<li><span class="stability_undefined"><a href="#compose_2">可用条件</a></span></li>
+<li><span class="stability_undefined"><a href="#compose_3">标签与组件工厂</a></span></li>
+<li><span class="stability_undefined"><a href="#compose_fragment">Fragment 与插槽</a></span></li>
+<li><span class="stability_undefined"><a href="#compose_xml_compose">XML 与 Compose 的边界</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#compose_4">线程与生命周期</a></span></li>
+<li><span class="stability_undefined"><a href="#compose_compose">[@] compose</a></span><ul>
+<li><span class="stability_undefined"><a href="#compose_compose_nodeorrender_options">compose(nodeOrRender, options?)</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#compose_p_version">[p] version</a></span></li>
+<li><span class="stability_undefined"><a href="#compose_p_sessions">[p] sessions</a></span></li>
+<li><span class="stability_undefined"><a href="#compose_m_isavailable">[m] isAvailable</a></span><ul>
+<li><span class="stability_undefined"><a href="#compose_compose_isavailable">compose.isAvailable()</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#compose_5">组件工厂</a></span><ul>
+<li><span class="stability_undefined"><a href="#compose_compose_component_props_children">compose.Component(props?, ...children)</a></span></li>
+<li><span class="stability_undefined"><a href="#compose_composechild">ComposeChild</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#compose_m_createelement">[m] createElement</a></span><ul>
+<li><span class="stability_undefined"><a href="#compose_compose_createelement_type_props_children">compose.createElement(type, props?, ...children)</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#compose_m_modifier">[m] modifier</a></span><ul>
+<li><span class="stability_undefined"><a href="#compose_compose_modifier">compose.modifier()</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#compose_m_state">[m] state</a></span><ul>
+<li><span class="stability_undefined"><a href="#compose_compose_state_initialvalue">compose.state(initialValue)</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#compose_m_ref">[m] ref</a></span><ul>
+<li><span class="stability_undefined"><a href="#compose_compose_ref">compose.ref()</a></span></li>
+<li><span class="stability_undefined"><a href="#compose_composeref">ComposeRef</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#compose_m_mount">[m] mount</a></span><ul>
+<li><span class="stability_undefined"><a href="#compose_compose_mount_nodeorrender_options">compose.mount(nodeOrRender, options?)</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#compose_m_attach">[m] attach</a></span><ul>
+<li><span class="stability_undefined"><a href="#compose_compose_attach_container_nodeorrender_options">compose.attach(container, nodeOrRender, options?)</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#compose_m_floaty">[m] floaty</a></span><ul>
+<li><span class="stability_undefined"><a href="#compose_compose_floaty_nodeorrender_options">compose.floaty(nodeOrRender, options?)</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#compose_m_dialog">[m] dialog</a></span><ul>
+<li><span class="stability_undefined"><a href="#compose_compose_dialog_nodeorrender_options">compose.dialog(nodeOrRender, options?)</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#compose_m_batch">[m] batch</a></span><ul>
+<li><span class="stability_undefined"><a href="#compose_compose_batch_fn">compose.batch(fn)</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#compose_m_memo">[m] memo</a></span><ul>
+<li><span class="stability_undefined"><a href="#compose_compose_memo_fn_deps_options">compose.memo(fn, deps, options?)</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#compose_m_post">[m] post</a></span><ul>
+<li><span class="stability_undefined"><a href="#compose_compose_post_fn_delay">compose.post(fn, delay?)</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#compose_m_theme">[m] theme</a></span><ul>
+<li><span class="stability_undefined"><a href="#compose_compose_theme">compose.theme()</a></span></li>
+<li><span class="stability_undefined"><a href="#compose_compose_theme_options">compose.theme(options)</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#compose_6">事件回调</a></span></li>
+<li><span class="stability_undefined"><a href="#compose_7">错误与异常</a></span></li>
+<li><span class="stability_undefined"><a href="#compose_c_composeerror">[C] ComposeError</a></span><ul>
+<li><span class="stability_undefined"><a href="#compose_new_composeerror_message_code_nodeid_prop_cause">new ComposeError(message?, code?, nodeId?, prop?, cause?)</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#compose_8">输入与资源上限</a></span></li>
+<li><span class="stability_undefined"><a href="#compose_9">无障碍与选择器</a></span><ul>
+<li><span class="stability_undefined"><a href="#compose_10">运行条件</a></span></li>
+<li><span class="stability_undefined"><a href="#compose_testtag_id">testTag 与 ID</a></span></li>
+<li><span class="stability_undefined"><a href="#compose_text_contentdescription">text 与 contentDescription</a></span></li>
+<li><span class="stability_undefined"><a href="#compose_11">示例</a></span></li>
+<li><span class="stability_undefined"><a href="#compose_12">已知边界</a></span></li>
+</ul>
+</li>
+<li><span class="stability_undefined"><a href="#compose_13">打包应用</a></span><ul>
+<li><span class="stability_undefined"><a href="#compose_14">运行时与插件依赖</a></span></li>
+<li><span class="stability_undefined"><a href="#compose_15">应用版本与运行时版本</a></span></li>
+<li><span class="stability_undefined"><a href="#compose_16">启用状态与授权</a></span></li>
+<li><span class="stability_undefined"><a href="#compose_17">缺失插件与错误处理</a></span></li>
+<li><span class="stability_undefined"><a href="#compose_18">验证范围</a></span></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+
+        <div id="apicontent">
+            <h1>3-Block Compose (Compose)<span><a class="mark" href="#compose_3_block_compose_compose" id="compose_3_block_compose_compose">#</a></span></h1>
+<p><code>compose</code> 与 <code>$compose</code> 是同一个可调用模块, 通过 3-Block Compose 插件创建脚本界面. 脚本描述节点, 状态与事件, 插件负责 Jetpack Compose 渲染. 本参考对应 1.2.0 本地开发预览及配套 AutoJs6 宿主, 尚无官方发行版.</p>
+<p>运行需要 Android 7.0 / API 24 或以上, 包含 Compose 模块的配套 Rhino 运行时, 以及已安装, 已启用且通过信任与兼容性检查的 3-Block Compose 插件. 普通 JavaScript 工厂 API 的最低宿主构建要求仍为 AutoJs6 6.8.0 / 5316, 同时须满足实际插件契约和共享依赖检查. <a href="#compose_tsx">TSX 接入</a> 需要 5319 或以上的配套宿主及 TypeScript Engine 0.6.4.</p>
+<table>
+<thead>
+<tr>
+<th>内容</th>
+<th>参考</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>节点属性, 树操作与原生命令</td>
+<td><a href="composeNodeType.html">ComposeNode</a></td>
+</tr>
+<tr>
+<td>响应式状态</td>
+<td><a href="composeStateType.html">ComposeState</a></td>
+</tr>
+<tr>
+<td>布局修饰链</td>
+<td><a href="composeModifierType.html">ComposeModifier</a></td>
+</tr>
+<tr>
+<td>主题覆盖</td>
+<td><a href="composeThemeType.html">ComposeTheme</a></td>
+</tr>
+<tr>
+<td>会话与 Snackbar</td>
+<td><a href="composeSessionType.html">ComposeSession</a></td>
+</tr>
+<tr>
+<td>悬浮窗口</td>
+<td><a href="composeFloatyWindowType.html">ComposeFloatyWindow</a></td>
+</tr>
+<tr>
+<td>组件属性, 插槽, 事件和生成目录</td>
+<td><a href="composeComponents.html">ComposeComponents</a></td>
+</tr>
+<tr>
+<td>插件内置的可视化设计器</td>
+<td><a href="composeDesigner.html">3-Block Compose 设计器</a></td>
+</tr>
+</tbody>
+</table>
+<p>当前提供 UI 模式页面, <code>compose.floaty</code>, <a href="#compose_m_attach">XML 容器挂载</a> 和 <a href="#compose_m_dialog">独立对话框</a>. 配套宿主 5320 的 F2 能力增加 <code>&lt;compose&gt;</code> 容器与 <a href="composeComponents.html#composecomponents_androidview">AndroidView</a>, 需要支持此互操作能力的 3-Block Compose 1.1.0 预览包; 仅版本名称相同的早期 1.1.0 包不保证具备此能力. F2 的 <code>.tsx</code> 声明使用 TypeScript Engine 0.6.5, Declarations 4.33.0 与配套 Ace Editor 1.26.0.</p>
+<p>F3 的 <code>compose.dialog</code> 需要配套宿主 5321 和具备对话框能力的 3-Block Compose 构建 (原 Compose UI 1.1.0), <code>.tsx</code> 使用 TypeScript Engine 0.6.6, Declarations 4.34.0 与 Ace Editor 1.28.0. 组件目录中的 <code>AlertDialog</code> 仍是已有会话树内的节点; <code>compose.dialog</code> 创建独立会话, 二者不是同一入口.</p>
+<p>F4 的 <a href="composeComponents.html#composecomponents_v2">V2 组件</a> 需要配套宿主 5322 和契约版本 2 的 3-Block Compose 插件. V2 追加导航, 菜单, 日期/时间选择, 分页, 网格和搜索等 25 个节点, V1 组件目录保持不变. <code>.tsx</code> 使用 TypeScript Engine 0.6.7, Declarations 4.35.0 与 Ace Editor 1.29.0. 旧 V1 插件在支持它的配套宿主中仍可运行原有组件, 不能据新工厂名称存在就判断插件已经支持 V2.</p>
+<h2>两层使用方式<span><a class="mark" href="#compose" id="compose">#</a></span></h2>
+<h3>节点句柄<span><a class="mark" href="#compose_1" id="compose_1">#</a></span></h3>
+<p>先创建节点并保存句柄, 挂载后直接修改属性或子节点. 同一轮更新会传到已经存在的界面.</p>
+<pre><code class="lang-js">&#39;ui&#39;;
+
+let title = compose.Text({text: &#39;Ready&#39;});
+let button = compose.Button({onClick: function () {
+    title.text = &#39;Clicked&#39;;
+}}, &#39;Run&#39;);
+let session = compose.mount(compose.Column({padding: 16}, title, button));
+</code></pre>
+<p>节点是 <a href="composeNodeType.html">ComposeNode</a>, 不是原生 View. 只允许目录声明的属性和命令.</p>
+<h3>state 与 render<span><a class="mark" href="#compose_state_render" id="compose_state_render">#</a></span></h3>
+<p>把函数作为 <code>mount</code>, <code>attach</code>, <code>floaty</code> 或 <code>dialog</code> 的根输入, 函数读取 <a href="composeStateType.html#composestatetype_p_value">ComposeState.value</a> 并返回一个根节点. 后续状态变化会安排重绘, 并根据组件类型和 key 复用已有节点.</p>
+<pre><code class="lang-js">&#39;ui&#39;;
+
+let count = compose.state(0);
+compose.mount(function () {
+    return compose.Column({padding: 16},
+        compose.Text({key: &#39;count&#39;, text: &#39;Count: &#39; + count.value}),
+        compose.Button({key: &#39;increment&#39;, onClick: function () {
+            count.value++;
+        }}, &#39;Increment&#39;));
+});
+</code></pre>
+<p>两种方式可以配合: 渲染函数可使用先前保存的节点, 也可通过 <code>ref</code> 取得成功帧中的实际节点. 渲染函数中新创建的节点是用于协调的声明, 后续渲染可能把它们合并到原节点; 需要长期持有实际句柄时使用 <code>ref.current</code>.</p>
+<p>大型树中只有局部内容变化时, 可用 <a href="#compose_m_memo">compose.memo</a> 复用依赖未变的片段, 避免每次渲染重新创建全部节点.</p>
+<p>同一父节点的普通 children 列表中, 非 <code>null</code> 的 key 必须唯一. 有 key 的子节点按 key 和组件类型复用, 无 key 的子节点按同类型的出现次序匹配. 具名插槽按插槽名协调, 不参与普通 children 的 key 冲突检查. 多子节点渲染中缺少 key 会每个会话最多警告一次; 警告不拒绝渲染, 但会话内重排仍应使用稳定 key.</p>
+<h2>TSX 接入<span><a class="mark" href="#compose_tsx" id="compose_tsx">#</a></span></h2>
+<h3>可用条件<span><a class="mark" href="#compose_2" id="compose_2">#</a></span></h3>
+<p>Compose TSX 需要以下配套条件:</p>
+<ul>
+<li>AutoJs6 6.8.0 / 构建号 5319 或以上, 使用 Rhino 脚本入口.</li>
+<li>3-Block Compose 1.2.0 本地开发预览, 已安装, 启用并通过宿主的信任与兼容性检查.</li>
+<li>TypeScript Engine 0.6.4, 已安装, 启用并可连接, 提供真实 TypeScript 编译与 Compose 声明.</li>
+<li>源文件扩展名为 <code>.tsx</code>. UI 页面在文件开头保留 <code>&#39;ui&#39;;</code>; 非 UI 脚本可使用 <code>compose.floaty</code> 或具备配套 F3 能力的 <code>compose.dialog</code>, 并满足悬浮窗权限要求.</li>
+</ul>
+<p>普通 <code>.js</code> 工厂写法不需要 TypeScript Engine. 给 <code>.js</code> 文件加入 TSX 标签不会自动启用 TypeScript 编译. Node profile 不接受 <code>.tsx</code>, 也不提供 Compose TSX 挂载入口.</p>
+<p>宿主通过 TypeScript Engine 编译原始 <code>.tsx</code>, 再执行生成的 JavaScript. 无需自行配置 JSX factory 或引入 React. <code>jsx</code>, <code>jsxFactory</code>, <code>jsxFragmentFactory</code> 等编译入口仍由 profile 控制, 不能在 <code>tsconfig.json</code> 中切换到 React runtime 或自定义 factory.</p>
+<h3>标签与组件工厂<span><a class="mark" href="#compose_3" id="compose_3">#</a></span></h3>
+<p><code>&lt;compose.Column&gt;</code> 使用当前脚本实际的 <code>compose.Column</code> 工厂引用. <code>&lt;compose:Column&gt;</code> 使用带 <code>compose:</code> 前缀的目录名称. 两种写法使用同一组件目录, 属性, 插槽和事件规则, 不改变节点或回调的所有权.</p>
+<p>编辑器中推荐 <code>&lt;compose.Name&gt;</code> 写法, 可按组件获得属性补全. <code>&lt;compose:Name&gt;</code> 的编译与属性/事件类型检查同样受支持, 但当前 TypeScript 6 语言服务不保证命名空间标签内的准确属性补全.</p>
+<pre><code class="lang-tsx">&#39;ui&#39;;
+
+let count = compose.state(0);
+compose.mount(() =&gt; (
+    &lt;&gt;
+        &lt;compose.Column padding={16} spacing={8}&gt;
+            &lt;compose:Text key=&quot;count&quot; text={&#39;Count: &#39; + count.value} /&gt;
+            &lt;compose.Button key=&quot;increment&quot; onClick={() =&gt; {
+                count.value++;
+            }}&gt;Increment&lt;/compose.Button&gt;
+        &lt;/compose.Column&gt;
+    &lt;/&gt;
+));
+</code></pre>
+<p>可以保存真实工厂引用后作为标签, 例如 <code>let Increment = compose.Button</code> 后使用 <code>&lt;Increment&gt;Run&lt;/Increment&gt;</code>. 任意用户函数不会被当作 Compose 函数组件调用, 即使它返回一个 Compose 节点; 未注册函数会报 <code>INVALID_ARGUMENT</code>, 不执行函数体.</p>
+<p>小写标签仍沿用原有 XML UI 语义: <code>&lt;vertical&gt;</code>, <code>&lt;text&gt;</code> 和 <code>&lt;button&gt;</code> 不会自动变成 Compose 组件. <code>&lt;compose:Unknown&gt;</code> 报 <code>UNKNOWN_COMPONENT</code>. <code>Snackbar</code> 仍是 <a href="composeSessionType.html#composesessiontype_m_showsnackbar">会话命令</a>, 不能作为节点标签使用.</p>
+<p>props 的值直接进入原有类型化属性解析, 不会先转成 XML 字符串. <code>ref</code>, <code>modifier</code> 和事件函数保留对象或函数语义. 普通 <code>function</code> 事件处理器的 <code>this</code> 仍是实际节点; 箭头函数使用 JavaScript 原有的词法 <code>this</code>. <code>ref.current</code>, state 重绘与 key 协调规则与工厂写法一致.</p>
+<p>组件属性和事件参数具有对应的 TypeScript 声明. 但 JSX 表达式与 fragment 沿用既有 <code>any</code> 结果类型, 编译通过不代表已经确认其属于 XML 或 Compose, 也不代表片段的根数量合法. 混域, 叶节点 children 和片段数量等限制仍由运行时执行.</p>
+<p><code>Text</code> 通过 <code>text</code> 属性接收文字, 例如 <code>&lt;compose.Text text=&quot;Hello&quot; /&gt;</code>. 它不接受 <code>&lt;compose.Text&gt;Hello&lt;/compose.Text&gt;</code> 这样的直接 children. <code>Button</code> 等允许 children 的组件可以使用字符串子节点. 数字或 <code>true</code> 不会在 Compose 中隐式变成文字, 需要先调用 <code>String(value)</code>; <code>null</code>, <code>undefined</code>, <code>false</code> 被忽略.</p>
+<h3>Fragment 与插槽<span><a class="mark" href="#compose_fragment" id="compose_fragment">#</a></span></h3>
+<p><code>&lt;&gt;...&lt;/&gt;</code> 是属于当前脚本的中立片段载体, 本身不创建容器或布局. 它由消费位置决定展开方式, 不等同于 JavaScript 数组, 也不会自动补一层 <code>Column</code>.</p>
+<table>
+<thead>
+<tr>
+<th>使用位置</th>
+<th>规则</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compose 容器 children</td>
+<td>按原顺序展开片段中的内容, 继续检查父组件的 children 数量和作用域.</td>
+</tr>
+<tr>
+<td><code>mount</code>, <code>attach</code>, <code>compose(...)</code>, <code>floaty</code>, <code>dialog</code> 的根或 render 返回值</td>
+<td>片段展开后必须恰好有一个根节点, 空片段或多根报 <code>INVALID_ARGUMENT</code>.</td>
+</tr>
+<tr>
+<td>单节点插槽</td>
+<td>可以是空片段或一个节点, 多节点报 <code>INVALID_ARGUMENT</code>.</td>
+</tr>
+<tr>
+<td>XML UI</td>
+<td>保留原有 XML 的片段, 文本和根节点规则.</td>
+</tr>
+</tbody>
+</table>
+<p>具名插槽可直接使用嵌套 TSX. 插槽内容需要多个组件时, 使用实际的 <code>Row</code> 或 <code>Column</code> 包裹, 不能借助 fragment 绕过单节点插槽限制.</p>
+<pre><code class="lang-tsx">&#39;ui&#39;;
+
+compose.mount(
+    &lt;compose.Column padding={16}&gt;
+        &lt;compose.TopAppBar title={&lt;&gt;&lt;compose:Text text=&quot;Account&quot; /&gt;&lt;/&gt;} /&gt;
+        &lt;compose.OutlinedTextField
+            text=&quot;Ada&quot;
+            label={&lt;compose.Text text=&quot;Name&quot; /&gt;}
+        /&gt;
+    &lt;/compose.Column&gt;
+);
+</code></pre>
+<p>片段和节点都不能从其他脚本引擎搬到当前脚本. Fragment 不扩大组件数量, 深度, 子数组长度或 props 的既有上限.</p>
+<h3>XML 与 Compose 的边界<span><a class="mark" href="#compose_xml_compose" id="compose_xml_compose">#</a></span></h3>
+<p>XML 节点不能作为 Compose 的 children 或插槽, Compose 节点也不能插入 XML UI 树. 例如 <code>&lt;compose.Column&gt;&lt;text text=&quot;Mixed&quot; /&gt;&lt;/compose.Column&gt;</code> 和 <code>&lt;vertical&gt;&lt;compose.Text text=&quot;Mixed&quot; /&gt;&lt;/vertical&gt;</code> 都会被拒绝, 错误码为 <code>INVALID_ARGUMENT</code>.</p>
+<p>无效树在替换内容前被拒绝. 尝试把直接混合的树传给 <code>ui.layout</code> 时保留原页面; Compose render 产生无效树时按原有渲染失败规则保留上一个成功帧, 原按钮回调仍可修改状态并触发后续有效渲染.</p>
+<p>两套 UI 通过明确的边界组合: 在 XML 树中放置空的 <code>&lt;compose id=&quot;slot&quot; /&gt;</code>, 完成布局后调用 <a href="#compose_m_attach">compose.attach</a>; 在 Compose 树中使用 <a href="composeComponents.html#composecomponents_androidview">AndroidView</a> 包装实际 Android View. <code>&lt;compose&gt;</code> 不接受 XML 元素子节点, 也不能把 <code>&lt;compose.Text&gt;</code> 直接写在其内部. AndroidView 的 <code>view</code> 属性接收实际 View 或同步 View 工厂, 不接收 XML TSX 值或 ComposeNode.</p>
+<p>TSX 标签本身不改变生命周期. 非 UI 模式执行 <code>compose.mount</code> 仍报 <code>UI_MODE_REQUIRED</code>; 同一个 <code>.tsx</code> 脚本可通过 <code>compose.floaty</code> 或具备配套 F3 能力的 <code>compose.dialog</code> 创建并关闭自己的窗口会话.</p>
+<h2>线程与生命周期<span><a class="mark" href="#compose_4" id="compose_4">#</a></span></h2>
+<div class="signature"><ul>
+<li>UI 脚本由 <code>&#39;ui&#39;;</code> 声明, 其 Compose 操作在该脚本的 UI 调度线程执行.</li>
+<li>非 UI 脚本可使用 <code>compose.floaty</code>, <code>compose.dialog</code>, 或向旧悬浮窗口的 <code>&lt;compose&gt;</code> 容器 <code>attach</code>. 普通节点事件仍在创建会话的脚本线程执行, 原生窗口与绘制在 Android 主线程处理; 同步 View 工厂的特殊主线程规则见 <a href="composeComponents.html#composecomponents_composeviewfactory">ComposeViewFactory</a>.</li>
+<li>组件属性, state 读写, 树操作, 主题和普通窗口方法需要所属脚本线程. 工作线程使用 <code>compose.post</code>, <code>session.post</code> 或 <code>window.post</code>; 清理用的幂等 <code>close()</code> 也可从工作线程请求.</li>
+<li>Compose 节点事件排队回到脚本线程, 不在 Compose 的组合, 布局或绘制期间同步执行 JavaScript. AndroidView 内通过旧 <code>ui</code> API 或 XML TSX 注册的 View 事件仍遵循原生 UI 规则, 点击回调在主线程执行; 非 UI 脚本从这些回调修改 Compose 状态时使用 <code>compose.post</code>. UI 脚本中的阻塞等待同样会阻塞界面.</li>
+<li>同一脚本引擎最多有 8 个活动会话, UI 页面, XML 容器挂载, Compose 悬浮窗和对话框共同计数. 替换同一承载目标的旧会话时会扣除即将替换的会话, 不额外消耗一个长期名额.</li>
+<li>新的 <code>compose.mount</code> 替换旧的 3-Block Compose 页面. <code>ui.layout</code>, <code>ui.layoutFile</code> 或其他 UI 内容替换也会关闭原 3-Block Compose 会话, 不同时保留两套页面; 同一脚本的独立 Compose 悬浮窗和对话框不因此关闭.</li>
+<li>脚本停止, Activity 销毁, 会话主动关闭或原生窗口关闭会清理相应资源. 当前 UI Activity 自行处理方向及窗口尺寸等已声明的配置变化, 常规旋转和分屏尺寸变化可保留引擎与节点. 真正的 Activity 重建或销毁会结束其 UI 引擎, 不自动恢复原 state 或会话.</li>
+<li>插件更新, 卸载或禁用会关闭正在使用它的会话并报告对应错误. 重新安装或启用插件不会自动复活旧句柄, 后续应创建新的会话和节点.</li>
+</ul>
+</div><p>每个悬浮会话和非 UI 对话框会话持有属于自身的脚本保活引用. 关闭一个窗口只释放相应引用; 最后一个窗口关闭且没有其他保活来源时, 非 UI 脚本可自然结束. <code>post</code> 本身不提供额外保活.</p>
+<p style="font: bold 2em sans-serif; color: #FF7043">compose</p>
+
+<h2>[@] compose<span><a class="mark" href="#compose_compose" id="compose_compose">#</a></span></h2>
+<h3>compose(nodeOrRender, options?)<span><a class="mark" href="#compose_compose_nodeorrender_options" id="compose_compose_nodeorrender_options">#</a></span></h3>
+<div class="signature"><ul>
+<li><strong>nodeOrRender</strong> { <span class="type"><a href="composeNodeType.html">ComposeNode</a></span> | <span class="type"><a href="dataTypes.html#datatypes_function">Function</a></span> } - 根节点, 或返回一个根节点的渲染函数.</li>
+<li><strong>[ options ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_object">Object</a></span> | <span class="type"><a href="dataTypes.html#datatypes_null">null</a></span> } - 与 <code>mount</code> 相同的选项.</li>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="composeSessionType.html">ComposeSession</a></span> }</li>
+</ul>
+</div><p>等同于 <a href="#compose_m_mount">compose.mount</a>. <code>$compose</code> 与 <code>compose</code> 是同一对象. 组件工厂和模块方法不作为省略模块名的全局函数提供.</p>
+<h2>[p] version<span><a class="mark" href="#compose_p_version" id="compose_p_version">#</a></span></h2>
+<p><strong><code>READONLY</code></strong></p>
+<ul>
+<li>{ <span class="type"><a href="dataTypes.html#datatypes_object">Object</a></span> | <span class="type"><a href="dataTypes.html#datatypes_null">null</a></span> }</li>
+</ul>
+<p>插件当前可用时返回新对象 <code>{plugin, contract, compose}</code>:</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>plugin</code></td>
+<td><code>string</code></td>
+<td>已安装插件的版本名称.</td>
+</tr>
+<tr>
+<td><code>contract</code></td>
+<td><code>number</code></td>
+<td>渲染器契约版本, 当前为 <code>1</code>.</td>
+</tr>
+<tr>
+<td><code>compose</code></td>
+<td><code>string</code></td>
+<td>渲染器声明的 Jetpack Compose 运行时版本.</td>
+</tr>
+</tbody>
+</table>
+<p>插件缺失, 禁用, 未授权或不兼容时返回 <code>null</code>. 读取会执行正常插件发现与兼容性检查, 不弹出安装/授权界面, 也不创建会话. 它不是仅凭包名判断已安装的标志.</p>
+<h2>[p] sessions<span><a class="mark" href="#compose_p_sessions" id="compose_p_sessions">#</a></span></h2>
+<p><strong><code>READONLY</code></strong></p>
+<ul>
+<li>{ <span class="type"><a href="composeSessionType.html">ComposeSession</a>[]</span> }</li>
+</ul>
+<p>当前脚本尚未关闭的会话数组快照, 包含 UI 挂载, XML 容器挂载, 悬浮会话和独立对话框. 修改数组不会创建, 移除或关闭会话. 悬浮窗对应项为 <code>window.session</code>, 不是窗口对象本身.</p>
+<h2>[m] isAvailable<span><a class="mark" href="#compose_m_isavailable" id="compose_m_isavailable">#</a></span></h2>
+<h3>compose.isAvailable()<span><a class="mark" href="#compose_compose_isavailable" id="compose_compose_isavailable">#</a></span></h3>
+<div class="signature"><ul>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_boolean">boolean</a></span> }</li>
+</ul>
+</div><p>正常发现, 信任与兼容性检查是否通过. 与 <code>compose.version !== null</code> 的探测意义一致, 不自动安装或启用插件. 单次探测通过不保证后续插件状态不变, 实际挂载仍会重新检查.</p>
+<h2>组件工厂<span><a class="mark" href="#compose_5" id="compose_5">#</a></span></h2>
+<h3>compose.Component(props?, ...children)<span><a class="mark" href="#compose_compose_component_props_children" id="compose_compose_component_props_children">#</a></span></h3>
+<div class="signature"><ul>
+<li><strong>[ props ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_object">Object</a></span> | <span class="type"><a href="dataTypes.html#datatypes_null">null</a></span> } - 组件声明.</li>
+<li><strong>...children</strong> { <span class="type">...(<a href="#compose_composechild">ComposeChild</a>)[]</span> } - 子节点输入.</li>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="composeNodeType.html">ComposeNode</a></span> }</li>
+</ul>
+</div><p><code>Component</code> 替换为实际工厂名称:</p>
+<table>
+<thead>
+<tr>
+<th>分类</th>
+<th>工厂</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>布局</td>
+<td><code>Column</code>, <code>Row</code>, <code>Box</code>, <code>Spacer</code>, <code>LazyColumn</code>, <code>LazyRow</code>, <code>Scaffold</code></td>
+</tr>
+<tr>
+<td>容器与应用栏</td>
+<td><code>Surface</code>, <code>Card</code>, <code>HorizontalDivider</code>, <code>TopAppBar</code></td>
+</tr>
+<tr>
+<td>内容</td>
+<td><code>Text</code>, <code>Icon</code>, <code>Image</code></td>
+</tr>
+<tr>
+<td>按钮</td>
+<td><code>Button</code>, <code>ElevatedButton</code>, <code>FilledTonalButton</code>, <code>OutlinedButton</code>, <code>TextButton</code>, <code>IconButton</code></td>
+</tr>
+<tr>
+<td>输入与选择</td>
+<td><code>Switch</code>, <code>Checkbox</code>, <code>RadioButton</code>, <code>Slider</code>, <code>TextField</code>, <code>OutlinedTextField</code></td>
+</tr>
+<tr>
+<td>进度与会话内对话框</td>
+<td><code>CircularProgressIndicator</code>, <code>LinearProgressIndicator</code>, <code>AlertDialog</code></td>
+</tr>
+<tr>
+<td>F2 原生 View 互操作</td>
+<td><code>AndroidView</code></td>
+</tr>
+</tbody>
+</table>
+<p>省略 props 时可直接传节点, 字符串或数组作为 children. 子节点数组可嵌套, <code>null</code>, <code>undefined</code>, <code>false</code> 被忽略, 字符串自动生成 <code>Text</code>. 数字和 <code>true</code> 不隐式转换为文字. 是否允许 children 及其数量仍由组件目录决定; <code>Text</code> 使用 <code>{text: &#39;Hello&#39;}</code>, 不是 <code>Text(&#39;Hello&#39;)</code>.</p>
+<p>创建 props 可包含组件属性, <code>key</code>, <code>ref</code>, <code>modifier</code>, 快捷属性, <code>children</code>, <code>slots</code>, 具名插槽及 <code>onX</code> 回调. <code>props.children</code> 与位置 children 不可同时提供. 参数是当前声明的快照, 后续修改原 props 对象不会自动更新节点.</p>
+<p>props 容器本身为 <code>null</code> 或 <code>undefined</code> 时按空对象处理. 这不表示对象内任意属性值都可使用 nullish 值.</p>
+<p>基础目录有 29 个节点工厂, F2 另提供 AndroidView 扩展. <code>Snackbar</code> 是会话命令, 没有 <code>compose.Snackbar()</code> 节点工厂; 使用 <a href="composeSessionType.html#composesessiontype_m_showsnackbar">session.showSnackbar</a>. 具体属性, 默认值, 输入类型, ImageWrapper 所有权及插槽要求见 <a href="composeComponents.html">组件目录</a>.</p>
+<h3>ComposeChild<span><a class="mark" href="#compose_composechild" id="compose_composechild">#</a></span></h3>
+<p>本文以 ComposeChild 表示子节点输入: <a href="composeNodeType.html">ComposeNode</a>, <a href="dataTypes.html#datatypes_string">string</a>, 以上内容的递归数组, 或被忽略的 <code>null</code>, <code>undefined</code>, <code>false</code>. 其中不包含其他数字, 布尔值或任意对象. 当前脚本的 TSX fragment 可按 <a href="#compose_fragment">片段规则</a> 展开为这些输入. 每个父组件仍独立限制其允许的子节点数量.</p>
+<h2>[m] createElement<span><a class="mark" href="#compose_m_createelement" id="compose_m_createelement">#</a></span></h2>
+<h3>compose.createElement(type, props?, ...children)<span><a class="mark" href="#compose_compose_createelement_type_props_children" id="compose_compose_createelement_type_props_children">#</a></span></h3>
+<div class="signature"><ul>
+<li><strong>type</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 目录中的组件名称, 区分大小写.</li>
+<li><strong>[ props ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_object">Object</a></span> | <span class="type"><a href="dataTypes.html#datatypes_null">null</a></span> } - 与对应组件工厂一致.</li>
+<li><strong>...children</strong> { <span class="type">...(<a href="#compose_composechild">ComposeChild</a>)[]</span> } - 同组件工厂的子节点规则.</li>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="composeNodeType.html">ComposeNode</a></span> }</li>
+</ul>
+</div><p>等同于调用同名工厂, 例如 <code>compose.createElement(&#39;Text&#39;, {text: &#39;Hello&#39;})</code>. 未知名称报 <code>UNKNOWN_COMPONENT</code>, 将仅命令的 <code>Snackbar</code> 当作节点创建会报 <code>INVALID_ARGUMENT</code>. 此方法本身不执行 TypeScript 编译, 也不接受任意 Kotlin Composable; <code>.tsx</code> 文件使用 <a href="#compose_tsx">TSX 接入</a> 中的配套编译入口.</p>
+<h2>[m] modifier<span><a class="mark" href="#compose_m_modifier" id="compose_m_modifier">#</a></span></h2>
+<h3>compose.modifier()<span><a class="mark" href="#compose_compose_modifier" id="compose_compose_modifier">#</a></span></h3>
+<div class="signature"><ul>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="composeModifierType.html">ComposeModifier</a></span> } - 空的不可变 Modifier 链.</li>
+</ul>
+</div><p>后续链式方法返回新的链, 原链保持不变. 链的顺序, 作用域与快捷属性映射见 <a href="composeModifierType.html">ComposeModifier</a>.</p>
+<h2>[m] state<span><a class="mark" href="#compose_m_state" id="compose_m_state">#</a></span></h2>
+<h3>compose.state(initialValue)<span><a class="mark" href="#compose_compose_state_initialvalue" id="compose_compose_state_initialvalue">#</a></span></h3>
+<div class="signature"><ul>
+<li><strong>initialValue</strong> { <span class="type"><a href="dataTypes.html#datatypes_generic">T</a></span> } - 初始值, 必须提供一个参数.</li>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="composeStateType.html">ComposeState</a>&lt;<a href="dataTypes.html#datatypes_generic">T</a>&gt;</span> }</li>
+<li><ins><strong>template</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_generic">T</a></span> }</li>
+</ul>
+</div><p>保存一个值, 通过 <code>.value</code> 读写. 不深拷贝或深度代理对象; 同引用对象内部字段变动不会自动通知视图. 仅在 render 内读取才建立视图依赖, 后续更改在调度时合并渲染. 详见 <a href="composeStateType.html">ComposeState</a>.</p>
+<h2>[m] ref<span><a class="mark" href="#compose_m_ref" id="compose_m_ref">#</a></span></h2>
+<h3>compose.ref()<span><a class="mark" href="#compose_compose_ref" id="compose_compose_ref">#</a></span></h3>
+<div class="signature"><ul>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="#compose_compose_ref">ComposeRef</a></span> } - 初始 <code>current</code> 为 <code>null</code> 的引用对象.</li>
+</ul>
+</div><p>传给节点创建选项的 <code>ref</code>, 或 <code>node.set({ref})</code>. 它不会创建节点, 也不是按 testTag 查找节点的选择器.</p>
+<h3>ComposeRef<span><a class="mark" href="#compose_composeref" id="compose_composeref">#</a></span></h3>
+<p>只有一个公开属性 <code>current</code>:</p>
+<ul>
+<li><strong>current</strong> { <span class="type"><a href="composeNodeType.html">ComposeNode</a></span> | <span class="type"><a href="dataTypes.html#datatypes_null">null</a></span> } - 只读, 指向成功帧接受后的实际节点.</li>
+</ul>
+<p>调用 <code>mount</code> 返回或 state 刚赋值时, 新一帧的 ref 不一定已发布. 节点移除并被接受后清空对应引用, 会话关闭后读取为 <code>null</code>. 同一帧不能把同一个 ref 同时指向多个节点. 需要独立定位多个控件时分别创建 ref.</p>
+<p>若不同会话共用一个 ref, <code>current</code> 会随最近接受的帧改变, 不是多个节点的集合. 关闭其他会话不会清除仍指向存活节点的引用.</p>
+<pre><code class="lang-js">&#39;ui&#39;;
+
+let fieldRef = compose.ref();
+compose.mount(function () {
+    return compose.Column({},
+        compose.OutlinedTextField({key: &#39;field&#39;, ref: fieldRef, text: &#39;&#39;}),
+        compose.Button({key: &#39;focus&#39;, onClick: function () {
+            if (fieldRef.current !== null) fieldRef.current.focus();
+        }}, &#39;Focus&#39;));
+});
+</code></pre>
+<h2>[m] mount<span><a class="mark" href="#compose_m_mount" id="compose_m_mount">#</a></span></h2>
+<h3>compose.mount(nodeOrRender, options?)<span><a class="mark" href="#compose_compose_mount_nodeorrender_options" id="compose_compose_mount_nodeorrender_options">#</a></span></h3>
+<p><strong><code>UI</code></strong></p>
+<ul>
+<li><strong>nodeOrRender</strong> { <span class="type"><a href="composeNodeType.html">ComposeNode</a></span> | <span class="type"><a href="dataTypes.html#datatypes_function">Function</a></span> } - 一个根节点或无参数的渲染函数.</li>
+<li><strong>[ options ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_object">Object</a></span> | <span class="type"><a href="dataTypes.html#datatypes_null">null</a></span> } - 仅接受 <code>theme</code> 字段, 值为 <a href="composeThemeType.html">ComposeTheme</a> 或 <code>null</code>.</li>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="composeSessionType.html">ComposeSession</a></span> }</li>
+</ul>
+<p>把节点树挂载到当前 UI 脚本 Activity. 非 UI 脚本调用会得到 <code>UI_MODE_REQUIRED</code>. 渲染函数必须返回一个节点, 不能返回 <code>null</code>, 节点数组或原生 View; 普通函数的 <code>this</code> 为脚本全局对象.</p>
+<p>TSX 入口还接受当前脚本的 fragment 作为根或 render 返回值, 展开后必须恰好有一个节点. 其中字符串按 children 规则创建 <code>Text</code> 后计数, 不会自动增加外层容器.</p>
+<p>新页面声明验证和渲染器打开成功后, 会关闭原 3-Block Compose 会话并替换页面. 初始声明或打开失败时, 原页面仍可保持有效. 同一渲染函数中再次调用 <code>mount</code> 或 <code>floaty</code> 会报 <code>INVALID_ARGUMENT</code>, 保留此前有效页面.</p>
+<p>options 容器省略或为 <code>null</code> / <code>undefined</code> 时按空对象处理. 其中 <code>theme</code> 省略或为 <code>null</code> 时沿用模块当前默认覆盖; 显式 <code>{theme: {}}</code> 表示空覆盖, 不与模块默认对象深度合并. 其他选项报 <code>UNKNOWN_PROP</code>. 主题规则见 <a href="composeThemeType.html#composethemetype_1">ComposeTheme</a>.</p>
+<p>返回会话不代表所有原生布局与绘制已完成. 更新节点和 ref 的发布遵循会话提交与回执过程; 原生命令会在可执行时处理.</p>
+<h2>[m] attach<span><a class="mark" href="#compose_m_attach" id="compose_m_attach">#</a></span></h2>
+<h3>compose.attach(container, nodeOrRender, options?)<span><a class="mark" href="#compose_compose_attach_container_nodeorrender_options" id="compose_compose_attach_container_nodeorrender_options">#</a></span></h3>
+<div class="signature"><ul>
+<li><strong>container</strong> { <span class="type"><a href="composeComponents.html#composecomponents_composenativeview">ComposeNativeView</a></span> } - 本脚本的 XML <code>&lt;compose&gt;</code> 容器, 通常从 <code>ui.&lt;id&gt;</code> 或旧悬浮窗口的 ID 属性取得.</li>
+<li><strong>nodeOrRender</strong> { <span class="type"><a href="composeNodeType.html">ComposeNode</a></span> | <span class="type"><a href="dataTypes.html#datatypes_function">Function</a></span> } - 一个根节点, 或返回一个根节点的同步渲染函数. TSX fragment 沿用 <a href="#compose_fragment">单根规则</a>.</li>
+<li><strong>[ options ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_object">Object</a></span> | <span class="type"><a href="dataTypes.html#datatypes_null">null</a></span> } - 仅接受 <code>theme</code> 字段, 规则与 <code>mount</code> 相同.</li>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="composeSessionType.html">ComposeSession</a></span> } - 此容器的挂载会话.</li>
+</ul>
+</div><p>把 Compose 内容挂载到现有 XML 页面或旧悬浮窗口的指定位置. 此方法不替换整个 Activity 内容, 也不新建悬浮窗口. 容器仍是 Android View; <code>ui.slot</code> 不会变成 ComposeNode, 根节点通过返回会话的 <code>root</code> 访问.</p>
+<p>options 容器省略或为 <code>null</code> / <code>undefined</code> 时按空对象处理. <code>theme</code> 省略或为 <code>null</code> 时继承模块默认覆盖; 显式 <code>{theme: {}}</code> 或 <code>{theme: undefined}</code> 使用空覆盖. 此行为与 <a href="#compose_m_mount">mount</a> 的主题输入一致.</p>
+<p>目标必须由当前脚本的 <code>&lt;compose&gt;</code> 标签创建. 普通 FrameLayout, 其他脚本的容器或任意对象均不能替代. 容器只能由 <code>attach</code> 管理内容, 不向其手动 <code>addView</code> 或传入 XML 子节点.</p>
+<p>同一容器再次成功挂载会关闭它的旧会话. 挂载另一个容器不关闭当前容器的会话. 新内容或 View 工厂准备失败时保留旧会话; 捕获错误后仍可继续使用旧内容. 嵌入会话与 UI 页面, Compose 悬浮窗共同占用单引擎最多 8 个活动会话的名额.</p>
+<pre><code class="lang-js">&#39;ui&#39;;
+
+ui.layout(&#39;&lt;vertical padding=&quot;16&quot;&gt;&#39; +
+    &#39;&lt;text text=&quot;XML heading&quot; textSize=&quot;20sp&quot; /&gt;&#39; +
+    &#39;&lt;compose id=&quot;slot&quot; w=&quot;*&quot; h=&quot;120&quot; /&gt;&#39; +
+    &#39;&lt;button id=&quot;increment&quot; text=&quot;Increment&quot; /&gt;&#39; +
+    &#39;&lt;/vertical&gt;&#39;);
+
+let count = compose.state(0);
+let session = compose.attach(ui.slot, function () {
+    return compose.Text({text: &#39;Compose count: &#39; + count.value, fontSize: 22});
+});
+ui.increment.on(&#39;click&#39;, function () {
+    count.value += 1;
+});
+</code></pre>
+<p>非 UI 脚本可在原有悬浮窗中使用 <code>&lt;compose&gt;</code> 容器, 仍需满足该窗口的悬浮窗权限与生命周期要求. <code>attach</code> 和节点操作在所属脚本线程调用; View 的原生创建与挂载由主线程处理. 不在 View 工厂中创建新的 mount, attach, floaty 或 dialog 会话.</p>
+<h2>[m] floaty<span><a class="mark" href="#compose_m_floaty" id="compose_m_floaty">#</a></span></h2>
+<h3>compose.floaty(nodeOrRender, options?)<span><a class="mark" href="#compose_compose_floaty_nodeorrender_options" id="compose_compose_floaty_nodeorrender_options">#</a></span></h3>
+<div class="signature"><ul>
+<li><strong>nodeOrRender</strong> { <span class="type"><a href="composeNodeType.html">ComposeNode</a></span> | <span class="type"><a href="dataTypes.html#datatypes_function">Function</a></span> } - 与 <code>mount</code> 相同的根节点或渲染函数.</li>
+<li><strong>[ options ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_object">Object</a></span> | <span class="type"><a href="dataTypes.html#datatypes_null">null</a></span> } - <code>raw</code>, <code>x</code>, <code>y</code>, <code>width</code>, <code>height</code>, <code>touchable</code>, <code>focusable</code>, <code>theme</code>.</li>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="composeFloatyWindowType.html">ComposeFloatyWindow</a></span> }</li>
+</ul>
+</div><p>在当前脚本的悬浮窗系统中创建一个独立窗口, 可从 UI 或非 UI 脚本的所属线程调用. 缺少悬浮窗权限报 <code>PERMISSION_REQUIRED</code>, 此调用不自动弹出授权页面.</p>
+<p>每次成功调用创建独立悬浮会话, 不替换已有页面或其他悬浮窗. 渲染函数内禁止再次创建窗口. 几何单位是物理像素, 与组件布局的 dp 不同; 选项默认值, 焦点, 关闭与保活规则见 <a href="composeFloatyWindowType.html">ComposeFloatyWindow</a>.</p>
+<p>options 容器省略或为 <code>null</code> / <code>undefined</code> 时使用默认选项, 成员值仍按各字段校验.</p>
+<h2>[m] dialog<span><a class="mark" href="#compose_m_dialog" id="compose_m_dialog">#</a></span></h2>
+<h3>compose.dialog(nodeOrRender, options?)<span><a class="mark" href="#compose_compose_dialog_nodeorrender_options" id="compose_compose_dialog_nodeorrender_options">#</a></span></h3>
+<div class="signature"><ul>
+<li><strong>nodeOrRender</strong> { <span class="type"><a href="composeNodeType.html">ComposeNode</a></span> | <span class="type"><a href="dataTypes.html#datatypes_function">Function</a></span> } - 一个根节点或返回一个根节点的同步渲染函数; TSX fragment 遵循 <a href="#compose_fragment">单根规则</a>.</li>
+<li><strong>[ options ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_object">Object</a></span> | <span class="type"><a href="dataTypes.html#datatypes_null">null</a></span> } - 仅接受下表中的 <code>type</code>, <code>cancelable</code>, <code>theme</code>.</li>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="composeSessionType.html">ComposeSession</a></span> } - 此独立对话框的会话, 不是 Promise 或浮动窗口控制对象.</li>
+</ul>
+</div><p>创建一个由 Compose 内容组成的独立对话框. 每次成功调用产生新会话, 不替换已有页面, XML 容器, 悬浮窗或其他对话框, 并计入单脚本引擎最多 8 个活动会话的限制. 返回会话可使用 <code>update</code>, <code>post</code>, <code>close</code>, <code>on(&#39;close&#39;)</code> 和 <code>showSnackbar</code>; 不提供 <code>setPosition</code>, window token 或 window type 选项.</p>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>类型</th>
+<th>默认值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type</code></td>
+<td><code>&#39;alert&#39;</code> 或 <code>&#39;bottomSheet&#39;</code></td>
+<td><code>&#39;alert&#39;</code></td>
+<td>普通独立对话框或底部弹层. 底部弹层打开时直接展开, 不停留在部分展开状态.</td>
+</tr>
+<tr>
+<td><code>cancelable</code></td>
+<td><code>boolean</code></td>
+<td><code>true</code></td>
+<td>是否允许返回键, 外部点击和底部弹层滑动取消.</td>
+</tr>
+<tr>
+<td><code>theme</code></td>
+<td><a href="composeThemeType.html">ComposeTheme</a>, <code>null</code> 或 <code>undefined</code></td>
+<td>继承模块默认覆盖</td>
+<td>与其他挂载入口采用相同的覆盖规则.</td>
+</tr>
+</tbody>
+</table>
+<p>options 容器省略或为 <code>null</code> / <code>undefined</code> 时使用默认选项. <code>type</code> 与 <code>cancelable</code> 只有省略时取默认值, 显式 <code>null</code> 或 <code>undefined</code> 都报 <code>INVALID_ARGUMENT</code>. <code>theme</code> 省略或为 <code>null</code> 时继承模块默认覆盖; 显式 <code>{theme: {}}</code> 或 <code>{theme: undefined}</code> 使用空覆盖. 未知选项报 <code>UNKNOWN_PROP</code>.</p>
+<p>TypeScript 未启用 <code>exactOptionalPropertyTypes</code> 时, 可选属性的显式 <code>undefined</code> 可能不产生编辑器诊断, 运行时仍按上述规则校验.</p>
+<p>UI 脚本使用当前脚本自身的 Activity 窗口, 不挂到其他 Activity, 也不要求悬浮窗权限. 非 UI 脚本使用悬浮窗口, 必须预先具有当前应用的悬浮窗权限; 未获权限报 <code>PERMISSION_REQUIRED</code>, 调用不会自动申请或打开授权页面. 非 UI 对话框在存活期间为脚本保活, 关闭后释放属于该会话的引用.</p>
+<p><code>cancelable: false</code> 同时禁止返回键, 对话框外部点击和底部弹层滑动导致的用户取消. 脚本主动 <code>session.close()</code> 始终可用, 脚本停止或所属 Activity 销毁等生命周期清理也不受此选项阻止. 允许的用户取消会关闭会话, <code>on(&#39;close&#39;)</code> 沿用所属脚本线程上的一次通知规则; 不返回确认/取消值.</p>
+<p>根内容支持响应式状态, ref, 节点事件, TSX 和 AndroidView. 节点仍属于当前脚本与会话, 不能直接混入 XML TSX 值或任意原生 View. 在 render 或 AndroidView 工厂中再创建 mount, attach, floaty 或 dialog 会话会被拒绝. 初始化或渲染器能力检查失败时, 已有内容继续有效; 缺少对话框能力的旧插件报 <code>PLUGIN_INCOMPATIBLE</code>.</p>
+<p><code>compose.isAvailable()</code> 探测基础可用性, 不保证旧版本插件已提供对话框能力. 可捕获 <code>PLUGIN_INCOMPATIBLE</code> 提示使用配套插件, 不应据此关闭仍有效的原会话.</p>
+<p>下面是独立对话框, 内部没有使用会话树组件 <code>AlertDialog</code>:</p>
+<pre><code class="lang-js">&#39;ui&#39;;
+
+let count = compose.state(0);
+let session = compose.dialog(function () {
+    return compose.Column({padding: 20, spacing: 12},
+        compose.Text({key: &#39;count&#39;, text: &#39;Count: &#39; + count.value}),
+        compose.Button({key: &#39;add&#39;, onClick: function () { count.value += 1; }}, &#39;Increment&#39;),
+        compose.TextButton({key: &#39;close&#39;, onClick: function () { session.close(); }}, &#39;Close&#39;));
+}, {cancelable: false});
+session.on(&#39;close&#39;, function () {
+    console.log(&#39;Dialog closed&#39;);
+});
+</code></pre>
+<p>底部弹层使用同一个入口:</p>
+<pre><code class="lang-js">// 非 UI 脚本需要事先授予当前应用悬浮窗权限.
+let sheet = compose.dialog(compose.Column({padding: 20},
+    compose.Text({text: &#39;Bottom sheet&#39;})), {type: &#39;bottomSheet&#39;});
+</code></pre>
+<p>Snackbar 仍需要用户节点树中的 <code>Scaffold</code> 及其默认 host, 不因选择底部弹层而隐式获得可寻址的 Snackbar 节点. 关闭标志与原生窗口释放的异步边界见 <a href="composeSessionType.html#composesessiontype_m_close">ComposeSession</a>. 若只需文本提示, 确认或输入结果, 可使用已有的 <a href="dialogs.html">dialogs 模块</a>.</p>
+<h2>[m] batch<span><a class="mark" href="#compose_m_batch" id="compose_m_batch">#</a></span></h2>
+<h3>compose.batch(fn)<span><a class="mark" href="#compose_compose_batch_fn" id="compose_compose_batch_fn">#</a></span></h3>
+<div class="signature"><ul>
+<li><strong>fn</strong> { <span class="type"><a href="dataTypes.html#datatypes_function">Function</a></span> } - 在所属脚本线程立即执行的函数, 无参数.</li>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_any">any</a></span> } - <code>fn</code> 的返回值.</li>
+</ul>
+</div><p>将该函数中的节点更改作为一次事务验证与发布, 并合并响应式更新. 嵌套 batch 加入外层事务. 普通函数的 <code>this</code> 为脚本全局对象.</p>
+<p>批处理范围是同步函数执行过程, 不等待函数返回的 Promise 完成; 后续异步任务需要各自进入所属脚本线程和事务.</p>
+<p>参数或树验证失败, 或同步函数抛出异常时, 本次节点声明更改会回滚, 保留此前有效树. 已完成的 <code>state.value</code> 赋值, 普通 JavaScript 变量赋值及外部副作用不会被撤销. 这不是任意脚本操作的通用回滚机制.</p>
+<p>单次节点事务最多影响一个活动会话. 同一个 batch 修改两棵属于不同会话的挂载树会得到 <code>INVALID_ARGUMENT</code>, 不先发布其中一棵. 批处理不保证只有一次屏幕绘制, 也不会同步等待原生帧完成.</p>
+<p>下面的 <code>title</code> 和 <code>button</code> 为已经创建的节点句柄:</p>
+<pre><code class="lang-js">let value = compose.batch(function () {
+    title.text = &#39;Ready&#39;;
+    button.enabled = true;
+    return 42;
+});
+</code></pre>
+<h2>[m] memo<span><a class="mark" href="#compose_m_memo" id="compose_m_memo">#</a></span></h2>
+<h3>compose.memo(fn, deps, options?)<span><a class="mark" href="#compose_compose_memo_fn_deps_options" id="compose_compose_memo_fn_deps_options">#</a></span></h3>
+<div class="signature"><ul>
+<li><strong>fn</strong> { <span class="type"><a href="dataTypes.html#datatypes_function">Function</a></span> } - 在当前渲染函数中同步执行的片段函数, 无参数, 返回一个节点.</li>
+<li><strong>deps</strong> { <span class="type"><a href="dataTypes.html#datatypes_any">any</a>[]</span> } - 依赖值数组, 最多 256 项.</li>
+<li><strong>[ options ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_object">Object</a></span> | <span class="type"><a href="dataTypes.html#datatypes_null">null</a></span> } - 仅接受 <code>key</code> 字段.<ul>
+<li><strong>[ key ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> | <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> | <span class="type"><a href="dataTypes.html#datatypes_null">null</a></span> } - 片段在当前作用域内的稳定标识, 如列表条目的 key.</li>
+</ul>
+</li>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="composeNodeType.html">ComposeNode</a></span> } - 本次构建或复用的片段根节点.</li>
+</ul>
+</div><p>在渲染函数中复用未变化的界面片段, 跳过重新创建它的节点. 只能在 <code>mount</code>, <code>attach</code>, <code>floaty</code>, <code>dialog</code> 或 <code>compose(...)</code> 的渲染函数执行期间调用; 节点句柄写法, 事件回调和 <code>post</code> 任务中调用会得到 <code>INVALID_ARGUMENT</code>. 需要 AutoJs6 6.8.0 (5323) 或更高版本的匹配本地构建, 不改变 3-Block Compose 插件的版本要求.</p>
+<p>每次调用先确定所属的记录位置:</p>
+<ul>
+<li>作用域为渲染函数本身或外层 memo 片段. 嵌套 memo 只与同一外层片段中的记录匹配.</li>
+<li>提供 <code>options.key</code> 时按 key 匹配, 同一作用域内 key 重复报 <code>DUPLICATE_KEY</code>. 未提供时按调用次序匹配, 因此条件分支前后的调用次序变化会使后续片段重新构建.</li>
+<li>记录还须来自同一函数字面量. 同一字面量在每次渲染中创建的新闭包视为同一来源.</li>
+</ul>
+<p>上一次成功渲染的记录同时满足以下条件时, 直接返回原节点, <code>fn</code> 不执行:</p>
+<ul>
+<li><code>deps</code> 长度相同且每一项未变. 数字, 字符串和布尔值按值比较, 规则与 <code>Object.is</code> 相同; 对象, 数组和函数按引用比较.</li>
+<li><code>fn</code> 上次执行时读取的 <a href="composeStateType.html#composestatetype_p_value">ComposeState.value</a> 之后没有被赋予不同的值.</li>
+<li>原节点仍位于该会话的上一棵树中.</li>
+</ul>
+<p>否则 <code>fn</code> 重新执行, 返回的节点按组件类型和 key 与原节点协调. 复用的片段仍订阅它读取过的 state, 这些 state 改变时会重新渲染并重建该片段.</p>
+<p><code>fn</code> 闭包中使用的普通值, 例如循环中的条目对象或外层变量, 不会被自动追踪, 应列入 <code>deps</code>; 遗漏时片段保持旧内容. 通过节点句柄或 <code>ref</code> 修改复用节点时, 修改保留到该片段重新执行为止.</p>
+<p>渲染失败时保留此前的记录. 渲染插件拒绝一帧后, 全部记录失效, 下一次渲染重新构建. 会话关闭时释放记录. 每次渲染最多调用 5000 次 memo. 依赖数组超过 256 项报 <code>LIMIT_EXCEEDED</code>, 不是数组报 <code>INVALID_ARGUMENT</code>.</p>
+<p>下例的按钮只改变计数文本, 1000 个条目在之后的渲染中均被复用:</p>
+<pre><code class="lang-js">&#39;ui&#39;;
+
+let items = compose.state([]);
+let clicks = compose.state(0);
+let initial = [];
+for (let i = 0; i &lt; 1000; i++) initial.push({id: &#39;item-&#39; + i, title: &#39;Item &#39; + i});
+items.value = initial;
+
+compose.mount(function () {
+    let rows = items.value.map(function (item) {
+        return compose.memo(function () {
+            return compose.Text({key: item.id, text: item.title});
+        }, [item.id, item.title], {key: item.id});
+    });
+    return compose.Column({padding: 16},
+        compose.Button({key: &#39;count&#39;, onClick: function () {
+            clicks.value++;
+        }}, &#39;Clicks: &#39; + clicks.value),
+        compose.LazyColumn({key: &#39;list&#39;, modifier: compose.modifier().weight(1)}, rows));
+});
+</code></pre>
+<h2>[m] post<span><a class="mark" href="#compose_m_post" id="compose_m_post">#</a></span></h2>
+<h3>compose.post(fn, delay?)<span><a class="mark" href="#compose_compose_post_fn_delay" id="compose_compose_post_fn_delay">#</a></span></h3>
+<div class="signature"><ul>
+<li><strong>fn</strong> { <span class="type"><a href="dataTypes.html#datatypes_function">Function</a></span> } - 投递到所属脚本线程的函数, 无参数.</li>
+<li><strong>[ delay = 0 ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> } - <code>0..2147483647</code> 的整数毫秒数.</li>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="dataTypes.html#datatypes_void">void</a></span> }</li>
+</ul>
+</div><p>可从工作线程调用. <code>delay: 0</code> 也会排队, 执行时自动进行节点事务和响应式批处理. 普通函数的 <code>this</code> 为脚本全局对象. 无取消编号或单任务取消接口, 不提供额外脚本保活.</p>
+<p>模块级任务随脚本引擎退出取消, 不随某一个会话关闭取消. 需要会话关闭后跳过执行的任务, 使用 <a href="composeSessionType.html#composesessiontype_m_post">session.post</a>. 如在模块级任务中访问已经关闭会话的句柄, 仍会得到 <code>SESSION_CLOSED</code>.</p>
+<p>非法延迟值报 <code>INVALID_ARGUMENT</code>, 投递队列满时可能报 <code>LIMIT_EXCEEDED</code>. 异步执行函数发生异常时, 错误被报告到脚本控制台, 不会回到早已返回的 <code>post</code> 调用处.</p>
+<h2>[m] theme<span><a class="mark" href="#compose_m_theme" id="compose_m_theme">#</a></span></h2>
+<h3>compose.theme()<span><a class="mark" href="#compose_compose_theme" id="compose_compose_theme">#</a></span></h3>
+<p><strong><code>Overload 1/2</code></strong></p>
+<ul>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="composeThemeType.html#composethemetype_1">ComposeThemeSnapshot</a></span> } - 当前脚本主题覆盖的普通对象副本.</li>
+</ul>
+<p>首次设置前返回 <code>{}</code>. 这是脚本覆盖值的快照, 不是最终已解析的 Material 调色板或宿主全部主题值.</p>
+<h3>compose.theme(options)<span><a class="mark" href="#compose_compose_theme_options" id="compose_compose_theme_options">#</a></span></h3>
+<p><strong><code>Overload 2/2</code></strong></p>
+<ul>
+<li><strong>options</strong> { <span class="type"><a href="composeThemeType.html">ComposeTheme</a></span> | <span class="type"><a href="dataTypes.html#datatypes_null">null</a></span> | <span class="type"><a href="dataTypes.html#datatypes_undefined">undefined</a></span> } - 新的完整覆盖对象, <code>null</code> / <code>undefined</code> 按空覆盖处理.</li>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="composeThemeType.html#composethemetype_1">ComposeThemeSnapshot</a></span> } - 归一化后的覆盖对象副本.</li>
+</ul>
+<p>整体替换模块之前的覆盖选项, 为未来会话设置默认值, 并更新最后一个尚未关闭的会话. 不广播更新全部现存会话. 未指定项的回退及动态色行为见 <a href="composeThemeType.html#composethemetype_1">ComposeTheme</a>.</p>
+<p>无参数调用是读取, 显式传入 <code>null</code> 或 <code>undefined</code> 则是设置一份空覆盖, 与 <code>compose.theme({})</code> 相同.</p>
+<h2>事件回调<span><a class="mark" href="#compose_6" id="compose_6">#</a></span></h2>
+<p>节点事件可在 props 中声明 <code>onX</code>, 或使用 <a href="composeNodeType.html#composenodetype_m_on">node.on</a>. 普通节点回调函数的 <code>this</code> 为该节点, 箭头函数仍遵循 JavaScript 自己的词法 <code>this</code> 规则.</p>
+<table>
+<thead>
+<tr>
+<th>事件</th>
+<th>声明属性</th>
+<th>参数</th>
+<th>来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>click</code></td>
+<td><code>onClick</code></td>
+<td>无</td>
+<td>组件或点击行为.</td>
+</tr>
+<tr>
+<td><code>longClick</code></td>
+<td><code>onLongClick</code></td>
+<td>无</td>
+<td>长按行为.</td>
+</tr>
+<tr>
+<td><code>focusChange</code></td>
+<td><code>onFocusChange</code></td>
+<td><code>focused: boolean</code></td>
+<td>实际焦点变化.</td>
+</tr>
+<tr>
+<td><code>scroll</code></td>
+<td><code>onScroll</code></td>
+<td><code>firstVisibleIndex: number 或 null</code>, <code>offset: number</code></td>
+<td>懒列表返回可见首项索引, 普通滚动 Modifier 返回 <code>null</code>; offset 为像素.</td>
+</tr>
+<tr>
+<td><code>checkedChange</code></td>
+<td><code>onCheckedChange</code></td>
+<td><code>checked: boolean</code></td>
+<td>Switch, Checkbox, RadioButton.</td>
+</tr>
+<tr>
+<td><code>valueChange</code></td>
+<td><code>onValueChange</code></td>
+<td><code>value: number</code></td>
+<td>Slider.</td>
+</tr>
+<tr>
+<td><code>valueChange</code></td>
+<td><code>onValueChange</code></td>
+<td><code>text: string</code>, <code>selection: {start, end}</code>, <code>editSeq: number</code></td>
+<td>TextField 和 OutlinedTextField, 选区为 UTF-16 偏移.</td>
+</tr>
+<tr>
+<td><code>valueChangeFinished</code></td>
+<td><code>onValueChangeFinished</code></td>
+<td>无</td>
+<td>Slider 结束调整.</td>
+</tr>
+<tr>
+<td><code>dismissRequest</code></td>
+<td><code>onDismissRequest</code></td>
+<td>无</td>
+<td>AlertDialog 请求关闭.</td>
+</tr>
+</tbody>
+</table>
+<p>事件在所属脚本线程执行, 节点回调内的修改自动进入节点事务和响应式批处理. 连续输入和滚动通知可合并, 不保证每个原生中间状态都产生一个回调.</p>
+<p>Switch / Checkbox / RadioButton / Slider 的变化是交互提议, 需要回调更新属性或 state 才会成为新的受控值. 输入框则在调用 <code>onValueChange</code> 前同步此次原生文字, 选区与编辑序列; 显式编辑的仲裁规则见 <a href="composeNodeType.html#composenodetype_m_edit">node.edit</a>.</p>
+<p>会话关闭事件只用 <code>session.on(&#39;close&#39;, fn)</code>. Snackbar 的操作/消失结果只用 <code>showSnackbar</code> 的 <code>onAction</code> / <code>onDismiss</code> 选项. 没有公开的 <code>session.on(&#39;error&#39;)</code> 或通用 DOM Event 对象, 回调返回值也不用于阻止原生事件.</p>
+<h2>错误与异常<span><a class="mark" href="#compose_7" id="compose_7">#</a></span></h2>
+<p>同步参数检查和挂载失败可用 <code>try/catch</code> 捕获. 异步重绘, 原生命令或 <code>post</code> 执行失败会报告到所属脚本控制台; 不能在调用已经返回后, 再由其外部同步 <code>try/catch</code> 捕获.</p>
+<p>普通渲染异常保留上一次有效界面, 状态修正后可再次渲染. 插件失效或不可恢复的渲染器故障会关闭对应会话. 用户自己抛出的脚本异常及其调用栈按来源保留, 不保证任意 <code>throw</code> 都会变成 ComposeError.</p>
+<h2>[C] ComposeError<span><a class="mark" href="#compose_c_composeerror" id="compose_c_composeerror">#</a></span></h2>
+<h3>new ComposeError(message?, code?, nodeId?, prop?, cause?)<span><a class="mark" href="#compose_new_composeerror_message_code_nodeid_prop_cause" id="compose_new_composeerror_message_code_nodeid_prop_cause">#</a></span></h3>
+<div class="signature"><ul>
+<li><strong>[ message = &#39;&#39; ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 错误说明.</li>
+<li><strong>[ code = &#39;INVALID_ARGUMENT&#39; ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> } - 稳定错误码.</li>
+<li><strong>[ nodeId = null ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_number">number</a></span> | <span class="type"><a href="dataTypes.html#datatypes_null">null</a></span> } - 相关节点标识.</li>
+<li><strong>[ prop = null ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_string">string</a></span> | <span class="type"><a href="dataTypes.html#datatypes_null">null</a></span> } - 相关属性或参数.</li>
+<li><strong>[ cause = null ]</strong> { <span class="type"><a href="dataTypes.html#datatypes_any">any</a></span> } - 原因异常.</li>
+<li><ins><strong>returns</strong></ins> { <span class="type"><a href="#compose_c_composeerror">ComposeError</a></span> }</li>
+</ul>
+</div><p>全局 <code>ComposeError</code> 与 <code>compose.ComposeError</code> 指向同一个构造函数, 继承 <code>Error</code>. 直接调用而不写 <code>new</code> 也会创建实例. 系统产生的错误包含 <code>code</code>, <code>message</code>, <code>nodeId</code>, <code>prop</code>, <code>cause</code>, <code>stack</code> 和 <code>retryable</code>.</p>
+<p><code>message</code> 按宿主语言本地化, <code>code</code> 保持稳定. 未关联节点或属性时相应字段为 <code>null</code>. <code>retryable</code> 仅对下表前四种插件状态错误为 <code>true</code>, 表示修正外部状态后可尝试新的操作, 不表示自动重试或恢复旧会话.</p>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PLUGIN_UNAVAILABLE</code></td>
+<td>插件缺失, 已卸载或在会话存活期间被更新而失效.</td>
+</tr>
+<tr>
+<td><code>PLUGIN_DISABLED</code></td>
+<td>插件被系统或当前应用的启用记录禁用.</td>
+</tr>
+<tr>
+<td><code>PLUGIN_UNAUTHORIZED</code></td>
+<td>插件未通过当前应用的信任/授权检查.</td>
+</tr>
+<tr>
+<td><code>PLUGIN_INCOMPATIBLE</code></td>
+<td>宿主版本, 插件契约, 声明能力或共享依赖不兼容.</td>
+</tr>
+<tr>
+<td><code>UI_MODE_REQUIRED</code></td>
+<td>当前没有可用的 UI 脚本 Activity, 不能执行页面挂载.</td>
+</tr>
+<tr>
+<td><code>PERMISSION_REQUIRED</code></td>
+<td>缺少所需权限, 例如悬浮窗权限.</td>
+</tr>
+<tr>
+<td><code>INVALID_ARGUMENT</code></td>
+<td>参数类型, 范围, 枚举, 树关系, 命令条件或调用线程不合法.</td>
+</tr>
+<tr>
+<td><code>UNKNOWN_COMPONENT</code></td>
+<td>未声明的组件名称.</td>
+</tr>
+<tr>
+<td><code>UNKNOWN_PROP</code></td>
+<td>未声明的属性, 事件, 插槽或选项.</td>
+</tr>
+<tr>
+<td><code>INVALID_MODIFIER</code></td>
+<td>无效 Modifier 或修饰链.</td>
+</tr>
+<tr>
+<td><code>SCOPE_MISMATCH</code></td>
+<td>Modifier 出现在错误的父布局作用域.</td>
+</tr>
+<tr>
+<td><code>DUPLICATE_KEY</code></td>
+<td>同级稳定 key 冲突.</td>
+</tr>
+<tr>
+<td><code>LIMIT_EXCEEDED</code></td>
+<td>节点, 深度, 回调, 队列或其他契约上限超出.</td>
+</tr>
+<tr>
+<td><code>RENDER_FAILED</code></td>
+<td>渲染声明或脚本侧 Compose 操作失败.</td>
+</tr>
+<tr>
+<td><code>SESSION_CLOSED</code></td>
+<td>所属会话或脚本运行时已经关闭.</td>
+</tr>
+<tr>
+<td><code>NODE_DETACHED</code></td>
+<td>节点不在可执行命令的挂载树中, 或归属其他图/会话.</td>
+</tr>
+<tr>
+<td><code>RENDERER_FAILED</code></td>
+<td>原生渲染器或窗口承载发生不可恢复故障.</td>
+</tr>
+<tr>
+<td><code>INTERNAL</code></td>
+<td>内部状态或契约不变量失败.</td>
+</tr>
+</tbody>
+</table>
+<h2>输入与资源上限<span><a class="mark" href="#compose_8" id="compose_8">#</a></span></h2>
+<p>输入类型按 <a href="composeComponents.html#composecomponents">组件目录</a> 严格校验. 不把任意字符串转为数字或布尔值; dp / sp 字符串必须使用对应单位. <code>null</code> 仅在具体属性允许时合法, 不应把省略, <code>undefined</code> 和 <code>null</code> 普遍视为等价.</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>上限</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>单会话节点数</td>
+<td>5000, 包括具名插槽内节点.</td>
+</tr>
+<tr>
+<td>树深度</td>
+<td>64.</td>
+</tr>
+<tr>
+<td>单次补丁批</td>
+<td>2000 个操作.</td>
+</tr>
+<tr>
+<td>单个字符串</td>
+<td>65536 个 UTF-16 代码单元, 不按 UTF-8 字节数计算.</td>
+</tr>
+<tr>
+<td>普通节点直接子节点</td>
+<td>2000.</td>
+</tr>
+<tr>
+<td>懒列表直接条目</td>
+<td>10000, 同时仍受单会话 5000 节点上限限制.</td>
+</tr>
+<tr>
+<td>单条 Modifier 链</td>
+<td>64 个操作.</td>
+</tr>
+<tr>
+<td>单会话回调预算</td>
+<td>4096, 包括节点, 会话和待处理通知所持有的回调.</td>
+</tr>
+<tr>
+<td>单引擎活动会话</td>
+<td>8.</td>
+</tr>
+<tr>
+<td>单张位图</td>
+<td>32000000 像素.</td>
+</tr>
+<tr>
+<td>原生事件队列</td>
+<td>1024.</td>
+</tr>
+<tr>
+<td>单个属性对象</td>
+<td>128 项.</td>
+</tr>
+</tbody>
+</table>
+<p>ImageWrapper 和位图的所有权规则见 <a href="composeComponents.html#composecomponents_composeimageinput">Image 输入</a>. 图片引用需要覆盖原生使用期, 不应仅因 <code>remove</code> / <code>close</code> 返回或关闭事件就立即 recycle. 无法确认原生释放已经完成时, 图片不再使用后可放弃脚本强引用并交给正常回收机制. 当前没有等待原生释放完成的公开接口.</p>
+<h2>无障碍与选择器<span><a class="mark" href="#compose_9" id="compose_9">#</a></span></h2>
+<h3>运行条件<span><a class="mark" href="#compose_10" id="compose_10">#</a></span></h3>
+<div class="signature"><ul>
+<li>安装并启用 3-Block Compose 插件, 使用包含 <code>compose</code> 模块的配套宿主构建. 当前为本地预览能力.</li>
+<li>界面已挂载, 待查找的节点位于当前可访问窗口并已参与布局.</li>
+<li>查找与点击依赖宿主无障碍服务. 界面渲染本身不要求启用无障碍.</li>
+<li>操作 AutoJs6 自身的脚本页面时, 关闭设置中的 &quot;保护模式&quot;. 该模式会让选择器跳过宿主包名, 包括宿主承载的 Compose 页面.</li>
+<li>本节节点层级按默认关闭 &quot;稳定模式&quot; 的内置服务说明. 不同服务或节点过滤设置可能隐藏部分子节点, 优先通过按钮自身的标签定位动作目标.</li>
+<li>阻塞式选择器等待应在非 UI 脚本或工作线程中运行, 避免阻塞页面线程.</li>
+</ul>
+</div><h3>testTag 与 ID<span><a class="mark" href="#compose_testtag_id" id="compose_testtag_id">#</a></span></h3>
+<p>组件的 <code>testTag</code> 快捷属性和 <code>compose.modifier().testTag(tag)</code> 都设置 Compose 语义标签. 渲染器已在根节点启用 <code>testTagsAsResourceId</code>, 因而 Android 无障碍节点的 <code>viewIdResourceName</code> 就是原样标签字符串.</p>
+<p>例如 <code>testTag: &#39;start_button&#39;</code> 暴露为 <code>start_button</code>, 不会自动变成 <code>org.autojs.autojs6:id/start_button</code>. 节点的 <code>packageName</code> 仍是承载页面的宿主包名.</p>
+<p>对该标签的匹配规则如下:</p>
+<table>
+<thead>
+<tr>
+<th>选择器或读取方式</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id(&#39;start_button&#39;).findOnce()</code></td>
+<td>找到带该标签的节点.</td>
+</tr>
+<tr>
+<td><code>idContains(&#39;start_&#39;).findOnce()</code></td>
+<td>匹配原样 ID 中的子串.</td>
+</tr>
+<tr>
+<td><code>idMatches(&#39;start_button&#39;).findOnce()</code></td>
+<td>匹配整个原样 ID.</td>
+</tr>
+<tr>
+<td><code>idMatches(/^start_button$/).findOnce()</code></td>
+<td>使用正则表达式匹配整个原样 ID.</td>
+</tr>
+<tr>
+<td><code>idMatches(&#39;start&#39;).findOnce()</code></td>
+<td>不匹配, 该表达式未覆盖整个 ID.</td>
+</tr>
+<tr>
+<td><code>id(&#39;org.autojs.autojs6:id/start_button&#39;).findOnce()</code></td>
+<td>不匹配, 标签没有这个包名前缀.</td>
+</tr>
+<tr>
+<td><code>node.id()</code></td>
+<td>返回 <code>start_button</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>宿主 <code>id(string)</code> 对传统 View 资源 ID 仍支持只写 <code>:id/</code> 后的条目名. 原样 Compose 标签不含 <code>:id/</code> 时, 整个标签作为条目名匹配. <code>idContains</code> 与 <code>idMatches</code> 始终比较节点暴露的完整 ID 字符串.</p>
+<p>为自动化目标设置稳定且在页面内唯一的标签, 并将标签直接设在需要执行动作的组件上. <code>testTag</code> 不改变 Compose 节点句柄的 <code>nodeId</code>, 也不创建 Android <code>R.id</code> 资源.</p>
+<h3>text 与 contentDescription<span><a class="mark" href="#compose_text_contentdescription" id="compose_text_contentdescription">#</a></span></h3>
+<p>独立 <code>Text</code> 节点的文本可由 <code>text(&#39;文字&#39;)</code> 查找. <code>contentDescription</code> 快捷属性或 <code>.semantics(&#39;说明&#39;)</code> 设置的描述可由 <code>desc(&#39;说明&#39;)</code> 查找.</p>
+<p><code>Button</code> 会合并后代语义, 但宿主无障碍选择器看到的树与 Compose 测试框架默认使用的合并树不同. 当前 Compose 1.12.1 会保留按钮中的文本子节点, 并可能为按钮描述和角色增加语义子节点. 因此:</p>
+<ul>
+<li><code>id(&#39;start_button&#39;)</code> 可直接定位拥有点击动作的按钮节点.</li>
+<li><code>text(&#39;启动&#39;)</code> 找到按钮内的文本节点时, 该节点本身可能不可点击. 需要找到其可点击祖先, 或改用按钮自身的标签.</li>
+<li>当按钮同时包含子节点并设置 <code>contentDescription</code> 时, <code>desc()</code> 可找到独立描述节点. 该节点可能没有 ID 和点击动作, 它的父节点才是按钮.</li>
+<li>不要假定 <code>id(&#39;start_button&#39;).text(&#39;启动&#39;)</code> 能同时成立, 也不要假定按钮标签所在节点的类名一定是 <code>android.widget.Button</code>.</li>
+<li>宿主 <a href="uiObjectType.html">UiObject</a> 的 <code>parent()</code> 和 <code>child()</code> 遍历的是无障碍树, 与 Compose 脚本节点句柄的 <code>parent</code> 和 <code>children</code> 不保证一一对应.</li>
+</ul>
+<p>这遵循 Compose 的 <a href="https://developer.android.com/develop/ui/compose/accessibility/semantics">语义树规则</a> 与 <a href="https://developer.android.com/develop/ui/compose/testing/interoperability">无障碍测试互操作规则</a>. 自动化优先使用动作组件自己的 <code>testTag</code>, 减少对子节点结构的依赖.</p>
+<p>在 API 24 x86 与 API 35 x86_64 模拟器上, 内置无障碍服务已验证以下包含一个 <code>Text</code> 和按钮描述的结构:</p>
+<table>
+<thead>
+<tr>
+<th>节点</th>
+<th><code>id()</code></th>
+<th><code>text()</code></th>
+<th><code>desc()</code></th>
+<th><code>clickable()</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Button 自身</td>
+<td><code>start_button</code></td>
+<td><code>&#39;&#39;</code></td>
+<td><code>null</code></td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td>按钮内 Text</td>
+<td><code>start_label</code></td>
+<td><code>&#39;Compose start&#39;</code></td>
+<td><code>null</code></td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td>按钮描述子节点</td>
+<td><code>null</code></td>
+<td><code>&#39;&#39;</code></td>
+<td><code>&#39;Run Compose action&#39;</code></td>
+<td><code>false</code></td>
+</tr>
+</tbody>
+</table>
+<p>这两个子节点的 <code>parent().id()</code> 都是 <code>start_button</code>. 此按钮在 Android 无障碍中还有一个角色子节点, 自身 <code>className()</code> 为 <code>android.view.View</code>; 因而通过按钮自身标签查找点击目标更稳定.</p>
+<p>上述验证于 2026-10-03 使用配套本地宿主, 3-Block Compose 插件和 Compose 1.12.1 完成. 查找与点击均经过真实内置无障碍服务以及宿主 Rhino 选择器, 包括 <code>id(&#39;start_button&#39;).findOnce().click()</code> 到脚本 <code>onClick</code> 回调的完整路径.</p>
+<h3>示例<span><a class="mark" href="#compose_11" id="compose_11">#</a></span></h3>
+<p>先运行下面的 UI 脚本, 保持页面显示:</p>
+<pre><code class="lang-js">&#39;ui&#39;;
+
+let clicks = compose.state(0);
+compose.mount(function () {
+    return compose.Column({padding: 16},
+        compose.Text({text: &#39;点击次数: &#39; + clicks.value}),
+        compose.Button({
+            testTag: &#39;start_button&#39;,
+            contentDescription: &#39;开始自动化&#39;,
+            onClick: function () { clicks.value++; },
+        }, compose.Text({testTag: &#39;start_label&#39;, text: &#39;启动&#39;})));
+});
+</code></pre>
+<p>页面显示且无障碍服务已启用后, 在另一个非 UI 脚本中运行:</p>
+<pre><code class="lang-js">let button = id(&#39;start_button&#39;).findOnce();
+if (button !== null) {
+    console.log(button.id()); // start_button.
+    console.log(button.click()); // 动作接受时为 true.
+}
+</code></pre>
+<p>点击返回 <code>true</code> 表示无障碍动作被接受. Compose 事件随后异步回到界面所属脚本线程; 如需确认业务完成, 应另外观察状态变化.</p>
+<p>仅知道按钮文字时, 可向上查找可点击节点:</p>
+<pre><code class="lang-js">let node = text(&#39;启动&#39;).findOnce();
+while (node !== null &amp;&amp; !node.clickable()) {
+    node = node.parent();
+}
+if (node !== null) {
+    node.click();
+}
+</code></pre>
+<h3>已知边界<span><a class="mark" href="#compose_12" id="compose_12">#</a></span></h3>
+<div class="signature"><ul>
+<li><code>LazyColumn</code> 与 <code>LazyRow</code> 只为已组合的可见区域及预取区域提供节点. 查找未出现的项之前, 应先滚动使其进入界面.</li>
+<li>查找会话已经关闭或已经移除的节点不会返回仍有效的控件. 保存的无障碍节点也可能失效, 页面变化后应重新查找.</li>
+<li>同名标签可能匹配多个节点. <code>findOnce()</code> 返回选择器当前遍历顺序下的第一个匹配项, 不表示标签具有全局唯一性.</li>
+<li>本节的内置无障碍验收不代表已验证所有第三方无障碍服务, 也不等同于 TalkBack 完整可用性评估.</li>
+</ul>
+</div><h2>打包应用<span><a class="mark" href="#compose_13" id="compose_13">#</a></span></h2>
+<h3>运行时与插件依赖<span><a class="mark" href="#compose_14" id="compose_14">#</a></span></h3>
+<p>使用 <code>compose</code> 的脚本可通过 AutoJs6 的 &quot;打包应用&quot; 流程生成独立 APK. APK Builder 插件将配套 Runtime Kit 中的 INRT 运行时与项目脚本装入应用, 3-Block Compose 渲染器仍由目标设备上另行安装的 3-Block Compose 插件提供.</p>
+<ul>
+<li>构建端需要包含 <code>compose</code> 模块的配套宿主和 APK Builder 插件, 其 Runtime Kit 也必须包含该模块及配套共享依赖.</li>
+<li>运行端需要安装兼容的 3-Block Compose 插件, 包名为 <code>io.github.supermonster003.autojs6.plugin.three.block.compose</code>. 打包不会自动把该插件 APK 嵌入应用, 应用启动也不会自动安装或授权插件.</li>
+<li>使用 <code>compose.mount</code> 的项目入口脚本应保留 <code>&#39;ui&#39;;</code> 模式声明. <code>compose.floaty</code> 仍须满足生成应用自身的悬浮窗授权与系统运行条件.</li>
+<li>Compose 渲染本身不依赖无障碍服务. 如果脚本同时使用无障碍选择器或动作, 则仍需满足这些 API 的授权条件.</li>
+</ul>
+<p>当前属于配套本地构建的预览能力, 不能仅根据 APK Builder 的产品名称或版本名称判断其模板已经包含 3-Block Compose 支持.</p>
+<h3>应用版本与运行时版本<span><a class="mark" href="#compose_15" id="compose_15">#</a></span></h3>
+<p>应用自己的版本和内嵌运行时的版本分别承担不同作用:</p>
+<table>
+<thead>
+<tr>
+<th>版本</th>
+<th>来源</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>应用 <code>versionCode</code> / <code>versionName</code></td>
+<td>项目的打包配置</td>
+<td>应用自身的安装与升级. <code>versionCode</code> 可以从 <code>1</code> 开始.</td>
+</tr>
+<tr>
+<td>INRT 运行时版本</td>
+<td>配套 Runtime Kit 的宿主构建</td>
+<td>校验 3-Block Compose 插件要求的最低宿主版本.</td>
+</tr>
+<tr>
+<td>3-Block Compose 插件版本</td>
+<td>目标设备上安装的插件</td>
+<td>提供实际渲染器, 并与运行时校验契约和共享依赖兼容性.</td>
+</tr>
+</tbody>
+</table>
+<p>最低宿主版本检查使用 INRT 模板中的编译版本, 不使用生成应用的 <code>versionCode</code>. 因而不需要把自己的应用版本改成 AutoJs6 的构建号. 如果模板过旧, 应更新配套 Runtime Kit 并重新打包; 单独提高应用 <code>versionCode</code> 不会更新运行时.</p>
+<p>同理, 更新设备上的 AutoJs6 主应用或构建端宿主, 不会改写已经生成的 APK 内部运行时. 新的运行时能力需要随重新打包后的应用版本交付.</p>
+<h3>启用状态与授权<span><a class="mark" href="#compose_16" id="compose_16">#</a></span></h3>
+<p>生成应用使用自己的插件启用与授权记录. AutoJs6 主应用中保存的启用选择和用户授权不会自动复制到生成应用.</p>
+<p>3-Block Compose 插件沿用既有的签名信任策略. 未保存启用选择时默认启用, 仍须通过签名信任检查; 显式禁用或系统停用会阻止装载. 应用自己的签名不会代替对插件签名的校验, 也不应通过修改权限声明或跳过检查来绕过授权失败.</p>
+<h3>缺失插件与错误处理<span><a class="mark" href="#compose_17" id="compose_17">#</a></span></h3>
+<p><code>compose.isAvailable()</code> 可用于探测当前是否可用, 但 <code>false</code> 本身不能区分缺失, 禁用, 未授权或不兼容. 需要获知原因时, 可捕获挂载时的类型化错误:</p>
+<table>
+<thead>
+<tr>
+<th><code>error.code</code></th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PLUGIN_UNAVAILABLE</code></td>
+<td>未找到可用插件, 包括目标设备未安装 3-Block Compose 插件.</td>
+</tr>
+<tr>
+<td><code>PLUGIN_DISABLED</code></td>
+<td>插件被系统停用, 或在当前应用的启用记录中关闭.</td>
+</tr>
+<tr>
+<td><code>PLUGIN_UNAUTHORIZED</code></td>
+<td>插件签名未通过当前应用的信任与授权检查.</td>
+</tr>
+<tr>
+<td><code>PLUGIN_INCOMPATIBLE</code></td>
+<td>内嵌运行时版本, 插件契约或共享依赖不兼容.</td>
+</tr>
+</tbody>
+</table>
+<p>未安装插件时, 错误的 <code>message</code> 是包含插件包名的本地化说明. 应用可用已有的 XML 界面显示这一信息, 例如:</p>
+<pre><code class="lang-js">&#39;ui&#39;;
+
+try {
+    compose.mount(compose.Text({text: &#39;3-Block Compose 已就绪&#39;}));
+} catch (error) {
+    if (error.code !== &#39;PLUGIN_UNAVAILABLE&#39;) {
+        throw error;
+    }
+    ui.layout(&#39;&lt;vertical padding=&quot;16&quot;&gt;&lt;text id=&quot;composeFailure&quot; /&gt;&lt;/vertical&gt;&#39;);
+    ui.composeFailure.setText(error.code + &#39;\n&#39; + String(error.message));
+}
+</code></pre>
+<p>上例仅处理挂载时插件不可用的情况, 其他错误继续交给脚本原有的错误处理. 安装兼容插件后重新启动应用, 可重新进行装载与兼容性检查.</p>
+<h3>验证范围<span><a class="mark" href="#compose_18" id="compose_18">#</a></span></h3>
+<p>已使用配套本地 Runtime Kit 和独立 APK Builder 插件生成 x86_64 应用, 并在 API 37.1 / 16 KB 页模拟器上实际安装运行. 应用使用默认签名和 <code>versionCode: 1</code>, UI 脚本仍按模板内的运行时版本完成插件兼容性检查.</p>
+<p>安装兼容 3-Block Compose 插件时, 同一应用可挂载计数器页面并通过按钮更新状态. 真实卸载插件后, 同一应用可在自己的 XML 界面显示 <code>PLUGIN_UNAVAILABLE</code> 及包含插件包名的本地化说明. 验收范围为 Rhino UI 入口, 默认应用签名及插件存在/缺失两种条件.</p>
+<p>同一产物在上述两种条件下均已完成连续启动验证.</p>
+
+        </div>
+    </div>
+</div>
+
+<script src="assets/sh_javascript.js"></script>
+<script src="assets/sh_java.js"></script>
+<script src="assets/sh_main.js"></script>
+<script src="assets/offline-search.js"></script>
+
+<script src="plugins/docsify-copy-code@2.js"></script>
+<script src="plugins/zoom-image.js"></script>
+
+<script>
+    highlight(void 0, void 0, 'pre');
+    highlight(void 0, void 0, 'tt');
+</script>
+
+<!-- __TRACKING__ -->
+
+</body>
+</html>

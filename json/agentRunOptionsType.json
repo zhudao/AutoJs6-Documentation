@@ -1,0 +1,49 @@
+{
+  "source": "..\\api\\agentRunOptionsType.md",
+  "modules": [
+    {
+      "textRaw": "AgentRunOptions - Agent 任务选项",
+      "name": "agentrunoptions_-_agent_任务选项",
+      "desc": "<p>用于 <a href=\"ai#aiagentrungoal-options\">ai.agent.run</a> 和 <a href=\"ai#aiagentcreateoptions\">ai.agent.create</a>. 只接受下表中的键, 显式 null/undefined 不是有效选项值.</p>\n<table>\n<thead>\n<tr>\n<th>选项</th>\n<th>类型</th>\n<th>默认与含义</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>preset</td>\n<td><a href=\"dataTypes#string\">string</a></td>\n<td>预设名称; 省略使用插件当前选定的默认预设</td>\n</tr>\n<tr>\n<td>target</td>\n<td><a href=\"dataTypes#string\">string</a></td>\n<td>完整模型目标 ID; 省略沿用预设, 预设也未指定时自动选择可用本地目标, 否则选择首个可用目标</td>\n</tr>\n<tr>\n<td>tools</td>\n<td><a href=\"dataTypes#string\">string</a><a href=\"dataTypes#array\">[]</a> 或 <a href=\"dataTypes#object\">object</a></td>\n<td>省略沿用预设; 工具组数组, 或含 enable/disable 数组的对象, 只能进一步收紧</td>\n</tr>\n<tr>\n<td>budget</td>\n<td><a href=\"dataTypes#object\">object</a></td>\n<td>任务预算覆盖</td>\n</tr>\n<tr>\n<td>confirm</td>\n<td><code>&#39;default&#39;</code> \\</td>\n<td><code>&#39;cautious&#39;</code></td>\n<td>沿用全局设置与预设, 初始为 default; cautious 对普通变更也要求确认, 不能放宽任一层的 cautious</td>\n</tr>\n<tr>\n<td>interaction</td>\n<td><code>&#39;plugin&#39;</code> \\</td>\n<td><code>&#39;script&#39;</code></td>\n<td>plugin; 选择询问和操作确认的承接方</td>\n</tr>\n<tr>\n<td>detached</td>\n<td><a href=\"dataTypes#boolean\">boolean</a></td>\n<td>false; true 允许任务继续在插件后台运行</td>\n</tr>\n<tr>\n<td>context</td>\n<td><a href=\"dataTypes#string\">string</a></td>\n<td>附加上下文, 最多 8 KiB</td>\n</tr>\n<tr>\n<td>parameters</td>\n<td><a href=\"dataTypes#object\">object</a></td>\n<td>给模型的预填参数, 不替代登记 Schema 校验</td>\n</tr>\n<tr>\n<td>memory</td>\n<td><a href=\"dataTypes#boolean\">boolean</a></td>\n<td>true; false 不注入偏好记忆, true 不能重新启用预设已关闭的记忆或跨越预设作用域</td>\n</tr>\n<tr>\n<td>scriptRoots</td>\n<td><a href=\"dataTypes#string\">string</a><a href=\"dataTypes#array\">[]</a></td>\n<td>省略沿用预设; 附加脚本根选择, 最多 32 项, 只能缩小预设与宿主共同批准的范围</td>\n</tr>\n<tr>\n<td>locale</td>\n<td><a href=\"dataTypes#string\">string</a></td>\n<td>使用链路语言; 最多 64 字节</td>\n</tr>\n<tr>\n<td>plan</td>\n<td><a href=\"dataTypes#boolean\">boolean</a></td>\n<td>沿用预设的计划模式开关, 初始为 false; true 时模型先提出 1 到 8 步计划, 经 kind 为 plan 的 input 事件审阅 (可修改) 后才执行首个工具, 计划不再适用时会再次提出计划审阅</td>\n</tr>\n</tbody>\n</table>\n<p>工具组为 observe, act, ocr, gesture, script, script_dynamic, files, shell, memory, user, mcp. gesture/script_dynamic/files/shell/mcp 默认关闭, ocr 还要求宿主报告可用的授权 OCR 能力. 选项只能收紧插件的实际可用集合, 不能启用全局关闭的组或扩大宿主 grant. 名称不重复且必须有效. script_dynamic 要求 AI Agent 1.1.0 开发版本及支持该组的宿主; mcp 要求 AI Agent 1.2.0 开发版本及支持该组的宿主, 详见下节.</p>\n<p>AI Agent 1.0.0 / 构建号 60 起, 可从插件任务台的 &quot;设置&quot; 调整全局工具组, 默认预算, 审慎模式与默认预设. 全局设置同时适用于界面与 <code>ai.agent</code> 发起的任务. 任务入队时固定设置与预设快照, 后续修改不改变已入队任务. 开启工具组仍须满足宿主授权和工具执行条件, 也不会免除操作确认. 设置页关闭语音输入仅隐藏语音入口, 不影响脚本任务.</p>\n<p>预设固定上下文与本次 context 以空行拼接, 本次 context 为空不会清除预设文本. 该文本与 parameters 合并注入模型时总计仍不能超过 8 KiB. 预填参数不授权任何文件访问或设备操作. scriptRoots 必须为绝对目录, 不含父目录跳转或隐藏越界路径; 宿主再次进行真实路径校验.</p>\n<p>自定义预设要求 AI Agent 1.0.0 / 构建号 56 或以上. 预设模型目标来自宿主代理的模型目录. 预设页显示本地/在线/混合及结构化 JSON 支持, 不支持结构化约束的目标标注 &quot;退化模式&quot;. 显式指定的目标失效时任务失败, 不自动更换目标. 记忆范围只可选择全局及当前预设, 仅全局, 仅当前预设或关闭, 不可读取其他预设的记忆.</p>\n",
+      "modules": [
+        {
+          "textRaw": "mcp",
+          "name": "mcp",
+          "desc": "<p>AI Agent 1.2.0 开发版本可将用户选定的 MCP 工具纳入任务. 在插件的 MCP 服务器设置中填写服务器地址, 按需保存 Bearer 令牌, 发现并选择允许使用的工具, 然后启用服务器及设置和预设中的 mcp 组. 本机 MCP Server 默认地址为 <code>http://127.0.0.1:9637/mcp</code>; 其他服务器要求 HTTPS. 令牌与用户配对在 MCP Server 侧管理, <code>tools</code> 选项不包含凭据, 不创建服务器或自动批准配对.</p>\n<p>模型中的工具名以 <code>mcp_&lt;server&gt;_&lt;tool&gt;</code> 区分来源. 工具目录在任务准备时固定, 参数仍经 Schema 校验; 不支持的 Schema 会显示原因且不提供给模型. 风险由用户逐服务器指定, 默认 SENSITIVE, 不根据远端 annotations 降低. 启用工具组不会免除风险确认, 模型和步骤预算也继续生效. 工具返回 <code>isError</code> 时作为失败观察回送, 不计为成功执行; 公共错误为 <code>TOOL_FAILED</code>, 具体 MCP 原因使用有界的诊断字段.</p>\n<p>MCP 工具在对应服务器执行, 不受宿主内置工具的文件目录或能力 grant 限制. 取消会停止本地等待并尝试取消远端请求, 但不能撤销已经发生的操作. 连接失败或超时不自动重放调用. MCP 令牌加密保存在插件私有目录, 不进入模型提示词或历史导出. 当前只支持 Streamable HTTP 的工具列表与调用, 不提供 stdio, OAuth 或独立 MCP Client 插件的公开 API.</p>\n<pre><code class=\"lang-js\">// 先在插件中配置并启用 MCP 服务器, 工具及所用预设.\nlet task = ai.agent.run(&#39;使用已配置的 MCP 工具查询可用信息&#39;, {\n    tools: [&#39;mcp&#39;, &#39;user&#39;],\n    interaction: &#39;plugin&#39;,\n});\n</code></pre>\n",
+          "type": "module",
+          "displayName": "mcp"
+        },
+        {
+          "textRaw": "script_dynamic",
+          "name": "script_dynamic",
+          "desc": "<p>AI Agent 1.1.0 开发版本提供模型工具 <code>script_run_source(source, timeoutMs?)</code>, 它不是 <code>ai.agent</code> 下新增的 JavaScript 方法. 在插件设置中明确启用 script_dynamic 后, 预设及 tools 选项可继续缩小其使用范围; 仅在单次任务中声明 tools 不能打开全局关闭的组.</p>\n<p>模型生成的源码通过宿主 <code>engines.execScript</code> 执行. 每次执行都要单独确认, 确认页先展示摘要并可展开完整源码, 不能通过 &quot;本次任务内允许&quot; 跳过后续源码确认. 拒绝或确认超时均不执行. 动态脚本使用 AutoJs6 的脚本运行权限, 不受限于其他模型工具组的操作范围; 开启此组前应了解脚本能力, 执行前应审阅完整源码.</p>\n<p>源码保存在插件私有任务步骤记录中, 历史诊断导出会移除源码与其他参数. 可从步骤详情选择保存脚本, 由系统文件选择器创建带 <code>@agent</code> 登记头的 <code>.js</code> 文件; 登记头将风险固定为 sensitive, 确认要求为 before-run. 将文件保存至宿主已登记的脚本目录, 或在宿主批准的脚本根中加入其所在目录后重新扫描, 才能通过 script 组选择该脚本. 保存文件本身不执行脚本.</p>\n",
+          "type": "module",
+          "displayName": "script_dynamic"
+        },
+        {
+          "textRaw": "memory",
+          "name": "memory",
+          "desc": "<p>AI Agent 1.0.0 / 构建号 57 起支持记忆管理与模型工具 <code>memory_get(keys?)</code> / <code>memory_propose(key, value, scope?)</code>. 它们由 Agent 决策使用, 不是 <code>ai.agent</code> 下新增的 JavaScript 方法.</p>\n<p><code>memory: false</code> 仅关闭任务开始时的自动注入. 若同时需要禁止该任务查询或提出记忆, 请在 tools 中禁用 memory 组; 预设的记忆范围设为关闭时也会拒绝这两个工具. 自动注入按更新时间从新到旧保留完整条目, 最多 4 KiB; 当前预设的同名 key 优先于全局值. <code>memory_get</code> 可按 key 查询, 始终受当前预设作用域约束.</p>\n<p><code>memory_propose</code> 的 scope 默认为 <code>global</code>, 也可以是当前预设名称, 但必须在该预设允许的范围内. 每条提议都产生一次 confirmation, 确认后才写入; 不支持通过本次任务内允许来免除后续记忆确认. 拒绝作为 <code>USER_DENIED</code> 观察回送模型, 不修改记忆. 确认期间同一条目发生变化时写入失败, 需要重新提议与确认. 新值在后续任务中自动注入, 当前任务可用 <code>memory_get</code> 读取.</p>\n<p>从插件任务台打开 &quot;记忆&quot; 可查看, 编辑, 删除, 导入和导出偏好. 最多保存 500 条 / 256 KiB, 每条保留作用域, 来源任务 ID 和创建/更新时间. JSON 导入在校验整个文件后逐条审阅, 逐条确认; 跳过或关闭页面不会自动保存剩余条目. 引用不存在预设的条目需要先创建对应预设. 导出是包含真实偏好值和来源信息的备份, 应妥善保管. 不要保存密码, API 密钥或其他凭据; 插件会拒绝可识别的凭据键名和令牌格式, 但不能识别所有被伪装成普通文本的秘密.</p>\n",
+          "type": "module",
+          "displayName": "memory"
+        },
+        {
+          "textRaw": "budget",
+          "name": "budget",
+          "desc": "<table>\n<thead>\n<tr>\n<th>字段</th>\n<th>普通任务默认</th>\n<th>detached 默认</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>maxSteps</td>\n<td>40</td>\n<td>40</td>\n<td>最大步骤数</td>\n</tr>\n<tr>\n<td>maxModelCalls</td>\n<td>60</td>\n<td>60</td>\n<td>含格式修复和降级的模型调用数</td>\n</tr>\n<tr>\n<td>maxDurationMs</td>\n<td>600000</td>\n<td>1800000</td>\n<td>包含等待询问/确认的总时长</td>\n</tr>\n<tr>\n<td>maxTotalTokens</td>\n<td>300000</td>\n<td>300000</td>\n<td>输入与输出 token 总预算</td>\n</tr>\n</tbody>\n</table>\n<p>表中是未配置全局预算时的初始值. AI Agent 构建号 60 起, 设置页可在协议硬上限内调整它们, 留空表示沿用初始值. 有效预算取全局设置, 任务归属对应的时长上限, 宿主 token 授权和预设预算的交集. 单次任务覆盖只能在有效预算内继续收紧. 例如全局 maxSteps 为 100, 预设为 80 时, 任务传入 maxSteps: 81 会被拒绝; 全局为 5, 预设为 80 时仍只能使用 5 步.</p>\n<p>全局 maxDurationMs 可以设置为 3600000, 但普通任务仍最多 1800000 毫秒, detached 最多 3600000 毫秒. 全局时长留空时, 普通任务仍默认为 600000 毫秒, detached 为 1800000 毫秒. 预设只能缩小当前全局预算, 不能单独提高它.</p>\n<p>宿主同时检查协议硬上限: 200 步, 300 次调用, 普通任务 30 分钟 / detached 60 分钟, 1000000 token. 通过宿主硬上限校验并不表示插件会接受大于当前有效预算的值; 插件拒绝会返回失败句柄. 所有预算值必须为正整数.</p>\n<p>确认超时当前为 120 秒, 参数询问最长为 10 分钟, 并服从剩余任务时长. 这两个值不是公开 budget 字段. 到期按拒绝/超时反馈, 不默认允许操作.</p>\n",
+          "type": "module",
+          "displayName": "budget"
+        },
+        {
+          "textRaw": "交互与任务归属",
+          "name": "交互与任务归属",
+          "desc": "<p>plugin 模式仍向脚本发送 input/confirmation 通知, 但标记 <code>readOnly: true</code>, respond/confirm 会拒绝. script 模式由脚本监听器回应. <code>detached</code> 不改变交互承接方; detached + script 在发起脚本退出后若需继续回应, 应在超时前由另一个脚本 get 并接管交互, 或改用 plugin 模式.</p>\n<p><code>create</code> 保存选项快照. 单次 overrides 中的 budget 按字段合并且不能增加固定预算, tools 和 scriptRoots 只能缩小范围, cautious 不能放宽. 其他字段按单次覆盖值使用.</p>\n",
+          "type": "module",
+          "displayName": "交互与任务归属"
+        }
+      ],
+      "type": "module",
+      "displayName": "AgentRunOptions - Agent 任务选项"
+    }
+  ]
+}

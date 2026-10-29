@@ -2,16 +2,15 @@
 
 ---
 
-<p style="font: italic 1em sans-serif; color: #78909C">此章节待补充或完善...</p>
-<p style="font: italic 1em sans-serif; color: #78909C">Marked by SuperMonster003 on Oct 30, 2023.</p>
-
----
+<aside class="doc-status doc-status--incomplete" data-marked-by="SuperMonster003" data-marked-on="2023-10-30">
+<p><strong>文档状态:</strong> 此章节仍在补充或完善中.</p>
+</aside>
 
 WebSocket 类主要用于构建一个 [OkHttp3 WebSocket](https://square.github.io/okhttp/4.x/okhttp/okhttp3/-web-socket/) 接口实现类的实例, 以便完成基于 [WebSocket 协议](https://zh.wikipedia.org/wiki/WebSocket) 的网络请求.
 
-> 注: WebSocket 不同于 Socket.  
+> 注: WebSocket 不同于 Socket.<br>
 > WebSocket 是应用层的网络传输协议. 而 Socket 并非协议, 是位于应用层和传输控制层之间的一组接口, 是对 TCP/IP 协议的封装.
- 
+
 一个流程相对完备的 WebSocket 示例:
 
 ```js
@@ -25,7 +24,7 @@ ws
     })
     .on(WebSocket.EVENT_MESSAGE, (message, ws) => {
         console.log('接收到消息');
-        // if (message instanceof okio.ByteString) {
+        // if (message instanceof web.ByteString) {
         //     console.log(`消息类型: ByteString`);
         // } else if (typeof message === 'string') {
         //     console.log(`消息类型: String`);
@@ -61,7 +60,7 @@ ws
 ws.send('Hello WebSocket');
 
 /* 发送字节数组消息. */
-ws.send(new okio.ByteString(new java.lang.String('Hello WebSocket').getBytes()));
+ws.send(new web.ByteString(new java.lang.String('Hello WebSocket').getBytes()));
 
 setTimeout(() => {
     console.log('断开 WebSocket');
@@ -81,15 +80,15 @@ setTimeout(() => {
 
 WebSocket 类继承自 [EventEmitter](eventEmitterType) 类.
 
-因此 WebSocket 实例拥有继承而来的 [on](eventEmitterType#m-on), [once](eventEmitterType#m-once), [emit](eventEmitterType#m-emit), [eventNames](eventEmitterType#m-eventnames), [addListener](eventEmitterType#m-addlistener), [removeListener](eventEmitterType#m-removelistener) 等方法, 详情参阅 [事件发射器 (EventEmitter)](eventEmitterType) 章节.
+因此 WebSocket 实例拥有继承而来的 [on](eventEmitterType#on-eventname-listener), [once](eventEmitterType#once-eventname-listener), [emit](eventEmitterType#emit-eventname-args), [eventNames](eventEmitterType#eventnames), [addListener](eventEmitterType#addlistener-eventname-listener), [removeListener](eventEmitterType#removelistener-eventname-listener) 等方法, 详情参阅 [事件发射器 (EventEmitter)](eventEmitterType) 章节.
 
-> 注:   
-> 特别地, on 和 once 方法在子类进行了 `覆写 (override)`, 其返回值类型被具体化为 WebSocket, 以便于链式调用.  
+> 注:<br>
+> 特别地, on 和 once 方法在子类进行了 `覆写 (override)`, 其返回值类型被具体化为 WebSocket, 以便于链式调用.<br>
 > 为节约篇幅, 本章节仅列举了 on 方法的相关文档, once 方法与 on 的用法相同.
 
 ### [c] (url)
 
-**`6.3.4`** **`Global`**
+**`6.3.4`** **`Global`** **`Overload 1/2`**
 
 - **url** { [string](dataTypes#string) } - 请求的 URL 地址
 - <ins>**returns**</ins> { [WebSocket](webSocketType) }
@@ -107,6 +106,16 @@ setTimeout(() => {
     ws.close(WebSocket.CODE_CLOSE_NORMAL, 'Closed by user');
 }, 5e3);
 ```
+
+### [c] (client, url)
+
+**`[6.8.0]`** **`Global`** **`Overload 2/2`**
+
+- **client** { `org.autojs.autojs.core.http.MutableOkHttp` } - 可变 OkHttp 客户端
+- **url** { [string](dataTypes#string) } - 请求的 URL 地址
+- <ins>**returns**</ins> { [WebSocket](webSocketType) }
+
+使用指定的 AutoJs6 `MutableOkHttp` 客户端构建 WebSocket. 其他类型的 **client** 参数会回退到当前脚本运行时的默认 HTTP 客户端.
 
 ## [m] send
 
@@ -134,7 +143,7 @@ This method returns immediately.
 
 ```js
 let ws = new WebSocket('wss://echo.websocket.events');
-ws.send(new okio.ByteString(new java.lang.String('Hello WebSocket').getBytes()));
+ws.send(new web.ByteString(new java.lang.String('Hello WebSocket').getBytes()));
 ws.exitOnClose();
 ```
 
@@ -152,7 +161,7 @@ ws.exitOnClose();
 
 > 注: 相对应地, [cancel](#m-cancel) 则会立即释放资源, 而丢弃所有排队的报文.
 
-如果调用 `close` 时启动了优雅关闭, 返回 true.  
+如果调用 `close` 时启动了优雅关闭, 返回 true.<br>
 如果调用 `close` 时, 优雅关闭已经启动, 或 WebSocket 已关闭或取消, 返回 false.
 
 参数 `code` 可选, 代表状态码, 通过状态码可以获取或判断连接关闭的原因. 其范围为 `[1000..5000)`.
@@ -180,15 +189,29 @@ ws.close(WebSocket.CODE_CLOSE_NORMAL, '用户正常关闭'); /* 指定状态码,
 
 ### exitOnClose()
 
-**`Overload 1/2`**
+**`[6.8.0]`** **`Overload 1/2`**
 
-... ...
+- <ins>**returns**</ins> { [void](dataTypes#void) }
+
+让该 WebSocket 在所属脚本结束时以状态码 `1000` (`WebSocket.CODE_CLOSE_NORMAL`) 优雅关闭, 已排队的报文会先完成传送.
+
+脚本结束时, AutoJs6 只处理该脚本自己创建的 WebSocket, 其他仍在运行的脚本的连接不受影响:
+
+- 调用过 `exitOnClose` 的连接按上述方式优雅关闭.
+- 未调用 `exitOnClose` 的连接立即断开 (相当于 [cancel](#m-cancel)), 已排队的报文被丢弃.
+
+两种情况下, 脚本结束后连接都不再触发事件监听器.
+
+从 AutoJs6 6.8.0 起, 未调用 `exitOnClose` 的连接会在脚本结束时断开 (此前在脚本结束后仍保持连接); 调用过 `exitOnClose` 的连接只在所属脚本结束时关闭 (此前任意一个脚本结束时都会关闭).
 
 ### exitOnClose(timeout)
 
-**`Overload 2/2`**
+**`[6.8.0]`** **`Overload 2/2`**
 
-... ...
+- **timeout** { [number](dataTypes#number) } - 所属脚本结束后延迟关闭的毫秒数, 负数按 `0` 处理
+- <ins>**returns**</ins> { [void](dataTypes#void) }
+
+与 `exitOnClose()` 相同, 但在所属脚本结束 `timeout` 毫秒后再优雅关闭.
 
 ## [m] cancel
 

@@ -12,11 +12,19 @@ web 模块主要用于 [WebView](https://developer.android.com/reference/android
 
 ---
 
+## [C] web.ByteString
+
+**`6.8.0`**
+
+- { [okio.ByteString](https://square.github.io/okio/3.x/okio/okio/-byte-string/) }
+
+公开 Okio `ByteString` Java 类, 用于构造或判断 WebSocket 二进制消息.
+
 ## [m] newInjectableWebView
 
 ### newInjectableWebView(url?)
 
-**`6.3.0`** **`Global`** **`Overload [1-2]/3`** **`UI`**
+**`6.3.0`** **`Global`** **`Overload [1-2]/4`** **`UI`**
 
 - **[ url ]** { [string](dataTypes#string) } - 需要 WebView 加载的 URL
 - <ins>**returns**</ins> { [InjectableWebView](injectableWebViewType) }
@@ -99,13 +107,13 @@ settings.setDisplayZoomControls(false);
 setWebChromeClient(new WebChromeClient());
 ```
 
-> 注:  
-> WebChromeClient 中的 "Chrome" 与 Google Chrome 浏览器中的 "Chrome" 不同.  
-> WebView 中的 "Chrome" 指代 WebView 外面的装饰及 UI 部分.  
-> WebChromeClient 是 HTML/JavaScript 与 Android 客户端交互的中间件, 它将 WebView 中 JavaScript 产生的事件封装后传递到 Android 客户端, 从而避免一些可能的安全问题.  
+> 注:<br>
+> WebChromeClient 中的 "Chrome" 与 Google Chrome 浏览器中的 "Chrome" 不同.<br>
+> WebView 中的 "Chrome" 指代 WebView 外面的装饰及 UI 部分.<br>
+> WebChromeClient 是 HTML/JavaScript 与 Android 客户端交互的中间件, 它将 WebView 中 JavaScript 产生的事件封装后传递到 Android 客户端, 从而避免一些可能的安全问题.<br>
 > 同时 WebChromeClient 也可以辅助 WebView 处理 JavaScript 对话框, 显示加载进度, 上传文件等.
 
-在 WebView 中访问了多个网页时, 按返回键会立即关闭整个页面, 而不是回退到上一个历史网页.  
+在 WebView 中访问了多个网页时, 按返回键会立即关闭整个页面, 而不是回退到上一个历史网页.<br>
 如果希望在 WebView 里浏览历史网页, 可参考如下代码:
 
 ```js
@@ -119,12 +127,27 @@ ui.emitter.on('back_pressed', function (e) {
 
 ### newInjectableWebView(activity)
 
-**`6.3.0`** **`Global`** **`Overload 3/3`** **`UI`**
+**`6.3.0`** **`Global`** **`Overload 3/4`** **`UI`**
 
-- **activity** { [ScriptExecuteActivity](dataTypes#scriptexecuteactivity) } - 上下文对象, 默认为 UI 模式下的全局 activity 对象
+- **activity** { [android.content.Context](https://developer.android.com/reference/android/content/Context) } - 创建 WebView 的 Android 上下文
 - <ins>**returns**</ins> { [InjectableWebView](injectableWebViewType) }
 
-新建并返回一个 [InjectableWebView](dataTypes#injectablewebview) (可 [注入](glossaries#注入) 的 [WebView](https://developer.android.com/reference/android/webkit/WebView)) 实例, 通过 `activity` 参数可传入不同的 `org.mozilla.javascript.Context` 上下文对象, 该对象主要用于执行 JavaScript 语句.
+新建并返回一个 [InjectableWebView](injectableWebViewType) 实例. `activity` 是 Android 上下文, 通常传入 UI 模式的全局 `activity`. 它用于创建 Android View, 不是 Rhino 的 JavaScript 执行上下文.
+
+### newInjectableWebView(androidContext, url)
+
+**`Global`** **`Overload 4/4`** **`UI`**
+
+- **androidContext** { [android.content.Context](https://developer.android.com/reference/android/content/Context) } - 创建 WebView 的 Android 上下文
+- **url** { [string](dataTypes#string) | [null](dataTypes#null) } - 初始 URL; `null` 表示不加载初始页面
+- <ins>**returns**</ins> { [InjectableWebView](injectableWebViewType) }
+
+使用指定 Android 上下文创建 WebView, 并在提供 URL 时加载该页面. 当前实现解包后不是 Android Context 的参数会回退到应用上下文; 通常应显式传入有效的 Activity.
+
+```js
+'ui';
+activity.setContentView(web.newInjectableWebView(activity, 'https://example.com'));
+```
 
 ## [m] newInjectableWebClient
 
@@ -143,15 +166,26 @@ webView.setWebViewClient(newInjectableWebClient());
 
 ## [m] newWebSocket
 
-### newWebSocket(url)
+### newWebSocket(url, options?)
 
-**`6.3.1`** **`Global`**
+**`6.3.1`** **`[6.8.0]`** **`Global`**
 
 - **url** { [string](dataTypes#string) } - 请求的 URL 地址
+- **[ options ]** { [Object](dataTypes#object) } - WebSocket 事件选项
+    - **eventThread** { `'this'` } - 使用当前脚本线程的定时器调度事件监听器
 - <ins>**returns**</ins> { [WebSocket](webSocketType) }
 
 构建一个 [WebSocket](webSocketType) 实例.
 
-相当于 `new WebSocket(url)`.
+省略 `options` 时相当于 `new WebSocket(url)`. `WebSocket` 构造器不提供 `eventThread` 选项.
+
+`newWebSocket` 是全局方法, 因此以下两种调用方式等效:
+
+```js
+web.newWebSocket("wss://example.com", { eventThread: "this" });
+newWebSocket("wss://example.com", { eventThread: "this" });
+```
+
+`options.eventThread` 为 `"this"` 时, WebSocket 事件监听器使用当前脚本线程的定时器调度. 省略此选项时, 事件监听器不绑定到当前脚本线程的定时器.
 
 > 参阅: [WebSocket](webSocketType) 章节

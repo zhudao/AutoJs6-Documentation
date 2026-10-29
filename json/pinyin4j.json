@@ -1,0 +1,196 @@
+{
+  "source": "..\\api\\pinyin4j.md",
+  "modules": [
+    {
+      "textRaw": "Pinyin4j",
+      "name": "pinyin4j",
+      "desc": "<p>pinyin4j 模块用于将中文转换为拼音字符串, 查询逐 Unicode 码点的全部读音, 并控制分隔符, 大小写, 声调和 <code>v</code> 字符格式.</p>\n<p>此模块自 AutoJs6 6.6.1 起提供. <code>pinyin4j</code> 与 <code>$pinyin4j</code> 指向同一个可调用模块对象.</p>\n<p>自 AutoJs6 6.8.0 起, pinyin4j 转换由外置 Pinyin4j 插件提供. 调用转换方法前, 必须安装并启用与当前 AutoJs6 版本兼容的 Pinyin4j 插件. 未发现可用插件引擎时, 调用将抛出异常.</p>\n<p>Node.js Runtime 的公开 <code>pinyin4j</code> 模块通过宿主调用相同插件能力, 返回 Promise. Bun 使用显式客户端, 详见 <a href=\"runtimeApis\">运行时 API</a>.</p>\n<hr>\n<p style=\"font: bold 2em sans-serif; color: #FF7043\">pinyin4j</p>\n\n<hr>\n",
+      "modules": [
+        {
+          "textRaw": "[@] pinyin4j",
+          "name": "[@]_pinyin4j",
+          "methods": [
+            {
+              "textRaw": "pinyin4j(source, options?)",
+              "type": "method",
+              "name": "pinyin4j",
+              "desc": "<p><strong><code>6.6.1</code></strong> <strong><code>[6.8.0]</code></strong> <strong><code>Overload [1-2]/2</code></strong></p>\n<ul>\n<li><strong>source</strong> { <a href=\"dataTypes#string\">string</a> } - 待转换文本</li>\n<li><strong>[ options ]</strong> { <a href=\"dataTypes#string\">string</a> | <a href=\"#pinyin4joptions\">Pinyin4jOptions</a> } - 分隔符或转换选项</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#string\">string</a> } - 拼音转换结果</li>\n</ul>\n<p>将文本转换为拼音字符串.</p>\n<p>当 <code>options</code> 是字符串时, 该字符串作为拼音分隔符. 此调用与 <a href=\"#m-of\">pinyin4j.of(source, options?)</a> 等价.</p>\n<pre><code class=\"lang-js\">console.log(pinyin4j(&#39;中国&#39;, {\n    separator: &#39; &#39;,\n    tone: &#39;WITH_TONE_NUMBER&#39;,\n})); // zhong1 guo2\n</code></pre>\n",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "name": "source"
+                    },
+                    {
+                      "name": "options?"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "type": "module",
+          "displayName": "[@] pinyin4j"
+        },
+        {
+          "textRaw": "[m] of",
+          "name": "[m]_of",
+          "methods": [
+            {
+              "textRaw": "of(source, options?)",
+              "type": "method",
+              "name": "of",
+              "desc": "<p><strong><code>6.6.1</code></strong> <strong><code>[6.8.0]</code></strong> <strong><code>Overload [1-2]/2</code></strong></p>\n<ul>\n<li><strong>source</strong> { <a href=\"dataTypes#string\">string</a> } - 待转换文本</li>\n<li><strong>[ options ]</strong> { <a href=\"dataTypes#string\">string</a> | <a href=\"#pinyin4joptions\">Pinyin4jOptions</a> } - 分隔符或转换选项</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#string\">string</a> } - 拼音转换结果</li>\n</ul>\n<p>将文本转换为拼音字符串.</p>\n<p>空字符串直接返回空字符串, 不调用插件. 当 <code>options</code> 是字符串时, 该字符串作为拼音分隔符.</p>\n<pre><code class=\"lang-js\">console.log(pinyin4j.of(&#39;中国&#39;, &#39;-&#39;)); // zhong-guo\n</code></pre>\n",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "name": "source"
+                    },
+                    {
+                      "name": "options?"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "type": "module",
+          "displayName": "[m] of"
+        },
+        {
+          "textRaw": "[m] as",
+          "name": "[m]_as",
+          "methods": [
+            {
+              "textRaw": "as(source)",
+              "type": "method",
+              "name": "as",
+              "desc": "<p><strong><code>6.6.1</code></strong> <strong><code>[6.8.0]</code></strong></p>\n<ul>\n<li><strong>source</strong> { <a href=\"dataTypes#string\">string</a> } - 含数字声调的拼音文本</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#string\">string</a> } - 使用带声调字符的拼音文本</li>\n</ul>\n<p>将数字声调转换为带声调字符.</p>\n<pre><code class=\"lang-js\">console.log(pinyin4j.as(&#39;zhong1 guo2&#39;)); // zhōng guó\n</code></pre>\n",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "name": "source"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "type": "module",
+          "displayName": "[m] as"
+        },
+        {
+          "textRaw": "[m] readings",
+          "name": "[m]_readings",
+          "methods": [
+            {
+              "textRaw": "readings(source, options?)",
+              "type": "method",
+              "name": "readings",
+              "desc": "<p><strong><code>6.8.0</code></strong> <strong><code>Overload [1-2]/2</code></strong></p>\n<ul>\n<li><strong>source</strong> { <a href=\"dataTypes#string\">string</a> } - 待读取全部读音的文本</li>\n<li><strong>[ options ]</strong> { <a href=\"#pinyin4jreadingsoptions\">Pinyin4jReadingsOptions</a> } - 多读音与罗马化选项</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#string\">string</a>[][] } - 与源文本 Unicode 码点逐项对应的候选读音矩阵</li>\n</ul>\n<p>查询每个 Unicode 码点的全部候选读音. 返回矩阵的每个内层数组对应源文本中的一个 Unicode 码点, 因而代理对表示的补充平面字符也只占一行. 汉字以外的字符通常原样保留为单候选行.</p>\n<p>默认使用 Hanyu Pinyin, 数字声调, 小写字母和 <code>v</code> 字符. 与 <a href=\"#m-of\">of(source, options?)</a> 不同, 此方法不接受分隔符, 且默认保留数字声调.</p>\n<pre><code class=\"lang-js\">console.log(pinyin4j.readings(&#39;重A𠀀&#39;));\n// [ [ &#39;zhong4&#39;, &#39;chong2&#39; ], [ &#39;A&#39; ], [ &#39;𠀀&#39; ] ]\n\nconsole.log(pinyin4j.readings(&#39;好&#39;, {\n    tone: &#39;MARK&#39;,\n    case: &#39;UPPERCASE&#39;,\n}));\n// [ [ &#39;HǍO&#39;, &#39;HÀO&#39; ] ]\n\nconsole.log(pinyin4j.readings(&#39;间&#39;, {\n    system: &#39;WADE_GILES&#39;,\n}));\n// [ [ &#39;chien1&#39;, &#39;chien4&#39; ] ]\n</code></pre>\n<p>宿主通过插件 capability <code>pinyin4j.readings.version</code> 协商原生多读音事务. 对未声明该 capability 的旧版插件, Hanyu Pinyin 请求会安全回退为逐码点的单候选结果; 其他罗马化体系会直接抛出异常并提示升级插件, 不会静默返回错误体系.</p>\n<p>为限制 Binder 和 JSON 传输开销, 源文本最多包含 16,384 个 Unicode 码点, 返回 JSON 最多为 512 KiB, 每个码点最多包含 64 个候选读音, 每个候选最多包含 64 个 Unicode 码点. 插件返回的矩阵行数, 元素类型或上述限制不合法时, 宿主会拒绝结果.</p>\n<hr>\n",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "name": "source"
+                    },
+                    {
+                      "name": "options?"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "type": "module",
+          "displayName": "[m] readings"
+        },
+        {
+          "textRaw": "Pinyin4jOptions",
+          "name": "pinyin4joptions",
+          "desc": "<p>pinyin4j 转换选项. 选项值中的名称不区分大小写, 无效名称会抛出异常.</p>\n",
+          "modules": [
+            {
+              "textRaw": "[p] Pinyin4jOptions#separator",
+              "name": "[p]_pinyin4joptions#separator",
+              "desc": "<ul>\n<li>[ <code>&#39;&#39;</code> ] { <a href=\"dataTypes#string\">string</a> }</li>\n</ul>\n<p>拼音项之间的分隔符.</p>\n<p>别名为 <code>sep</code>.</p>\n",
+              "type": "module",
+              "displayName": "[p] Pinyin4jOptions#separator"
+            },
+            {
+              "textRaw": "[p] Pinyin4jOptions#tone",
+              "name": "[p]_pinyin4joptions#tone",
+              "desc": "<ul>\n<li>[ <code>&#39;WITHOUT_TONE&#39;</code> ] { <a href=\"dataTypes#string\">string</a> }</li>\n</ul>\n<p>声调格式.</p>\n<p>别名为 <code>toneType</code>. 支持以下值:</p>\n<ul>\n<li><code>WITH_TONE_NUMBER</code>, <code>WITH_NUMBER</code>, <code>NUMBER</code>, <code>NUM</code>: 使用数字声调</li>\n<li><code>WITHOUT_TONE</code>, <code>NO_TONE</code>, <code>NO</code>, <code>FALSE</code>, <code>0</code>: 不标注声调</li>\n<li><code>WITH_TONE_MARK</code>, <code>WITH_MARK</code>, <code>MARK</code>, <code>TRUE</code>, <code>1</code>: 使用带声调字符</li>\n</ul>\n",
+              "type": "module",
+              "displayName": "[p] Pinyin4jOptions#tone"
+            },
+            {
+              "textRaw": "[p] Pinyin4jOptions#case",
+              "name": "[p]_pinyin4joptions#case",
+              "desc": "<ul>\n<li>[ <code>&#39;LOWERCASE&#39;</code> ] { <a href=\"dataTypes#string\">string</a> }</li>\n</ul>\n<p>字母大小写格式.</p>\n<p>别名为 <code>caseType</code>. 支持以下值:</p>\n<ul>\n<li><code>LOWERCASE</code>, <code>LOW</code>, <code>L</code>, <code>0</code>: 小写</li>\n<li><code>UPPERCASE</code>, <code>UP</code>, <code>U</code>, <code>1</code>: 大写</li>\n</ul>\n",
+              "type": "module",
+              "displayName": "[p] Pinyin4jOptions#case"
+            },
+            {
+              "textRaw": "[p] Pinyin4jOptions#v",
+              "name": "[p]_pinyin4joptions#v",
+              "desc": "<ul>\n<li>[ <code>&#39;WITH_V&#39;</code> ] { <a href=\"dataTypes#string\">string</a> }</li>\n</ul>\n<p>韵母 <code>v</code> 的输出格式.</p>\n<p>别名为 <code>vChar</code> 和 <code>vCharType</code>. 支持以下值:</p>\n<ul>\n<li><code>WITH_U_AND_COLON</code>, <code>U_AND_COLON</code>, <code>U_COLON</code>, <code>U:</code>: 使用 <code>u:</code></li>\n<li><code>WITH_V</code>, <code>V</code>: 使用 <code>v</code></li>\n<li><code>WITH_U_UNICODE</code>, <code>U_UNICODE</code>, <code>UNICODE</code>, <code>U</code>, <code>\\u00DC</code>: 使用 Unicode <code>U+00DC</code> 对应字符</li>\n</ul>\n<p>当 <code>tone</code> 为 <code>WITH_TONE_MARK</code> 时, 此选项的默认值改为 <code>WITH_U_UNICODE</code>.</p>\n<hr>\n",
+              "type": "module",
+              "displayName": "[p] Pinyin4jOptions#v"
+            }
+          ],
+          "type": "module",
+          "displayName": "Pinyin4jOptions"
+        },
+        {
+          "textRaw": "Pinyin4jReadingsOptions",
+          "name": "pinyin4jreadingsoptions",
+          "desc": "<p><a href=\"#m-readings\">readings(source, options?)</a> 使用的多读音选项.</p>\n",
+          "modules": [
+            {
+              "textRaw": "[p] Pinyin4jReadingsOptions#romanization",
+              "name": "[p]_pinyin4jreadingsoptions#romanization",
+              "desc": "<ul>\n<li>[ <code>&#39;HANYU&#39;</code> ] { <a href=\"dataTypes#string\">string</a> }</li>\n</ul>\n<p>罗马化体系.</p>\n<p>别名为 <code>system</code>. 名称不区分大小写, 连字符和空格会按下划线处理. 支持以下值:</p>\n<ul>\n<li><code>HANYU</code>, <code>HANYU_PINYIN</code>, <code>PINYIN</code>: Hanyu Pinyin</li>\n<li><code>TONGYONG</code>, <code>TONGYONG_PINYIN</code>: Tongyong Pinyin</li>\n<li><code>WADE</code>, <code>WADE_GILES</code>, <code>WADEGILES</code>, <code>WADE_GILES_PINYIN</code>: Wade-Giles</li>\n<li><code>MPS2</code>, <code>MANDARIN_PHONETIC_SYMBOLS_2</code>: Mandarin Phonetic Symbols II</li>\n<li><code>YALE</code>, <code>YALE_PINYIN</code>: Yale romanization</li>\n<li><code>GWOYEU</code>, <code>GWOYEU_ROMATZYH</code>, <code>GR</code>: Gwoyeu Romatzyh</li>\n</ul>\n",
+              "type": "module",
+              "displayName": "[p] Pinyin4jReadingsOptions#romanization"
+            },
+            {
+              "textRaw": "[p] Pinyin4jReadingsOptions#tone",
+              "name": "[p]_pinyin4jreadingsoptions#tone",
+              "desc": "<ul>\n<li>[ <code>&#39;WITH_TONE_NUMBER&#39;</code> ] { <a href=\"dataTypes#string\">string</a> }</li>\n</ul>\n<p>Hanyu Pinyin 的声调格式. 别名和可选值与 <a href=\"#p-pinyin4joptions-tone\">Pinyin4jOptions#tone</a> 相同.</p>\n<p>此选项仅适用于 <code>HANYU</code>. 对其他罗马化体系显式传入此选项会抛出异常.</p>\n",
+              "type": "module",
+              "displayName": "[p] Pinyin4jReadingsOptions#tone"
+            },
+            {
+              "textRaw": "[p] Pinyin4jReadingsOptions#case",
+              "name": "[p]_pinyin4jreadingsoptions#case",
+              "desc": "<ul>\n<li>[ <code>&#39;LOWERCASE&#39;</code> ] { <a href=\"dataTypes#string\">string</a> }</li>\n</ul>\n<p>Hanyu Pinyin 的字母大小写格式. 别名和可选值与 <a href=\"#p-pinyin4joptions-case\">Pinyin4jOptions#case</a> 相同.</p>\n<p>此选项仅适用于 <code>HANYU</code>. 对其他罗马化体系显式传入此选项会抛出异常.</p>\n",
+              "type": "module",
+              "displayName": "[p] Pinyin4jReadingsOptions#case"
+            },
+            {
+              "textRaw": "[p] Pinyin4jReadingsOptions#v",
+              "name": "[p]_pinyin4jreadingsoptions#v",
+              "desc": "<ul>\n<li>[ <code>&#39;WITH_V&#39;</code> ] { <a href=\"dataTypes#string\">string</a> }</li>\n</ul>\n<p>Hanyu Pinyin 的韵母 <code>v</code> 输出格式. 别名和可选值与 <a href=\"#p-pinyin4joptions-v\">Pinyin4jOptions#v</a> 相同. 当 <code>tone</code> 为 <code>WITH_TONE_MARK</code> 时, 默认值改为 <code>WITH_U_UNICODE</code>.</p>\n<p>此选项仅适用于 <code>HANYU</code>. 对其他罗马化体系显式传入此选项会抛出异常.</p>\n<hr>\n",
+              "type": "module",
+              "displayName": "[p] Pinyin4jReadingsOptions#v"
+            }
+          ],
+          "type": "module",
+          "displayName": "Pinyin4jReadingsOptions"
+        },
+        {
+          "textRaw": "Node.js Runtime",
+          "name": "node.js_runtime",
+          "desc": "<p><strong><code>6.8.0</code></strong></p>\n<p>Node.js 脚本不自动注入 Rhino 的 <code>pinyin4j</code> 全局对象. 使用 <code>require(&#39;pinyin4j&#39;)</code> 或对应 ESM 导入, 并等待宿主插件转换结果:</p>\n<pre><code class=\"lang-js\">&quot;nodejs&quot;;\nlet pinyin4j = require(&#39;pinyin4j&#39;);\n\n(async () =&gt; {\n    let result = await pinyin4j.readings(&#39;重A𠀀&#39;, { system: &#39;HANYU&#39; });\n\n    console.log(result);\n    // [ [ &#39;zhong4&#39;, &#39;chong2&#39; ], [ &#39;A&#39; ], [ &#39;𠀀&#39; ] ]\n})();\n</code></pre>\n<p><code>pinyin4j</code> 模块公开下列异步方法. 下表 <code>args</code> 表示位置参数, <code>result</code> 表示等待 Promise 后的普通 Node.js 值:</p>\n<table>\n<thead>\n<tr>\n<th>method</th>\n<th>args</th>\n<th>result</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>of</code></td>\n<td><code>[ source, options? ]</code></td>\n<td><code>string</code></td>\n</tr>\n<tr>\n<td><code>as</code></td>\n<td><code>[ source ]</code></td>\n<td><code>string</code></td>\n</tr>\n<tr>\n<td><code>readings</code></td>\n<td><code>[ source, options? ]</code></td>\n<td><code>string[][]</code></td>\n</tr>\n</tbody>\n</table>\n<p>请求由宿主执行 capability, JSON 大小和调用配额校验, 最终转换由当前选择的外置 Pinyin4j 插件完成. 缺少执行授权, 未安装兼容插件, 参数不合法或矩阵超限时, Promise 会以对应的 bridge 错误拒绝. 旧版 Node 小字典的同步调用需要改为 <code>await</code>. 通用 <code>autojs6:bridge</code> 仍可调用相同 provider. Bun 对应 <code>host.pinyin4j</code>, 见 <a href=\"runtimeApis#bun-客户端\">Bun 客户端</a>.</p>\n",
+          "type": "module",
+          "displayName": "Node.js Runtime"
+        }
+      ],
+      "type": "module",
+      "displayName": "Pinyin4j"
+    }
+  ]
+}
