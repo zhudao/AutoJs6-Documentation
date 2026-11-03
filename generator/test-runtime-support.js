@@ -36,7 +36,7 @@ function matrix(kind) {
             row('other.x', 'other', 'x', [pending, pending, pending]),
             row('legacy.a', 'legacy', 'a', [legacy, legacy, pending]),
             row('legacy.b', 'legacy', 'b', [legacy, legacy, pending]),
-            row('Thing#member', null, 'member', [pending, pending, pending], { kind: 'returned-member', ownerModule: null }),
+            row('Thing#member', null, 'member', [pending, pending, pending], { kind: 'returned-member', ownerModule: null, object: 'Thing', page: 'demo' }),
         ],
     };
 }
@@ -91,6 +91,60 @@ test('a column whose cells all read the same is described above only', () => {
     assert.ok(excluded.text.includes('| 状态 | 已支持 2 项 | 不适用 2 项 (依赖同步阻塞), 等价写法: `await x()` | 不适用 2 项 (依赖同步阻塞), 等价写法: `await x()` | 待补 2 项 |'));
     const mixed = runtimeSupport.renderBlock(matrix(), ['other', 'legacy']);
     assert.strictEqual(mixed.differences, 3, 'not uniform once the roots are shown together');
+});
+
+test('prototype members count as exports of their module', () => {
+    const data = matrix();
+    data.rows.push(row('other.y', 'other', 'y', [pending, pending, pending], { kind: 'prototype-member', registration: '@ScriptPrototype' }));
+    const block = runtimeSupport.renderBlock(data, ['other']);
+    assert.strictEqual(block.rows, 2);
+    assert.ok(block.text.includes('| 状态 | 已支持 2 项 | 待补 2 项 | 待补 2 项 | 待补 2 项 |'));
+});
+
+test('an internal export does not keep a column from reading as one cell', () => {
+    const excluded = { status: 'not-portable', reason: 'rhino-only', equivalent: 'engines.execScript', rule: 'demo-rule' };
+    const internal = { status: 'not-portable', reason: 'rhino-only', rule: 'internal-exports' };
+    const data = matrix();
+    data.rows = [
+        row('solo.__id', 'solo', '__id', [internal, internal, internal]),
+        row('solo.begin', 'solo', 'begin', [excluded, excluded, excluded]),
+        row('solo.end', 'solo', 'end', [excluded, excluded, excluded]),
+    ];
+    const block = runtimeSupport.renderBlock(data, ['solo'], 'solo');
+    assert.strictEqual(block.rows, 3);
+    assert.strictEqual(block.differences, 0, block.text);
+    assert.ok(block.text.includes('不适用 3 项 (仅限 Rhino 引擎), 等价写法: `engines.execScript`'), block.text);
+});
+
+test('returned objects: their own block on a type page, one line each on the module page', () => {
+    const java = { status: 'not-portable', reason: 'java-prototype', rule: 'java-prototype-objects' };
+    const data = matrix();
+    data.rows.push(
+        row('Thing#other', null, 'other', [bridged('autojs6:demo', 'other'), pending, pending], { kind: 'returned-member', ownerModule: null, object: 'Thing', page: 'demo' }),
+        row('Mat#release', null, 'release', [java, java, java], { kind: 'returned-member', ownerModule: null, object: 'Mat', page: 'demo' }),
+        row('Mat#convertTo', null, 'convertTo', [java, java, java], { kind: 'returned-member', ownerModule: null, object: 'Mat', page: 'demo' }),
+        row('Card#flip', null, 'flip', [pending, pending, pending], { kind: 'returned-member', ownerModule: null, object: 'Card', page: 'cardType' }),
+    );
+    const own = runtimeSupport.renderBlock(data, ['Card#'], 'cardType');
+    assert.strictEqual(own.rows, 1);
+    assert.strictEqual(own.objectRows, 0);
+    assert.ok(own.text.includes('| 入口 | `Card` 对象 | - | - | - |'), own.text);
+    assert.ok(!own.text.includes('返回对象'));
+    const modulePage = runtimeSupport.renderBlock(data, ['demo'], 'demo');
+    assert.strictEqual(modulePage.rows, 6, 'the objects do not join the upper table');
+    assert.strictEqual(modulePage.objects, 2);
+    assert.strictEqual(modulePage.objectRows, 4);
+    const lines = modulePage.text.split('\n').filter(line => line.startsWith('| `Mat`') || line.startsWith('| `Thing`'));
+    assert.deepStrictEqual(lines, [
+        '| `Mat` (2 项) | 已支持 2 项 | 不适用 2 项 (需要 Java 对象) | 不适用 2 项 (需要 Java 对象) | 不适用 2 项 (需要 Java 对象) |',
+        '| `Thing` (2 项) | 已支持 2 项 | 已支持 1 项, 待补 1 项 | 待补 2 项 | 待补 2 项 |',
+    ]);
+    assert.ok(!runtimeSupport.renderBlock(data, ['demo', 'Thing#'], 'demo').text.includes('| `Thing` ('), 'an object with its own root is not listed again');
+    assert.ok(!runtimeSupport.renderBlock(data, ['demo'], 'other').text.includes('返回对象'));
+    const known = new Set(['demo', 'Card#']);
+    const card = '# Card\n\n<!-- runtime-support:begin Card# -->\n<!-- runtime-support:end -->\n';
+    assert.strictEqual(runtimeSupport.updatePage(card, data, known, 'cardType').status, 'stale');
+    assert.strictEqual(runtimeSupport.updatePage(card.replace('Card#', 'Cards#'), data, known, 'cardType').status, 'problem');
 });
 
 test('block comments never carry json.js page metadata', () => {
@@ -148,6 +202,7 @@ test('command: --insert writes, --check passes, edits and --require-all fail', (
         assert.deepStrictEqual(written.problems, []);
         assert.deepStrictEqual(runtimeSupport.run(Object.assign({}, base, { check: true })).problems, []);
         assert.deepStrictEqual(runtimeSupport.run(Object.assign({}, base, { check: true })).uncovered, ['legacy', 'other']);
+        assert.deepStrictEqual(runtimeSupport.run(Object.assign({}, base, { check: true })).uncoveredObjects, [], 'Thing is in the demo page table');
         assert.strictEqual(runtimeSupport.run(Object.assign({}, base, { check: true, requireAll: true })).problems.length, 1);
         const file = path.join(api, 'demo.md');
         fs.writeFileSync(file, fs.readFileSync(file, 'utf8').replace('待补 1 项', '待补 2 项'));
@@ -155,6 +210,17 @@ test('command: --insert writes, --check passes, edits and --require-all fail', (
         assert.strictEqual(runtimeSupport.run(base).pages[0].status, 'written');
         assert.deepStrictEqual(runtimeSupport.run(Object.assign({}, base, { check: true })).problems, []);
         assert.strictEqual(fs.readFileSync(path.join(api, 'plain.md'), 'utf8'), '# Plain\n');
+        // An object documented first on a type page needs a root of its own there.
+        const data = matrix();
+        data.rows.push(row('Card#flip', null, 'flip', [pending, pending, pending], { kind: 'returned-member', ownerModule: null, object: 'Card', page: 'cardType' }));
+        fs.writeFileSync(matrixPath, JSON.stringify(data));
+        fs.writeFileSync(path.join(api, 'cardType.md'), '# Card\n');
+        runtimeSupport.run(base);
+        const missing = runtimeSupport.run(Object.assign({}, base, { check: true, requireAll: true }));
+        assert.deepStrictEqual(missing.uncoveredObjects, ['Card#']);
+        assert.ok(missing.problems.some(problem => problem.startsWith('returned objects shown by no runtime-support block') && problem.endsWith(': Card#')), missing.problems.join('\n'));
+        runtimeSupport.run(Object.assign({}, base, { insert: [{ page: 'cardType', roots: ['Card#'] }] }));
+        assert.deepStrictEqual(runtimeSupport.run(Object.assign({}, base, { check: true })).uncoveredObjects, []);
     } finally {
         fs.rmSync(root, { recursive: true, force: true });
     }

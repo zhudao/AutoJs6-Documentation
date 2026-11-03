@@ -1,5 +1,19 @@
 # Mathx (Math 扩展)
 
+<!-- runtime-support:begin Mathx -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `Mathx`, 全局 2 项 | `jsox.mathx` | `jsox.mathx` | `host.jsox` |
+| 状态 | 已支持 25 项 | 已支持 (本地实现) 25 项 | 已支持 (本地实现) 25 项 | 已支持 (本地实现) 25 项 |
+
+各 API 在同一运行时中的入口, 状态与授权一致, 没有差异项.
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
 Mathx 用于扩展 JavaScript 标准内置对象 Math 的功能 (参阅 [内置对象扩展](glossaries#内置对象扩展)).
 
 Mathx 全局可用:
@@ -77,6 +91,39 @@ console.log(Mathx.randomFloat([ -1, 1 ]));
 ```
 
 启用 Math 内置扩展后也可调用 `Math.randomFloat`. `Mathx.random` 是此方法的别名. 旧名称 `Mathx.randFloat` 仍可用, 但已弃用.
+
+### random(...range)
+
+**`xObject`**
+
+- **...range** { [...](documentation#可变参数)([number](dataTypes#number) | [number](dataTypes#number)[[]](dataTypes#array))[[]](documentation#可变参数) } - 随机范围
+- <ins>**returns**</ins> { [number](dataTypes#number) } - 范围内随机浮点数
+
+[randomFloat](#m-randomfloat) 的别名, 参数与行为相同. 启用 Math 内置扩展后 `Math.random` 被替换为此方法; 无参数调用时仍与原 `Math.random()` 一样返回 `[0, 1)` 区间的随机数.
+
+```js
+console.log(Mathx.random()); /* 0 到 1 之间. */
+console.log(Mathx.random(5, 10)); /* 5 到 10 之间. */
+```
+
+## [m] randFloat
+
+**`DEPRECATED`**
+
+此方法是 [randomFloat](#m-randomfloat) 的旧名称.
+
+### randFloat(...range)
+
+**`xObject`**
+
+- **...range** { [...](documentation#可变参数)([number](dataTypes#number) | [number](dataTypes#number)[[]](dataTypes#array))[[]](documentation#可变参数) } - 随机范围
+- <ins>**returns**</ins> { [number](dataTypes#number) } - 范围内随机浮点数
+
+参数与行为同 [randomFloat](#m-randomfloat). 新代码请使用 `randomFloat`.
+
+```js
+console.log(Mathx.randFloat(1, 2)); /* 与 Mathx.randomFloat(1, 2) 相同. */
+```
 
 ## [m] randInt
 

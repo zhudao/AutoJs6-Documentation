@@ -4,7 +4,7 @@
     {
       "textRaw": "事件监听 (Events)",
       "name": "事件监听_(events)",
-      "desc": "<hr>\n<aside class=\"doc-status doc-status--incomplete\" data-marked-by=\"SuperMonster003\" data-marked-on=\"2022-10-22\">\n<p><strong>文档状态:</strong> 此章节仍在补充或完善中.</p>\n</aside>\n\n<p>events 模块提供了监听手机通知, 按键, 触摸的接口. 您可以用他配合自动操作函数完成自动化工作.</p>\n<p>events 本身是一个 <a href=\"#events_eventemitter\">EventEmitter</a>, 但内置了一些事件, 包括按键事件, 通知事件, Toast 事件等.</p>\n<p>需要注意的是, 事件的处理是单线程的, 并且仍然在原线程执行, 如果脚本主体或者其他事件处理中有耗时操作, 轮询等, 则事件将无法得到及时处理 (会进入事件队列等待脚本主体或其他事件处理完成才执行). 例如:</p>\n<pre><code>auto();\nevents.observeNotification();\nevents.on(&#39;toast&#39;, function(t){\n    // 这段代码将得不到执行.\n    log(t);\n});\nwhile(true){\n    // 死循环.\n}\n</code></pre>",
+      "desc": "<!-- runtime-support:begin events -->\n<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->\n<table>\n<thead>\n<tr>\n<th>运行时支持</th>\n<th>Rhino</th>\n<th>Node.js 主线程</th>\n<th>Node.js Worker</th>\n<th>Bun</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>入口</td>\n<td><code>events</code></td>\n<td><code>autojs6:events</code></td>\n<td><code>autojs6:events</code></td>\n<td><code>host.events</code></td>\n</tr>\n<tr>\n<td>状态</td>\n<td>已支持 37 项</td>\n<td>已支持 36 项, 不适用 1 项</td>\n<td>已支持 36 项, 不适用 1 项</td>\n<td>需授权 36 项, 不适用 1 项</td>\n</tr>\n<tr>\n<td>授权</td>\n<td>-</td>\n<td>-</td>\n<td>-</td>\n<td><code>events.observe</code> 23 项, <code>events.key</code> 6 项, <code>events.notification</code> 2 项, <code>events.toast</code> 2 项, <code>events.touch</code> 2 项, <code>events.key.intercept</code> 1 项</td>\n</tr>\n</tbody>\n</table>\n<p>差异项 (14 项): 下表列出入口, 状态或授权与同列多数 API 不同的 API, 未列出的 API 与同列多数一致.</p>\n<table>\n<thead>\n<tr>\n<th>API</th>\n<th>Node.js 主线程</th>\n<th>Node.js Worker</th>\n<th>Bun</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>events.__asEmitter__</code></td>\n<td><span title=\"not-portable: rhino-only\">不适用</span> (仅限 Rhino 引擎)</td>\n<td><span title=\"not-portable: rhino-only\">不适用</span> (仅限 Rhino 引擎)</td>\n<td><span title=\"not-portable: rhino-only\">不适用</span> (仅限 Rhino 引擎)</td>\n</tr>\n<tr>\n<td><code>events.onKeyDown</code></td>\n<td><span title=\"bridged\">已支持</span></td>\n<td><span title=\"bridged\">已支持</span></td>\n<td><span title=\"capability-gated\">需授权</span> <code>events.key</code></td>\n</tr>\n<tr>\n<td><code>events.onKeyUp</code></td>\n<td><span title=\"bridged\">已支持</span></td>\n<td><span title=\"bridged\">已支持</span></td>\n<td><span title=\"capability-gated\">需授权</span> <code>events.key</code></td>\n</tr>\n<tr>\n<td><code>events.onNotification</code></td>\n<td><span title=\"bridged\">已支持</span></td>\n<td><span title=\"bridged\">已支持</span></td>\n<td><span title=\"capability-gated\">需授权</span> <code>events.notification</code></td>\n</tr>\n<tr>\n<td><code>events.onToast</code></td>\n<td><span title=\"bridged\">已支持</span></td>\n<td><span title=\"bridged\">已支持</span></td>\n<td><span title=\"capability-gated\">需授权</span> <code>events.toast</code></td>\n</tr>\n<tr>\n<td><code>events.onTouch</code></td>\n<td><span title=\"bridged\">已支持</span></td>\n<td><span title=\"bridged\">已支持</span></td>\n<td><span title=\"capability-gated\">需授权</span> <code>events.touch</code></td>\n</tr>\n<tr>\n<td><code>events.onceKeyDown</code></td>\n<td><span title=\"bridged\">已支持</span></td>\n<td><span title=\"bridged\">已支持</span></td>\n<td><span title=\"capability-gated\">需授权</span> <code>events.key</code></td>\n</tr>\n<tr>\n<td><code>events.onceKeyUp</code></td>\n<td><span title=\"bridged\">已支持</span></td>\n<td><span title=\"bridged\">已支持</span></td>\n<td><span title=\"capability-gated\">需授权</span> <code>events.key</code></td>\n</tr>\n<tr>\n<td><code>events.removeAllKeyDownListeners</code></td>\n<td><span title=\"bridged\">已支持</span></td>\n<td><span title=\"bridged\">已支持</span></td>\n<td><span title=\"capability-gated\">需授权</span> <code>events.key</code></td>\n</tr>\n<tr>\n<td><code>events.removeAllKeyUpListeners</code></td>\n<td><span title=\"bridged\">已支持</span></td>\n<td><span title=\"bridged\">已支持</span></td>\n<td><span title=\"capability-gated\">需授权</span> <code>events.key</code></td>\n</tr>\n<tr>\n<td><code>events.removeAllTouchListeners</code></td>\n<td><span title=\"bridged\">已支持</span></td>\n<td><span title=\"bridged\">已支持</span></td>\n<td><span title=\"capability-gated\">需授权</span> <code>events.touch</code></td>\n</tr>\n<tr>\n<td><code>events.removeNotificationObserver</code></td>\n<td><span title=\"bridged\">已支持</span></td>\n<td><span title=\"bridged\">已支持</span></td>\n<td><span title=\"capability-gated\">需授权</span> <code>events.notification</code></td>\n</tr>\n<tr>\n<td><code>events.removeToastObserver</code></td>\n<td><span title=\"bridged\">已支持</span></td>\n<td><span title=\"bridged\">已支持</span></td>\n<td><span title=\"capability-gated\">需授权</span> <code>events.toast</code></td>\n</tr>\n<tr>\n<td><code>events.setKeyInterceptionEnabled</code></td>\n<td><span title=\"bridged\">已支持</span></td>\n<td><span title=\"bridged\">已支持</span></td>\n<td><span title=\"capability-gated\">需授权</span> <code>events.key.intercept</code></td>\n</tr>\n</tbody>\n</table>\n<p>Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 <a href=\"runtimeApis#执行方式\">运行时 API</a>.</p>\n<!-- runtime-support:end -->\n<hr>\n<aside class=\"doc-status doc-status--incomplete\" data-marked-by=\"SuperMonster003\" data-marked-on=\"2022-10-22\">\n<p><strong>文档状态:</strong> 此章节仍在补充或完善中.</p>\n</aside>\n\n<p>events 模块提供了监听手机通知, 按键, 触摸的接口. 您可以用他配合自动操作函数完成自动化工作.</p>\n<p>events 本身是一个 <a href=\"#events_eventemitter\">EventEmitter</a>, 但内置了一些事件, 包括按键事件, 通知事件, Toast 事件等.</p>\n<p>需要注意的是, 事件的处理是单线程的, 并且仍然在原线程执行, 如果脚本主体或者其他事件处理中有耗时操作, 轮询等, 则事件将无法得到及时处理 (会进入事件队列等待脚本主体或其他事件处理完成才执行). 例如:</p>\n<pre><code>auto();\nevents.observeNotification();\nevents.on(&#39;toast&#39;, function(t){\n    // 这段代码将得不到执行.\n    log(t);\n});\nwhile(true){\n    // 死循环.\n}\n</code></pre>",
       "methods": [
         {
           "textRaw": "events.emitter()",
@@ -353,6 +353,28 @@
               "params": []
             }
           ]
+        },
+        {
+          "textRaw": "events.removeToastObserver()",
+          "type": "method",
+          "name": "removeToastObserver",
+          "desc": "<p>停止 Toast 监听. 同时没有通知监听时, 脚本不再因事件监听而保持运行.</p>\n",
+          "signatures": [
+            {
+              "params": []
+            }
+          ]
+        },
+        {
+          "textRaw": "events.removeNotificationObserver()",
+          "type": "method",
+          "name": "removeNotificationObserver",
+          "desc": "<p>停止通知监听, 与 <code>events.observeNotification()</code> 相对. 同时没有 Toast 监听时, 脚本不再因事件监听而保持运行.</p>\n<pre><code class=\"lang-js\">events.observeToast();\nevents.on(&#39;toast&#39;, (toast) =&gt; {\n    log(toast.getText());\n    events.removeToastObserver(); /* 只处理第一条 Toast. */\n});\n</code></pre>\n",
+          "signatures": [
+            {
+              "params": []
+            }
+          ]
         }
       ],
       "modules": [
@@ -644,7 +666,7 @@
                   ]
                 }
               ],
-              "desc": "<p>向当前进程的全部已注册脚本广播事件, 包括发送方自身.</p>\n<p>发送脚本:</p>\n<pre><code class=\"lang-js\">events.broadcast.emit(&#39;message&#39;, &#39;hello&#39;);\n</code></pre>\n<p>接收脚本:</p>\n<pre><code class=\"lang-js\">events.broadcast.on(&#39;message&#39;, function (text) {\n    console.log(text);\n});\n</code></pre>\n"
+              "desc": "<p>向当前进程的全部已注册脚本广播事件, 包括发送方自身.</p>\n<p>发送脚本:</p>\n<pre><code class=\"lang-js\">events.broadcast.emit(&#39;message&#39;, &#39;hello&#39;);\n</code></pre>\n<p>接收脚本:</p>\n<pre><code class=\"lang-js\">events.broadcast.on(&#39;message&#39;, function (text) {\n    console.log(text);\n});\n</code></pre>\n<p>Rhino 脚本之间传递的是同一个对象. Node.js / Bun 主脚本与 Rhino 脚本之间按 JSON 的规则传递, 接收方拿到自己的副本, 用法与原生对象相同:</p>\n<ul>\n<li>字符串, 数字, 布尔值, <code>null</code>, 对象和数组在两个方向上都保持结构.</li>\n<li>对象中的函数和 <code>undefined</code> 被省略, 数组中的函数和 <code>undefined</code> 变成 <code>null</code>, 直接作为参数的函数也是 <code>null</code>. <code>NaN</code> 和无穷大变成 <code>null</code>. 定义了 <code>toJSON</code> 的对象按其返回值传递.</li>\n<li>主脚本直接传 <code>undefined</code> 时 Rhino 收到 <code>null</code>. Rhino 脚本直接传 <code>undefined</code> 时监听器收到字符串 <code>undefined</code> (Rhino 调用 Java 方法时的转换, Rhino 监听器也一样), 需要表示空值时用 <code>null</code>.</li>\n<li>Rhino 脚本发送循环引用, 或 <code>toJSON</code> 抛出异常的对象时, 该参数到主脚本是 <code>null</code>, 其他参数不受影响, 发送方不会收到异常. 这与 <code>JSON.stringify</code> 不同: 发送方不知道有哪些脚本在监听, 不应因此中断.</li>\n<li>主脚本发送循环引用时, <code>emit</code> 返回的 Promise 以 <code>TypeError</code> 拒绝, 与 <code>JSON.stringify</code> 相同, 这次广播不会发出.</li>\n</ul>\n"
             }
           ],
           "type": "module",

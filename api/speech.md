@@ -1,6 +1,40 @@
 # 语音 (Speech)
 
-`speech` 模块用于在脚本中使用 3-Macaw Speech 插件的离线语音能力: 麦克风听写, 音频文件或 PCM 数据识别, 语音活动检测, 唤醒词检测, 神经网络语音合成, 以及插件模型的下载与管理. 全部识别与合成都在设备上完成, 音频不会上传.
+<!-- runtime-support:begin speech -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `speech`, `speech.models`, `speech.speaker` | `autojs6:speech`, `$autojs.speech` | `autojs6:speech`, `$autojs.speech` | `host.speech` |
+| 状态 | 已支持 33 项 | 已支持 33 项 | 已支持 33 项 | 需授权 33 项 |
+| 授权 | - | - | - | `speech.control` 33 项 |
+
+差异项 (16 项): 下表列出入口, 状态或授权与同列多数 API 不同的 API, 未列出的 API 与同列多数一致.
+
+| API | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- |
+| `speech.models.getDefault` | <span title="bridged">已支持</span>: `models.getDefault` (`autojs6:speech`) | <span title="bridged">已支持</span>: `models.getDefault` (`autojs6:speech`) | <span title="capability-gated">需授权</span> `speech.control`: `host.speech.models.getDefault` |
+| `speech.models.importFile` | <span title="bridged">已支持</span>: `models.importFile` (`autojs6:speech`) | <span title="bridged">已支持</span>: `models.importFile` (`autojs6:speech`) | <span title="capability-gated">需授权</span> `speech.control`: `host.speech.models.importFile` |
+| `speech.models.install` | <span title="bridged">已支持</span>: `models.install` (`autojs6:speech`) | <span title="bridged">已支持</span>: `models.install` (`autojs6:speech`) | <span title="capability-gated">需授权</span> `speech.control`: `host.speech.models.install` |
+| `speech.models.installAsync` | <span title="bridged">已支持</span>: `models.installAsync` (`autojs6:speech`) | <span title="bridged">已支持</span>: `models.installAsync` (`autojs6:speech`) | <span title="capability-gated">需授权</span> `speech.control`: `host.speech.models.installAsync` |
+| `speech.models.list` | <span title="bridged">已支持</span>: `models.list` (`autojs6:speech`) | <span title="bridged">已支持</span>: `models.list` (`autojs6:speech`) | <span title="capability-gated">需授权</span> `speech.control`: `host.speech.models.list` |
+| `speech.models.refreshCatalog` | <span title="bridged">已支持</span>: `models.refreshCatalog` (`autojs6:speech`) | <span title="bridged">已支持</span>: `models.refreshCatalog` (`autojs6:speech`) | <span title="capability-gated">需授权</span> `speech.control`: `host.speech.models.refreshCatalog` |
+| `speech.models.remove` | <span title="bridged">已支持</span>: `models.remove` (`autojs6:speech`) | <span title="bridged">已支持</span>: `models.remove` (`autojs6:speech`) | <span title="capability-gated">需授权</span> `speech.control`: `host.speech.models.remove` |
+| `speech.models.setDefault` | <span title="bridged">已支持</span>: `models.setDefault` (`autojs6:speech`) | <span title="bridged">已支持</span>: `models.setDefault` (`autojs6:speech`) | <span title="capability-gated">需授权</span> `speech.control`: `host.speech.models.setDefault` |
+| `speech.speaker.enroll` | <span title="bridged">已支持</span>: `speaker.enroll` (`autojs6:speech`) | <span title="bridged">已支持</span>: `speaker.enroll` (`autojs6:speech`) | <span title="capability-gated">需授权</span> `speech.control`: `host.speech.speaker.enroll` |
+| `speech.speaker.enrollAsync` | <span title="bridged">已支持</span>: `speaker.enrollAsync` (`autojs6:speech`) | <span title="bridged">已支持</span>: `speaker.enrollAsync` (`autojs6:speech`) | <span title="capability-gated">需授权</span> `speech.control`: `host.speech.speaker.enrollAsync` |
+| `speech.speaker.identify` | <span title="bridged">已支持</span>: `speaker.identify` (`autojs6:speech`) | <span title="bridged">已支持</span>: `speaker.identify` (`autojs6:speech`) | <span title="capability-gated">需授权</span> `speech.control`: `host.speech.speaker.identify` |
+| `speech.speaker.identifyAsync` | <span title="bridged">已支持</span>: `speaker.identifyAsync` (`autojs6:speech`) | <span title="bridged">已支持</span>: `speaker.identifyAsync` (`autojs6:speech`) | <span title="capability-gated">需授权</span> `speech.control`: `host.speech.speaker.identifyAsync` |
+| `speech.speaker.list` | <span title="bridged">已支持</span>: `speaker.list` (`autojs6:speech`) | <span title="bridged">已支持</span>: `speaker.list` (`autojs6:speech`) | <span title="capability-gated">需授权</span> `speech.control`: `host.speech.speaker.list` |
+| `speech.speaker.remove` | <span title="bridged">已支持</span>: `speaker.remove` (`autojs6:speech`) | <span title="bridged">已支持</span>: `speaker.remove` (`autojs6:speech`) | <span title="capability-gated">需授权</span> `speech.control`: `host.speech.speaker.remove` |
+| `speech.speaker.verify` | <span title="bridged">已支持</span>: `speaker.verify` (`autojs6:speech`) | <span title="bridged">已支持</span>: `speaker.verify` (`autojs6:speech`) | <span title="capability-gated">需授权</span> `speech.control`: `host.speech.speaker.verify` |
+| `speech.speaker.verifyAsync` | <span title="bridged">已支持</span>: `speaker.verifyAsync` (`autojs6:speech`) | <span title="bridged">已支持</span>: `speaker.verifyAsync` (`autojs6:speech`) | <span title="capability-gated">需授权</span> `speech.control`: `host.speech.speaker.verifyAsync` |
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
+`speech` 模块用于在脚本中使用 3-Macaw Speech 插件的离线语音能力: 麦克风听写, 音频文件或 PCM 数据识别, 语音活动检测, 唤醒词检测, 神经网络语音合成, 说话人识别, 音频文件的说话人分离, 语种识别与音频标签, 以及插件模型的下载与管理. 全部识别, 分析与合成都在设备上完成, 音频不会上传.
 
 从 AutoJs6 6.8.0 起, 本模块由外置 3-Macaw Speech 插件 (AutoJs6-Plugin-Three-Macaw-Speech) 1.0.0 及以上版本提供, 宿主不保留任何识别或合成实现. 调用前需在插件中心安装并启用与当前 AutoJs6 兼容的插件. 插件缺失时方法抛出 (或以 Promise 拒绝) `code` 为 `PLUGIN_UNAVAILABLE` 的 [SpeechError](#c-speecherror), 其消息为插件中心的本地化缺插件提示; 插件被禁用或未授权时为 `PLUGIN_DISABLED`; 插件版本或契约不兼容, 或插件未声明所需功能时为 `PLUGIN_INCOMPATIBLE`. [speech.isAvailable](#m-isavailable) 可预先探测.
 
@@ -8,7 +42,7 @@
 
 音频文件以路径指定, 相对路径按脚本工作目录解析 (与 [files.path](files#m-path) 相同), 也可使用绝对路径; 不接受 `content://`, `file://`, `http://` 等 URI. 输入文件由 AutoJs6 以只读方式打开后交给插件, 合成输出由 AutoJs6 暂存, 检查后再改名为目标文件. 插件不会得到任何路径.
 
-传给插件的选项会像 `JSON.stringify` 一样序列化, 函数与 `undefined` 值被忽略 (`onProgress` 回调除外). 未知的选项键按名称以 `INVALID_OPTIONS` 拒绝, 类型或取值范围错误同样为 `INVALID_OPTIONS`; 会话时长, 热词, 关键词与文本长度等契约上限在调用到达插件前即以 `LIMIT_EXCEEDED` 拒绝. 可能等待较长时间的同步方法 ([recognize](#m-recognize), [detectVoice](#m-detectvoice), [synthesize](#m-synthesize), [models.install](#m-modelsinstall), [models.importFile](#m-modelsimportfile), [models.refreshCatalog](#m-modelsrefreshcatalog)) 不能在 UI 线程调用 (抛出 `INVALID_OPTIONS`), UI 模式中请使用对应的 `Async` 形态. 停止脚本会取消尚未完成的调用. AutoJs6 不把识别出的文字写入日志.
+传给插件的选项会像 `JSON.stringify` 一样序列化, 函数与 `undefined` 值被忽略 (`onProgress` 回调除外). 未知的选项键按名称以 `INVALID_OPTIONS` 拒绝, 类型或取值范围错误同样为 `INVALID_OPTIONS`; 会话时长, 热词, 关键词与文本长度等契约上限在调用到达插件前即以 `LIMIT_EXCEEDED` 拒绝. 可能等待较长时间的同步方法 ([recognize](#m-recognize), [detectVoice](#m-detectvoice), [synthesize](#m-synthesize), [diarize](#m-diarize), [detectLanguage](#m-detectlanguage), [tag](#m-tag), [speaker.enroll](#m-speakerenroll), [speaker.verify](#m-speakerverify), [speaker.identify](#m-speakeridentify), [models.install](#m-modelsinstall), [models.importFile](#m-modelsimportfile), [models.refreshCatalog](#m-modelsrefreshcatalog)) 不能在 UI 线程调用 (抛出 `INVALID_OPTIONS`), UI 模式中请使用对应的 `Async` 形态. 停止脚本会取消尚未完成的调用. AutoJs6 不把识别出的文字写入日志.
 
 ```js
 let session = speech.listen({ maxDurationMillis: 10000 });
@@ -20,7 +54,7 @@ session.on('end', e => console.log(e.reason, session.result()));
 
 1. 在插件中心安装并启用 3-Macaw Speech. 插件为每种 ABI 提供安装包, 另有适用于全部设备的 `universal` 安装包.
 2. 打开插件界面, 在首页状态卡中授予麦克风权限. 录音在插件进程内完成, 因此麦克风权限由插件自己持有, AutoJs6 的麦克风权限不能代替. [speech.capabilities](#m-capabilities) 的 `microphoneGranted` 表示插件当前是否持有该权限.
-3. 在插件界面或通过 [speech.models.install](#m-modelsinstall) 下载需要的识别, 唤醒词或合成模型. 语音活动检测模型随插件内置.
+3. 在插件界面或通过 [speech.models.install](#m-modelsinstall) 下载需要的识别, 唤醒词, 合成或分析 (说话人, 分割, 语种识别, 音频标签) 模型. 语音活动检测模型随插件内置.
 
 插件缺少麦克风权限时, 打开麦克风会话会失败于 `PERMISSION_DENIED`, 其消息给出授权界面 `MicrophonePermissionActivity` 的组件名. 该界面受 AutoJs6 插件权限保护, 只能由 AutoJs6 打开, 脚本可以直接启动它弹出系统授权对话框:
 
@@ -35,7 +69,7 @@ if (speech.capabilities().microphoneGranted === false) {
 
 ## 模型目录与许可
 
-模型分为四类 (`kind`): `asr` (语音识别), `kws` (唤醒词检测), `tts` (语音合成) 与 `vad` (语音活动检测). 语音活动检测模型 `vad.silero.v5` 随插件内置, 始终处于已安装状态且不能删除. 其他模型体积较大, 不随 APK 提供, 由插件从 AutoJs6 共享资源仓库 (AutoJs6-Shared-Assets) 的不可变发布下载, 镜像不可用时回退到 sherpa-onnx 的上游发布地址; 两条路径都要逐个文件校验 SHA-256 后才启用. 模型保存在插件私有存储中, 插件不申请存储权限. 模型目录带签名, 可通过 [speech.models.refreshCatalog](#m-modelsrefreshcatalog) 更新, 目录版本只增不减.
+模型分为八类 (`kind`): `asr` (语音识别), `kws` (唤醒词检测), `tts` (语音合成) 与 `vad` (语音活动检测), 以及 3-Macaw Speech 1.3.0 (目录版本 3) 起的 `speaker` (说话人声纹, 用于 [说话人识别](#p-speaker) 与 [说话人分离](#m-diarize)), `segment` (说话人分割, 用于说话人分离), `langid` (语种识别) 与 `tagger` (音频标签). 语音活动检测模型 `vad.silero.v5` 随插件内置, 始终处于已安装状态且不能删除. 其他模型体积较大, 不随 APK 提供, 由插件从 AutoJs6 共享资源仓库 (AutoJs6-Shared-Assets) 的不可变发布下载, 镜像不可用时回退到 sherpa-onnx 的上游发布地址; 两条路径都要逐个文件校验 SHA-256 后才启用. 模型保存在插件私有存储中, 插件不申请存储权限. 模型目录带签名, 可通过 [speech.models.refreshCatalog](#m-modelsrefreshcatalog) 更新, 目录版本只增不减.
 
 每类模型有一个默认模型, 方法省略 `model` 选项时使用它. 默认模型依次取: 以 [speech.models.setDefault](#m-modelssetdefault) 或插件界面设定且仍完好安装的模型, 目录推荐的已安装模型, 目录顺序中第一个已安装模型, 按 ID 排序的第一个导入模型. 某类没有任何已安装模型时, 使用该类模型的调用失败于 `MODEL_MISSING`.
 
@@ -72,16 +106,39 @@ if (speech.capabilities().microphoneGranted === false) {
 | `tts.vits.piper.ar-jo-sa-dii-high.int8` | tts, `vits`, 1 个说话人, 22.05 kHz | ar | 35 MiB | CC-BY-NC-SA-4.0 与 GPL-3.0-or-later | 否 | 1.3.0 |
 | `tts.vits.piper.ar-jo-sa-miro-v2-high.int8` | tts, `vits`, 1 个说话人, 22.05 kHz | ar | 35 MiB | CC-BY-NC-ND-4.0 与 GPL-3.0-or-later | 否 | 1.3.0 |
 | `tts.vits.mimic3.ko-ko-kss-low` | tts, `vits`, 1 个说话人, 22.05 kHz | ko | 77 MiB | CC0-1.0 与 GPL-3.0-or-later | 否 | 1.3.0 |
+| `speaker.eres2net.3dspeaker.en-voxceleb` | speaker, `speaker-embedding` (推荐) | en, zh | 25 MiB | Apache-2.0 | 是 | 1.3.0 |
+| `segment.pyannote.3-0` | segment, `pyannote-segmentation` (推荐) | - | 6 MiB | MIT | 否 | 1.3.0 |
+| `langid.whisper.tiny.int8` | langid, `whisper-langid` (推荐) | Whisper 的 99 种语言 | 98 MiB | MIT | 未知 | 1.3.0 |
+| `langid.whisper.base.int8` | langid, `whisper-langid` | Whisper 的 99 种语言 | 152 MiB | MIT | 未知 | 1.3.0 |
+| `tagger.ced.mini.int8` | tagger, `ced` (推荐) | - | 10 MiB | CC-BY-4.0 与 CC-BY-SA-4.0 | 是 | 1.3.0 |
 
 - `asr.zipformer-streaming.zh.2025-06-30.int8`, `asr.zipformer-streaming.ko.2024-06-16.int8` 与 `tts.vits.piper.ar-jo-sa-miro-v2-high.int8` 不经镜像分发, 只从 sherpa-onnx 的上游发布安装.
 - 流式模型 (`online-transducer`) 逐字给出部分结果; 离线模型 (`sense-voice`, `offline-transducer`) 由语音活动检测切段后逐段识别, 部分结果按段给出. 两类模型在会话上触发同样的事件.
 - 热词 (`hotwords`) 只对带 `bpe.vocab` 的流式模型生效 (目录中为 `asr.zipformer-streaming.zh-en.2023-02-20.int8`), 其他模型收到热词时忽略并给出警告.
 - `asr.nemo-transducer.es.2026-05-03.int8` 只识别西班牙语, 结果自带标点与大小写. `asr.zipformer-streaming.ar-en-id-ja-ru-th-vi-zh.2025-02-10.int8` 自行判断语种, 不能指定语言, 句首偶尔被识别成其他语言, 结果不带标点; 其权重为 Apache-2.0, 但训练数据未公开, 因此可商用一栏为 "未知".
+- 说话人, 分割, 语种识别与音频标签模型只供 [speech.speaker](#p-speaker), [speech.diarize](#m-diarize), [speech.detectLanguage](#m-detectlanguage) 与 [speech.tag](#m-tag) 使用, 见 [离线分析](#离线分析). 说话人分离同时使用一个分割模型和一个说话人模型. `segment.pyannote.3-0` 的权重为 MIT 许可, 但训练数据中的 MSDWild 仅限研究用途, 因此可商用一栏为 "否"; Whisper 的权重为 MIT 许可, 训练数据未公开, 因此为 "未知". 音频标签只有英文标签.
 - `tts.kokoro.multi-lang.v1_1` 的 0 - 2 号说话人为英文, 3 号及以后为中文, 默认说话人为 3 号. `tts.kokoro.multi-lang.v1_0.int8` 的说话人按语言划分: 0 - 19 号美式英语, 20 - 27 号英式英语, 28, 29 与 53 号西班牙语, 30 号法语, 31 - 34 号印地语, 35, 36 号意大利语, 42 - 44 号巴西葡萄牙语, 45 - 52 号中文 (也能读英文); 37 - 41 号为日语说话人, 不开放, 指定它们时调用失败于 `INVALID_OPTIONS`; 默认说话人为 3 号. 其他模型的默认说话人为 0 号.
 
 每个模型对象的 `license` 给出许可表达式 (`spdx`) 与是否可商用 (`commercialUse`). 仅限非商业用途或未声明许可的模型 (目录中可商用一栏为 "否" 或 "未知" 的条目, 其 `commercialUse` 为 `false`) 须先接受许可才能安装: 脚本以 `acceptLicense: true` 调用 [speech.models.install](#m-modelsinstall) 或 [speech.models.importFile](#m-modelsimportfile), 或者用户在插件界面的许可提示中确认. 接受记录按模型版本与许可表达式保存在插件中, 之后再次安装同一版本无需重复接受; 否则调用失败于 `MODEL_LICENSE_NOT_ACCEPTED`. `acceptLicense` 只表示接受许可条款, 不改变模型许可本身, 使用者需自行遵守.
 
 插件源码采用 MPL-2.0 许可. 插件内的语音运行时 sherpa-onnx (Apache-2.0) 静态链接了 eSpeak NG 等 GPL-3.0-or-later 组件, 因此插件 APK 整体按 GPL-3.0-or-later 传播. 第三方组件与许可全文见插件的 "关于" 页面.
+
+## 模型更新
+
+3-Macaw Speech 1.4.0 起, 模型对象带 [updateAvailable](speechModelInfoType#p-updateavailable) 与 [latestVersionCode](speechModelInfoType#p-latestversioncode). 目录不会自动刷新: 调用 [speech.models.refreshCatalog](#m-modelsrefreshcatalog) 或在插件首页刷新后, 已安装的模型有更高版本时 `updateAvailable` 为 `true`, 首页的模型卡片也标出 "可更新".
+
+调用 [speech.models.install](#m-modelsinstall) 或在首页点击更新, 模型更新到目录的最新版本:
+
+- 新版下载到独立目录, 校验通过后才切换. 下载失败, 校验失败或取消时旧版不受影响.
+- 新版本的许可与首次安装一样处理, 接受记录按版本保存, 见 [模型目录与许可](#模型目录与许可).
+- 模型正在使用时也能更新: 运行中的会话, 常驻唤醒与系统语音合成引擎用内存中的旧版做完, 之后开始的任务使用新版, 旧版文件在最后一个使用者结束后删除.
+
+```js
+speech.models.refreshCatalog();
+speech.models.list({ installed: true })
+    .filter(m => m.updateAvailable)
+    .forEach(m => speech.models.install(m.id));
+```
 
 ## 麦克风会话与后台收音
 
@@ -103,6 +160,19 @@ if (speech.capabilities().microphoneGranted === false) {
 - 接管对脚本透明, 唤醒会话的状态与属性不变.
 - 唤醒命中后已按 `thenListen` 转入听写的轮次, 以及 [speech.listen](#m-listen) 的听写会话, 不会被接管; 此时这些入口显示 "麦克风正被占用" 的说明.
 - 接管期间打开新的麦克风会话同样失败于 `SESSION_BUSY`.
+
+## 离线分析
+
+[speech.diarize](#m-diarize) (说话人分离), [speech.detectLanguage](#m-detectlanguage) (语种识别) 与 [speech.tag](#m-tag) (音频标签) 分析一个完整的音频文件, 一次调用得到结果, 不做流式处理. 它们需要插件分别声明 `diarization`, `languageId` 与 `audioTagging` 功能 (3-Macaw Speech 1.3.0 及以上, 契约版本 `2`); 较早的插件以 `PLUGIN_INCOMPATIBLE` 拒绝调用. 所需模型未安装时失败于 `MODEL_MISSING`, 可在插件首页或通过 [speech.models.install](#m-modelsinstall) 下载, 见 [模型目录与许可](#模型目录与许可).
+
+- 只接受音频文件路径, 不接受 PCM 数据. 文件的格式要求与上限同 [speech.recognize](#m-recognize) 的文件路径: WAV 以外的格式需要 `audioDecode` 功能, 文件不超过 200 MiB 且时长不超过 30 分钟.
+- `options.onProgress(done, total)` 以音频毫秒报告进度, `total` 为文件的音频时长, 回调在脚本线程上执行; 回调抛出的第一个错误在分析结束后抛出 (`Async` 形态以它拒绝 Promise).
+- AutoJs6 为每次进度及最终完成各等待 10 分钟, 不限制总时长; 10 分钟内没有进度时失败于 `TIMEOUT`. 插件同一时刻只运行一个分析, 后到的请求排队等待, 排队期间插件仍会定期报告进度.
+- 结果中的时间相对音频开头, 单位为毫秒; `durationMillis` 为解码后的音频时长, `modelId` 为所用的模型 (说话人分离为分割模型). 分数保留四位小数.
+- 脚本停止时取消尚未完成的分析 (插件以 `SESSION_CANCELLED` 结束该操作). 说话人分离的计算阶段无法中途停止, 插件在后台算完后丢弃结果, 其间新的分析请求排队等待.
+- 同步形态阻塞当前脚本线程, 不能在 UI 线程调用; `Async` 形态返回 Promise, 错误以 [SpeechError](#c-speecherror) 拒绝, 回调在脚本线程执行.
+
+参阅示例代码 "3-Macaw Speech > 说话人分离", "3-Macaw Speech > 语种识别" 与 "3-Macaw Speech > 音频标签".
 
 ---
 
@@ -297,6 +367,114 @@ speech.speak('Task completed', { model: 'tts.kokoro.multi-lang.v1_1' });
 speech.speak('你好', { model: 'tts.vits.icefall.zh-aishell3', speaker: 'SSB0005', speed: 1.2 });
 ```
 
+## [m] diarize
+
+### speech.diarize(file, options?)
+
+**`6.8.0`** **`Non-UI`**
+
+- **file** { [string](dataTypes#string) } - 音频文件路径
+- **[ options ]** { [SpeechDiarizeOptions](#speechdiarizeoptions) } - 说话人分离选项
+- <ins>**returns**</ins> { [SpeechDiarization](#speechdiarization) } - 说话人分离结果
+
+说话人分离: 找出音频中 "谁在什么时候说话". 结果按时间顺序列出每段说话的开始与结束时间及说话人编号; 说话人从 `0` 起按首次出现的顺序编号, 只区分不同的声音, 不表示身份. `identify: true` 时另用 [speech.speaker](#p-speaker) 注册的声纹为每位说话人取名.
+
+需要插件声明 `diarization` 功能, 并已安装一个分割模型 (`segment`) 与一个说话人模型 (`speaker`), 缺少任一时失败于 `MODEL_MISSING`. 说话段超过 10000 段时失败于 `LIMIT_EXCEEDED`. 文件, 进度与等待时限等规则见 [离线分析](#离线分析).
+
+已知人数时传入 `speakers` 结果更准; 省略或为 `0` 时由插件按 `threshold` 自动计数.
+
+```js
+let result = speech.diarize('./meeting.wav', {
+    speakers: 2,
+    onProgress: (done, total) => console.log(`${Math.round(done / total * 100)}%`),
+});
+console.log(`${result.speakers} 位说话人`);
+result.segments.forEach(s => console.log(s.speaker, s.startMillis, s.endMillis));
+```
+
+## [m] diarizeAsync
+
+### speech.diarizeAsync(file, options?)
+
+**`6.8.0`** **`Async`**
+
+- **file** { [string](dataTypes#string) } - 音频文件路径
+- **[ options ]** { [SpeechDiarizeOptions](#speechdiarizeoptions) } - 说话人分离选项
+- <ins>**returns**</ins> { [Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise) } - 兑现值为 [SpeechDiarization](#speechdiarization)
+
+[speech.diarize](#m-diarize) 的异步形态, 参数与结果相同, 可在 UI 线程使用; `onProgress` 同样在脚本线程执行.
+
+```js
+speech.diarizeAsync('./meeting.wav', { identify: true }).then((result) => {
+    result.names.forEach(n => console.log(n.speaker, n.name === null ? '未认出' : n.name, n.score));
+});
+```
+
+## [m] detectLanguage
+
+### speech.detectLanguage(file, options?)
+
+**`6.8.0`** **`Non-UI`**
+
+- **file** { [string](dataTypes#string) } - 音频文件路径
+- **[ options ]** { [SpeechDetectLanguageOptions](#speechdetectlanguageoptions) } - 语种识别选项
+- <ins>**returns**</ins> { [SpeechLanguageDetection](#speechlanguagedetection) } - 语种识别结果
+
+语种识别: 判断音频中说的是哪种语言. 插件先用语音活动检测取出语音, 切成每段至多 30 秒的窗口, 对前 `windows` 个窗口 (默认 3 个) 逐句判断语种, 语音不足 1.25 秒的短句并入相邻的句子. 说话时长最长的语种为结果, 平票时取先出现的. 语言代码为 Whisper 的语言代码, 如 `'zh'`, `'en'`, `'ja'`. `segments` 给出每句的结果, 一段录音里说了几种语言时可以逐句看出来; 一句话中途换语言时只得到其中一种.
+
+3-Macaw Speech 1.3.0 不按句判断: 每个窗口只判一种语言, `segments` 为每个窗口的结果, 结果取窗口数最多的语种, 同一窗口里说了几种语言时只得到其中一种.
+
+需要插件声明 `languageId` 功能, 并已安装语种识别模型 (`langid`). 文件中没有语音时失败于 `AUDIO_TOO_SHORT`. 其他规则见 [离线分析](#离线分析).
+
+```js
+let r = speech.detectLanguage('./voice.mp3', { windows: 5 });
+console.log(r.language, JSON.stringify(r.candidates));
+```
+
+## [m] detectLanguageAsync
+
+### speech.detectLanguageAsync(file, options?)
+
+**`6.8.0`** **`Async`**
+
+- **file** { [string](dataTypes#string) } - 音频文件路径
+- **[ options ]** { [SpeechDetectLanguageOptions](#speechdetectlanguageoptions) } - 语种识别选项
+- <ins>**returns**</ins> { [Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise) } - 兑现值为 [SpeechLanguageDetection](#speechlanguagedetection)
+
+[speech.detectLanguage](#m-detectlanguage) 的异步形态, 参数与结果相同, 可在 UI 线程使用.
+
+## [m] tag
+
+### speech.tag(file, options?)
+
+**`6.8.0`** **`Non-UI`**
+
+- **file** { [string](dataTypes#string) } - 音频文件路径
+- **[ options ]** { [SpeechTagOptions](#speechtagoptions) } - 音频标签选项
+- <ins>**returns**</ins> { [SpeechTagging](#speechtagging) } - 音频标签结果
+
+音频标签: 识别音频中的声音类别, 如人声, 音乐, 动物, 车辆与警报. 插件按 10 秒的窗口打分, 使用 AudioSet 的 527 个英文标签; 每个标签取其得分最高的窗口, 按分数从高到低返回前 `topK` 个 (默认 5 个). `timeline: true` 时另返回每个窗口的前 `topK` 个标签.
+
+需要插件声明 `audioTagging` 功能, 并已安装音频标签模型 (`tagger`). 其他规则见 [离线分析](#离线分析).
+
+```js
+let r = speech.tag('./street.wav', { topK: 3, timeline: true });
+r.labels.forEach(l => console.log(l.label, l.score, l.startMillis));
+r.timeline.forEach(w => console.log(w.startMillis, w.labels.map(l => l.label).join(', ')));
+```
+
+## [m] tagAsync
+
+### speech.tagAsync(file, options?)
+
+**`6.8.0`** **`Async`**
+
+- **file** { [string](dataTypes#string) } - 音频文件路径
+- **[ options ]** { [SpeechTagOptions](#speechtagoptions) } - 音频标签选项
+- <ins>**returns**</ins> { [Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise) } - 兑现值为 [SpeechTagging](#speechtagging)
+
+[speech.tag](#m-tag) 的异步形态, 参数与结果相同, 可在 UI 线程使用.
+
 ## [p+] models
 
 **`6.8.0`**
@@ -330,7 +508,7 @@ speech.models.list({ kind: 'asr' }).forEach(m => {
 - **[ options ]** { [SpeechInstallOptions](#speechinstalloptions) } - 安装选项
 - <ins>**returns**</ins> { [SpeechModelInfo](speechModelInfoType) } - 安装后的模型对象
 
-下载并安装目录中的模型, 阻塞当前脚本线程直至完成. 下载不设超时. `onProgress(done, total)` 以字节报告进度, 在脚本线程上执行, `total` 未知时为 `0`; 回调抛出的第一个错误在安装结束后抛出.
+下载并安装目录中的模型, 阻塞当前脚本线程直至完成. 下载不设超时. `onProgress(done, total)` 以字节报告进度, 在脚本线程上执行, `total` 未知时为 `0`; 回调抛出的第一个错误在安装结束后抛出. 模型已安装较旧的版本时, 调用把它更新到目录的最新版本, 失败时旧版不变, 见 [模型更新](#模型更新).
 
 仅限非商业用途或未声明许可的模型需要 `acceptLicense: true`, 见 [模型目录与许可](#模型目录与许可). 失败时的错误代码: `MODEL_MISSING` (目录中没有该 ID), `MODEL_LICENSE_NOT_ACCEPTED`, `MODEL_DOWNLOAD_FAILED`, `MODEL_CHECKSUM_MISMATCH`, `IO_FAILED` (例如空间不足), `SESSION_CANCELLED` (脚本停止或插件界面取消).
 
@@ -386,7 +564,7 @@ speech.models.install('kws.zipformer.zh-en.2025-12-20', {
 
 **`6.8.0`**
 
-- **kind** { `'asr'` | `'tts'` | `'kws'` | `'vad'` } - 模型类别
+- **kind** { `'asr'` | `'tts'` | `'kws'` | `'vad'` | `'speaker'` | `'segment'` | `'langid'` | `'tagger'` } - 模型类别, 见 [模型目录与许可](#模型目录与许可)
 - **id** { [string](dataTypes#string) } - 已安装的模型 ID
 - <ins>**returns**</ins> { [SpeechModelInfo](speechModelInfoType) } - 设定后的模型对象
 
@@ -398,7 +576,7 @@ speech.models.install('kws.zipformer.zh-en.2025-12-20', {
 
 **`6.8.0`**
 
-- **kind** { `'asr'` | `'tts'` | `'kws'` | `'vad'` } - 模型类别
+- **kind** { `'asr'` | `'tts'` | `'kws'` | `'vad'` | `'speaker'` | `'segment'` | `'langid'` | `'tagger'` } - 模型类别
 - <ins>**returns**</ins> { [SpeechModelInfo](speechModelInfoType) | [null](dataTypes#null) } - 该类的默认模型, 没有已安装模型时为 `null`
 
 ## [m] models.refreshCatalog
@@ -410,6 +588,132 @@ speech.models.install('kws.zipformer.zh-en.2025-12-20', {
 - <ins>**returns**</ins> {{ version: [number](dataTypes#number); updated: [boolean](dataTypes#boolean) }} - 当前目录版本, 以及本次是否更新了目录
 
 从 AutoJs6-Shared-Assets 下载带签名的模型目录并校验签名, 只接受版本更高的目录. 等待上限为 2 分钟. 下载失败时为 `IO_FAILED`, 签名不符时为 `MODEL_CHECKSUM_MISMATCH`. 没有异步形态.
+
+## [p+] speaker
+
+**`6.8.0`**
+
+`speech.speaker` 管理说话人的声纹: 用录音注册说话人, 判断一段录音是否出自某位说话人 (验证), 以及在全部已注册的说话人中找出最像的一位 (辨认). 需要插件声明 `speaker` 功能 (3-Macaw Speech 1.3.0 及以上, 契约版本 `2`), 并已安装一个说话人模型; 较早的插件以 `PLUGIN_INCOMPATIBLE` 拒绝每个调用, 没有说话人模型时为 `MODEL_MISSING`.
+
+- 声纹只保存在插件的私有存储中, 在插件首页也可以查看与删除. 任何结果都不含声纹向量, 脚本只得到名字, 样本数与分数. 插件最多保存 50 位说话人, 注册第 51 个名字时失败于 `LIMIT_EXCEEDED`.
+- 录音的格式要求与 [speech.recognize](#m-recognize) 的文件路径相同; 每段不超过 60 秒 (`LIMIT_EXCEEDED`), 其中的有效语音不足 1 秒时失败于 `AUDIO_TOO_SHORT`. 每段 2 - 10 秒为宜.
+- 说话人名字去掉首尾空白后为 1 - 64 个字符 (超出为 `LIMIT_EXCEEDED`), 不能为空或含控制字符 (包括换行, `INVALID_OPTIONS`), 按原样比较.
+- `score` 为录音与声纹的余弦相似度, 保留四位小数, 不低于阈值即视为匹配. `threshold` 取 0 - 1; 省略时使用插件按说话人模型给出的默认值 (3-Macaw Speech 1.3.0 的默认说话人模型为 `0.5`).
+- 同步形态阻塞当前脚本线程, 不能在 UI 线程调用; `Async` 形态返回 Promise, 错误以 [SpeechError](#c-speecherror) 拒绝, 回调在脚本线程执行.
+
+参阅示例代码 "3-Macaw Speech > 说话人识别".
+
+## [m] speaker.enroll
+
+### speech.speaker.enroll(name, files, options?)
+
+**`6.8.0`** **`Non-UI`**
+
+- **name** { [string](dataTypes#string) } - 说话人名字
+- **files** { [string](dataTypes#string) | [string](dataTypes#string)[[]](dataTypes#array) } - 录音文件路径, 或 1 - 10 个路径的数组
+- **[ options ]** {{ replace?: [boolean](dataTypes#boolean); model?: [string](dataTypes#string) }} - 注册选项
+- <ins>**returns**</ins> {{ name: [string](dataTypes#string); samples: [number](dataTypes#number); durationMillis: [number](dataTypes#number); modelId: [string](dataTypes#string) }} - 说话人名字, 累计样本数, 本次用到的语音时长 (毫秒), 以及声纹所用的说话人模型
+
+用录音注册说话人, 多段录音的声纹取平均. 名字已注册时, 新样本并入原有的声纹; `replace: true` 先丢弃原有的样本. `model` 指定说话人模型, 省略时使用默认的说话人模型; 已注册的名字只能并入同一模型的样本, 换用其他模型时须同时给出 `replace: true`, 否则失败于 `INVALID_OPTIONS`. 文件数超过 10 个时失败于 `LIMIT_EXCEEDED`.
+
+```js
+let enrolled = speech.speaker.enroll('小明', ['./own-1.wav', './own-2.wav'], { replace: true });
+console.log(enrolled.name, enrolled.samples, enrolled.durationMillis);
+```
+
+## [m] speaker.enrollAsync
+
+### speech.speaker.enrollAsync(name, files, options?)
+
+**`6.8.0`** **`Async`**
+
+- **name** { [string](dataTypes#string) } - 说话人名字
+- **files** { [string](dataTypes#string) | [string](dataTypes#string)[[]](dataTypes#array) } - 录音文件路径, 或 1 - 10 个路径的数组
+- **[ options ]** {{ replace?: [boolean](dataTypes#boolean); model?: [string](dataTypes#string) }} - 注册选项
+- <ins>**returns**</ins> { [Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise) } - 兑现值与 [speech.speaker.enroll](#m-speakerenroll) 的返回值相同
+
+[speech.speaker.enroll](#m-speakerenroll) 的异步形态, 参数与结果相同, 可在 UI 线程使用.
+
+## [m] speaker.verify
+
+### speech.speaker.verify(name, file, options?)
+
+**`6.8.0`** **`Non-UI`**
+
+- **name** { [string](dataTypes#string) } - 已注册的说话人名字
+- **file** { [string](dataTypes#string) } - 待验证的录音文件路径
+- **[ options ]** {{ threshold?: [number](dataTypes#number) }} - 验证选项
+- <ins>**returns**</ins> {{ name: [string](dataTypes#string); score: [number](dataTypes#number); matched: [boolean](dataTypes#boolean); threshold: [number](dataTypes#number) }} - 说话人名字, 相似度分数, 是否匹配, 以及实际使用的阈值
+
+判断录音是否出自该说话人. 名字未注册时失败于 `SPEAKER_NOT_FOUND`.
+
+```js
+let r = speech.speaker.verify('小明', './test.wav', { threshold: 0.55 });
+console.log(r.matched ? '是本人' : '不是本人', r.score);
+```
+
+## [m] speaker.verifyAsync
+
+### speech.speaker.verifyAsync(name, file, options?)
+
+**`6.8.0`** **`Async`**
+
+- **name** { [string](dataTypes#string) } - 已注册的说话人名字
+- **file** { [string](dataTypes#string) } - 待验证的录音文件路径
+- **[ options ]** {{ threshold?: [number](dataTypes#number) }} - 验证选项
+- <ins>**returns**</ins> { [Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise) } - 兑现值与 [speech.speaker.verify](#m-speakerverify) 的返回值相同
+
+[speech.speaker.verify](#m-speakerverify) 的异步形态, 参数与结果相同, 可在 UI 线程使用.
+
+## [m] speaker.identify
+
+### speech.speaker.identify(file, options?)
+
+**`6.8.0`** **`Non-UI`**
+
+- **file** { [string](dataTypes#string) } - 待辨认的录音文件路径
+- **[ options ]** {{ threshold?: [number](dataTypes#number); topK?: [number](dataTypes#number) }} - 辨认选项, `topK` 为 1 - 10 的整数, 默认为 `3`
+- <ins>**returns**</ins> {{ name: [string](dataTypes#string) | [null](dataTypes#null); score: [number](dataTypes#number); matched: [boolean](dataTypes#boolean); threshold: [number](dataTypes#number); candidates: {{ name: [string](dataTypes#string); score: [number](dataTypes#number) }}[] }} - 辨认结果
+
+在用当前说话人模型注册的全部说话人中找出与录音最像的一位. `candidates` 按分数从高到低列出至多 `topK` 位说话人; 最高分不低于阈值时 `name` 为该说话人且 `matched` 为 `true`, 否则 `name` 为 `null`.
+
+```js
+let who = speech.speaker.identify('./test.wav', { topK: 3 });
+console.log(who.name === null ? '不是已注册的人' : who.name, JSON.stringify(who.candidates));
+```
+
+## [m] speaker.identifyAsync
+
+### speech.speaker.identifyAsync(file, options?)
+
+**`6.8.0`** **`Async`**
+
+- **file** { [string](dataTypes#string) } - 待辨认的录音文件路径
+- **[ options ]** {{ threshold?: [number](dataTypes#number); topK?: [number](dataTypes#number) }} - 辨认选项
+- <ins>**returns**</ins> { [Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise) } - 兑现值与 [speech.speaker.identify](#m-speakeridentify) 的返回值相同
+
+[speech.speaker.identify](#m-speakeridentify) 的异步形态, 参数与结果相同, 可在 UI 线程使用.
+
+## [m] speaker.list
+
+### speech.speaker.list()
+
+**`6.8.0`**
+
+- <ins>**returns**</ins> {{ name: [string](dataTypes#string); samples: [number](dataTypes#number); updatedAt: [number](dataTypes#number); modelId: [string](dataTypes#string) }}[] - 按名字排序的已注册说话人, `updatedAt` 为最后一次注册的时间戳 (毫秒)
+
+列出全部已注册的说话人, 包括在插件首页注册的. 没有异步形态.
+
+## [m] speaker.remove
+
+### speech.speaker.remove(name)
+
+**`6.8.0`**
+
+- **name** { [string](dataTypes#string) } - 说话人名字
+- <ins>**returns**</ins> { [boolean](dataTypes#boolean) } - 是否实际删除了声纹
+
+删除该说话人的声纹. 名字未注册时返回 `false`. 没有异步形态.
 
 ## [C] SpeechError
 
@@ -512,7 +816,7 @@ try {
 
 [speech.models.list](#m-modelslist) 的过滤条件.
 
-- **[ kind ]** { `'asr'` | `'tts'` | `'kws'` | `'vad'` } - 模型类别
+- **[ kind ]** { `'asr'` | `'tts'` | `'kws'` | `'vad'` | `'speaker'` | `'segment'` | `'langid'` | `'tagger'` } - 模型类别
 - **[ language ]** { [string](dataTypes#string) } - 模型支持的语言
 - **[ installed ]** { [boolean](dataTypes#boolean) } - 只列出已安装 (`true`) 或未安装 (`false`) 的模型
 
@@ -528,12 +832,40 @@ try {
 [speech.models.importFile](#m-modelsimportfile) 的选项. 与目录条目一致的归档只需 `acceptLicense` 与 `onProgress`.
 
 - **[ id ]** { [string](dataTypes#string) } - 目录模型 ID (要求归档包含该模型), 或导入模型的新 ID
-- **[ kind ]** { `'asr'` | `'tts'` | `'kws'` | `'vad'` } - 导入模型的类别
+- **[ kind ]** { `'asr'` | `'kws'` | `'tts'` } - 导入模型的类别, 以 "用户导入" 身份登记时只能是这三类, 其他值失败于 `INVALID_OPTIONS`. `vad`, `speaker`, `segment`, `langid` 与 `tagger` 类只有目录模型: 经 [speech.models.install](#m-modelsinstall) 下载, 或导入与目录条目一致的归档
 - **[ modelType ]** { [string](dataTypes#string) } - 导入模型的类型, 如 `'online-transducer'`, `'sense-voice'`, `'offline-transducer'`, `'kws-transducer'`, `'vits'`, `'matcha'`, `'kokoro'`
 - **[ name ]** { [string](dataTypes#string) } - 显示名称, 最多 128 个字符
 - **[ languages ]** { [string](dataTypes#string)[[]](dataTypes#array) } - 支持的语言, 1 - 32 个语言标签
 - **[ acceptLicense = `false` ]** { [boolean](dataTypes#boolean) } - 同 [SpeechInstallOptions](#speechinstalloptions)
 - **[ onProgress ]** { [Function](dataTypes#function) } - 进度回调, 单位为字节
+
+### SpeechDiarizeOptions
+
+[speech.diarize](#m-diarize) 与 [speech.diarizeAsync](#m-diarizeasync) 的选项.
+
+- **[ model ]** { [string](dataTypes#string) } - 分割模型 ID (`segment` 类), 默认为默认分割模型
+- **[ speakerModel ]** { [string](dataTypes#string) } - 说话人模型 ID (`speaker` 类), 默认为默认说话人模型
+- **[ speakers = `0` ]** { [number](dataTypes#number) } - 已知的说话人数, `0..20` 的整数; `0` 表示由插件自动计数
+- **[ threshold ]** { [number](dataTypes#number) } - 自动计数时的聚类阈值, 范围 `0..2`, 越大越容易把相近的声音归为同一位说话人; 默认使用插件按说话人模型给出的值 (3-Macaw Speech 1.3.0 的默认说话人模型为 `0.85`)
+- **[ identify = `false` ]** { [boolean](dataTypes#boolean) } - 是否用 [speech.speaker](#p-speaker) 注册的声纹为每位说话人取名, 结果见 [SpeechDiarization](#speechdiarization) 的 `names`
+- **[ onProgress ]** { [Function](dataTypes#function) } - 进度回调 `(done: number, total: number) => void`, 单位为音频毫秒, 返回值被忽略
+
+### SpeechDetectLanguageOptions
+
+[speech.detectLanguage](#m-detectlanguage) 与 [speech.detectLanguageAsync](#m-detectlanguageasync) 的选项.
+
+- **[ model ]** { [string](dataTypes#string) } - 语种识别模型 ID (`langid` 类), 默认为默认语种识别模型
+- **[ windows = `3` ]** { [number](dataTypes#number) } - 判断的语音窗口数, `1..60` 的整数; 每个窗口至多 30 秒语音, 60 个窗口可覆盖 30 分钟
+- **[ onProgress ]** { [Function](dataTypes#function) } - 进度回调, 单位为音频毫秒
+
+### SpeechTagOptions
+
+[speech.tag](#m-tag) 与 [speech.tagAsync](#m-tagasync) 的选项.
+
+- **[ model ]** { [string](dataTypes#string) } - 音频标签模型 ID (`tagger` 类), 默认为默认音频标签模型
+- **[ topK = `5` ]** { [number](dataTypes#number) } - 返回的标签数, `1..20` 的整数; 也是 `timeline` 中每个窗口的标签数
+- **[ timeline = `false` ]** { [boolean](dataTypes#boolean) } - 是否另返回每个 10 秒窗口的标签
+- **[ onProgress ]** { [Function](dataTypes#function) } - 进度回调, 单位为音频毫秒
 
 ## 返回对象
 
@@ -541,8 +873,8 @@ try {
 
 [speech.capabilities](#m-capabilities) 的返回值.
 
-- **contractVersion** { [number](dataTypes#number) } - 语音插件契约版本, 当前为 `1`
-- **features** { [string](dataTypes#string)[[]](dataTypes#array) } - 插件实现的功能, 取自 `asr` (文件识别与外部 PCM 会话), `asrStreaming` (麦克风听写与 `thenListen`), `vad` (语音活动检测), `kws` (唤醒词), `tts` (合成到文件), `ttsSystemEngine` (系统 TTS 引擎), `models` (模型管理), `audioDecode` (WAV 以外的音频文件, 3-Macaw Speech 1.2.0 起)
+- **contractVersion** { [number](dataTypes#number) } - 语音插件契约版本, 3-Macaw Speech 1.2.0 及更早为 `1`, 1.3.0 起为 `2`
+- **features** { [string](dataTypes#string)[[]](dataTypes#array) } - 插件实现的功能, 取自 `asr` (文件识别与外部 PCM 会话), `asrStreaming` (麦克风听写与 `thenListen`), `vad` (语音活动检测), `kws` (唤醒词), `tts` (合成到文件), `ttsSystemEngine` (系统 TTS 引擎), `models` (模型管理), `audioDecode` (WAV 以外的音频文件, 3-Macaw Speech 1.2.0 起), `speaker` ([说话人识别](#p-speaker), 3-Macaw Speech 1.3.0 起), `diarization` ([说话人分离](#m-diarize), 1.3.0 起), `languageId` ([语种识别](#m-detectlanguage), 1.3.0 起), `audioTagging` ([音频标签](#m-tag), 1.3.0 起)
 - **catalogVersion** { [number](dataTypes#number) } - 插件当前的模型目录版本
 - **engineName** { [string](dataTypes#string) | [null](dataTypes#null) } - 语音运行时名称, 如 `'sherpa-onnx'`
 - **engineVersion** { [string](dataTypes#string) | [null](dataTypes#null) } - 语音运行时版本
@@ -573,6 +905,35 @@ try {
 - **sizeBytes** { [number](dataTypes#number) } - 输出文件的字节数
 - **warnings** {{ code: [string](dataTypes#string); message: [string](dataTypes#string) }}[] - 非致命问题, 没有时为空数组
 
+### SpeechDiarization
+
+[speech.diarize](#m-diarize) 与 [speech.diarizeAsync](#m-diarizeasync) 的结果.
+
+- **segments** {{ startMillis: [number](dataTypes#number); endMillis: [number](dataTypes#number); speaker: [number](dataTypes#number) }}[] - 按时间顺序排列的说话段, `speaker` 为说话人编号 (从 `0` 起, 按首次出现的顺序)
+- **speakers** { [number](dataTypes#number) } - 说话人数
+- **durationMillis** { [number](dataTypes#number) } - 音频时长, 单位为毫秒
+- **modelId** { [string](dataTypes#string) } - 实际使用的分割模型
+- **names** {{ speaker: [number](dataTypes#number); name: [string](dataTypes#string) | [null](dataTypes#null); score: [number](dataTypes#number) | [null](dataTypes#null) }}[] | [undefined](dataTypes#undefined) - 只在 `identify: true` 时存在, 每位说话人一项. `name` 为声纹最接近的已注册说话人, 分数低于该说话人模型的阈值时为 `null`; `score` 为与该声纹的余弦相似度, 无法比较时 (例如该说话人的语音不足 1 秒) 为 `null`
+
+### SpeechLanguageDetection
+
+[speech.detectLanguage](#m-detectlanguage) 与 [speech.detectLanguageAsync](#m-detectlanguageasync) 的结果.
+
+- **language** { [string](dataTypes#string) } - 说话时长最长的语种, 平票时取先出现的
+- **candidates** {{ language: [string](dataTypes#string); score: [number](dataTypes#number) }}[] - 听到的全部语种, 按时长从多到少排列; `score` 为该语种占说话时长的比例 (`0..1`)
+- **segments** {{ startMillis: [number](dataTypes#number); endMillis: [number](dataTypes#number); language: [string](dataTypes#string) }}[] - 每句的时间与语种; 并入短句的句子其时间包含句间的静音. 3-Macaw Speech 1.3.0 为每个窗口一项
+- **durationMillis** { [number](dataTypes#number) } - 音频时长, 单位为毫秒
+- **modelId** { [string](dataTypes#string) } - 实际使用的模型
+
+### SpeechTagging
+
+[speech.tag](#m-tag) 与 [speech.tagAsync](#m-tagasync) 的结果.
+
+- **labels** {{ label: [string](dataTypes#string); mid: [string](dataTypes#string); score: [number](dataTypes#number); startMillis: [number](dataTypes#number); endMillis: [number](dataTypes#number) }}[] - 得分最高的前 `topK` 个标签, 按分数从高到低排列. `label` 为 AudioSet 的英文标签 (如 `'Speech'`, `'Music'`), `mid` 为 AudioSet 本体 ID (如 `'/m/09x0r'`), `score` 为 `0..1` 的概率, 时间为该标签得分最高的窗口
+- **durationMillis** { [number](dataTypes#number) } - 音频时长, 单位为毫秒
+- **modelId** { [string](dataTypes#string) } - 实际使用的模型
+- **timeline** {{ startMillis: [number](dataTypes#number); endMillis: [number](dataTypes#number); labels: {{ label: [string](dataTypes#string); mid: [string](dataTypes#string); score: [number](dataTypes#number) }}[] }}[] | [undefined](dataTypes#undefined) - 只在 `timeline: true` 时存在, 每个 10 秒窗口一项, 含该窗口得分最高的前 `topK` 个标签
+
 ## 错误代码
 
 | 代码 | 含义 |
@@ -594,6 +955,8 @@ try {
 | `ENGINE_FAILED` | 识别或合成引擎失败 |
 | `IO_FAILED` | 文件读写失败或下载出错 |
 | `TIMEOUT` | 插件未在时限内应答 |
+| `SPEAKER_NOT_FOUND` | 说话人名字未注册 (契约版本 `2`) |
+| `AUDIO_TOO_SHORT` | 说话人录音中的有效语音不足 1 秒, 或语种识别的文件中没有语音 (契约版本 `2`) |
 | `INTERNAL` | 其他内部错误 |
 
 ## 限制
@@ -603,11 +966,15 @@ try {
 | 麦克风会话 (听写或唤醒), 整个插件 | 1 |
 | 外部 PCM 会话, 每个调用方应用 | 4 |
 | 一次 `feed` 的字节数 | 1 MiB |
-| 识别或检测的音频文件 | 200 MiB, 30 分钟 |
+| 识别, 检测或分析的音频文件 | 200 MiB, 30 分钟 |
 | 会话时长 (`maxDurationMillis`) | 30 分钟 |
 | 合成文本 | 8000 个字符 (UTF-16 单元) |
 | 合成输出文件 | 100 MiB |
 | 唤醒会话的关键词 | 50 个 |
+| 一次说话人分离的说话段 | 10000 段 |
+| 说话人分离的 `speakers` | 20 |
+| 语种识别的 `windows` | 60 个窗口 |
+| 音频标签的 `topK` | 20 个 |
 | 热词 | 200 个 |
 | 关键词, 热词, 模型 ID 或说话人的长度 | 128 个字符 |
 | 一次列出的模型 | 512 个 |

@@ -5,33 +5,38 @@
 
 | 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
 | --- | --- | --- | --- | --- |
-| 入口 | `files`, `files.batchRename`, 全局 1 项 | `files` | - | `host.files` |
-| 状态 | 已支持 22 项 | 已支持 (本地实现) 2 项, 待补 20 项 | 待补 22 项 | 需授权 2 项, 待补 20 项 |
-| 授权 | - | - | - | `files.control` 2 项 |
+| 入口 | `files`, `files.batchRename`, 全局 1 项 | `files` | `files` | `host.files` |
+| 状态 | 已支持 52 项 | 已支持 17 项, 已支持 (本地实现) 35 项 | 已支持 17 项, 已支持 (本地实现) 35 项 | 需授权 52 项 |
+| 授权 | - | - | - | `files.control` 35 项, `batchrename.control` 17 项 |
 
-差异项 (19 项): 下表列出入口, 状态或授权与同列多数 API 不同的 API, 未列出的 API 与同列多数一致.
+差异项 (17 项): 下表列出入口, 状态或授权与同列多数 API 不同的 API, 未列出的 API 与同列多数一致.
 
 | API | Node.js 主线程 | Node.js Worker | Bun |
 | --- | --- | --- | --- |
-| `files.batchRename.BatchRenameError` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
-| `files.batchRename.apply` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
-| `files.batchRename.applyAsync` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
-| `files.batchRename.clearHistory` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
-| `files.batchRename.deleteHistory` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
-| `files.batchRename.history` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
-| `files.batchRename.importPresets` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
-| `files.batchRename.importPresetsAsync` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
-| `files.batchRename.isAvailable` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
-| `files.batchRename.plan` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
-| `files.batchRename.planAsync` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
-| `files.batchRename.presets` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
-| `files.batchRename.presetsAsync` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
-| `files.batchRename.preview` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
-| `files.batchRename.previewAsync` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
-| `files.batchRename.undo` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
-| `files.batchRename.undoAsync` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
-| `files.open`, `open` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
-| `files.toFile` | <span title="pending">待补</span> | <span title="pending">待补</span> | <span title="pending">待补</span> |
+| `files.batchRename.BatchRenameError` | <span title="bridged">已支持</span>: `batchRename.BatchRenameError` (`files`) | <span title="bridged">已支持</span>: `batchRename.BatchRenameError` (`files`) | <span title="capability-gated">需授权</span> `batchrename.control`: `host.files.batchRename.BatchRenameError` |
+| `files.batchRename.apply` | <span title="bridged">已支持</span>: `batchRename.apply` (`files`) | <span title="bridged">已支持</span>: `batchRename.apply` (`files`) | <span title="capability-gated">需授权</span> `batchrename.control`: `host.files.batchRename.apply` |
+| `files.batchRename.applyAsync` | <span title="bridged">已支持</span>: `batchRename.applyAsync` (`files`) | <span title="bridged">已支持</span>: `batchRename.applyAsync` (`files`) | <span title="capability-gated">需授权</span> `batchrename.control`: `host.files.batchRename.applyAsync` |
+| `files.batchRename.clearHistory` | <span title="bridged">已支持</span>: `batchRename.clearHistory` (`files`) | <span title="bridged">已支持</span>: `batchRename.clearHistory` (`files`) | <span title="capability-gated">需授权</span> `batchrename.control`: `host.files.batchRename.clearHistory` |
+| `files.batchRename.deleteHistory` | <span title="bridged">已支持</span>: `batchRename.deleteHistory` (`files`) | <span title="bridged">已支持</span>: `batchRename.deleteHistory` (`files`) | <span title="capability-gated">需授权</span> `batchrename.control`: `host.files.batchRename.deleteHistory` |
+| `files.batchRename.history` | <span title="bridged">已支持</span>: `batchRename.history` (`files`) | <span title="bridged">已支持</span>: `batchRename.history` (`files`) | <span title="capability-gated">需授权</span> `batchrename.control`: `host.files.batchRename.history` |
+| `files.batchRename.importPresets` | <span title="bridged">已支持</span>: `batchRename.importPresets` (`files`) | <span title="bridged">已支持</span>: `batchRename.importPresets` (`files`) | <span title="capability-gated">需授权</span> `batchrename.control`: `host.files.batchRename.importPresets` |
+| `files.batchRename.importPresetsAsync` | <span title="bridged">已支持</span>: `batchRename.importPresetsAsync` (`files`) | <span title="bridged">已支持</span>: `batchRename.importPresetsAsync` (`files`) | <span title="capability-gated">需授权</span> `batchrename.control`: `host.files.batchRename.importPresetsAsync` |
+| `files.batchRename.isAvailable` | <span title="bridged">已支持</span>: `batchRename.isAvailable` (`files`) | <span title="bridged">已支持</span>: `batchRename.isAvailable` (`files`) | <span title="capability-gated">需授权</span> `batchrename.control`: `host.files.batchRename.isAvailable` |
+| `files.batchRename.plan` | <span title="bridged">已支持</span>: `batchRename.plan` (`files`) | <span title="bridged">已支持</span>: `batchRename.plan` (`files`) | <span title="capability-gated">需授权</span> `batchrename.control`: `host.files.batchRename.plan` |
+| `files.batchRename.planAsync` | <span title="bridged">已支持</span>: `batchRename.planAsync` (`files`) | <span title="bridged">已支持</span>: `batchRename.planAsync` (`files`) | <span title="capability-gated">需授权</span> `batchrename.control`: `host.files.batchRename.planAsync` |
+| `files.batchRename.presets` | <span title="bridged">已支持</span>: `batchRename.presets` (`files`) | <span title="bridged">已支持</span>: `batchRename.presets` (`files`) | <span title="capability-gated">需授权</span> `batchrename.control`: `host.files.batchRename.presets` |
+| `files.batchRename.presetsAsync` | <span title="bridged">已支持</span>: `batchRename.presetsAsync` (`files`) | <span title="bridged">已支持</span>: `batchRename.presetsAsync` (`files`) | <span title="capability-gated">需授权</span> `batchrename.control`: `host.files.batchRename.presetsAsync` |
+| `files.batchRename.preview` | <span title="bridged">已支持</span>: `batchRename.preview` (`files`) | <span title="bridged">已支持</span>: `batchRename.preview` (`files`) | <span title="capability-gated">需授权</span> `batchrename.control`: `host.files.batchRename.preview` |
+| `files.batchRename.previewAsync` | <span title="bridged">已支持</span>: `batchRename.previewAsync` (`files`) | <span title="bridged">已支持</span>: `batchRename.previewAsync` (`files`) | <span title="capability-gated">需授权</span> `batchrename.control`: `host.files.batchRename.previewAsync` |
+| `files.batchRename.undo` | <span title="bridged">已支持</span>: `batchRename.undo` (`files`) | <span title="bridged">已支持</span>: `batchRename.undo` (`files`) | <span title="capability-gated">需授权</span> `batchrename.control`: `host.files.batchRename.undo` |
+| `files.batchRename.undoAsync` | <span title="bridged">已支持</span>: `batchRename.undoAsync` (`files`) | <span title="bridged">已支持</span>: `batchRename.undoAsync` (`files`) | <span title="capability-gated">需授权</span> `batchrename.control`: `host.files.batchRename.undoAsync` |
+
+返回对象 (2 个): 本页说明的对象的成员状态, 每个对象一行.
+
+| 返回对象 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| `PReadableTextFile` (5 项) | 已支持 5 项 | 不适用 5 项 (需要 Java 对象) | 不适用 5 项 (需要 Java 对象) | 不适用 5 项 (需要 Java 对象) |
+| `PWritableTextFile` (6 项) | 已支持 6 项 | 不适用 6 项 (需要 Java 对象) | 不适用 6 项 (需要 Java 对象) | 不适用 6 项 (需要 Java 对象) |
 
 Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
 
@@ -776,6 +781,10 @@ log(jsFiles);
 
 读取剩余的所有行, 并返回它们按顺序组成的字符串数组.
 
+## ReadableTextFile.getPath()
+
+返回该文件的路径.
+
 ## close()
 
 关闭该文件.
@@ -803,6 +812,10 @@ log(jsFiles);
 - **lines** { [Array](dataTypes#array) } 字符串数组
 
 把很多行写入到文件中....
+
+## PWritableTextFile.getPath()
+
+返回该文件的路径.
 
 ## PWritableTextFile.flush()
 

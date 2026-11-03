@@ -140,7 +140,12 @@ AutoJs6-Plugin-Offline-Docs/version.properties:
 `begin` 后面是一个或多个模块根名, 与宿主文档门禁按模块查找页面的规则相同:
 显式导出取其所在模块的第一段 (`files.batchRename.apply` -> `files`),
 全局对象上的成员取其所属模块 (`captureScreen` -> `images`), 其余为 `global`.
-返回对象的成员 (`ImageWrapper#getWidth` 一类) 不在模块页的表中.
+以 Java 对象为原型的模块 (如 `files`) 的原型成员 (`files.isFile` 一类) 与显式导出一样计入该模块.
+
+返回对象的成员 (`ImageWrapper#getWidth` 一类) 归入对象的第一个文档页 (宿主
+`tools/api-coverage/returned-objects.json` 的 `documentation`). 对象有独立类型页时,
+该页的标记块写对象名加 `#` (`<!-- runtime-support:begin ImageWrapper# -->`), 表格与模块页相同;
+第一页是模块页时, 该页标记块内另起 "返回对象" 小表, 每个对象一行, 各列给出成员的状态计数.
 
 ```powershell
 # 按矩阵改写全部标记块.
@@ -159,9 +164,11 @@ node generator/test-runtime-support.js
 矩阵默认取 `local-config.json` 中 `autoJs6Project` 下的
 `build/reports/api-coverage/runtime-matrix.json`, 没有配置时取兄弟目录
 `../AutoJs6`; `--matrix <file>` 或 `--host <AutoJs6 目录>` 可另行指定.
-`--json` 输出机读摘要, `--require-all` 把没有标记块的模块根计为失败.
+`--json` 输出机读摘要, `--require-all` 把没有标记块的模块根, 以及没有任何标记块展示的
+返回对象 (所在页既没有 `<对象>#` 根, 也没有模块根的标记块) 计为失败.
 宿主 `python tools/api-coverage/check.py --docs-support` 调用本脚本的
-`--check` 校验文档与矩阵一致.
+`--check --require-all` 校验文档与矩阵一致, 且每个模块根与返回对象都有表 (宿主 api-coverage
+路线图 P2.5 起; 新增模块或返回对象时, 用 `--insert <页面>:<根>` 在其第一个文档页插入标记块).
 
 表格分两部分: 上方按 Rhino, Node.js 主线程, Node.js Worker 与 Bun 四列给出
 入口, 各状态的 API 数与 Bun 所需授权; 下方 "差异项" 列出入口, 状态或授权与同列

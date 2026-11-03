@@ -1,5 +1,20 @@
 # 存储 (Storages)
 
+<!-- runtime-support:begin storages -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `storages` | `storages` | `storages` | `host.storages` |
+| 状态 | 已支持 5 项 | 已支持 5 项 | 已支持 5 项 | 需授权 5 项 |
+| 授权 | - | - | - | `storage.control` 5 项 |
+
+各 API 在同一运行时中的入口, 状态与授权一致, 没有差异项.
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
 storages 模块可用于保存 [ 简单数据 / 配置信息 / 列表清单 ] 等.<br>
 保存的数据在脚本间共享, 因此不适于敏感数据的存储.
 

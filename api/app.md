@@ -1,5 +1,20 @@
 # 通用应用 (App)
 
+<!-- runtime-support:begin app -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `app`, 全局 28 项 | `autojs6:app` | `autojs6:app` | `host.app` |
+| 状态 | 已支持 71 项 | 已支持 71 项 | 已支持 71 项 | 需授权 71 项 |
+| 授权 | - | - | - | `app.control` 71 项 |
+
+各 API 在同一运行时中的入口, 状态与授权一致, 没有差异项.
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
 ---
 
 <aside class="doc-status doc-status--incomplete" data-marked-by="SuperMonster003" data-marked-on="2022-10-22">

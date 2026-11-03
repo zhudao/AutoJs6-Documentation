@@ -1,5 +1,61 @@
 # 设备 (Device)
 
+<!-- runtime-support:begin device -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `device` | `autojs6:device` | `autojs6:device` | `host.device` |
+| 状态 | 已支持 86 项 | 已支持 86 项 | 已支持 86 项 | 需授权 86 项 |
+| 授权 | - | - | - | `device.control` 48 项, `device.info` 27 项, `device.audio` 9 项, `device.identifiers` 2 项 |
+
+差异项 (38 项): 下表列出入口, 状态或授权与同列多数 API 不同的 API, 未列出的 API 与同列多数一致.
+
+| API | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- |
+| `device.baseOS` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.info` |
+| `device.board` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.info` |
+| `device.bootloader` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.info` |
+| `device.brand` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.info` |
+| `device.brands` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.info` |
+| `device.buildDisplay` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.info` |
+| `device.buildId` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.info` |
+| `device.codename` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.info` |
+| `device.density` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.info` |
+| `device.device` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.info` |
+| `device.digest` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.info` |
+| `device.fingerprint` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.info` |
+| `device.getAlarmMaxVolume` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.audio` |
+| `device.getAlarmVolume` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.audio` |
+| `device.getMarketName` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.info` |
+| `device.getMusicMaxVolume` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.audio` |
+| `device.getMusicVolume` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.audio` |
+| `device.getNotificationMaxVolume` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.audio` |
+| `device.getNotificationVolume` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.audio` |
+| `device.hardware` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.info` |
+| `device.height` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.info` |
+| `device.imei` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.identifiers` |
+| `device.incremental` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.info` |
+| `device.isManufacturer` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.info` |
+| `device.manufacturer` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.info` |
+| `device.manufacturers` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.info` |
+| `device.model` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.info` |
+| `device.pageSize` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.info` |
+| `device.product` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.info` |
+| `device.release` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.info` |
+| `device.roms` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.info` |
+| `device.sdkInt` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.info` |
+| `device.securityPatch` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.info` |
+| `device.serial` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.identifiers` |
+| `device.setAlarmVolume` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.audio` |
+| `device.setMusicVolume` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.audio` |
+| `device.setNotificationVolume` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.audio` |
+| `device.width` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `device.info` |
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
 device 模块提供设备构建信息, 内存页大小, 屏幕状态, 电量, 内存, 音量, 振动, 网络和唤醒锁等查询或操作能力.
 
 `device` 与 `$device` 指向同一个模块对象.
@@ -717,7 +773,7 @@ Android API 33 及以上系统中, 只有 [isCharging()](#ischarging) 为 `true`
 - **flags** { [number](dataTypes#number) } - Android `PowerManager` 唤醒锁级别及标志
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
-使用指定标志创建并无限期持有唤醒锁, 直到调用 [cancelKeepingAwake()](#cancelkeepingawake) 或以不同标志再次获取唤醒锁.
+使用指定标志创建并无限期持有唤醒锁, 直到调用 [cancelKeepingAwake()](#cancelkeepingawake), 以不同标志再次获取唤醒锁或脚本结束 (脚本结束时在 `exit` 事件处理器之后释放).
 
 ### keepAwake(flags, timeout)
 
@@ -738,7 +794,7 @@ Android API 33 及以上系统中, 只有 [isCharging()](#ischarging) 为 `true`
 - **[ timeout ]** { [number](dataTypes#number) } - 保持时间, 单位为毫秒
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
-使用 `SCREEN_BRIGHT_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP` 保持屏幕点亮. 省略 `timeout` 时持续持有, 直到主动取消.
+使用 `SCREEN_BRIGHT_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP` 保持屏幕点亮. 省略 `timeout` 时持续持有, 直到主动取消或脚本结束.
 
 此方法不会阻止用户通过电源键等操作关闭屏幕.
 
@@ -749,7 +805,7 @@ Android API 33 及以上系统中, 只有 [isCharging()](#ischarging) 为 `true`
 - **[ timeout ]** { [number](dataTypes#number) } - 保持时间, 单位为毫秒
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 
-使用 `SCREEN_DIM_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP` 保持设备唤醒, 同时允许屏幕变暗. 省略 `timeout` 时持续持有, 直到主动取消.
+使用 `SCREEN_DIM_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP` 保持设备唤醒, 同时允许屏幕变暗. 省略 `timeout` 时持续持有, 直到主动取消或脚本结束.
 
 ## [m] cancelKeepingAwake
 

@@ -1,5 +1,20 @@
 # 传感器 (Sensors)
 
+<!-- runtime-support:begin sensors -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `sensors` | `autojs6:sensors` | `autojs6:sensors` | `host.sensors` |
+| 状态 | 已支持 21 项 | 已支持 21 项 | 已支持 21 项 | 需授权 21 项 |
+| 授权 | - | - | - | `sensors.control` 21 项 |
+
+各 API 在同一运行时中的入口, 状态与授权一致, 没有差异项.
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
 `sensors` 模块用于查询和监听 Android 设备的硬件及软件传感器. `sensors` 与 `$sensors` 指向同一个对象.
 
 脚本只能读取系统分发的传感器数据, 不能模拟或伪造传感器事件. 每次成功注册都会创建一个 [SensorEventEmitter](#c-sensoreventemitter). 未注销的监听器会使脚本保持运行. 脚本运行时被回收时, AutoJs6 会自动注销当前模块中的全部传感器监听器.

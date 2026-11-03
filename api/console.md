@@ -1,5 +1,26 @@
 # 控制台 (Console)
 
+<!-- runtime-support:begin console -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `console`, 全局 9 项 | `autojs6:console` | `autojs6:console` | `host.console` |
+| 状态 | 已支持 65 项 | 已支持 65 项 | 已支持 65 项 | 需授权 65 项 |
+| 授权 | - | - | - | `console.control` 65 项 |
+
+各 API 在同一运行时中的入口, 状态与授权一致, 没有差异项.
+
+返回对象 (1 个): 本页说明的对象的成员状态, 每个对象一行.
+
+| 返回对象 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| `ConsoleConfigurator` (52 项) | 已支持 52 项 | 已支持 52 项 | 已支持 52 项 | 需授权 52 项 |
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
 AutoJs6 的控制台类似 Web 浏览器的调试控制台, 用于信息输出或辅助代码调试.
 
 本页以 Rhino API 为基准. Node.js 的窗口和配置方法返回 `Promise<void>`, Bun 使用 `host.console` 显式客户端. 相关异步迁移, 权限与未实现入口见 [运行时控制台](runtimeApis#nodejs-控制台).
@@ -1356,11 +1377,11 @@ try {
 
 ## [m] trace
 
-### trace(message, level?)
+### trace(message?, level?)
 
 **`6.3.0`**
 
-- **message** { [string](dataTypes#string) } - 追踪消息
+- **[ message ]** { [string](dataTypes#string) } - 追踪消息
 - **[ level = "debug" ]** { `'verbose'` | `'debug'` | `'info'` | `'warn'` | `'error'` | [number](dataTypes#number) } - 消息输出等级
 - <ins>**returns**</ins> { [void](dataTypes#void) }
 

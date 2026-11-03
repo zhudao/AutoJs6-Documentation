@@ -1,5 +1,77 @@
 # 文档部署进度 (Progress)
 
+2026-11-02 imgui 模块参考 (api-coverage P5.2f-2 卡 B): [ImGui](imgui) 页补齐快速开始, 会话与窗口模式, 调用时机, 单位, 线程, 错误, 限制, 全部函数与常量组, PascalCase 别名表, 新增 [ImguiSession](imguiSessionType), [ImguiDrawList](imguiDrawListType), [ImguiFloatingButton](imguiFloatingButtonType), [ImguiComponent](imguiComponentType), [ImguiDataTable](imguiDataTableType), [ImguiLogWindow](imguiLogWindowType), [ImguiToast](imguiToastType), [ImguiStatsOverlay](imguiStatsOverlayType), [ImguiDialog](imguiDialogType), [ImguiDialogPromise](imguiDialogPromiseType), [ImguiTexture](imguiTextureType), [ImguiSelectionStorage](imguiSelectionStorageType) 与 [ImguiMultiSelectIO](imguiMultiSelectIOType) 对象页, 并加入侧栏与目录. 内容对应 ImGui 插件 1.18.0. 页面的代码块都是完整脚本, 已在 Xiaomi 23046RP50C (Android 15) 上逐个运行 (宿主 tools/api-coverage/device_imgui_docs.py). AutoJs6 6.8.0 尚未发布, 此条不表示官方发布.
+
+2026-11-02 语音 (Speech) 增补: 模型更新 (3-Macaw Speech 1.4.0): [模型更新](speech#模型更新), [updateAvailable](speechModelInfoType#p-updateavailable) 与 [latestVersionCode](speechModelInfoType#p-latestversioncode).
+
+2026-11-01 Node.js 与 Bun 中的 imgui (api-coverage Q213 (b)): [ImGui](imgui#在-node-js-bun-中使用), 运行时支持表记为仅限 Rhino 引擎, Node.js 与 Bun 经 engines.execScript 启动 Rhino 脚本打开窗口.
+
+2026-11-01 Rhino 的 class 语法与继承 Java 类 (rhino-class P7.4): [类语法](classSyntax).
+
+2026-11-01 Node.js 与 Bun 的 Flow 对象增加 await 与 sync, 均返回 Promise (api-coverage Q202): [Flow](flowType) 与 [运行时 API](runtimeApis#根方法与-flow-对象).
+
+2026-10-31 PP-OCRv3 的 7 个新语种包与阿拉伯语的阅读顺序 (路线图 Q60 / Q62): [OcrOptions](ocrOptionsType) (profile, mergeLine).
+
+2026-10-31 Node.js 与 Bun 桥接调用的相对路径 (api-coverage Q120 (b)): [运行时 API](runtimeApis#相对路径).
+
+2026-10-30 Node.js 与 Bun 的 colors.theme, gallery, files.batchRename 与 speech 的声纹和音频分析接口 (api-coverage P3.5 / P4.5): [运行时 API](runtimeApis).
+
+2026-10-30 Node.js 与 Bun 的 OCR 选项与 Rhino 一致 (PP-OCRv3 路线图 Q28): [OcrOptions](ocrOptionsType) 与 [OcrResult](dataTypes#ocrresult).
+
+2026-10-30 Node.js 与 Bun 的 OCR 结果带 extras (PP-OCRv3 路线图 Q26): [OcrResult](dataTypes#ocrresult), [OcrOptions](ocrOptionsType) (useOpenCL, mergeLine) 与 [光学字符识别 (OCR)](ocr).
+
+2026-10-30 PP-OCRv3 ONNX Runtime 插件 (路线图 P5.1): [光学字符识别 (OCR)](ocr), [OcrOptions](ocrOptionsType) (variant, profile, useSlim, useCls, useOpenCL, mergeLine) 与 [OcrResult](dataTypes#ocrresult) 的 extras 属性.
+
+2026-10-30 Bun UI 族运行时支持表 (宿主 api-coverage 路线图 P4.3): [用户界面 (UI)](ui), [控制台 (Console)](console), [悬浮窗 (Floaty)](floaty), [万维网 (Web)](web), [终端 (Terminal)](terminal), [3-Block Compose (Compose)](compose), [Compose 节点 (ComposeNode)](composeNodeType), [Compose 会话 (ComposeSession)](composeSessionType), [Compose 悬浮窗 (ComposeFloatyWindow)](composeFloatyWindowType), [Compose 状态 (ComposeState)](composeStateType), [WebSocket](webSocketType), [InjectableWebView](injectableWebViewType) 与 [InjectableWebClient](injectableWebClientType) 页的表按宿主运行时覆盖矩阵 (宿主 cc3a55f97) 重新生成. Bun 插件 (802beee / fba1cb3) 的 host 客户端载入与 Node.js 相同的界面门面; 宿主 (5bdb4d56a) 新增授权 terminal.control, floaty.control, floaty.raw, floaty.touch 及其路由, 以及控制台输入 console.rawInput.
+
+2026-10-30 Node.js UI 族运行时支持表 (宿主 api-coverage 路线图 P3.3): [用户界面 (UI)](ui), [控制台 (Console)](console), [消息浮动框 (Toast)](toast), [悬浮窗 (Floaty)](floaty), [万维网 (Web)](web), [终端 (Terminal)](terminal), [3-Block Compose (Compose)](compose), [Compose 节点 (ComposeNode)](composeNodeType), [Compose 会话 (ComposeSession)](composeSessionType), [Compose 悬浮窗 (ComposeFloatyWindow)](composeFloatyWindowType), [Compose 状态 (ComposeState)](composeStateType), [WebSocket](webSocketType), [InjectableWebView](injectableWebViewType), [InjectableWebClient](injectableWebClientType) 与 [全局对象 (Global)](global) 页的表按宿主运行时覆盖矩阵 (宿主 398ab3930) 重新生成, Compose 会话, 悬浮窗与状态三个类型页新增运行时支持表. Node.js 插件 (8fc9c801) 在主线程与 Worker 中用同一工厂提供 ui 的内容窗口与窗口成员, autojs6:floaty, autojs6:web, autojs6:terminal, console 的输入与配置器, toast 与 compose 的 Rhino 成员; 宿主 (77e94eb5b) 新增内容窗口, 窗口控制, 悬浮窗, 控制台配置与输入, 终端会话的路由与能力 terminal.
+
+2026-10-30 Bun 自动化族运行时支持表 (宿主 api-coverage 路线图 P4.4): [自动化 (Automator)](automator), [事件监听 (Events)](events), [线程 (Threads)](threads), [续体 (Continuation)](continuation), [定时器 (Timers)](timers), [光学字符识别 (OCR)](ocr), [目标检测 (YOLO)](yolo), [二维码 (QR Code)](qrcode), [条码 (Barcode)](barcode), [选择器 (UiSelector)](uiSelectorType), [流程 (Flow)](flow) 与 [全局对象 (Global)](global) 页的 Bun 列按宿主运行时覆盖矩阵 (宿主 7bb11982c) 重新生成. Bun 插件 (9b40a39) 的宿主客户端从 Node.js 插件同步自动化族共用工厂 (automator, auto, keys, threads, continuation, timers, yolo, selector 与全局 sleep / wait), 并加入 ocr / barcode / qrcode 门面与 events 的 Rhino 成员; 宿主 (33ab825c4 / 47fa448db / e2d824545) 新增 Bun 授权 accessibility.service, events.touch, events.key.intercept, ocr.control, barcode.control, yolo.control 与 BunAutomationBridge 的对应路由.
+
+2026-10-30 Node.js 自动化族运行时支持表 (宿主 api-coverage 路线图 P3.4): [自动化 (Automator)](automator), [事件监听 (Events)](events), [线程 (Threads)](threads), [续体 (Continuation)](continuation), [定时器 (Timers)](timers), [按键 (Keys)](keys), [光学字符识别 (OCR)](ocr), [目标检测 (YOLO)](yolo), [二维码 (QR Code)](qrcode), [条码 (Barcode)](barcode), [选择器 (UiSelector)](uiSelectorType), [流程 (Flow)](flow) 与 [全局对象 (Global)](global) 页的表按宿主运行时覆盖矩阵 (宿主 307655f10) 重新生成. Node.js 插件 (9736c852 / b77c28cb) 在主线程与 Worker 中用同一工厂提供 automator, auto, threads, continuation, timers, yolo, selector 与 qrcode, 并补齐 keys, ocr, events 与全局 sleep / wait 的 Rhino 成员; 宿主 (0feda5cfc) 经 RuntimeAutomationBridge 与 NodeAutomationObservers 新增路由与能力 accessibility.service, events.key.intercept, events.touch.
+
+2026-10-30 Node.js 设备, 传感器与媒体族运行时支持表 (宿主 api-coverage 路线图 P3.1c): [设备 (Device)](device), [传感器 (Sensors)](sensors) 与 [多媒体 (Media)](media) 三页的表按宿主运行时覆盖矩阵 (宿主 c20e7a36f) 重新生成. Node.js 插件 (3250fa46 / 38a6c666) 在主线程与 Worker 中用同一工厂提供 device 与 sensors (启动快照带 Rhino 的 Build 字段, 判断与传感器表), Worker 的 media 经主线程转发; 宿主 (bb01a8323) 经 RuntimeDeviceBridge 新增 Rhino 的设备查询路由与能力 device.identifiers, 放开 Rhino 的传感器名称与 delay 档位. Bun 列同时按宿主矩阵更新 (P4.1c).
+
+2026-10-30 官方插件工具表 (宿主 api-coverage 路线图 P5.2a): [插件](plugins#官方插件工具表) 页 "插件工具" 一节新增官方插件工具表, 共 15 个工具: 3-Hanzi CC 2.1.0 的 opencc_convert, AutoJs6 YOLO NCNN 0.2.0 的 yolo_detect, Image Quantization 1.1.0 的 imagequant_quantize, 3-Stack Archive 3.1.0 的 archive_list / archive_read / archive_extract, 3-Macaw Speech 1.2.0 起的 speech_listen / speech_speak / speech_transcribe / speech_synthesize 与 1.3.0 起的 speech_speaker_verify / speech_speaker_identify / speech_diarize / speech_detect_language / speech_tag. 参数与输出取自各插件仓库的工具目录源码 (插件仓库未改动); 工具是插件自描述的动态目录, 不进运行时覆盖矩阵, TypeScript 声明的 plugins.tools.call / callAsync 只为补全增加这 15 个工具名 (仍接受任意字符串). 同时修正 plugins.tools.call 示例中 imagequant_quantize 的参数名 (maxColors) 与输出名 (png). 上述插件版本中只有 3-Macaw Speech 1.2.0 已发布, 其余尚未发布; AutoJs6 6.8.0 也尚未发布, 此条不表示官方发布.
+
+2026-10-30 Bun 系统信息与引擎族运行时支持表 (宿主 api-coverage 路线图 P4.1b): [AutoJs6 本体应用](autojs), [安装器 (Installer)](installer), [内存 (Memory)](memory), [应用设置 (Settings)](settings), [系统属性 (Sysprops)](sysprops), [电源管理 (PowerManager)](powerManager), [消息通知 (Notice)](notice), [计划任务兼容接口 (WorkManager)](workManager), [引擎 (Engines)](engines), [插件 (Plugins)](plugins), [对话框 (Dialogs)](dialogs), [全局对象 (Global)](global) 与 [通用应用 (App)](app) 十三页表格的 Bun 列按宿主运行时覆盖矩阵 (宿主 1bef4d983) 重新生成. Bun 插件 (def82bc - e6b4296) 由 Node.js 共享工厂同步本族, 经宿主客户端的 13 个新授权与已有的 notifications / device / tasks 授权提供; 宿主 (39e240a14 - a268b1526) 新增对应授权与 Bun 桥接映射. memory.watch 记不适用 (宿主附录 C Q140).
+
+2026-10-30 Node.js 系统信息与引擎族运行时支持表 (宿主 api-coverage 路线图 P3.1b): [AutoJs6 本体应用](autojs), [安装器 (Installer)](installer), [内存 (Memory)](memory), [应用设置 (Settings)](settings), [系统属性 (Sysprops)](sysprops), [电源管理 (PowerManager)](powerManager), [消息通知 (Notice)](notice), [计划任务兼容接口 (WorkManager)](workManager), [引擎 (Engines)](engines), [插件 (Plugins)](plugins), [对话框 (Dialogs)](dialogs), [全局对象 (Global)](global) 与 [通用应用 (App)](app) 十三页的表按宿主运行时覆盖矩阵 (宿主 2c997b35d) 重新生成. Node.js 插件 (1e69e422 - 08781cee) 在主线程与 Worker 中用同一工厂提供 autojs6:autojs / installer / memory / settings / sysprops / power_manager / system, notice 与 dialogs.build 的补充成员, 宿主视角的 engines 与 plugins.extend* / tools; 宿主 (ea2e5bad4) 新增对应路由与 9 个能力. memory.watch 记不适用 (宿主附录 D D-22). Bun 列待 P4.1b.
+
+2026-10-30 imgui 纳入运行时覆盖矩阵 (宿主 api-coverage 路线图 P5.2f-1): 新增 [ImGui](imgui) 页, 目前只有一句说明与按宿主运行时覆盖矩阵 (宿主 150b4dbce) 生成的运行时支持表 (Rhino 已支持 464 项, Node.js 与 Bun 待补), 成员文档等 ImGui 插件的 API 稳定后补充, 届时再加入侧栏与目录; [工具](util) 页的表把 util.class / className / getClassName 改标为不适用 (需要 Java 对象).
+
+2026-10-30 插件契约导出与识别结果对象 (宿主 api-coverage 路线图 P5.2c): 宿主运行时覆盖矩阵 (宿主 e50f26694) 新增 110 行: 3-Block Compose 组件目录中的 55 个组件函数 compose.<组件名>, compose.modifier() 修饰链的 20 个修饰符 (ComposeModifier) 与节点的 8 个快捷属性访问器 (ComposeNode), 名称由宿主 plugin-api/compose-ui-api 的组件目录静态读取; 以及 ocr.detect 系列返回的 OcrResult (5 个成员) 与 barcode / qrcode 的 detect 系列返回的 WrappedBarcode (22 个成员). [OcrResult](dataTypes#ocrresult) 补 text 与 compareTo 并把 confidence 标为 number, [ComposeNode](composeNodeType#快捷属性访问器) 补八个快捷属性的标题; [ComposeModifier](composeModifierType) 与 [ComposeNode](composeNodeType) 两页新增运行时支持表, [Compose](compose), [OCR](ocr) 与 [条码](barcode) 页的表按矩阵重新生成. Node.js 与 Bun 的节点没有快捷属性访问器 (只在 props 中接受这些名称), 这 8 项在两个运行时记为待补. TS 声明 (6c93f5d) 补 Ocr.Result 与 Barcode.Result 的成员, Ace 捆绑副本与补全索引同步 (Ace cd6f5f6). AutoJs6 6.8.0 尚未发布, 此条不表示官方发布.
+
+2026-10-30 Node.js 执行时限 (宿主 api-coverage Q119 / Q126): [运行时 API](runtimeApis#执行方式) 写明 Node.js 脚本与项目默认不限执行时长, node.timeoutMs 预算的计时范围与超时错误码, 以及输出逐段转发; WebView 等待一节改为只对设置了预算的项目提示留足时间.
+
+2026-10-29 运行时自有接口 (宿主 api-coverage 路线图 P5.2b): [运行时 API](runtimeApis#运行时自有接口) 新增一节, 按组表格列出 Node.js 插件 12 组 113 条, Bun 插件 12 条与 QuickJS 插件 7 条没有对应宿主模块的入口, 写明签名, 说明, 运行时与最低插件版本 (按各插件版本最后一个提交的声明与源码判定). 这些入口不进运行时覆盖矩阵, 由宿主 PLUGIN-APIS.md 的附表跟踪. Node.js 的 worker_threads (含 WorkerPool, policy, nativeAvailable 与 diagnostics) 补上类型声明 (Node 插件 9e6e1a32, TS 声明 baf2100) 并同步到 Ace 捆绑副本; QuickJS 不设类型声明与 Ace 补全组.
+
+2026-10-29 语言运行时 API (宿主 api-coverage 路线图 P5.2d): 新增 [Python 运行时](pythonRuntime), [Java 运行时](javaRuntime), [Kotlin 运行时](kotlinRuntime) 与 [Lua 运行时](luaRuntime) 四页, 覆盖 Python Runtime 0.5.5 的 autojs6 包 (46 个函数, 54 个常量, 10 个异常类), Java Runtime 0.8.4-m9 的 JVM Entry API 4 (7 个类型, 17 个方法), Kotlin Runtime 0.7.3-m10 的 Entry API 2 (6 个类型, 13 个方法) 与 Lua Runtime 0.1.3-rc.2 的 autojs 模块 (11 个函数与只读的 arguments). 这些 API 不进运行时覆盖矩阵, 页面没有运行时支持表; 宿主新增静态门禁 `tools/api-coverage/language_runtimes.py`, 把四页的标题与表格同插件源码 (Python 各模块的 `__all__`, 插件冻结的 jvm-source-api.aar, Lua 的 install_autojs_module) 逐项比对, Python 还比对参数名与默认值, JVM 比对参数个数. [AutoJs4 运行时](autojs4Runtime) 补充 "上游 API 与差异指引": 上游约 180 个名称不在本站覆盖范围内, 改为指向 AutoJs4-Documentation 与对照模式. 依据为各插件源码与 README, 插件仓库未改动. AutoJs6 6.8.0 尚未发布, 此条不表示官方发布.
+
+2026-10-29 Bun 文件与数据族运行时支持表 (宿主 api-coverage 路线图 P4.2b): [颜色](color), [Color](colorType), [文件](files), [压缩文件](zip), [存储](storages), [Storage](storageType), [电子书对象](epubBookType), [MIME](mime), [记录器](recorder) 与 [全局对象](global) 十页表格的 Bun 列按宿主运行时覆盖矩阵 (宿主 6ce328d3d) 重新生成. Bun 插件 (91ab205) 的 host client 用与 Node.js 相同的共享 JS 核心提供 colors / Color, files 的路径函数与 open / toFile, zip, mime 与 recorder, 全局 dayjs / pangu / cheerio / i18n 随插件安装包提供; files 原型成员经 files.control 由宿主执行, storages.names / all 与 Storage#size 经 storage.control, EpubBook#toString 经 epub.control; zip / Zip 与 colors.toColorStateList / setPaintColor / extract 经 java.interop. colors.theme, gallery 与 files.batchRename 待宿主桥接 (P4.5).
+
+2026-10-29 Node.js 应用与 shell 族运行时支持表 (宿主 api-coverage 路线图 P3.1a / P4.1a): [通用应用](app), [Shell](shell), [Shizuku](shizuku) 与 [ShellProcess](shellProcessType) 四页的表按宿主运行时覆盖矩阵 (宿主 2780f3e3c) 重新生成. Node.js 插件 (5afd8b02 / 30f05398) 在主线程与 Worker 中用同一工厂提供 app (Worker 新增), 双开辅助函数 (复用 shell / shell.root / shell.shizuku 声明, 缺声明时 reject), shell 与 shizuku 的 Rhino 成员, 全局按键与手势函数以及 ShellProcess 成员; Bun 插件 (1253024) 同步. app.autojs 随 autojs 模块 (P3.1b) 待补.
+
+2026-10-29 语音 (Speech) 增补: 离线分析 speech.diarize (说话人分离, 可选 identify 按已注册声纹认人), speech.detectLanguage (语种识别, 语音窗口投票) 与 speech.tag (音频标签, AudioSet 527 个英文标签, 可选 timeline) 及其 Async 形态, 新增 "离线分析" 一节 (文件规则, onProgress 进度, 10 分钟进度时限, 排队与取消), 三组选项与结果对象, features 的 `diarization` / `languageId` / `audioTagging`, AUDIO_TOO_SHORT 的新用法与新的上限; 模型类别增加 `speaker`, `segment`, `langid` 与 `tagger` (speech 页的模型目录, setDefault / getDefault / 过滤条件, 以及 [SpeechModelInfo](speechModelInfoType) 的 kind, modelType 与 languages). 依据为 AutoJs6 源码 (宿主本地提交 f3c4443bf: speech 模块, SpeechScriptArguments, SpeechBundles 与语音插件契约 v2 的 "Offline analyses" 一节), 3-Macaw Speech 路线图 D144 - D155 与 AutoJs6-Shared-Assets 的待签名目录 v3; 3-Macaw Speech 1.3.0 与 AutoJs6 6.8.0 尚未发布, 此条不表示官方发布.
+
+2026-10-29 Node.js 文件与数据族运行时支持表 (宿主 api-coverage 路线图 P3.2b): [颜色](color), [Color](colorType), [文件](files), [压缩文件](zip), [存储](storages), [Storage](storageType), [媒体信息](mediainfo), [电子书对象](epubBookType), [MIME](mime), [记录器](recorder), [全局对象](global) 与 [工具](util) 十二页的表按宿主运行时覆盖矩阵 (宿主 0a39eeb3f) 重新生成. Node.js 插件 (b92e7a99) 在主线程与 Worker 中提供 colors / Color, files (含全局 open), zip, mime 与 recorder (共享 JS 核心), storages / Storage (含 names / all 与 size) 与 mediainfo; 全局对象的 dayjs / pangu / cheerio / i18n 随插件内嵌, Worker 的 axios 经主线程转发; colors.theme, gallery 与 files.batchRename 待宿主桥接 (P3.5). 运行时支持表新增排除理由 "宿主已废弃" (util.toRegularAndCall / toRegularAndApply). [语音](speech) 页的表随宿主新增的 speech.diarize / detectLanguage / tag 补上对应行 (待补).
+
+2026-10-29 脚本库 (Bundled Libraries) 新增: 覆盖 Bundled Libraries 插件 1.0.0 (最低 AutoJs6 构建 5935) 收录的 13 个脚本库 (axios, cheerio, dayjs, i18n, pangu, lodash 与七个 Node.js 兼容模块), 安装与逐库开关, 以及插件不可用时 `require` 与全局对象读取抛出的 `MODULE_NOT_FOUND` 错误 (library 与五种 reason). [模块](modules), [全局对象](global), [国际化](i18n), [文本间距](pangu), [插件](plugins) 与 [术语](glossaries) 页改为说明这些库由插件提供. 依据为 AutoJs6 源码 (宿主 augment 路线图 T11 / P5.2, PluginModuleScriptProvider 与 ScriptModulePluginState) 与插件仓库的 script-modules.json; AutoJs6 6.8.0 尚未发布, 此条不表示官方发布.
+
+2026-10-29 运行时支持表全量插入 (宿主 api-coverage 路线图 P2.5): 宿主运行时覆盖矩阵 (宿主 72064c1a8) 中每个模块与返回对象的第一个文档页都有 "运行时支持" 表, 共 83 页 (此前已有 13 页, 本次新增 70 页, [全局对象](global) 页的表并入 species), 覆盖 69 个模块的 1582 项与 43 种返回对象的 1248 项成员. 表格由 `generator/runtime-support.js` 生成, 不手改; 宿主 `check.py --docs-support` 现在要求每个模块与返回对象都有表, 并已接入宿主 CI. 同时更正 [应用枚举类](appType) 的 openSettings 为 launchSettings, 补充 [颜色](color) 的 rgba / hsva / hsla (components, alpha) 重载. 矩阵记录的是已声明的入口, 不代表这些入口已在公开发布的插件版本中提供; AutoJs6 6.8.0 尚未发布, 此条不表示官方发布.
+
+2026-10-29 Bun JS 工具族运行时支持表 (宿主 api-coverage 路线图 P4.2a): [拼音](pinyin) 页顶部新增 "运行时支持" 表, [工具](util), [全局对象](global), [标准化](s13n), [单位转换](cvt), [格式化](fmt), [Jsox](jsox), [Mathx](mathx), [Arrayx](arrayx) 与 [Numberx](numberx) 九页的表按宿主运行时覆盖矩阵 (宿主 10c844a1f) 重新生成. Bun 插件 (976312d) 的客户端现在通过 host.util, host.species, host.global, host.s13n, host.cvt / host.fmt 与 host.jsox (mathx / arrayx / numberx) 在本地提供这些模块 (与 Node.js 插件共用实现, 不需授权), 需要 Java 对象的成员经 java.interop 授权; host.pinyin 增加 STYLE_* / MODE_* 常量. dayjs / pangu / cheerio / i18n / axios 等全局库仍为待补. 矩阵记录的是已声明的入口, 不代表这些入口已在公开发布的插件版本中提供.
+
+2026-10-29 JS 工具族运行时支持表 (宿主 api-coverage 路线图 P3.2a): [工具](util), [全局对象](global), [标准化](s13n), [单位转换](cvt), [格式化](fmt), [Jsox](jsox), [Mathx](mathx), [Arrayx](arrayx) 与 [Numberx](numberx) 九页顶部新增 "运行时支持" 表, 由 `generator/runtime-support.js` 根据宿主运行时覆盖矩阵 (宿主 3ebafb50e) 生成. Node.js 插件 (748ba995) 的主线程与 Worker 现在通过 autojs6:util, species, autojs6:global, s13n, fmt / cvt, jsox 与 jsox.mathx / arrayx / numberx 提供这些模块, 实现与 Rhino 逐例对照 (523 例); dayjs / pangu / cheerio / i18n 等仍为待补. 矩阵记录的是已声明的入口, 不代表这些入口已在公开发布的插件版本中提供.
+
+2026-10-29 返回对象与模块原型成员补齐 (宿主 api-coverage 路线图 P2.3): 宿主名称级门禁现在也检查返回对象 (如 Dialog, TimedTask, UiObject) 与 22 个以 Java 对象为原型的模块 (如 files, events, device) 的成员. 本次补上门禁列出的缺失条目: Java / Android 转发成员与属性读写方法写成对象小节内的成员表 (Dialog 的 76 个方法, TimedTask / IntentTask, ThemeColor, Mat, Flow 的事件等待步骤), 其余写成独立条目 (ScriptExecution, ScriptEngine, UiObject, UiObjectCollection, UiSelector, Color, ZIP 对象, 悬浮窗, 文本文件, MatchingResult, crypto.fromHex, events 的两个 remove*Observer, util.class / getClassName / className). 系统回调, 宿主生命周期与调度等不属于脚本 API 的 Java 成员不写入文档 (宿主 returned-objects.json 的 excludeNote 说明了原因). 选择器的 contentValid 在 AutoJs6 中不存在, 条目改为实际提供的 contentInvalid. 运行时支持表生成器计入原型成员, 并支持返回对象: 类型页的标记块以 "对象名#" 为根, 模块页在表下列出本页说明的返回对象; image 与 files 两页已重新生成, 其余页面的标记块在 P2.5 统一插入. 依据为 AutoJs6 源码 (JsDialog, TimedTask, JavaScriptEngine, ScriptExecution, UiObject 等) 与 TypeScript 声明. AutoJs6 6.8.0 尚未发布, 此条不表示官方发布.
+
+2026-10-29 API 条目补齐 (宿主 api-coverage 路线图 P2.1): 宿主名称级门禁 `tools/api-coverage/check.py` 列出的 95 个 "仅被提及" 的导出名称 (正文, 表格或列表里出现, 没有独立标题) 中的 94 个补为独立条目, 每项有标题, 签名与示例; 余下的 util.__assignFunctions__ 已有标题 (名称按 Markdown 转义书写), 改由门禁在匹配前去掉转义后识别. 补齐的条目包括 mail 的 48 个转发方法 (同步与 Async 形态, 含此前只被 providers.get 的标题顺带匹配的 mail.get), flow 的 15 个工具集起点与 4 个事件等待起点, flow 与全局的别名 (waitAsync, wait.async, clickWait, clickBoundsWait, clickWhenStable, clickBoundsWhenStable, waitForGone, 以及 flow.delay), tts 的 7 个别名, 全小写的 toast 别名 5 个, Mathx.random 与 Mathx.randFloat, automator.headsethook. 别名条目放在正式条目的同一节内, 链接仍指向正式条目. 签名依据 AutoJs6 源码 (FlowModule, ToolkitArgs, MathxModule, AutomatorModule) 与 TypeScript 声明. AutoJs6 6.8.0 尚未发布, 此条不表示官方发布.
+
+2026-10-29 语音 (Speech) 增补: speech.speaker 说话人识别 (注册 enroll, 验证 verify, 辨认 identify 及其 Async 形态, list 与 remove), 写明录音与名字的上限, 同名注册的合并与 replace, 默认阈值与 topK, 以及新错误代码 SPEAKER_NOT_FOUND / AUDIO_TOO_SHORT; capabilities 的 features 增加 `speaker`, contractVersion 说明契约版本 2. 依据为 AutoJs6 源码 (speech 模块与语音插件契约 v2) 与 3-Macaw Speech 路线图 D132 - D138; 3-Macaw Speech 1.3.0 与 AutoJs6 6.8.0 尚未发布, 此条不表示官方发布.
+
+2026-10-29 选择器 (UiSelector) 增补: normalize (文本规范化的五个选项与作用规则) 与 prefer (多候选偏好的六个键与比较规则) 两个配置器; findOnce / findOne / untilFindOne 与 pickup 单个结果的命中刷新, exists / find / findOnce(index) 不刷新; findOne(timeout) 的事件辅助轮询与精确 id 快路径; pickup / detect 在筛选之前检查全部参数, 结果参数只能调用节点方法注册表中的方法. 数据类型页的 UiObjectInvokable 列出可调用方法 (由宿主 tools/selector/registry_export.py 从注册表生成, 206 个名称), PickupResult 补齐 `##` / `$$` / `..` 与数组形式; 自动化页补充 auto.setFlags 的 `!` 前缀与默认标志, 标志 noFastPath / noRefreshOnHit, auto.clearFlags, auto.explain 的罗盘与结果参数及新字段, auto.stats 的 queries.refinds 与 fastPath. 依据为 AutoJs6 源码 (选择器路线图 P2 / P3, 宿主提交至 8bcb9969f) 与 JVM 测试. AutoJs6 6.8.0 尚未发布, 此条不表示官方发布.
+
 2026-10-25 运行时支持表试点: [图像](image), [文件](files) 与 [流程](flow) 三页顶部新增 "运行时支持" 表, 列出 Rhino, Node.js 主线程, Node.js Worker 与 Bun 的入口, 各状态的 API 数, Bun 所需授权, 以及入口, 状态或授权与同列多数不同的差异项. 表格由新生成器 `generator/runtime-support.js` 根据 AutoJs6 运行时覆盖矩阵 (宿主 api-coverage 路线图 P0.5, 2026-10-25 本地矩阵) 生成, 不手改; 其余模块页在 P2.5 统一插入. 矩阵记录的是已声明的入口, 不代表这些入口已在公开发布的插件版本中提供.
 
 2026-10-24 内存 (Memory) 增补: snapshot 的 bridgeSessions (Node.js, Bun, QuickJS, Lua 与 Python 五个插件引擎已结束但未被回收的桥接会话数), collect 同时等待桥接会话被回收, retained 元素的 engine (`rhino` / `node`). 依据为 AutoJs6 源码 (内存路线图第二期 P4.4, 宿主提交 446d2ff42) 与 JVM 测试 MemoryModuleTest / MemoryDiagnosticsCoreTest.
@@ -214,6 +286,7 @@
 | [Gallery - 相册](gallery) | √ |
 | [Global - 全局对象](global) | √ |
 | [HTTP](http) | √ |
+| [ImGui](imgui) | √ |
 | [Images - 图像](image) | √ |
 | [Installer - 安装器](installer) | √ |
 | [Internationalization - 国际化](i18n) | √ |
@@ -270,6 +343,19 @@
 | [ComposeSession - Compose 会话](composeSessionType) | √ |
 | [ComposeFloatyWindow - Compose 悬浮窗](composeFloatyWindowType) | √ |
 | [Compose 组件目录](composeComponents) | √ |
+| [ImguiSession - ImGui 会话](imguiSessionType) | √ |
+| [ImguiDrawList - ImGui 绘制列表](imguiDrawListType) | √ |
+| [ImguiFloatingButton - ImGui 悬浮按钮](imguiFloatingButtonType) | √ |
+| [ImguiComponent - ImGui 高层组件](imguiComponentType) | √ |
+| [ImguiDataTable - ImGui 数据表格](imguiDataTableType) | √ |
+| [ImguiLogWindow - ImGui 日志窗口](imguiLogWindowType) | √ |
+| [ImguiToast - ImGui 短消息](imguiToastType) | √ |
+| [ImguiStatsOverlay - ImGui 帧率覆盖层](imguiStatsOverlayType) | √ |
+| [ImguiDialog - ImGui 对话框](imguiDialogType) | √ |
+| [ImguiDialogPromise - ImGui 对话框 Promise](imguiDialogPromiseType) | √ |
+| [ImguiTexture - ImGui 纹理](imguiTextureType) | √ |
+| [ImguiSelectionStorage - ImGui 选择存储](imguiSelectionStorageType) | √ |
+| [ImguiMultiSelectIO - ImGui 多选结果](imguiMultiSelectIOType) | √ |
 | [EpubBook - 电子书对象](epubBookType) | √ |
 | [EpubReaderSession - 阅读器会话](epubReaderSessionType) | √ |
 | [Flow - 流程对象](flowType) | √ |
@@ -295,6 +381,7 @@
 | [Context - 上下文](context) | √ |
 | [Activity - 活动](activity) | √ |
 | [Scripting Java - 脚本化 Java](scriptingJava) | √ |
+| [Class Syntax - 类语法](classSyntax) | √ |
 | [Android API Level - 安卓 API 级别](apiLevel) | √ |
 | [Color Table - 颜色列表](colorTable) | √ |
 | [Glossaries - 术语](glossaries) | &gt; 80% |

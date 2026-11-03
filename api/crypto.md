@@ -1,5 +1,19 @@
 # 密文 (Crypto)
 
+<!-- runtime-support:begin crypto -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `crypto` | - | - | - |
+| 状态 | 已支持 8 项 | 不适用 8 项 (运行时自带等价功能), 等价写法: `node:crypto KeyObject / generateKeyPair, WebCrypto (globalThis.crypto.subtle)` | 不适用 8 项 (运行时自带等价功能), 等价写法: `node:crypto KeyObject / generateKeyPair, WebCrypto (globalThis.crypto.subtle)` | 不适用 8 项 (运行时自带等价功能), 等价写法: `node:crypto KeyObject / generateKeyPair, WebCrypto (globalThis.crypto.subtle)` |
+
+各 API 在同一运行时中的入口, 状态与授权一致, 没有差异项.
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
 crypto 模块提供 [ 对称加密 (如 AES) / 非对称加密 (如 RSA) / 消息摘要 (如 MD5, SHA) ] 等支持.
 
 > 注: 本章节参考自 [Auto.js Pro 文档](https://pro.autojs.org/docs/zh/v8/crypto.html).
@@ -273,6 +287,21 @@ let dc = crypto.decrypt(ec, key.privateKey, 'RSA/ECB/OAEPwithSHA-224andMGF1Paddi
 /* 解密还原为 message 变量的值, 即 'hello'. */
 console.log(dc); // hello
 console.log(dc === message); // true
+```
+
+## [m] fromHex
+
+### fromHex(hex)
+
+- **hex** { [string](dataTypes#string) } - 十六进制字符串, 长度须为偶数
+- <ins>**returns**</ins> { [JavaArray](dataTypes#javaarray)<[number](dataTypes#number)> } - Java 字节数组
+
+把十六进制字符串转换为 Java 字节数组, 与 `crypto.toHex(bytes)` 互逆. 长度为奇数或含非十六进制字符时抛出异常.
+
+```js
+let bytes = crypto.fromHex('48656c6c6f');
+console.log(java.lang.String(bytes)); // Hello
+console.log(crypto.toHex(bytes)); // 48656c6c6f
 ```
 
 ## [m] generateKeyPair

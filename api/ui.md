@@ -1,5 +1,28 @@
 # 用户界面 (UI)
 
+<!-- runtime-support:begin ui -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `ui`, 全局 2 项 | `autojs6:ui` | `autojs6:ui` | `host.ui` |
+| 状态 | 已支持 42 项 | 已支持 35 项, 不适用 7 项 | 已支持 35 项, 不适用 7 项 | 需授权 35 项, 不适用 7 项 |
+| 授权 | - | - | - | `ui.layout` 35 项 |
+
+差异项 (5 项): 下表列出入口, 状态或授权与同列多数 API 不同的 API, 未列出的 API 与同列多数一致.
+
+| API | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- |
+| `ui.__autojs6Tsx`, `__autojs6Tsx` | <span title="not-portable: rhino-only">不适用</span> (仅限 Rhino 引擎) | <span title="not-portable: rhino-only">不适用</span> (仅限 Rhino 引擎) | <span title="not-portable: rhino-only">不适用</span> (仅限 Rhino 引擎) |
+| `ui.__autojs6TsxFragment`, `__autojs6TsxFragment` | <span title="not-portable: rhino-only">不适用</span> (仅限 Rhino 引擎) | <span title="not-portable: rhino-only">不适用</span> (仅限 Rhino 引擎) | <span title="not-portable: rhino-only">不适用</span> (仅限 Rhino 引擎) |
+| `ui.__inflate__` | <span title="not-portable: rhino-only">不适用</span> (仅限 Rhino 引擎) | <span title="not-portable: rhino-only">不适用</span> (仅限 Rhino 引擎) | <span title="not-portable: rhino-only">不适用</span> (仅限 Rhino 引擎) |
+| `ui.__widgets__` | <span title="not-portable: rhino-only">不适用</span> (仅限 Rhino 引擎) | <span title="not-portable: rhino-only">不适用</span> (仅限 Rhino 引擎) | <span title="not-portable: rhino-only">不适用</span> (仅限 Rhino 引擎) |
+| `ui.layoutInflater` | <span title="not-portable: java-prototype">不适用</span> (需要 Java 对象), 等价写法: `ui.inflate / ui.createView` | <span title="not-portable: java-prototype">不适用</span> (需要 Java 对象), 等价写法: `ui.inflate / ui.createView` | <span title="not-portable: java-prototype">不适用</span> (需要 Java 对象), 等价写法: `ui.inflate / ui.createView` |
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
 UI 模式用于在独立的 `ScriptExecuteActivity` 中运行脚本并显示 Android 视图. 普通 JavaScript 的布局采用声明式 XML, 由 Rhino 按 [E4X](e4x) XML 处理, 不是浏览器 DOM 或 React 组件树. 配套 TypeScript Engine 的 `.tsx` 入口也可编译小写 XML UI 标签; Compose 标签的版本条件与独立挂载边界见 [Compose TSX 接入](compose#tsx-接入).
 
 `ui` 模块提供布局渲染, 视图查询, UI 线程调度, 自定义控件和系统栏控制等功能. `$ui` 是 `ui` 的等效别名.

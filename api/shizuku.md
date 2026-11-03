@@ -1,5 +1,20 @@
 # Shizuku
 
+<!-- runtime-support:begin shizuku -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `shizuku` | `autojs6:shizuku` | `autojs6:shizuku` | `host.shizuku` |
+| 状态 | 已支持 13 项 | 已支持 13 项 | 已支持 13 项 | 需授权 13 项 |
+| 授权 | - | - | - | `shell.shizuku` 13 项 |
+
+各 API 在同一运行时中的入口, 状态与授权一致, 没有差异项.
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
 通过 [Shizuku](https://shizuku.rikka.app/introduction/) 可以获得 ADB 特权并使用系统 API.
 
 使用 Shizuku 需满足以下全部条件:

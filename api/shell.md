@@ -1,5 +1,38 @@
 # Shell
 
+<!-- runtime-support:begin shell -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `shell`, 全局 19 项 | `autojs6:shell` | `autojs6:shell` | `host.shell` |
+| 状态 | 已支持 30 项 | 已支持 30 项 | 已支持 30 项 | 需授权 30 项 |
+| 授权 | - | - | - | `shell.root` 21 项, `shell.control` 9 项 |
+
+差异项 (9 项): 下表列出入口, 状态或授权与同列多数 API 不同的 API, 未列出的 API 与同列多数一致.
+
+| API | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- |
+| `SetScreenMetrics` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `shell.control` |
+| `shell.checkAccess` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `shell.control` |
+| `shell.execCommand` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `shell.control` |
+| `shell.fromIntent` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `shell.control` |
+| `shell.getCommand` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `shell.control` |
+| `shell.isRootAvailable` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `shell.control` |
+| `shell.kill` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `shell.control` |
+| `shell.setDefaultOptions` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `shell.control` |
+| `shell.spawn` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `shell.control` |
+
+返回对象 (1 个): 本页说明的对象的成员状态, 每个对象一行.
+
+| 返回对象 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| `ShellResult` (5 项) | 已支持 5 项 | 不适用 5 项 (需要 Java 对象) | 不适用 5 项 (需要 Java 对象) | 不适用 5 项 (需要 Java 对象) |
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
 交互式终端会话, 可见执行和输出事件由独立的 [terminal 模块](terminal) 提供, 需要安装 3-Shell Terminal 插件. 本章的 API 由 AutoJs6 自身提供, 不需要插件; 两者的返回值及进程权限不同.
 
 shell 模块用于在 Android 设备本地执行 Shell 命令.

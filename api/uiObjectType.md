@@ -1,5 +1,19 @@
 # 控件节点 (UiObject)
 
+<!-- runtime-support:begin UiObject# -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `UiObject` 对象 | - | - | - |
+| 状态 | 已支持 141 项 | 不适用 141 项 (需要 Java 对象) | 不适用 141 项 (需要 Java 对象) | 不适用 141 项 (需要 Java 对象) |
+
+各 API 在同一运行时中的入口, 状态与授权一致, 没有差异项.
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
 UiObject 通常被称为 [ 控件 / 节点 / 控件节点 ], 可看做是一个通过安卓无障碍服务包装的 [AccessibilityNodeInfo](https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo) 对象, 代表一个当前活动窗口中的节点, 通过此节点可收集控件信息或执行控件行为, 进而实现一系列自动化操作.
 
 应用界面通常由控件构成, 如 [ImageView](https://developer.android.com/reference/android/widget/ImageView) 构成图像控件, [TextView](https://developer.android.com/reference/android/widget/TextView) 构成文本控件. 通过不同的布局可决定不同控件的位置, 如 [LinearLayout (线性布局)](https://developer.android.com/reference/android/widget/LinearLayout) 按水平或垂直方式排布及显示控件, [AbsListView (列表布局)](https://developer.android.com/reference/android/widget/AbsListView) 按列表方式排布及显示控件.
@@ -2215,6 +2229,48 @@ console.log(w.toJSON().bounds);
 
 > 参阅: 含子控件的导出见 [dumpSubtree](#m-dumpsubtree).
 
+## [m#] summary
+
+### summary()
+
+**`A11Y`**
+
+- <ins>**returns**</ins> { [string](dataTypes#string) }
+
+返回控件属性的多行 `{ name=value ... }` 列表: 字符串加引号, 列表逐项展开, 边界写作 `Rect(l, t - r, b)`, 中心写作 `{x, y}`. 适合打印调试.
+
+```js
+console.log(text('登录').findOnce().summary());
+```
+
+## [m#] isSimilar
+
+### isSimilar(other)
+
+**`A11Y`**
+
+- **other** { [any](dataTypes#any) } - 另一个控件
+- <ins>**returns**</ins> { [boolean](dataTypes#boolean) }
+
+判断两个控件是否 "相似": 对应同一平台节点, 所列属性全部相等, 且首末兄弟控件与子控件的字符串形式相等. 适合比较两次查找得到的控件对象.
+
+```js
+let a = id('title').findOnce();
+let b = id('title').findOnce();
+console.log(a.isSimilar(b)); // true
+```
+
+## [m#] brother
+
+### brother(i)
+
+**`DEPRECATED`** **`A11Y`**
+
+- **i** { [number](dataTypes#number) } - 索引偏移量
+- <ins>**returns**</ins> { [UiObject](uiObjectType) | [null](dataTypes#null) }
+
+已弃用, 等同于 [offset(i)](#m-offset).
+
 ## [m#] dumpSubtree
 
 ### dumpSubtree(options?)
@@ -2507,7 +2563,9 @@ UiObject.ensureCompass('world'); /* 抛出异常. */
 - `detect` 已全局化, 支持全局使用.
 - `detect` 的首个参数固定为 [UiObject](uiObjectType) 类型.
 - [compass](#m-compass) 是 `detect` 的衍生方法.
-- [pickup](uiSelectorType#m-pickup) 的内部实现引用了 `detect` 方法.
+- [pickup](uiSelectorType#m-pickup) 与 `detect` 使用同一套参数检查, 罗盘定位, 结果筛选与回调处理: `pickup` 先筛选出控件, 其余过程与 `detect` 相同.
+- 参数检查 (**`6.8.0`**): 罗盘, 结果与回调参数在探测之前全部检查完毕, 错误消息指明函数名与参数名. [结果参数](dataTypes#detectresult) 只能调用 [可调用方法](dataTypes#uiobjectinvokable) 列出的控件方法, 未知名称抛出 RangeError 并列出至多 5 个相近名称; 集合与数组形式的结果参数 (如 `'{}'`, `'[]'`) 不适用于单个控件, 将抛出异常.
+- 罗盘每一步到达的控件与结果参数解析到的方法, 可用 [auto.explain](automator#m-explain) 查看.
 
 ### detect(w, compass)
 

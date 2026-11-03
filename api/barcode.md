@@ -1,5 +1,26 @@
 # 条码 (Barcode)
 
+<!-- runtime-support:begin barcode -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `barcode` | `barcode` | `barcode` | `host.barcode` |
+| 状态 | 已支持 4 项 | 已支持 4 项 | 已支持 4 项 | 需授权 4 项 |
+| 授权 | - | - | - | `barcode.control` 4 项 |
+
+各 API 在同一运行时中的入口, 状态与授权一致, 没有差异项.
+
+返回对象 (1 个): 本页说明的对象的成员状态, 每个对象一行.
+
+| 返回对象 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| `WrappedBarcode` (22 项) | 已支持 22 项 | 不适用 22 项 (需要 Java 对象) | 不适用 22 项 (需要 Java 对象) | 不适用 22 项 (需要 Java 对象) |
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
 `barcode` 模块用于从图片或当前屏幕中同步识别一维码和二维码.
 
 从 AutoJs6 6.8.0 起, 条码识别由外置 ML Kit Barcode 插件提供. 调用前需在插件中心安装, 启用并授权与当前 AutoJs6 兼容的插件. 插件缺失, 被禁用, 未授权, 版本不兼容, 服务绑定失败或调用超时时, 方法会抛出异常.

@@ -2,6 +2,8 @@
 
 OcrOptions 是一个代表 OCR 识别选项的接口.
 
+Node.js 与 Bun 的 OCR 方法接受相同的选项, 含义与默认值与 Rhino 一致. 宿主选定插件后按其引擎解析选项, 因此 Paddle OCR 选项不作用于其他引擎, 这一点也与 Rhino 相同.
+
 ---
 
 <p style="font: bold 2em sans-serif; color: #FF7043">OcrOptions</p>
@@ -106,6 +108,14 @@ ocr('test.png', { region: bounds });
 
 指定 OCR 引擎变体.
 
+Paddle OCR 的 PP-OCRv3 有两个变体: `"v3"` 为 ONNX Runtime 版插件, `"v3-paddle-lite"` 为 Paddle Lite 版插件.
+
+未指定 `engineId`, `variant` 和 [profile](#p-profile) 且插件中心未设置优先级时, 选择版本号最高的 Paddle OCR 插件; 版本号相同时优先选择声明为移动端默认的插件 (PP-OCRv3 为 ONNX Runtime 中文档), 仍然相同时按包名排序.
+
+```js
+ocr.paddle(img, { variant: 'v3-paddle-lite' }); // 使用 Paddle Lite 版.
+```
+
 Rapid OCR 模式会将 `v3` 和 `v6` 分别规范化为 `pp-ocrv3` 和 `pp-ocrv6`.
 
 ---
@@ -117,6 +127,17 @@ Rapid OCR 模式会将 `v3` 和 `v6` 分别规范化为 `pp-ocrv3` 和 `pp-ocrv6
 - { [string](dataTypes#string) }
 
 指定 OCR 插件配置档案. 空字符串不会传递给插件.
+
+此选项参与插件匹配: 只选择声明了相同配置档案的插件, 未声明配置档案的插件不匹配. 没有匹配的插件时, 调用会报告插件不可用.
+
+PP-OCRv3 的配置档案对应语种包: `"zh"`, `"en"`, `"zh-hant"`, `"ja"`, `"ko"`, `"latin"`, `"arabic"`, `"cyrillic"`, `"devanagari"`, `"te"`, `"ka"`, `"ta"`, 使用前需安装对应的语种包插件. Paddle OCR 的其他版本也可使用此选项, 如 PP-OCRv4 的 `"mobile"`, `"server"`, `"mobile-en"`.
+
+`"arabic"` 的结果按从右到左的阅读顺序返回, 打包应用的内置引擎与 [mergeLine](#p-mergeline) 同样如此. `"devanagari"`, `"te"`, `"ka"`, `"ta"` 的模型对连字和写在辅音前面的元音符号识别较弱, 这类文字可能读错或漏读.
+
+```js
+ocr.paddle(img, { profile: 'ja' }); // 使用 PP-OCRv3 日语语种包.
+ocr.detect(img, { engine: 'paddle', profile: 'en' }); // 通用入口走同一条路径.
+```
 
 ---
 
@@ -204,6 +225,20 @@ Paddle OCR 模式的默认值为 `-1`. Rapid OCR 模式未指定此选项时采�
 
 是否使用精简模型.
 
+PP-OCRv3 的 ONNX Runtime 版使用 int8 量化模型作为精简模型, Paddle Lite 版使用官方 slim 模型.
+
+---
+
+### [p?] useCls
+
+**`6.8.0`**
+
+- [ `false` ] { [boolean](dataTypes#boolean) }
+
+是否在识别前运行文字方向分类.
+
+开启后可纠正倒置 (旋转 180 度) 的文字, 耗时增加约 5-10%. 仅支持方向分类的插件使用此选项; 未设置时不传递给插件, 由插件保持自身的默认行为. PP-OCRv3 的 ONNX Runtime 版缺省不运行分类.
+
 ---
 
 ### [p?] useOpenCL
@@ -212,13 +247,24 @@ Paddle OCR 模式的默认值为 `-1`. Rapid OCR 模式未指定此选项时采�
 
 是否启用 OpenCL.
 
+PP-OCRv3 的 ONNX Runtime 版没有 OpenCL 后端, 此选项映射为 NNAPI 执行提供器; Android API 低于 27 或 NNAPI 不可用时回退到 CPU. 实际使用的执行提供器可通过识别结果的 [extras](dataTypes#p-extras) 读取:
+
+```js
+let [result] = ocr.paddle.detect(img, { useOpenCL: true });
+console.log(result.extras.executionProvider); // "nnapi" 或 "cpu".
+```
+
 ---
 
 ### [p?] mergeLine
 
 - [ `false` ] { [boolean](dataTypes#boolean) }
 
-是否将同一文本行的识别结果合并.
+是否将同一文本行的识别结果合并. 片段按阅读顺序拼接, 从右到左的文字 (如 [profile](#p-profile) 为 `"arabic"`) 从最右边的片段开始.
+
+合并后的 [extras](dataTypes#p-extras) 只保留各片段取值相同的键.
+
+此选项只作用于返回 [OcrResult](dataTypes#ocrresult) 的方法, 如 [ocr.detect](ocr#m-detect). [recognizeText](ocr#m-recognizetext) 不合并.
 
 当 [splitWords](#p-splitwords) 或 [useWordSegmentation](#p-usewordsegmentation) 为 `true` 时, 此选项强制按 `false` 处理.
 

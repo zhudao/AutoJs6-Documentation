@@ -4,7 +4,7 @@
     {
       "textRaw": "全局对象 (Global)",
       "name": "全局对象_(global)",
-      "desc": "<p>在 JavaScript 中, <a href=\"https://stackoverflow.com/questions/9108925/how-is-almost-everything-in-javascript-an-object/\">几乎一切都是对象</a>.<br>\n此处的全局 &quot;对象&quot; 包括 [ 变量 / 方法 / 构造器 ] 等.<br>\n全局对象随处可用, 包括 ECMA 标准内置对象 (如 [ Number / RegExp / String ] 等).</p>\n<p>AutoJs6 的内置模块均支持全局使用, 如 <code>app</code>, <code>images</code>, <code>device</code> 等.</p>\n<p>本页描述 Rhino 全局环境. Node.js / Bun 不自动注入这些对象; <code>cX/cY/cXy/cYx</code> 的异步模块入口见 <a href=\"runtimeApis#nodejs-坐标换算\">运行时坐标换算</a>.</p>\n<p>为便于使用, 一些 AutoJs6 模块中的方法也被全局化,<br>\n如 <code>images.captureScreen()</code>, <code>dialogs.alert()</code>, <code>app.launch()</code> 等.<br>\n全局化方法均以 <code>Global</code> 标签标注.</p>\n<p>脚本文件可直接运行使用, 也可作为模块被导入使用 (<code>require</code> 方法).<br>\n当作为模块使用时, <code>exports</code> 和 <code>module</code> 可作为全局对象使用.<br>\n另在 UI 模式下也有一些专属全局对象, 如 <code>activity</code>.</p>\n",
+      "desc": "<!-- runtime-support:begin global species -->\n<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->\n<table>\n<thead>\n<tr>\n<th>运行时支持</th>\n<th>Rhino</th>\n<th>Node.js 主线程</th>\n<th>Node.js Worker</th>\n<th>Bun</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>入口</td>\n<td><code>species</code>, 全局 61 项</td>\n<td><code>autojs6:species</code>, <code>autojs6:system</code>, <code>autojs6:global</code>, <code>autojs6:screen_metrics</code>, <code>toast</code>, <code>autojs6:compat</code> (经 compat), <code>ui</code>, <code>$autojs.species</code></td>\n<td><code>autojs6:species</code>, <code>autojs6:system</code>, <code>autojs6:global</code>, <code>autojs6:screen_metrics</code>, <code>toast</code>, <code>ui</code>, <code>$autojs.species</code></td>\n<td><code>host.global</code>, <code>host.species</code>, <code>host.coordinates</code>, <code>host.clipboard</code></td>\n</tr>\n<tr>\n<td>状态</td>\n<td>已支持 98 项</td>\n<td>已支持 42 项, 已支持 (本地实现) 51 项, 不适用 5 项</td>\n<td>已支持 42 项, 已支持 (本地实现) 51 项, 不适用 5 项</td>\n<td>已支持 (本地实现) 66 项, 需授权 27 项, 不适用 5 项</td>\n</tr>\n<tr>\n<td>授权</td>\n<td>-</td>\n<td>-</td>\n<td>-</td>\n<td><code>screen.metrics</code> 10 项, <code>ui.toast</code> 10 项, <code>accessibility.control</code> 5 项, <code>clipboard.control</code> 2 项</td>\n</tr>\n</tbody>\n</table>\n<p>差异项 (60 项): 下表列出入口, 状态或授权与同列多数 API 不同的 API, 未列出的 API 与同列多数一致.</p>\n<table>\n<thead>\n<tr>\n<th>API</th>\n<th>Node.js 主线程</th>\n<th>Node.js Worker</th>\n<th>Bun</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>HEIGHT</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>HEIGHT</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>HEIGHT</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.HEIGHT</code></td>\n</tr>\n<tr>\n<td><code>TODO</code></td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>TODO</code> (<code>autojs6:global</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>TODO</code> (<code>autojs6:global</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.TODO</code></td>\n</tr>\n<tr>\n<td><code>WIDTH</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>WIDTH</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>WIDTH</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.WIDTH</code></td>\n</tr>\n<tr>\n<td><code>axios</code></td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>axios</code> (<code>autojs6:global</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>axios</code> (<code>autojs6:global</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.axios</code></td>\n</tr>\n<tr>\n<td><code>cX</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>cX</code> (<code>autojs6:screen_metrics</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>cX</code> (<code>autojs6:screen_metrics</code>)</td>\n<td><span title=\"capability-gated\">需授权</span> <code>screen.metrics</code>: <code>host.coordinates.cX</code></td>\n</tr>\n<tr>\n<td><code>cXy</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>cXy</code> (<code>autojs6:screen_metrics</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>cXy</code> (<code>autojs6:screen_metrics</code>)</td>\n<td><span title=\"capability-gated\">需授权</span> <code>screen.metrics</code>: <code>host.coordinates.cXy</code></td>\n</tr>\n<tr>\n<td><code>cY</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>cY</code> (<code>autojs6:screen_metrics</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>cY</code> (<code>autojs6:screen_metrics</code>)</td>\n<td><span title=\"capability-gated\">需授权</span> <code>screen.metrics</code>: <code>host.coordinates.cY</code></td>\n</tr>\n<tr>\n<td><code>cYx</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>cYx</code> (<code>autojs6:screen_metrics</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>cYx</code> (<code>autojs6:screen_metrics</code>)</td>\n<td><span title=\"capability-gated\">需授权</span> <code>screen.metrics</code>: <code>host.coordinates.cYx</code></td>\n</tr>\n<tr>\n<td><code>cheerio</code></td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>cheerio</code> (<code>autojs6:global</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>cheerio</code> (<code>autojs6:global</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.cheerio</code></td>\n</tr>\n<tr>\n<td><code>currentActivity</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>currentActivity</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>currentActivity</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"capability-gated\">需授权</span> <code>accessibility.control</code>: <code>host.global.currentActivity</code></td>\n</tr>\n<tr>\n<td><code>currentComponent</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>currentComponent</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>currentComponent</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"capability-gated\">需授权</span> <code>accessibility.control</code>: <code>host.global.currentComponent</code></td>\n</tr>\n<tr>\n<td><code>currentPackage</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>currentPackage</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>currentPackage</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"capability-gated\">需授权</span> <code>accessibility.control</code>: <code>host.global.currentPackage</code></td>\n</tr>\n<tr>\n<td><code>dayjs</code></td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>dayjs</code> (<code>autojs6:global</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>dayjs</code> (<code>autojs6:global</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.dayjs</code></td>\n</tr>\n<tr>\n<td><code>exit</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>exit</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>exit</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.exit</code></td>\n</tr>\n<tr>\n<td><code>getClip</code></td>\n<td><span title=\"bridged\">已支持</span>, 经 compat: <code>getClip</code> (<code>autojs6:compat</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>getClip</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"capability-gated\">需授权</span> <code>clipboard.control</code>, 经 clipboard: <code>host.clipboard.getText</code></td>\n</tr>\n<tr>\n<td><code>getScaleBaseX</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>getScaleBaseX</code> (<code>autojs6:screen_metrics</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>getScaleBaseX</code> (<code>autojs6:screen_metrics</code>)</td>\n<td><span title=\"capability-gated\">需授权</span> <code>screen.metrics</code>: <code>host.coordinates.getScaleBaseX</code></td>\n</tr>\n<tr>\n<td><code>getScaleBaseY</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>getScaleBaseY</code> (<code>autojs6:screen_metrics</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>getScaleBaseY</code> (<code>autojs6:screen_metrics</code>)</td>\n<td><span title=\"capability-gated\">需授权</span> <code>screen.metrics</code>: <code>host.coordinates.getScaleBaseY</code></td>\n</tr>\n<tr>\n<td><code>getScaleBases</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>getScaleBases</code> (<code>autojs6:screen_metrics</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>getScaleBases</code> (<code>autojs6:screen_metrics</code>)</td>\n<td><span title=\"capability-gated\">需授权</span> <code>screen.metrics</code>: <code>host.coordinates.getScaleBases</code></td>\n</tr>\n<tr>\n<td><code>i18n</code></td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>i18n</code> (<code>autojs6:global</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>i18n</code> (<code>autojs6:global</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.i18n</code></td>\n</tr>\n<tr>\n<td><code>isAutoJs6</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>isAutoJs6</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>isAutoJs6</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.isAutoJs6</code></td>\n</tr>\n<tr>\n<td><code>isBigInt</code></td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>isBigInt</code> (<code>autojs6:global</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>isBigInt</code> (<code>autojs6:global</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.isBigInt</code></td>\n</tr>\n<tr>\n<td><code>isEmptyObject</code></td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>isEmptyObject</code> (<code>autojs6:global</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>isEmptyObject</code> (<code>autojs6:global</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.isEmptyObject</code></td>\n</tr>\n<tr>\n<td><code>isInteger</code></td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>isInteger</code> (<code>autojs6:global</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>isInteger</code> (<code>autojs6:global</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.isInteger</code></td>\n</tr>\n<tr>\n<td><code>isJavaClass</code></td>\n<td><span title=\"not-portable: java-prototype\">不适用</span> (需要 Java 对象), 等价写法: <code>java module handles (java.create / java.callInstance / java.callStatic)</code></td>\n<td><span title=\"not-portable: java-prototype\">不适用</span> (需要 Java 对象), 等价写法: <code>java module handles (java.create / java.callInstance / java.callStatic)</code></td>\n<td><span title=\"not-portable: java-prototype\">不适用</span> (需要 Java 对象), 等价写法: <code>java module handles (java.create / java.callInstance / java.callStatic)</code></td>\n</tr>\n<tr>\n<td><code>isJavaObject</code></td>\n<td><span title=\"not-portable: java-prototype\">不适用</span> (需要 Java 对象), 等价写法: <code>java module handles (java.create / java.callInstance / java.callStatic)</code></td>\n<td><span title=\"not-portable: java-prototype\">不适用</span> (需要 Java 对象), 等价写法: <code>java module handles (java.create / java.callInstance / java.callStatic)</code></td>\n<td><span title=\"not-portable: java-prototype\">不适用</span> (需要 Java 对象), 等价写法: <code>java module handles (java.create / java.callInstance / java.callStatic)</code></td>\n</tr>\n<tr>\n<td><code>isJavaPackage</code></td>\n<td><span title=\"not-portable: java-prototype\">不适用</span> (需要 Java 对象), 等价写法: <code>java module handles (java.create / java.callInstance / java.callStatic)</code></td>\n<td><span title=\"not-portable: java-prototype\">不适用</span> (需要 Java 对象), 等价写法: <code>java module handles (java.create / java.callInstance / java.callStatic)</code></td>\n<td><span title=\"not-portable: java-prototype\">不适用</span> (需要 Java 对象), 等价写法: <code>java module handles (java.create / java.callInstance / java.callStatic)</code></td>\n</tr>\n<tr>\n<td><code>isObjectSpecies</code></td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>isObjectSpecies</code> (<code>autojs6:global</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>isObjectSpecies</code> (<code>autojs6:global</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.isObjectSpecies</code></td>\n</tr>\n<tr>\n<td><code>isPrimitive</code></td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>isPrimitive</code> (<code>autojs6:global</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>isPrimitive</code> (<code>autojs6:global</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.isPrimitive</code></td>\n</tr>\n<tr>\n<td><code>isReference</code></td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>isReference</code> (<code>autojs6:global</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>isReference</code> (<code>autojs6:global</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.isReference</code></td>\n</tr>\n<tr>\n<td><code>isRunning</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>isRunning</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>isRunning</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.isRunning</code></td>\n</tr>\n<tr>\n<td><code>isShuttingDown</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>isShuttingDown</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>isShuttingDown</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.isShuttingDown</code></td>\n</tr>\n<tr>\n<td><code>isStopped</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>isStopped</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>isStopped</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.isStopped</code></td>\n</tr>\n<tr>\n<td><code>isUiThread</code></td>\n<td><span title=\"bridged\">已支持</span>, 经 ui: <code>isUiThread</code> (<code>ui</code>)</td>\n<td><span title=\"bridged\">已支持</span>, 经 ui: <code>isUiThread</code> (<code>ui</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.isUiThread</code></td>\n</tr>\n<tr>\n<td><code>notStopped</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>notStopped</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>notStopped</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.notStopped</code></td>\n</tr>\n<tr>\n<td><code>pangu</code></td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>pangu</code> (<code>autojs6:global</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>pangu</code> (<code>autojs6:global</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.pangu</code></td>\n</tr>\n<tr>\n<td><code>random</code></td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>random</code> (<code>autojs6:global</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>random</code> (<code>autojs6:global</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.random</code></td>\n</tr>\n<tr>\n<td><code>requiresApi</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>requiresApi</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>requiresApi</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.requiresApi</code></td>\n</tr>\n<tr>\n<td><code>requiresAutojsVersion</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>requiresAutojsVersion</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>requiresAutojsVersion</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.requiresAutojsVersion</code></td>\n</tr>\n<tr>\n<td><code>setClip</code></td>\n<td><span title=\"bridged\">已支持</span>, 经 compat: <code>setClip</code> (<code>autojs6:compat</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>setClip</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"capability-gated\">需授权</span> <code>clipboard.control</code>, 经 clipboard: <code>host.clipboard.setText</code></td>\n</tr>\n<tr>\n<td><code>setScaleBaseX</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>setScaleBaseX</code> (<code>autojs6:screen_metrics</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>setScaleBaseX</code> (<code>autojs6:screen_metrics</code>)</td>\n<td><span title=\"capability-gated\">需授权</span> <code>screen.metrics</code>: <code>host.coordinates.setScaleBaseX</code></td>\n</tr>\n<tr>\n<td><code>setScaleBaseY</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>setScaleBaseY</code> (<code>autojs6:screen_metrics</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>setScaleBaseY</code> (<code>autojs6:screen_metrics</code>)</td>\n<td><span title=\"capability-gated\">需授权</span> <code>screen.metrics</code>: <code>host.coordinates.setScaleBaseY</code></td>\n</tr>\n<tr>\n<td><code>setScaleBases</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>setScaleBases</code> (<code>autojs6:screen_metrics</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>setScaleBases</code> (<code>autojs6:screen_metrics</code>)</td>\n<td><span title=\"capability-gated\">需授权</span> <code>screen.metrics</code>: <code>host.coordinates.setScaleBases</code></td>\n</tr>\n<tr>\n<td><code>setScreenMetrics</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>setScreenMetrics</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>setScreenMetrics</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.setScreenMetrics</code></td>\n</tr>\n<tr>\n<td><code>sleep</code></td>\n<td><span title=\"bridged\">已支持</span>, 经 compat: <code>sleep</code> (<code>autojs6:compat</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>sleep</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.sleep</code></td>\n</tr>\n<tr>\n<td><code>stop</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>stop</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>stop</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.stop</code></td>\n</tr>\n<tr>\n<td><code>toString</code></td>\n<td><span title=\"not-portable: rhino-only\">不适用</span> (仅限 Rhino 引擎)</td>\n<td><span title=\"not-portable: rhino-only\">不适用</span> (仅限 Rhino 引擎)</td>\n<td><span title=\"not-portable: rhino-only\">不适用</span> (仅限 Rhino 引擎)</td>\n</tr>\n<tr>\n<td><code>toastError</code></td>\n<td><span title=\"bridged\">已支持</span>, 经 toast: <code>toastError</code> (<code>toast</code>)</td>\n<td><span title=\"bridged\">已支持</span>, 经 toast: <code>toastError</code> (<code>toast</code>)</td>\n<td><span title=\"capability-gated\">需授权</span> <code>ui.toast</code>: <code>host.global.toastError</code></td>\n</tr>\n<tr>\n<td><code>toastInfo</code></td>\n<td><span title=\"bridged\">已支持</span>, 经 toast: <code>toastInfo</code> (<code>toast</code>)</td>\n<td><span title=\"bridged\">已支持</span>, 经 toast: <code>toastInfo</code> (<code>toast</code>)</td>\n<td><span title=\"capability-gated\">需授权</span> <code>ui.toast</code>: <code>host.global.toastInfo</code></td>\n</tr>\n<tr>\n<td><code>toastLog</code></td>\n<td><span title=\"bridged\">已支持</span>, 经 toast: <code>toastLog</code> (<code>toast</code>)</td>\n<td><span title=\"bridged\">已支持</span>, 经 toast: <code>toastLog</code> (<code>toast</code>)</td>\n<td><span title=\"capability-gated\">需授权</span> <code>ui.toast</code>: <code>host.global.toastLog</code></td>\n</tr>\n<tr>\n<td><code>toastVerbose</code></td>\n<td><span title=\"bridged\">已支持</span>, 经 toast: <code>toastVerbose</code> (<code>toast</code>)</td>\n<td><span title=\"bridged\">已支持</span>, 经 toast: <code>toastVerbose</code> (<code>toast</code>)</td>\n<td><span title=\"capability-gated\">需授权</span> <code>ui.toast</code>: <code>host.global.toastVerbose</code></td>\n</tr>\n<tr>\n<td><code>toastWarn</code></td>\n<td><span title=\"bridged\">已支持</span>, 经 toast: <code>toastWarn</code> (<code>toast</code>)</td>\n<td><span title=\"bridged\">已支持</span>, 经 toast: <code>toastWarn</code> (<code>toast</code>)</td>\n<td><span title=\"capability-gated\">需授权</span> <code>ui.toast</code>: <code>host.global.toastWarn</code></td>\n</tr>\n<tr>\n<td><code>toasterror</code></td>\n<td><span title=\"bridged\">已支持</span>, 经 toast: <code>toastError</code> (<code>toast</code>)</td>\n<td><span title=\"bridged\">已支持</span>, 经 toast: <code>toastError</code> (<code>toast</code>)</td>\n<td><span title=\"capability-gated\">需授权</span> <code>ui.toast</code>: <code>host.global.toasterror</code></td>\n</tr>\n<tr>\n<td><code>toastinfo</code></td>\n<td><span title=\"bridged\">已支持</span>, 经 toast: <code>toastInfo</code> (<code>toast</code>)</td>\n<td><span title=\"bridged\">已支持</span>, 经 toast: <code>toastInfo</code> (<code>toast</code>)</td>\n<td><span title=\"capability-gated\">需授权</span> <code>ui.toast</code>: <code>host.global.toastinfo</code></td>\n</tr>\n<tr>\n<td><code>toastlog</code></td>\n<td><span title=\"bridged\">已支持</span>, 经 toast: <code>toastLog</code> (<code>toast</code>)</td>\n<td><span title=\"bridged\">已支持</span>, 经 toast: <code>toastLog</code> (<code>toast</code>)</td>\n<td><span title=\"capability-gated\">需授权</span> <code>ui.toast</code>: <code>host.global.toastlog</code></td>\n</tr>\n<tr>\n<td><code>toastverbose</code></td>\n<td><span title=\"bridged\">已支持</span>, 经 toast: <code>toastVerbose</code> (<code>toast</code>)</td>\n<td><span title=\"bridged\">已支持</span>, 经 toast: <code>toastVerbose</code> (<code>toast</code>)</td>\n<td><span title=\"capability-gated\">需授权</span> <code>ui.toast</code>: <code>host.global.toastverbose</code></td>\n</tr>\n<tr>\n<td><code>toastwarn</code></td>\n<td><span title=\"bridged\">已支持</span>, 经 toast: <code>toastWarn</code> (<code>toast</code>)</td>\n<td><span title=\"bridged\">已支持</span>, 经 toast: <code>toastWarn</code> (<code>toast</code>)</td>\n<td><span title=\"capability-gated\">需授权</span> <code>ui.toast</code>: <code>host.global.toastwarn</code></td>\n</tr>\n<tr>\n<td><code>unwrapJavaObject</code></td>\n<td><span title=\"not-portable: java-prototype\">不适用</span> (需要 Java 对象), 等价写法: <code>java module handles (java.create / java.callInstance / java.callStatic)</code></td>\n<td><span title=\"not-portable: java-prototype\">不适用</span> (需要 Java 对象), 等价写法: <code>java module handles (java.create / java.callInstance / java.callStatic)</code></td>\n<td><span title=\"not-portable: java-prototype\">不适用</span> (需要 Java 对象), 等价写法: <code>java module handles (java.create / java.callInstance / java.callStatic)</code></td>\n</tr>\n<tr>\n<td><code>wait</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>wait</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>wait</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"local-shim\">已支持 (本地实现)</span>: <code>host.global.wait</code></td>\n</tr>\n<tr>\n<td><code>waitForActivity</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>waitForActivity</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>waitForActivity</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"capability-gated\">需授权</span> <code>accessibility.control</code>: <code>host.global.waitForActivity</code></td>\n</tr>\n<tr>\n<td><code>waitForPackage</code></td>\n<td><span title=\"bridged\">已支持</span>: <code>waitForPackage</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"bridged\">已支持</span>: <code>waitForPackage</code> (<code>autojs6:system</code>)</td>\n<td><span title=\"capability-gated\">需授权</span> <code>accessibility.control</code>: <code>host.global.waitForPackage</code></td>\n</tr>\n</tbody>\n</table>\n<p>Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 <a href=\"runtimeApis#执行方式\">运行时 API</a>.</p>\n<!-- runtime-support:end -->\n<p>在 JavaScript 中, <a href=\"https://stackoverflow.com/questions/9108925/how-is-almost-everything-in-javascript-an-object/\">几乎一切都是对象</a>.<br>\n此处的全局 &quot;对象&quot; 包括 [ 变量 / 方法 / 构造器 ] 等.<br>\n全局对象随处可用, 包括 ECMA 标准内置对象 (如 [ Number / RegExp / String ] 等).</p>\n<p>AutoJs6 的内置模块均支持全局使用, 如 <code>app</code>, <code>images</code>, <code>device</code> 等.</p>\n<p>本页描述 Rhino 全局环境. Node.js / Bun 不自动注入这些对象; <code>cX/cY/cXy/cYx</code> 的异步模块入口见 <a href=\"runtimeApis#nodejs-坐标换算\">运行时坐标换算</a>.</p>\n<p>为便于使用, 一些 AutoJs6 模块中的方法也被全局化,<br>\n如 <code>images.captureScreen()</code>, <code>dialogs.alert()</code>, <code>app.launch()</code> 等.<br>\n全局化方法均以 <code>Global</code> 标签标注.</p>\n<p>脚本文件可直接运行使用, 也可作为模块被导入使用 (<code>require</code> 方法).<br>\n当作为模块使用时, <code>exports</code> 和 <code>module</code> 可作为全局对象使用.<br>\n另在 UI 模式下也有一些专属全局对象, 如 <code>activity</code>.</p>\n",
       "modules": [
         {
           "textRaw": "覆写保护",
@@ -30,35 +30,35 @@
         {
           "textRaw": "[p+] axios",
           "name": "[p+]_axios",
-          "desc": "<p><strong><code>Global</code></strong> <strong><code>Getter</code></strong></p>\n<ul>\n<li>{ <a href=\"dataTypes#function\">Function</a> | <a href=\"dataTypes#object\">Object</a> }</li>\n</ul>\n<p>返回运行时内置的 Axios 模块对象.</p>\n",
+          "desc": "<p><strong><code>Global</code></strong> <strong><code>Getter</code></strong> <strong><code>[6.8.0]</code></strong></p>\n<ul>\n<li>{ <a href=\"dataTypes#function\">Function</a> | <a href=\"dataTypes#object\">Object</a> }</li>\n</ul>\n<p>返回 Axios 模块对象, 与 <code>require(&#39;axios&#39;)</code> 为同一对象. 自 6.8.0 起由 <a href=\"bundledLibraries\">脚本库 (Bundled Libraries)</a> 插件提供, 插件不可用时读取会抛出说明如何安装或开启的错误.</p>\n",
           "type": "module",
           "displayName": "[p+] axios"
         },
         {
           "textRaw": "[p+] cheerio",
           "name": "[p+]_cheerio",
-          "desc": "<p><strong><code>Global</code></strong> <strong><code>Getter</code></strong></p>\n<ul>\n<li>{ <a href=\"dataTypes#function\">Function</a> | <a href=\"dataTypes#object\">Object</a> }</li>\n</ul>\n<p>返回运行时内置的 Cheerio 模块对象.</p>\n",
+          "desc": "<p><strong><code>Global</code></strong> <strong><code>Getter</code></strong> <strong><code>[6.8.0]</code></strong></p>\n<ul>\n<li>{ <a href=\"dataTypes#function\">Function</a> | <a href=\"dataTypes#object\">Object</a> }</li>\n</ul>\n<p>返回 Cheerio 模块对象, 与 <code>require(&#39;cheerio&#39;)</code> 为同一对象. 自 6.8.0 起由 <a href=\"bundledLibraries\">脚本库 (Bundled Libraries)</a> 插件提供, 插件不可用时读取会抛出说明如何安装或开启的错误.</p>\n",
           "type": "module",
           "displayName": "[p+] cheerio"
         },
         {
           "textRaw": "[p+] dayjs",
           "name": "[p+]_dayjs",
-          "desc": "<p><strong><code>Global</code></strong> <strong><code>Getter</code></strong></p>\n<ul>\n<li>{ <a href=\"dataTypes#function\">Function</a> | <a href=\"dataTypes#object\">Object</a> }</li>\n</ul>\n<p>返回运行时内置的 Day.js 模块对象.</p>\n",
+          "desc": "<p><strong><code>Global</code></strong> <strong><code>Getter</code></strong> <strong><code>[6.8.0]</code></strong></p>\n<ul>\n<li>{ <a href=\"dataTypes#function\">Function</a> | <a href=\"dataTypes#object\">Object</a> }</li>\n</ul>\n<p>返回 Day.js 模块对象, 与 <code>require(&#39;dayjs&#39;)</code> 为同一对象. 自 6.8.0 起由 <a href=\"bundledLibraries\">脚本库 (Bundled Libraries)</a> 插件提供, 插件不可用时读取会抛出说明如何安装或开启的错误.</p>\n",
           "type": "module",
           "displayName": "[p+] dayjs"
         },
         {
           "textRaw": "[p+] i18n",
           "name": "[p+]_i18n",
-          "desc": "<p><strong><code>Global</code></strong> <strong><code>Getter</code></strong></p>\n<ul>\n<li>{ <a href=\"dataTypes#object\">Object</a> }</li>\n</ul>\n<p>返回运行时内置的国际化模块对象.</p>\n",
+          "desc": "<p><strong><code>Global</code></strong> <strong><code>Getter</code></strong> <strong><code>[6.8.0]</code></strong></p>\n<ul>\n<li>{ <a href=\"dataTypes#object\">Object</a> }</li>\n</ul>\n<p>返回 <a href=\"i18n\">国际化</a> 模块对象, 与 <code>require(&#39;i18n&#39;)</code> 为同一对象. 自 6.8.0 起由 <a href=\"bundledLibraries\">脚本库 (Bundled Libraries)</a> 插件提供, 插件不可用时读取会抛出说明如何安装或开启的错误.</p>\n",
           "type": "module",
           "displayName": "[p+] i18n"
         },
         {
           "textRaw": "[p+] pangu",
           "name": "[p+]_pangu",
-          "desc": "<p><strong><code>Global</code></strong> <strong><code>Getter</code></strong> <strong><code>6.8.0</code></strong></p>\n<ul>\n<li>{ <a href=\"dataTypes#object\">Object</a> }</li>\n</ul>\n<p>返回内置的 <a href=\"pangu\">文本间距</a> 模块对象. 首次访问时加载, 同一脚本运行时内复用此对象.</p>\n",
+          "desc": "<p><strong><code>Global</code></strong> <strong><code>Getter</code></strong> <strong><code>6.8.0</code></strong></p>\n<ul>\n<li>{ <a href=\"dataTypes#object\">Object</a> }</li>\n</ul>\n<p>返回 <a href=\"pangu\">文本间距</a> 模块对象, 由 <a href=\"bundledLibraries\">脚本库 (Bundled Libraries)</a> 插件提供. 首次访问时加载, 同一脚本运行时内复用此对象; 插件不可用时读取会抛出说明如何安装或开启的错误.</p>\n",
           "type": "module",
           "displayName": "[p+] pangu"
         },
@@ -465,7 +465,28 @@
               "textRaw": "toastVerbose(text, isLong?, isForcible?)",
               "type": "method",
               "name": "toastVerbose",
-              "desc": "<p><strong><code>Global</code></strong></p>\n<ul>\n<li><strong>text</strong> { <a href=\"dataTypes#any\">any</a> } - 消息内容</li>\n<li><strong>[ isLong = false ]</strong> { <code>&#39;long&#39;</code> | <code>&#39;l&#39;</code> | <code>&#39;short&#39;</code> | <code>&#39;s&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否以较长时间显示</li>\n<li><strong>[ isForcible = false ]</strong> { <code>&#39;forcible&#39;</code> | <code>&#39;f&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否强制覆盖显示</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#void\">void</a> }</li>\n</ul>\n<p>显示消息浮动框, 并将 <code>text</code> 传给 <code>console.verbose</code>. <code>toastverbose</code> 是此方法的全小写别名.</p>\n",
+              "desc": "<p><strong><code>Global</code></strong></p>\n<ul>\n<li><strong>text</strong> { <a href=\"dataTypes#any\">any</a> } - 消息内容</li>\n<li><strong>[ isLong = false ]</strong> { <code>&#39;long&#39;</code> | <code>&#39;l&#39;</code> | <code>&#39;short&#39;</code> | <code>&#39;s&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否以较长时间显示</li>\n<li><strong>[ isForcible = false ]</strong> { <code>&#39;forcible&#39;</code> | <code>&#39;f&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否强制覆盖显示</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#void\">void</a> }</li>\n</ul>\n<p>显示消息浮动框, 并将 <code>text</code> 传给 <code>console.verbose</code>. <code>toastverbose</code> 是此方法的全小写别名.</p>\n<pre><code class=\"lang-js\">toastVerbose(&#39;开始同步&#39;);\n</code></pre>\n",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "name": "text"
+                    },
+                    {
+                      "name": "isLong?"
+                    },
+                    {
+                      "name": "isForcible?"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "textRaw": "toastverbose(text, isLong?, isForcible?)",
+              "type": "method",
+              "name": "toastverbose",
+              "desc": "<p><strong><code>Global</code></strong></p>\n<ul>\n<li><strong>text</strong> { <a href=\"dataTypes#any\">any</a> } - 消息内容</li>\n<li><strong>[ isLong = false ]</strong> { <code>&#39;long&#39;</code> | <code>&#39;l&#39;</code> | <code>&#39;short&#39;</code> | <code>&#39;s&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否以较长时间显示</li>\n<li><strong>[ isForcible = false ]</strong> { <code>&#39;forcible&#39;</code> | <code>&#39;f&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否强制覆盖显示</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#void\">void</a> }</li>\n</ul>\n<p><a href=\"#m-toastverbose\">toastVerbose</a> 的全小写别名, 参数与行为相同.</p>\n<pre><code class=\"lang-js\">toastverbose(&#39;开始同步&#39;, &#39;long&#39;);\n</code></pre>\n",
               "signatures": [
                 {
                   "params": [
@@ -494,7 +515,28 @@
               "textRaw": "toastLog(text?, isLong?, isForcible?)",
               "type": "method",
               "name": "toastLog",
-              "desc": "<p><strong><code>Global</code></strong></p>\n<ul>\n<li><strong>[ text ]</strong> { <a href=\"dataTypes#any\">any</a> } - 消息内容</li>\n<li><strong>[ isLong = false ]</strong> { <code>&#39;long&#39;</code> | <code>&#39;l&#39;</code> | <code>&#39;short&#39;</code> | <code>&#39;s&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否以较长时间显示</li>\n<li><strong>[ isForcible = false ]</strong> { <code>&#39;forcible&#39;</code> | <code>&#39;f&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否强制覆盖显示</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#void\">void</a> }</li>\n</ul>\n<p>显示消息浮动框, 并将 <code>text</code> 传给 <code>console.log</code>. 省略全部参数时显示字符串 <code>undefined</code>, 同时执行无参数的 <code>console.log()</code>.</p>\n<p><code>toastlog</code> 是此方法的全小写别名.</p>\n<p>虽然消息浮动框由异步队列显示, 但控制台输出同步执行.</p>\n",
+              "desc": "<p><strong><code>Global</code></strong></p>\n<ul>\n<li><strong>[ text ]</strong> { <a href=\"dataTypes#any\">any</a> } - 消息内容</li>\n<li><strong>[ isLong = false ]</strong> { <code>&#39;long&#39;</code> | <code>&#39;l&#39;</code> | <code>&#39;short&#39;</code> | <code>&#39;s&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否以较长时间显示</li>\n<li><strong>[ isForcible = false ]</strong> { <code>&#39;forcible&#39;</code> | <code>&#39;f&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否强制覆盖显示</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#void\">void</a> }</li>\n</ul>\n<p>显示消息浮动框, 并将 <code>text</code> 传给 <code>console.log</code>. 省略全部参数时显示字符串 <code>undefined</code>, 同时执行无参数的 <code>console.log()</code>.</p>\n<p><code>toastlog</code> 是此方法的全小写别名.</p>\n<p>虽然消息浮动框由异步队列显示, 但控制台输出同步执行.</p>\n<pre><code class=\"lang-js\">toastLog(&#39;任务完成&#39;);\n</code></pre>\n",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "name": "text?"
+                    },
+                    {
+                      "name": "isLong?"
+                    },
+                    {
+                      "name": "isForcible?"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "textRaw": "toastlog(text?, isLong?, isForcible?)",
+              "type": "method",
+              "name": "toastlog",
+              "desc": "<p><strong><code>Global</code></strong></p>\n<ul>\n<li><strong>[ text ]</strong> { <a href=\"dataTypes#any\">any</a> } - 消息内容</li>\n<li><strong>[ isLong = false ]</strong> { <code>&#39;long&#39;</code> | <code>&#39;l&#39;</code> | <code>&#39;short&#39;</code> | <code>&#39;s&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否以较长时间显示</li>\n<li><strong>[ isForcible = false ]</strong> { <code>&#39;forcible&#39;</code> | <code>&#39;f&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否强制覆盖显示</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#void\">void</a> }</li>\n</ul>\n<p><a href=\"#m-toastlog\">toastLog</a> 的全小写别名, 参数与行为相同.</p>\n<pre><code class=\"lang-js\">toastlog(&#39;任务完成&#39;, &#39;short&#39;, true);\n</code></pre>\n",
               "signatures": [
                 {
                   "params": [
@@ -523,7 +565,28 @@
               "textRaw": "toastInfo(text, isLong?, isForcible?)",
               "type": "method",
               "name": "toastInfo",
-              "desc": "<p><strong><code>Global</code></strong></p>\n<ul>\n<li><strong>text</strong> { <a href=\"dataTypes#any\">any</a> } - 消息内容</li>\n<li><strong>[ isLong = false ]</strong> { <code>&#39;long&#39;</code> | <code>&#39;l&#39;</code> | <code>&#39;short&#39;</code> | <code>&#39;s&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否以较长时间显示</li>\n<li><strong>[ isForcible = false ]</strong> { <code>&#39;forcible&#39;</code> | <code>&#39;f&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否强制覆盖显示</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#void\">void</a> }</li>\n</ul>\n<p>显示消息浮动框, 并将 <code>text</code> 传给 <code>console.info</code>. <code>toastinfo</code> 是此方法的全小写别名.</p>\n",
+              "desc": "<p><strong><code>Global</code></strong></p>\n<ul>\n<li><strong>text</strong> { <a href=\"dataTypes#any\">any</a> } - 消息内容</li>\n<li><strong>[ isLong = false ]</strong> { <code>&#39;long&#39;</code> | <code>&#39;l&#39;</code> | <code>&#39;short&#39;</code> | <code>&#39;s&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否以较长时间显示</li>\n<li><strong>[ isForcible = false ]</strong> { <code>&#39;forcible&#39;</code> | <code>&#39;f&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否强制覆盖显示</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#void\">void</a> }</li>\n</ul>\n<p>显示消息浮动框, 并将 <code>text</code> 传给 <code>console.info</code>. <code>toastinfo</code> 是此方法的全小写别名.</p>\n<pre><code class=\"lang-js\">toastInfo(&#39;已连接&#39;);\n</code></pre>\n",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "name": "text"
+                    },
+                    {
+                      "name": "isLong?"
+                    },
+                    {
+                      "name": "isForcible?"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "textRaw": "toastinfo(text, isLong?, isForcible?)",
+              "type": "method",
+              "name": "toastinfo",
+              "desc": "<p><strong><code>Global</code></strong></p>\n<ul>\n<li><strong>text</strong> { <a href=\"dataTypes#any\">any</a> } - 消息内容</li>\n<li><strong>[ isLong = false ]</strong> { <code>&#39;long&#39;</code> | <code>&#39;l&#39;</code> | <code>&#39;short&#39;</code> | <code>&#39;s&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否以较长时间显示</li>\n<li><strong>[ isForcible = false ]</strong> { <code>&#39;forcible&#39;</code> | <code>&#39;f&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否强制覆盖显示</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#void\">void</a> }</li>\n</ul>\n<p><a href=\"#m-toastinfo\">toastInfo</a> 的全小写别名, 参数与行为相同.</p>\n<pre><code class=\"lang-js\">toastinfo(&#39;已连接&#39;, &#39;l&#39;);\n</code></pre>\n",
               "signatures": [
                 {
                   "params": [
@@ -552,7 +615,28 @@
               "textRaw": "toastWarn(text, isLong?, isForcible?)",
               "type": "method",
               "name": "toastWarn",
-              "desc": "<p><strong><code>Global</code></strong></p>\n<ul>\n<li><strong>text</strong> { <a href=\"dataTypes#any\">any</a> } - 消息内容</li>\n<li><strong>[ isLong = false ]</strong> { <code>&#39;long&#39;</code> | <code>&#39;l&#39;</code> | <code>&#39;short&#39;</code> | <code>&#39;s&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否以较长时间显示</li>\n<li><strong>[ isForcible = false ]</strong> { <code>&#39;forcible&#39;</code> | <code>&#39;f&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否强制覆盖显示</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#void\">void</a> }</li>\n</ul>\n<p>显示消息浮动框, 并将 <code>text</code> 传给 <code>console.warn</code>. <code>toastwarn</code> 是此方法的全小写别名.</p>\n",
+              "desc": "<p><strong><code>Global</code></strong></p>\n<ul>\n<li><strong>text</strong> { <a href=\"dataTypes#any\">any</a> } - 消息内容</li>\n<li><strong>[ isLong = false ]</strong> { <code>&#39;long&#39;</code> | <code>&#39;l&#39;</code> | <code>&#39;short&#39;</code> | <code>&#39;s&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否以较长时间显示</li>\n<li><strong>[ isForcible = false ]</strong> { <code>&#39;forcible&#39;</code> | <code>&#39;f&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否强制覆盖显示</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#void\">void</a> }</li>\n</ul>\n<p>显示消息浮动框, 并将 <code>text</code> 传给 <code>console.warn</code>. <code>toastwarn</code> 是此方法的全小写别名.</p>\n<pre><code class=\"lang-js\">toastWarn(&#39;电量低于 20%&#39;);\n</code></pre>\n",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "name": "text"
+                    },
+                    {
+                      "name": "isLong?"
+                    },
+                    {
+                      "name": "isForcible?"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "textRaw": "toastwarn(text, isLong?, isForcible?)",
+              "type": "method",
+              "name": "toastwarn",
+              "desc": "<p><strong><code>Global</code></strong></p>\n<ul>\n<li><strong>text</strong> { <a href=\"dataTypes#any\">any</a> } - 消息内容</li>\n<li><strong>[ isLong = false ]</strong> { <code>&#39;long&#39;</code> | <code>&#39;l&#39;</code> | <code>&#39;short&#39;</code> | <code>&#39;s&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否以较长时间显示</li>\n<li><strong>[ isForcible = false ]</strong> { <code>&#39;forcible&#39;</code> | <code>&#39;f&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否强制覆盖显示</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#void\">void</a> }</li>\n</ul>\n<p><a href=\"#m-toastwarn\">toastWarn</a> 的全小写别名, 参数与行为相同.</p>\n<pre><code class=\"lang-js\">toastwarn(&#39;电量低于 20%&#39;, true);\n</code></pre>\n",
               "signatures": [
                 {
                   "params": [
@@ -581,7 +665,28 @@
               "textRaw": "toastError(text, isLong?, isForcible?)",
               "type": "method",
               "name": "toastError",
-              "desc": "<p><strong><code>Global</code></strong></p>\n<ul>\n<li><strong>text</strong> { <a href=\"dataTypes#any\">any</a> } - 消息内容</li>\n<li><strong>[ isLong = false ]</strong> { <code>&#39;long&#39;</code> | <code>&#39;l&#39;</code> | <code>&#39;short&#39;</code> | <code>&#39;s&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否以较长时间显示</li>\n<li><strong>[ isForcible = false ]</strong> { <code>&#39;forcible&#39;</code> | <code>&#39;f&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否强制覆盖显示</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#void\">void</a> }</li>\n</ul>\n<p>显示消息浮动框, 并将 <code>text</code> 传给 <code>console.error</code>. <code>toasterror</code> 是此方法的全小写别名.</p>\n",
+              "desc": "<p><strong><code>Global</code></strong></p>\n<ul>\n<li><strong>text</strong> { <a href=\"dataTypes#any\">any</a> } - 消息内容</li>\n<li><strong>[ isLong = false ]</strong> { <code>&#39;long&#39;</code> | <code>&#39;l&#39;</code> | <code>&#39;short&#39;</code> | <code>&#39;s&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否以较长时间显示</li>\n<li><strong>[ isForcible = false ]</strong> { <code>&#39;forcible&#39;</code> | <code>&#39;f&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否强制覆盖显示</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#void\">void</a> }</li>\n</ul>\n<p>显示消息浮动框, 并将 <code>text</code> 传给 <code>console.error</code>. <code>toasterror</code> 是此方法的全小写别名.</p>\n<pre><code class=\"lang-js\">toastError(&#39;网络请求失败&#39;);\n</code></pre>\n",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "name": "text"
+                    },
+                    {
+                      "name": "isLong?"
+                    },
+                    {
+                      "name": "isForcible?"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "textRaw": "toasterror(text, isLong?, isForcible?)",
+              "type": "method",
+              "name": "toasterror",
+              "desc": "<p><strong><code>Global</code></strong></p>\n<ul>\n<li><strong>text</strong> { <a href=\"dataTypes#any\">any</a> } - 消息内容</li>\n<li><strong>[ isLong = false ]</strong> { <code>&#39;long&#39;</code> | <code>&#39;l&#39;</code> | <code>&#39;short&#39;</code> | <code>&#39;s&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否以较长时间显示</li>\n<li><strong>[ isForcible = false ]</strong> { <code>&#39;forcible&#39;</code> | <code>&#39;f&#39;</code> | <a href=\"dataTypes#boolean\">boolean</a> | <a href=\"dataTypes#number\">number</a> } - 是否强制覆盖显示</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#void\">void</a> }</li>\n</ul>\n<p><a href=\"#m-toasterror\">toastError</a> 的全小写别名, 参数与行为相同.</p>\n<pre><code class=\"lang-js\">toasterror(&#39;网络请求失败&#39;, &#39;long&#39;, &#39;forcible&#39;);\n</code></pre>\n",
               "signatures": [
                 {
                   "params": [
@@ -1515,7 +1620,7 @@
           "name": "[m]_clickwhenstableafter",
           "methods": [
             {
-              "textRaw": "clickWhenStableAfter(cond, timeout?, interval?, delayMin?, delayMax?, onOk?, onErr?)",
+              "textRaw": "clickWhenStableAfter(cond, timeout, interval, delayMin, delayMax?, onOk?, onErr?)",
               "type": "method",
               "name": "clickWhenStableAfter",
               "desc": "<p><strong><code>6.8.0</code></strong> <strong><code>Global</code></strong> <strong><code>Overload 1/2</code></strong> <strong><code>A11Y</code></strong></p>\n",
@@ -1526,13 +1631,13 @@
                       "name": "cond"
                     },
                     {
-                      "name": "timeout?"
+                      "name": "timeout"
                     },
                     {
-                      "name": "interval?"
+                      "name": "interval"
                     },
                     {
-                      "name": "delayMin?"
+                      "name": "delayMin"
                     },
                     {
                       "name": "delayMax?"
@@ -1580,7 +1685,7 @@
           "name": "[m]_clickboundswhenstableafter",
           "methods": [
             {
-              "textRaw": "clickBoundsWhenStableAfter(cond, timeout?, interval?, delayMin?, delayMax?, onOk?, onErr?)",
+              "textRaw": "clickBoundsWhenStableAfter(cond, timeout, interval, delayMin, delayMax?, onOk?, onErr?)",
               "type": "method",
               "name": "clickBoundsWhenStableAfter",
               "desc": "<p><strong><code>6.8.0</code></strong> <strong><code>Global</code></strong> <strong><code>Overload 1/2</code></strong> <strong><code>A11Y</code></strong></p>\n",
@@ -1591,13 +1696,13 @@
                       "name": "cond"
                     },
                     {
-                      "name": "timeout?"
+                      "name": "timeout"
                     },
                     {
-                      "name": "interval?"
+                      "name": "interval"
                     },
                     {
-                      "name": "delayMin?"
+                      "name": "delayMin"
                     },
                     {
                       "name": "delayMax?"

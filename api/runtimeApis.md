@@ -14,9 +14,25 @@ AutoJs6 的 Rhino, Node.js Runtime 和 Bun Runtime 使用独立的执行环境. 
 | Node.js 主线程 | `require('pinyin')`, `require('screen_metrics')` 等公开模块, 或对应 ESM 导入 | 宿主调用通常返回 Promise; 不自动注入 Rhino 全局 |
 | Node.js Worker | `opencc` / `autojs6:opencc`, `image` / `images`, `pinyin`, `pinyin4j`, `console`, `screen_metrics`, `media_projection`, `screen_recorder`, `recorder`, `java` 及其 `autojs6:` 入口; 其他能力可经 `autojs6:bridge` 转发 | 支持 CJS, ESM 和嵌套 Worker; 异步操作复用父线程封装, 仍受本次执行授权约束 |
 | 原生终端 `node` / `npm` | 原生 Node.js 入口 | 不加载 AutoJs6 脚本执行器的模块与兼容全局 |
-| Bun | 从 `process.env.AUTOJS6_HOST_CLIENT_MODULE` 导入客户端, 再调用 `createHostClient()` | 显式客户端, 异步调用, 按当前执行协商能力 |
+| Bun | 从 `process.env.AUTOJS6_HOST_CLIENT_MODULE` 导入客户端, 再调用 `createHostClient()` | 显式客户端, 异步调用, 按当前执行协商能力; 需要 Android 13 (API 33) 或更高版本 |
 
 独立脚本可以在首条字符串语句中使用 `"nodejs";` 或 `"bun";`. Node 也支持 `node` 标记. Node 的 `.node.js`, `.cjs`, `.mjs`, `.mts`, `.cts` 后缀和 Bun 的 `.bun.js`, `.bun.ts`, `.bun.tsx` 后缀用于选择对应环境. 普通 `.ts` / `.tsx` 默认仍按 Rhino 的 TypeScript 路径处理; 项目的 `type` / `projectType` 为 `node` 时可选择 Node. 当前 `type: 'bun'` 元数据本身不选择 Bun 引擎, 应使用 Bun 标记或后缀. 标记不能与固定引擎后缀冲突. 作为 Bun 入口的相对依赖导入的 `.mjs` 文件由 Bun 解释, 将该文件单独运行则按其后缀选择 Node.
+
+Node.js 脚本与项目默认不限执行时长, 与 Rhino 脚本相同, 可随时停止. 项目可在 project.json 的 node 配置中设置 `timeoutMs` (毫秒) 作为执行总预算: 从 Node.js Runtime 插件收到请求时开始计时, 包含排队与工作区准备, 耗尽后脚本停止并报告 `ERR_AUTOJS6_SCRIPT_TIMEOUT`; 未设置或为 0 时不限. TypeScript 项目设置的预算不少于 30000 毫秒. 运行期间的输出 (console.log 及 process.stdout / process.stderr) 逐段转发到 AutoJs6 控制台, 不等脚本结束.
+
+### 相对路径
+
+Node.js 与 Bun 的 `process.cwd()` 是运行时插件私有目录里的项目副本, 宿主进程无法读写. 由宿主打开文件的调用 (zip, files.open, files.toFile) 因此按脚本的源目录解析相对路径, 与 Rhino 相同; Node.js 可经 `engines.myEngine().hostCwd` 读取这个目录. 写进 `process.cwd()` 的文件不能直接交给这些调用, 要先放到共享存储 (例如以 `files.sdcardPath` 开头的路径).
+
+Node.js 的其他 files 方法在插件进程内执行, 相对路径按 `process.cwd()` 解析. 插件进程读写共享存储 (如 `/sdcard`) 要在系统设置里给运行时插件授权: Android 10 及更早是 "存储" 权限, Android 11 起是 "所有文件访问权限", 未授权时报 EACCES 或 EPERM (Android 11 起在共享存储根目录新建文件是 EPERM, `Download`, `Documents` 等公共目录里自己创建的文件不需要授权). 首次失败时 AutoJs6 提示一次, 可从提示跳转到系统设置中该插件的页面, 每次执行最多提示一次, 错误本身不变. 提示来自脚本的错误输出, 所以脚本捕获了 `node:fs` 的错误又没有输出时不提示.
+
+Bun 的 `Bun.file` 与 `node:fs` 同样在插件进程内执行, 授权和提示规则相同; host.files 在宿主进程内执行, 不需要给插件授权.
+
+### 宿主在后台
+
+Android 14 起, 系统约 10 s 后冻结 cached 状态的进程. 宿主进程被结束后只由脚本启动 (例如经 Intent 运行脚本), 没有自己的界面, 也没有绑定中的无障碍服务或通知监听服务时, 若未开启前台服务, 就处于这种状态: 脚本约 12 s 后停住. Rhino 与 Node.js 脚本在宿主回到前台后继续运行; Bun 脚本的宿主会被系统结束, 脚本随之结束. 这类脚本要长时间运行时, 在应用界面打开前台服务开关.
+
+ColorOS 上, 宿主进程崩溃或被系统结束后无障碍服务不会自动恢复绑定, 要在系统设置里重新打开; Android 原生系统在十几秒内自动恢复.
 
 ## Node.js 拼音
 
@@ -1489,7 +1505,7 @@ Node 项目通过 node.permissions 声明 ui. Bun 项目使用 projectType=bun �
 
 WebView 网络加载和下载还需要打包项目的 Android INTERNET 权限. 在项目的 permissions 数组中保留 android.permission.INTERNET; Runtime 插件自身的联网权限不能替代打包应用的权限. HTTPS/明文流量仍遵循应用的 Android 网络安全配置.
 
-Node.js/Bun 项目的执行总预算与 WebView 回调超时相互独立. 需要等待用户选择文件或操作界面时, 在 node 配置中显式设置足够的 timeoutMs, 例如 `"node": {"permissions": ["ui"], "timeoutMs": 120000}`. 默认项目预算可能先于 WebView 的等待期限耗尽; evaluateJavascript 的 timeoutMs 不会延长整个项目的执行预算.
+Node.js/Bun 项目的执行总预算与 WebView 回调超时相互独立. Node.js 项目未设置 timeoutMs 时不限执行时长; 设置了 node.timeoutMs 的 Node.js 项目与 Bun 项目 (bun.timeoutMs 默认 60000 毫秒) 需要等待用户选择文件或操作界面时, 应留出足够的预算, 例如 `"node": {"permissions": ["ui"], "timeoutMs": 120000}`. evaluateJavascript 的 timeoutMs 不会延长整个项目的执行预算.
 
 ```json
 {
@@ -2005,6 +2021,14 @@ Bun 通过 AUTOJS6_HOST_CLIENT_MODULE 加载 SDK 并 createHostClient, 再使用
 | detectVoice(source, options?, callOptions?) | segments 和 durationMillis |
 | listen(options?, callOptions?) | pending 状态的 Session |
 | wake(keywords, options?, callOptions?) | pending 状态的 WakeSession |
+| diarize(file, options?, callOptions?) / diarizeAsync | 说话人分离结果 (segments, speakers, durationMillis, modelId, 以及 identify 时的 names) |
+| detectLanguage(file, options?, callOptions?) / detectLanguageAsync | 语种识别结果 (language, candidates, segments, durationMillis, modelId) |
+| tag(file, options?, callOptions?) / tagAsync | 音频标签结果 (labels 及 timeline 时的 windows) |
+| speaker.enroll(name, files, options?, callOptions?) / speaker.enrollAsync | 录入声纹后的 name, samples, durationMillis, modelId |
+| speaker.verify(name, file, options?, callOptions?) / speaker.verifyAsync | 是否为该说话人的 score, matched, threshold |
+| speaker.identify(file, options?, callOptions?) / speaker.identifyAsync | 最相近的说话人及 candidates |
+| speaker.list(callOptions?) | 已录入的说话人数组 |
+| speaker.remove(name, callOptions?) | 是否删除 |
 | synthesize(text, path, options?, callOptions?) / synthesizeAsync | 已发布 WAV 文件的路径, 大小, 采样率, 时长与模型信息 |
 | speak(text, options?, callOptions?) | 使用插件系统 TTS 引擎完成朗读的结果 |
 | models.list(filter?, callOptions?) | ModelInfo 数组, 支持 kind/language/installed 过滤 |
@@ -2181,6 +2205,47 @@ epub.EpubError 可以直接调用或带 new 创建. name 为 EpubError, code 保
 Bun 的 epub.control 采用短请求等待和分片结果, 不计入普通能力的单次执行 1024 次调用额度. 单次 RPC 期限, 请求/响应大小和四个并发请求限制保留. 宿主待投递的阅读器事件达到 1024 条时以 LIMIT_EXCEEDED 和 close(overflow) 结束会话. 这些运行时封装不改变 Bun 原生二进制或 Android/ABI 兼容范围.
 
 
+## Node.js / Bun / Worker 的主题色, 相册与批量重命名
+
+Node 主线程, CommonJS / ESM / 嵌套 Worker 与 Bun 提供 Rhino 的 [colors.theme](color#p-theme), [gallery](gallery) 与 [files.batchRename](files#m-batchrename). 参数规则, 错误类型与错误码同 Rhino; 全部成员返回 Promise, 因此 Rhino 的同步形态在这里需要 `await`.
+
+### 授权和入口
+
+| 接口 | Node 能力 | Bun 授权 | 需要 |
+| --- | --- | --- | --- |
+| colors.theme | theme | theme.control | 无 |
+| gallery | gallery | gallery.control | 3-Maple Image 3.4.0 或以上 |
+| files.batchRename | batch_rename | batchrename.control | Batch Rename 1.0.0 或以上 (拼音, 元数据与预设需要 1.1.0) |
+
+三个 Bun 授权各自独立, 默认关闭, 在插件中心的 Bun 运行时设置页开启, 打包应用在 bunConfig.hostCapabilities 中声明; Node 项目在 nodeConfig.permissions 中声明. 未授权时调用被拒绝: Bun 的错误码为 `NOT_GRANTED`, 并带有 capability; gallery 与 files.batchRename 的拒绝也是 GalleryError / BatchRenameError.
+
+3-Maple Image 与 Batch Rename 只接受与 AutoJs6 相同签名的调用方, 没有 3-Macaw Speech 那样的打包入口, 所以独立签名的打包应用即使声明了这两项授权, 也无法调用这两个插件 (Rhino 打包应用相同).
+
+### colors.theme
+
+get(), set(color, options?), reset(), libraries(), activate(libraryId, options?), deactivate(), next(), state(name), current(). set 与 reset 相当于在主题色页面上选择颜色, 500 ms 内的修改合并为一条 "脚本: 名称" 记录. 主题色在宿主进程内, 所以 Node 主线程, Worker 与 Bun 读写的是同一个主题色.
+
+### gallery
+
+Node 使用 `require('autojs6:gallery')` 或 `require('gallery')`, 显式兼容对象提供 `$autojs.gallery`; Bun 使用 `host.gallery`. pick, edit, convert, isAvailable 及其 Async 形态的最后一个参数是可选的 callOptions (`signal`, `timeoutMs`), 不提供时没有期限, 选择器与编辑器一直等待用户.
+
+view(paths, options?, callOptions?) 在插件接受查看器后返回 GalleryViewSession, viewAsync 在查看器显示后才返回. 会话是 EventEmitter, 事件为 open, page, error 和终结的 close; `await` 之后才添加的监听器也能收到已发生的事件. 执行保持到 close 事件; 脚本结束时查看器留给用户, 等待中的选择器与编辑器随之结束. `session.close(options?)` 返回 Promise, 其余属性同 Rhino. callOptions.signal 也结束活动的查看器, 这时 close 的 reason 为 `cancelled`.
+
+### files.batchRename
+
+可调用的 files.batchRename(paths, options, callOptions?) 与 plan, preview, apply, undo, history, presets, importPresets, deleteHistory, clearHistory, isAvailable, BatchRenameError, 以及 plan, preview, apply, undo, presets, importPresets 的 Async 形态. 方案属于本次执行, Worker 可以执行主线程的方案. onProgress 在调用方的 JS 线程运行; 抛出错误不会中断批次, 批次完成并记入日志后调用才以该错误拒绝. 脚本来不及处理时进度事件会被丢弃, 批次不受影响.
+
+```js
+"nodejs";
+let gallery = require('autojs6:gallery');
+let { batchRename } = require('files');
+let images = await gallery.pick({ multiple: true, maxCount: 3 });
+if (images) {
+    let plan = await batchRename.plan(images.map(image => image.path), { search: 'IMG_', replace: 'Photo_' });
+    if (!plan.rejected) console.log((await batchRename.apply(plan)).counts.renamed);
+}
+```
+
 ## Node.js / Bun / Worker 的 Mail
 
 Node.js Runtime 1.27.0 与 Bun Runtime 0.16.0 提供邮件客户端, 需要本批 AutoJs6 6.8.0 开发版与 3-Stamp Mail 2.1.0. 此处描述开发版本, 不表示已公开发布. 邮件协议与账户选项复用 [mail](mail), [MailAccountOptions](mailAccountOptionsType) 和 [MailClient](mailClientType) 的实现.
@@ -2305,7 +2370,7 @@ console.log(node.text, node.bounds);
 
 Flow 立即返回可被 await/Promise.resolve 接纳的对象. 回调在导入它的 JavaScript 线程执行, 支持异步回调; 纯本地链不创建宿主线程; 原生工具在宿主工作线程执行, workers 记录待定原生操作数. 每个 Worker 有独立的 defaults, pending 和 cancelAll. 主线程停止执行或 Worker 退出时, 所属计时器和未完成查询随运行时结束.
 
-本批覆盖 52 个已注册根方法名称, Flow 构造器, 核心链, 高级工具和四种事件等待. Rhino 同步 sync/await, 全局 `$flow`/waitAsync 注入与 Java UiObject 原型仍不在 portable 契约内. 使用 JavaScript 的 `await value` 或 `value.toPromise()` 读取结果. 本节限制优先于 [Rhino Flow](flow) 页面中的线程, 选择器和动作说明.
+本批覆盖 52 个已注册根方法名称, Flow 构造器, 核心链, 高级工具和四种事件等待. 全局 `$flow`/waitAsync 注入与 Java UiObject 原型仍不在 portable 契约内. 使用 JavaScript 的 `await value`, `value.toPromise()`, `value.await()` 或 `value.sync(timeout?)` 读取结果. 本节限制优先于 [Rhino Flow](flow) 页面中的线程, 选择器和动作说明.
 
 ### 根方法与 Flow 对象
 
@@ -2456,7 +2521,7 @@ Bun 的界面事件长轮询为控制与回调调用保留执行机会, 总并�
 
 workers 现在表示当前 facade 尚未结算的原生工具/事件操作数, 纯本地链不增加它. cancelAll 取消当前待定 Flow 并向宿主传播取消. `await flow.dispose()` 取消待定工作, 关闭本 facade 的宿主客户端; 此后该 facade 的原生工具调用会拒绝. Node 主线程, 每个 Worker 与 Bun 各自拥有客户端; 延迟返回的创建结果也会在运行结束后关闭. Android 已经接受的点击/输入/启动无法通过取消撤销.
 
-Rhino 同步终结方法 sync/await, 全局 `$flow` 注入与任意 Java UiObject 方法仍不在此契约内. 下列 within/scope 和手势是 Flow 实例方法, 不增加已注册根方法名称的数量. 52 个根方法名称覆盖不代表完整 Rhino 对象与调度器等价.
+Flow 对象的 await() 与 sync(timeout?) 与 Rhino 同名, 但不阻塞脚本线程: 两者都返回 Promise, 要写成 `await value.sync()`. sync 超过 timeout (毫秒) 时以 `TIMEOUT` 的 [FlowError](flowErrorType) 拒绝, 其 step 与 reason 都是 `sync`, 链继续运行. 全局 `$flow` 注入与任意 Java UiObject 方法仍不在此契约内. 下列 within/scope 和手势是 Flow 实例方法, 不增加已注册根方法名称的数量. 52 个根方法名称覆盖不代表完整 Rhino 对象与调度器等价.
 
 
 ### within 与 scope
@@ -2545,3 +2610,271 @@ Node 项目声明 ai 能力. 独立签名应用声明普通入口权限 AI_RUNTI
 Node.js 主线程及 CommonJS/ESM/嵌套 Worker 使用 ai.agent, Bun 使用 host.ai.agent. 九个根方法 run/create/get/list/catalog/presets/status/result/context 和 AgentRun 的 on/once/off/respond/confirm/cancel/join 均有对应封装. run/get 返回 Promise 句柄; respond/confirm/cancel/join 异步完成, join 超时不取消任务. 事件和 JSON 结果保留类型与 Unicode, 注册脚本的上下文和结果槽可由其 Node Worker 访问. 任务循环和设备执行沿用 3-Stove Agent 与原宿主实现.
 
 Node 的 ai.agent 与 Bun 默认关闭的 agent.control 为独立授权. 生成应用还需在已安装的 AutoJs6 build 5850 或以上明确授权, 通过该宿主使用 Agent 的模型, 登记脚本和设备能力. 应用只能查询或控制自己的委托任务, 授权按安装身份保存并可在插件中心设置撤销. Worker 退出只取消其创建的非 detached 任务, get 的观察句柄不取得取消所有权. 详见 [Agent 任务与注册脚本](ai#agent-任务与注册脚本).
+
+## 运行时自有接口
+
+本节列出 Node.js, Bun 与 QuickJS 运行时插件自带, 且没有对应宿主模块的入口: 宿主桥, 生命周期, 包管理, 本地插件, Rhino 迁移, MediaStore 与 Worker 池等. 它们不属于宿主脚本 API, 不计入运行时覆盖矩阵; 宿主模块在 Node.js / Bun 中的形态见各模块页的运行时支持表.
+
+"最低版本" 是首个含该入口的插件版本. 完整类型见 Node.js 插件的 `docs/nodejs/types/autojs6-node`, Bun 插件的 `host-client.d.mts`, 以及 `AutoJs6-TypeScript-Declarations` 的 `declarations/autojs6-node` 与 `declarations/autojs6-bun`; QuickJS 没有类型声明.
+
+### 脚本参数与 scriptArgs
+
+`scriptArgs` 只在 QuickJS 中存在. 各运行时读取当前脚本与参数的方式不同:
+
+| 运行时 | 入口 | 取值 | 说明 |
+| --- | --- | --- | --- |
+| Rhino | `engines.myEngine().execArgv` | `engines.execScript` 等方法传入的 `arguments` 对象 | 见 [引擎](engines) |
+| Node.js | `process.argv` | `[process.execPath, 入口文件的真实路径]` | 没有 `scriptArgs`; 宿主不追加用户参数; `engines.myEngine()` 返回的引擎快照不含 execArgv |
+| Bun | `process.argv` / `Bun.argv` | `[bun 可执行文件, 入口文件在执行工作区中的路径]` | 没有 `scriptArgs`; 宿主不追加用户参数 |
+| QuickJS | `scriptArgs` | 只有一个元素的数组 `[脚本文件名]` | 文件名不含目录, 如 `demo.quickjs.js`; 来源不是文件时为 `script.quickjs.js`; 没有用户参数, 也没有 `process` |
+
+```js
+"quickjs";
+
+console.log(scriptArgs.length); // 1
+console.log(scriptArgs[0]); // 例如 demo.quickjs.js
+```
+
+### Node.js Runtime
+
+共 12 组 113 条. 除 `autojs6:bridge` 外, 本节入口只在主线程 (根脚本) 中提供; Worker 中的宿主调用经 `autojs6:bridge` 转发. 模块用 `require(名称)` 或同名 ESM 导入取得, `$autojs` 为主线程全局对象.
+
+#### 宿主桥与宿主消息
+
+`autojs6:bridge` 2 条, `autojs6:host` 11 条. `autojs6:host` 是每次执行独立的事件发射器, 只有 `message` 一个事件.
+
+| 名称 | 签名 | 说明 | 运行时 | 最低版本 |
+| --- | --- | --- | --- | --- |
+| `bridge.callAutoJs` | `callAutoJs(moduleName, methodName, args?, options?): Promise<T>` | 按模块名与方法名直接调用宿主 broker; 参数与结果经结构化克隆, 权限, 超时与取消沿用本次执行 | Node.js 主线程与 Worker | 1.0.0 (Worker 1.6.0) |
+| `bridge.permissions` | `permissions(): BridgePermissionsReport` | 返回本次执行的权限声明快照 | Node.js 主线程与 Worker | 1.0.0 (Worker 1.6.0) |
+| `host.on` | `on('message', listener): this` | 接收宿主发来的 JSON 消息 | Node.js 主线程 | 1.3.0 |
+| `host.once` | `once('message', listener): this` | 只接收下一条消息 | Node.js 主线程 | 1.3.0 |
+| `host.addListener` | `addListener('message', listener): this` | 同 `on` | Node.js 主线程 | 1.3.0 |
+| `host.prependListener` | `prependListener('message', listener): this` | 把监听器加到最前 | Node.js 主线程 | 1.3.0 |
+| `host.prependOnceListener` | `prependOnceListener('message', listener): this` | 把一次性监听器加到最前 | Node.js 主线程 | 1.3.0 |
+| `host.off` | `off('message', listener): this` | 移除监听器 | Node.js 主线程 | 1.3.0 |
+| `host.removeListener` | `removeListener('message', listener): this` | 同 `off` | Node.js 主线程 | 1.3.0 |
+| `host.removeAllListeners` | `removeAllListeners(event?): this` | 移除全部监听器 | Node.js 主线程 | 1.3.0 |
+| `host.listenerCount` | `listenerCount('message'): number` | 返回当前监听器数量 | Node.js 主线程 | 1.3.0 |
+| `host.ref` | `ref(): this` | 有监听器时保持脚本运行 (默认) | Node.js 主线程 | 1.3.0 |
+| `host.unref` | `unref(): this` | 监听器不再阻止脚本结束 | Node.js 主线程 | 1.3.0 |
+
+#### 生命周期与能力快照
+
+`autojs6:lifecycle` 7 条, `autojs6:profile` 1 条, `$autojs` 自有成员 3 条. 检查点只用于脚本主动保存和读取 JSON 进度, 插件不会自动重启脚本.
+
+| 名称 | 签名 | 说明 | 运行时 | 最低版本 |
+| --- | --- | --- | --- | --- |
+| `lifecycle.policy` | `policy: Policy` | 只读策略: 是否启用检查点, 字节上限, 执行模式与启动面; `automaticRestart` 恒为 false | Node.js 主线程 | 1.0.0 |
+| `lifecycle.checkpoint` | `checkpoint(value, options?): Promise<CheckpointRecord>` | 把 JSON 值保存为本项目的检查点, `options.reason` 记录原因 | Node.js 主线程 | 1.0.0 |
+| `lifecycle.readCheckpoint` | `readCheckpoint(options?): Promise<CheckpointRecord>` | 读取本项目的检查点, 没有时为 null | Node.js 主线程 | 1.0.0 |
+| `lifecycle.clearCheckpoint` | `clearCheckpoint(options?): Promise<{deleted, projectKey}>` | 删除本项目的检查点 | Node.js 主线程 | 1.0.0 |
+| `lifecycle.onCheckpoint` | `onCheckpoint(handler): Unsubscribe` | 每次保存成功后以 `(reason, record)` 调用 handler; 返回取消订阅函数 | Node.js 主线程 | 1.0.0 |
+| `lifecycle.onRestore` | `onRestore(handler, options?): Promise<CheckpointRecord>` | 有检查点时以 `(checkpoint, record)` 调用 handler 并返回记录, 没有时为 null | Node.js 主线程 | 1.0.0 |
+| `lifecycle.onStop` | `onStop(handler): Unsubscribe` | 宿主请求停止时按注册顺序以 `(reason)` 调用 handler | Node.js 主线程 | 1.0.0 |
+| `autojs6:profile` | `require('autojs6:profile'): object` | 本次执行的运行时能力快照: Node.js 版本, CJS / ESM, 网络, Worker, Java 互操作, Inspector, 原生扩展, 内建模块清单, 特性开关, 错误码, 编译缓存, 桥接权限与限额等 | Node.js 主线程 | 1.0.0 |
+| `$autojs.schema` | `schema: 'autojs6-node-autojs-global-v1'` | `$autojs` 的结构版本 | Node.js 主线程 | 1.0.0 |
+| `$autojs.profile` | `profile: object` | 与 `autojs6:profile` 相同的能力快照 | Node.js 主线程 | 1.0.0 |
+| `$autojs.androidContext` | `androidContext: object` | Android Context 的描述对象, `available` 恒为 false: Node.js 不持有真实 Context, Java 调用改用 `java` 模块 | Node.js 主线程 | 1.0.0 |
+
+#### npm 与 package_manager
+
+`package_manager` 14 条, `npm` 21 条. `npm` 是 `package_manager` 的别名门面, 另有命令行入口. `install` / `update` / `remove` 收到字符串或数组形式的包规格时, 在工作区调用随包 npm (遵循 npm 与项目 `.npmrc`, 失败时保留 npm 输出与退出码); 收到对象请求时操作宿主本地包库, 保留其权限与完整性要求. 命令行选项为 `cwd`, `registry`, `ignoreScripts`, `offline`, `env`, `npmArgs`, `signal` 与 `timeoutMs`.
+
+| 名称 | 签名 | 说明 | 运行时 | 最低版本 |
+| --- | --- | --- | --- | --- |
+| `package_manager.status` | `status(): DiagnosticStatus` | 包管理器诊断状态: npm 命令行, 宿主本地库与来源策略 | Node.js 主线程 | 1.0.0 |
+| `package_manager.policy` | `policy(): DiagnosticPolicy` | 策略快照: 允许与拒绝的来源, 可用操作, 修改授权要求 | Node.js 主线程 | 1.0.0 |
+| `package_manager.sourcePolicy` | `sourcePolicy(): SourcePolicy` | 包来源策略 | Node.js 主线程 | 1.0.0 |
+| `package_manager.planInstall` | `planInstall(request): Promise<PackagePlan>` | 生成宿主本地库的安装计划, 不改动文件 | Node.js 主线程 | 1.0.0 |
+| `package_manager.planUpdate` | `planUpdate(request): Promise<PackagePlan>` | 生成更新计划 | Node.js 主线程 | 1.0.0 |
+| `package_manager.planRemove` | `planRemove(request): Promise<PackagePlan>` | 生成删除计划 | Node.js 主线程 | 1.0.0 |
+| `package_manager.planRegistryInstall` | `planRegistryInstall(request): Promise<RemotePackagePlan>` | 解析 registry 包的版本, 完整性与下载地址, 只出计划 | Node.js 主线程 | 1.0.0 |
+| `package_manager.planTarballInstall` | `planTarballInstall(request): Promise<RemotePackagePlan>` | 解析 tarball 来源, 只出计划 | Node.js 主线程 | 1.0.0 |
+| `package_manager.install` | `install(spec?, options?): Promise<NpmCliResult>` / `install(request): Promise<OperationResult>` | 包规格: 运行 `npm install`; 对象请求: 写入宿主本地库 (需 `package_manager.mutate`) | Node.js 主线程 | 1.0.0 (包规格 1.6.0) |
+| `package_manager.update` | `update(spec?, options?): Promise<NpmCliResult>` / `update(request): Promise<OperationResult>` | 包规格: 运行 `npm update`; 对象请求: 更新宿主本地库 | Node.js 主线程 | 1.0.0 (包规格 1.6.0) |
+| `package_manager.remove` | `remove(spec?, options?): Promise<NpmCliResult>` / `remove(request): Promise<OperationResult>` | 包规格: 运行 `npm uninstall`; 对象请求: 从宿主本地库删除 | Node.js 主线程 | 1.0.0 (包规格 1.6.0) |
+| `package_manager.list` | `list(options?): Promise<PackageRecord[]>` | 列出宿主本地库中的包 | Node.js 主线程 | 1.0.0 |
+| `package_manager.verify` | `verify(request): Promise<OperationResult>` | 校验包的完整性 | Node.js 主线程 | 1.0.0 |
+| `package_manager.prune` | `prune(options?): Promise<OperationResult>` | 清理多余的包 | Node.js 主线程 | 1.0.0 |
+| `npm.status` | `status(): NpmFacadeStatus` | npm 门面状态, 内含 `package_manager` 的诊断状态 | Node.js 主线程 | 1.0.0 |
+| `npm.policy` | `policy(): NpmFacadePolicy` | npm 门面策略, 内含 `package_manager` 的策略 | Node.js 主线程 | 1.0.0 |
+| `npm.sourcePolicy` | `sourcePolicy(): SourcePolicy` | 同 `package_manager.sourcePolicy` | Node.js 主线程 | 1.0.0 |
+| `npm.packageManager` | `packageManager(): PackageManagerModule` | 返回 `package_manager` 模块 | Node.js 主线程 | 1.0.0 |
+| `npm.planInstall` | `planInstall(request): Promise<PackagePlan>` | 同 `package_manager.planInstall` | Node.js 主线程 | 1.0.0 |
+| `npm.planUpdate` | `planUpdate(request): Promise<PackagePlan>` | 同 `package_manager.planUpdate` | Node.js 主线程 | 1.0.0 |
+| `npm.planRemove` | `planRemove(request): Promise<PackagePlan>` | 同 `package_manager.planRemove` | Node.js 主线程 | 1.0.0 |
+| `npm.planRegistryInstall` | `planRegistryInstall(request): Promise<RemotePackagePlan>` | 同 `package_manager.planRegistryInstall` | Node.js 主线程 | 1.0.0 |
+| `npm.planTarballInstall` | `planTarballInstall(request): Promise<RemotePackagePlan>` | 同 `package_manager.planTarballInstall` | Node.js 主线程 | 1.0.0 |
+| `npm.install` | `install(spec?, options?)` / `install(request)` | 同 `package_manager.install` | Node.js 主线程 | 1.0.0 (包规格 1.6.0) |
+| `npm.update` | `update(spec?, options?)` / `update(request)` | 同 `package_manager.update` | Node.js 主线程 | 1.0.0 (包规格 1.6.0) |
+| `npm.remove` | `remove(spec?, options?)` / `remove(request)` | 同 `package_manager.remove` | Node.js 主线程 | 1.0.0 (包规格 1.6.0) |
+| `npm.list` | `list(options?): Promise<PackageRecord[]>` | 同 `package_manager.list` | Node.js 主线程 | 1.0.0 |
+| `npm.verify` | `verify(request): Promise<OperationResult>` | 同 `package_manager.verify` | Node.js 主线程 | 1.0.0 |
+| `npm.prune` | `prune(options?): Promise<OperationResult>` | 同 `package_manager.prune` | Node.js 主线程 | 1.0.0 |
+| `npm.cli` | `cli(args, options?): Promise<NpmCliResult>` | 以任意参数运行随包 npm, 输出流式回传 | Node.js 主线程 | 1.6.0 |
+| `npm.exec` | `exec(args?, options?): Promise<NpmCliResult>` | 运行 `npm exec -- args` | Node.js 主线程 | 1.6.0 |
+| `npm.runScript` | `runScript(name, args?, options?): Promise<NpmCliResult>` | 运行 `npm run name -- args` | Node.js 主线程 | 1.6.0 |
+| `npm.installFromRegistry` | `installFromRegistry(spec, options?): Promise<NpmCliResult>` | 从 registry 安装, 同 `install(spec, options)` | Node.js 主线程 | 1.6.0 |
+| `npm.publish` | `publish(spec?, options?): Promise<NpmCliResult>` | 运行 `npm publish` | Node.js 主线程 | 1.6.0 |
+| `npm.pack` | `pack(spec?, options?): Promise<NpmCliResult>` | 运行 `npm pack` | Node.js 主线程 | 1.6.0 |
+
+`npm.cli` / `exec` / `runScript` / `installFromRegistry` / `publish` / `pack` 在 1.6.0 之前的版本中只会拒绝调用.
+
+#### 本地插件 (plugins)
+
+`plugins` 19 条, 管理工作区 `plugins` 目录中的本地 JS 插件, 与 Rhino 的 [插件 (Plugins)](plugins) 模块无关.
+
+| 名称 | 签名 | 说明 | 运行时 | 最低版本 |
+| --- | --- | --- | --- | --- |
+| `plugins.install` | `install(id, options?): PluginStatus` | 安装本地插件, 可指定来源, 是否启用与初始配置 | Node.js 主线程 | 1.0.0 |
+| `plugins.enable` | `enable(id): PluginStatus` | 启用插件 | Node.js 主线程 | 1.0.0 |
+| `plugins.disable` | `disable(id): PluginStatus` | 停用插件 | Node.js 主线程 | 1.0.0 |
+| `plugins.isEnabled` | `isEnabled(id): boolean` | 插件是否已启用 | Node.js 主线程 | 1.0.0 |
+| `plugins.configure` | `configure(id, config): object` | 写入插件配置, 返回新配置 | Node.js 主线程 | 1.0.0 |
+| `plugins.config` | `config(id): object` | 读取插件配置 | Node.js 主线程 | 1.0.0 |
+| `plugins.version` | `version(id): string` | 插件版本 | Node.js 主线程 | 1.0.0 |
+| `plugins.dependencies` | `dependencies(id): string[]` | 插件声明的依赖 | Node.js 主线程 | 1.0.0 |
+| `plugins.exports` | `exports(id): Record<string, string>` | 插件声明的导出表 | Node.js 主线程 | 1.0.0 |
+| `plugins.capabilities` | `capabilities(id): string[]` | 插件声明的能力 | Node.js 主线程 | 1.0.0 |
+| `plugins.status` | `status(id): PluginStatus` | 插件状态: 清单, 启用与加载状态, 生命周期阶段, 计数, 资源与配置 | Node.js 主线程 | 1.0.0 |
+| `plugins.start` | `start(id, options?): PluginStatus` | 启动插件, 以生命周期上下文调用其 start | Node.js 主线程 | 1.0.0 |
+| `plugins.stop` | `stop(id, options?): PluginStatus` | 停止插件并释放它登记的资源 | Node.js 主线程 | 1.0.0 |
+| `plugins.reload` | `reload(id, options): PluginStatus` | 重新加载插件, `options.debug` 须为 true | Node.js 主线程 | 1.0.0 |
+| `plugins.unload` | `unload(id): boolean` | 卸载已加载的插件 | Node.js 主线程 | 1.0.0 |
+| `plugins.list` | `list(): PluginStatus[]` | 列出全部本地插件 | Node.js 主线程 | 1.0.0 |
+| `plugins.manifest` | `manifest(id): PluginManifest` | 读取插件清单 | Node.js 主线程 | 1.0.0 |
+| `plugins.resolve` | `resolve(id, exportName?): string` | 解析插件入口或指定导出的文件路径 | Node.js 主线程 | 1.0.0 |
+| `plugins.load` | `load(id, exportName?): T` | 加载插件入口或指定导出 | Node.js 主线程 | 1.0.0 |
+
+`install`, `disable`, `start`, `stop`, `reload` 与 `unload` 在插件的生命周期函数是异步函数时返回 Promise.
+
+#### Rhino 迁移 (rhino, autojs6:compat)
+
+`rhino` 13 条, `autojs6:compat` 的控制成员 10 条. 两者都不会自动安装 Rhino 全局对象; `autojs6:compat` 的其余成员是宿主 API 的再导出, 见各模块页.
+
+| 名称 | 签名 | 说明 | 运行时 | 最低版本 |
+| --- | --- | --- | --- | --- |
+| `rhino.name` | `name: 'rhino'` | 模块名 | Node.js 主线程 | 1.0.0 |
+| `rhino.version` | `version: 1` | 接口版本 | Node.js 主线程 | 1.0.0 |
+| `rhino.schema` | `schema: string` | 状态结构版本 | Node.js 主线程 | 1.0.0 |
+| `rhino.mode` | `mode: 'disabled'` | Rhino 全局兼容层不自动启用 | Node.js 主线程 | 1.0.0 |
+| `rhino.enabled` | `enabled: false` | 恒为 false | Node.js 主线程 | 1.0.0 |
+| `rhino.errorCodes` | `errorCodes: ErrorCodes` | 本模块的错误码表 (`ERR_AUTOJS6_RHINO_*`) | Node.js 主线程 | 1.0.0 |
+| `rhino.isEnabled` | `isEnabled(): false` | 同 `enabled` | Node.js 主线程 | 1.0.0 |
+| `rhino.status` | `status(): Status` | 兼容层状态快照 | Node.js 主线程 | 1.0.0 |
+| `rhino.run` | `run(request): Promise<RunResult>` | 在宿主 Rhino 中执行源码 (`source`) 或文件 (`path`), 只回传 JSON 结果, 控制台摘要与耗时; 请求须带 `explicit: true` 与 `timeoutMs`, 需要 `rhino` 能力 | Node.js 主线程 | 1.0.0 |
+| `rhino.install` | `install(options): InstallResult` | 显式 (`explicit: true`) 安装 `Packages` / `java` / `android` 代理, 按宿主 Java 白名单执行; `globals` 为 true 时装到全局 | Node.js 主线程 | 1.0.0 |
+| `rhino.importClass` | `importClass(...): never` | 不支持, 总是抛出 `ERR_AUTOJS6_RHINO_IMPORT_UNSUPPORTED` | Node.js 主线程 | 1.0.0 |
+| `rhino.importPackage` | `importPackage(...): never` | 不支持, 总是抛出 `ERR_AUTOJS6_RHINO_IMPORT_UNSUPPORTED` | Node.js 主线程 | 1.0.0 |
+| `rhino.JavaAdapter` | `JavaAdapter(...): never` | 不支持, 总是抛出 `ERR_AUTOJS6_RHINO_JAVA_ADAPTER_UNSUPPORTED`; Java 回调见 [Java 回调, 子类与代码加载](#java-回调-子类与代码加载) | Node.js 主线程 | 1.0.0 |
+| `compat.name` | `name: 'autojs6:compat'` | 模块名 | Node.js 主线程 | 1.0.0 |
+| `compat.version` | `version: 1` | 接口版本 | Node.js 主线程 | 1.0.0 |
+| `compat.mode` | `mode: 'explicit-opt-in'` | 只在显式 `install` 后安装全局名 | Node.js 主线程 | 1.0.0 |
+| `compat.errorCodes` | `errorCodes: ErrorCodes` | 错误码表 (`ERR_AUTOJS6_RHINO_COMPAT_INVALID_OPTION` / `UNSUPPORTED` / `BLOCKED_BY_DESIGN`) | Node.js 主线程 | 1.0.0 |
+| `compat.status` | `status(): Status` | 加载器状态: 是否已安装, 可安装的全局名与模块名 | Node.js 主线程 | 1.0.0 |
+| `compat.install` | `install(options?): InstallResult` | `globals` (或 `global`) 为 true 时把 Rhino 风格全局名装到 globalThis, 已有同名全局时跳过并给出警告, `overwrite` 为 true 时覆盖 | Node.js 主线程 | 1.0.0 |
+| `compat.unsupported` | `unsupported(apiName?, reason?): RhinoCompatError` | 构造 "未实现" 错误, 不抛出 | Node.js 主线程 | 1.0.0 |
+| `compat.blockedByDesign` | `blockedByDesign(apiName?, reason?): RhinoCompatError` | 构造 "按设计禁止" 错误, 不抛出 | Node.js 主线程 | 1.0.0 |
+| `compat.assertSupported` | `assertSupported(apiName?): never` | 总是抛出 "未实现" 错误, 用于标记尚未移植的调用点 | Node.js 主线程 | 1.0.0 |
+| `compat.selector` | `selector: SelectorDslModule` | Rhino 风格选择器入口: `text` / `desc` / `id` 等返回可链式的句柄, `findOne` / `click` 等返回 Promise | Node.js 主线程 | 1.0.0 |
+
+#### MediaStore (media_store)
+
+`media_store` 8 条 (另有 `scanFile`, 与宿主 [多媒体 (Media)](media) 的 scanFile 对应, 不计入). 读需要 `media` 与 `media.library` 能力, 写入, 改名与删除另需 `media.library.mutate`; Android 10 起只能修改 AutoJs6 自己创建的记录.
+
+| 名称 | 签名 | 说明 | 运行时 | 最低版本 |
+| --- | --- | --- | --- | --- |
+| `media_store.capabilities` | `capabilities(options?): Promise<Capabilities>` | 系统版本, 分区存储, 可用集合与列, 读权限状态与查询 / 修改策略 | Node.js 主线程 | 1.5.5 |
+| `media_store.query` | `query(collection, options?): Promise<QueryResult>` | 按结构化 JSON 条件查询 `audio` / `images` / `video` (Android 10 起另有 `downloads`), 支持排序, 分页与列选择 | Node.js 主线程 | 1.5.5 |
+| `media_store.get` | `get(collection, id, options?): Promise<Item>` | 按 id 读取一条记录, 不存在时为 null | Node.js 主线程 | 1.5.5 |
+| `media_store.insert` | `insert(collection, options): Promise<Item>` | 把宿主可读的文件复制为新的媒体记录 | Node.js 主线程 | 1.5.5 |
+| `media_store.update` | `update(collection, id, values, options?): Promise<Item>` | 修改文件名或目录 | Node.js 主线程 | 1.5.5 |
+| `media_store.delete` | `delete(collection, id, options?): Promise<DeleteResult>` | 删除记录 | Node.js 主线程 | 1.5.5 |
+| `media_store.remove` | `remove(collection, id, options?): Promise<DeleteResult>` | 同 `delete` | Node.js 主线程 | 1.5.5 |
+| `media_store.exportFile` | `exportFile(collection, id, destination, options?): Promise<ExportResult>` | 把记录的内容复制到宿主可写的文件路径 | Node.js 主线程 | 1.5.5 |
+
+#### Worker 池 (worker_threads)
+
+`worker_threads` 在主线程返回 Node.js 原生模块对象, 另加 4 条 AutoJs6 扩展. Worker 内的 `worker_threads` 是原生模块, 没有这些扩展.
+
+| 名称 | 签名 | 说明 | 运行时 | 最低版本 |
+| --- | --- | --- | --- | --- |
+| `worker_threads.WorkerPool` | `new WorkerPool(filename, options?)` | 复用 Worker 的任务池, 见下文 | Node.js 主线程 | 1.0.0 |
+| `worker_threads.policy` | `policy: WorkerThreadsPolicy` | Worker 策略快照: 可用内建模块, Worker 内的文件 / 网络 / 宿主桥方式, WorkerPool 默认值与 resourceLimits 默认值 | Node.js 主线程 | 1.0.0 |
+| `worker_threads.nativeAvailable` | `nativeAvailable: boolean` | 原生 Worker 是否可用 | Node.js 主线程 | 1.0.0 |
+| `worker_threads.diagnostics` | `diagnostics(): WorkerThreadsDiagnostics` | Worker, MessagePort 与 WorkerPool 的计数诊断 | Node.js 主线程 | 1.0.0 |
+
+`new WorkerPool(filename, options?)` 也可以不带 `new` 调用. 选项:
+
+| 选项 | 默认值 | 说明 |
+| --- | --- | --- |
+| `minWorkers` | 0 | 创建时预先启动的 Worker 数 |
+| `maxWorkers` | CPU 并行度 | 同时运行的 Worker 上限 |
+| `idleTimeoutMs` | 1000 | 空闲 Worker 的回收时间, 0 - 60000 |
+| `taskTimeoutMs` | 0 (不限) | 任务的默认期限 |
+| `queueLimit` | 不限 | 排队任务上限, 超出时 `run` 抛出 `ERR_AUTOJS6_WORKER_POOL_QUEUE_FULL` |
+| `workerData` / `resourceLimits` | 无 | 传给每个 Worker 的同名选项 |
+
+实例方法:
+
+- `run(value, options?)`: 把 `value` 交给空闲 Worker, 返回 Promise. `options.transferList` 随消息转移, `options.timeoutMs` 覆盖默认期限 (超时拒绝为 `ERR_AUTOJS6_WORKER_POOL_TASK_TIMEOUT` 并终止该 Worker). 返回的 Promise 带 `cancel()`: 排队任务直接移除, 运行中任务终止其 Worker, 两者都以 `ERR_AUTOJS6_WORKER_POOL_TASK_CANCELLED` 拒绝; 任务已结束时返回 false.
+- `diagnostics()`: 返回 `closed`, Worker 数 (全部 / 空闲 / 忙碌), 排队数, 已创建 Worker 数与完成 / 取消 / 超时的任务数.
+- `close()` / `shutdown()`: 拒绝排队任务 (`ERR_AUTOJS6_WORKER_POOL_CLOSED`) 并终止全部 Worker, 返回 Promise. 之后调用 `run` 抛出同一错误码.
+
+池中的 Worker 脚本从 `parentPort` 接收 `{ __autojs6PoolTaskId, value }`, 处理后回复带同一 `__autojs6PoolTaskId` 的 `{ value }` 或 `{ error }`; 回复 `error` 时任务以 `ERR_AUTOJS6_WORKER_POOL_TASK_FAILED` 拒绝.
+
+```js
+"nodejs";
+
+const { WorkerPool } = require('worker_threads');
+const pool = new WorkerPool(__dirname + '/square.cjs', { maxWorkers: 2 });
+
+Promise.all([ 1, 2, 3 ].map(n => pool.run(n)))
+    .then(results => console.log(results)) // [ 1, 4, 9 ]
+    .finally(() => pool.close());
+```
+
+```js
+/* square.cjs */
+const { parentPort } = require('worker_threads');
+
+parentPort.on('message', ({ __autojs6PoolTaskId, value }) => {
+    parentPort.postMessage({ __autojs6PoolTaskId, value: value * value });
+});
+```
+
+### Bun Runtime
+
+共 12 条: 客户端模块的 5 个导出, `HostClient` 的 6 个非宿主成员, 以及 1 个环境变量. 用法见 [Bun 客户端](#bun-客户端).
+
+| 名称 | 签名 | 说明 | 运行时 | 最低版本 |
+| --- | --- | --- | --- | --- |
+| `AUTOJS6_HOST_CLIENT_MODULE` | `process.env.AUTOJS6_HOST_CLIENT_MODULE: string` | 本次执行的客户端模块文件路径, 只在提供宿主桥时设置; 用 `await import(...)` 加载 | Bun | 0.2.6 |
+| `createHostClient` | `createHostClient(options?): Promise<HostClient>` | 连接本次执行的宿主桥并协商能力 | Bun | 0.2.6 |
+| `SDK_VERSION` | `SDK_VERSION: 1` | 客户端 SDK 版本 | Bun | 0.2.6 |
+| `HOST_API_METHODS` | `HOST_API_METHODS: Record<string, string[]>` | 各能力可调用的宿主方法名 | Bun | 0.2.6 |
+| `HostCallError` | `class HostCallError extends Error` | 宿主调用失败时的错误类, 含 `code` / `capability` / `status`; 未授权为 `NOT_GRANTED`, 桥不可达为 `HOST_UNAVAILABLE` | Bun | 0.2.6 |
+| `OPENCC_CONVERSION_TYPES` | `OPENCC_CONVERSION_TYPES: readonly string[]` | `host.opencc` 支持的 32 个转换类型名 | Bun | 0.2.6 |
+| `HostClient#sdkVersion` | `sdkVersion: 1` | 客户端 SDK 版本 | Bun | 0.2.6 |
+| `HostClient#bridgeVersion` | `bridgeVersion: 1` | 宿主桥协议版本 | Bun | 0.2.6 |
+| `HostClient#capabilities` | `capabilities: readonly string[]` | 本次执行协商到的能力名 | Bun | 0.2.6 |
+| `HostClient#limits` | `limits: object` | 宿主公布的上限: `maxRequestBytes`, `maxResultBytes`, `maxCallsPerExecution`, `maxConcurrentCalls`, `callTimeoutMillis` | Bun | 0.2.6 |
+| `HostClient#hasCapability` | `hasCapability(capability): boolean` | 是否协商到某个能力 | Bun | 0.2.6 |
+| `HostClient#call` | `call(capability, payload?): Promise<object>` | 以能力名与 JSON 载荷直接调用宿主, 仍受相同的授权与方法校验 | Bun | 0.2.6 |
+
+### QuickJS Runtime
+
+共 7 条. QuickJS 插件只提供输出与入参, 不提供宿主 API, Java, 文件系统, 网络, `std` / `os` 模块与定时器. 标准输出与标准错误合计最多 4 MiB.
+
+| 名称 | 签名 | 说明 | 运行时 | 最低版本 |
+| --- | --- | --- | --- | --- |
+| `console.log` | `console.log(...values): void` | 把各参数转为字符串, 以空格连接后写入标准输出 | QuickJS | 1.0.0 |
+| `console.info` | `console.info(...values): void` | 同 `console.log` | QuickJS | 1.0.0 |
+| `console.debug` | `console.debug(...values): void` | 同 `console.log` | QuickJS | 1.0.0 |
+| `console.warn` | `console.warn(...values): void` | 同 `console.log`, 写入标准错误 | QuickJS | 1.0.0 |
+| `console.error` | `console.error(...values): void` | 同 `console.warn` | QuickJS | 1.0.0 |
+| `print` | `print(...values): void` | 同 `console.log` | QuickJS | 1.0.0 |
+| `scriptArgs` | `scriptArgs: string[]` | `[脚本文件名]`, 见 [脚本参数与 scriptArgs](#脚本参数与-scriptargs) | QuickJS | 1.0.0 |
+
+`console` 只有以上五个方法, 没有 `table`, `time`, `assert` 等.

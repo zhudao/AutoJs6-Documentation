@@ -909,6 +909,10 @@ activity.getWindow().getDecorView().getRootView().getHeight();
 
 [控件罗盘 (UiObject.compass)](uiObjectType#m-compass) 是 [控件探测 (UiObject.detect)](uiObjectType#m-detect) 的衍生方法, 因此类型命名采用了 `DetectCompass`.
 
+某一步没有到达任何控件时 (如 `c5` 超出子控件数量, `k2` 在 2 级之内没有可点击控件), 罗盘结果为 null. 选择器设置了 [prefer('visible')](uiSelectorType#m-prefer) 时, `k` 跳过对用户不可见的可点击控件.
+
+无法解析的罗盘参数 (如 `x2`) 将抛出异常. 在 [pickup](uiSelectorType#m-pickup) 与 [detect](uiObjectType#m-detect) 中, 罗盘参数在筛选控件之前即完成检查 (**`6.8.0`**). 罗盘每一步到达的控件可用 [auto.explain](automator#m-explain) 查看.
+
 ## DetectResult
 
 [控件探测 (UiObject.detect)](uiObjectType#m-detect) 的结果参数类型, 又称 `探测结果`, 此过程也称为 `结果筛选`.
@@ -917,6 +921,8 @@ activity.getWindow().getDecorView().getRootView().getHeight();
 - `$ / txt / content` - [文本内容](uiObjectType#m-content)
 - `. / pt / point` - [点](uiObjectType#m-point)
 - `UiObjectInvokable` - [控件可调用类型](#uiobjectinvokable)
+
+探测结果只针对单个控件, 不支持 [PickupResult](#pickupresult) 中的集合与数组形式 (如 `'{}'`, `'[]'`, `'contents'`), 使用时将抛出异常.
 
 ```js
 /* 控件. */
@@ -1041,14 +1047,18 @@ pickup(contentMatch(/he.+/).clickable(true).boundsInside(0.2, 0.05, -1, -1));
 
 - `# / w / widget` - [控件 (UiObject)](uiObjectType)
 - `{} / #{} / {#} / w{} / {w} / wc / collection / list` -> [控件集合 (UiObjectCollection)](uiObjectCollectionType)
-- `[] / #[] / [#] / w[] / [w] / ws / widgets` -> [控件 (UiObject)](uiObjectType) 数组
+- `[] / ## / #[] / [#] / w[] / [w] / ws / widgets` -> [控件 (UiObject)](uiObjectType) 数组
 - `$ / txt / content` - [文本内容 (UiObject#content)](uiObjectType#m-content)
-- `$[] / [$] / txt[] / [txt] / content[] / [content] / contents` -> [文本内容 (UiObject#content)](uiObjectType#m-content) 数组
+- `$$ / $[] / [$] / txt[] / [txt] / content[] / [content] / contents` -> [文本内容 (UiObject#content)](uiObjectType#m-content) 数组
 - `. / pt / point` - [点 (UiObject#point)](uiObjectType#m-point)
-- `.[] / [.] / point[] / [point] / pt[] / [pt] / points / pts` -> [点 (UiObject#point)](uiObjectType#m-point) 数组
+- `.. / .[] / [.] / point[] / [point] / pt[] / [pt] / points / pts` -> [点 (UiObject#point)](uiObjectType#m-point) 数组
 - `@ / selector / sel` -> [选择器 (UiSelector)](uiSelectorType)
 - `? / exists` -> [存在判断 (UiSelector#exists)](uiSelectorType#m-exists)
 - `UiObjectInvokable` - [控件可调用类型](#uiobjectinvokable)
+
+数组形式的结果参数 `[]` (空数组) 同样表示控件数组; 单元素数组的首项不是方法名称时, `['#']`, `['$']`, `['.']` 分别表示控件, 文本内容与点的数组.
+
+单个结果 (控件, 文本内容, 点, 控件可调用类型) 取自 [findOnce()](uiSelectorType#findonce), 返回前先刷新命中的控件 (**`6.8.0`**, 参阅 [命中刷新](uiSelectorType#findonce)), 并受 [prefer](uiSelectorType#m-prefer) 影响; 集合与数组结果取自 [find()](uiSelectorType#m-find).
 
 ```js
 /* 控件. */
@@ -1089,18 +1099,63 @@ pickup(sel, [ 'setText', 'hello' ]); /* i.e. sel.findOnce().setText('hello') */
 
 控件可调用类型, 用于使用参数形式实现方法调用, 又称 `参化调用`.
 
-支持所有 [UiObject](uiObjectType) 的实例方法, 如果方法需要传递参数, 需要将参数连同方法名称放入数组后再传递.
+可调用的方法为下文 "可调用方法" 列出的控件方法. 如果方法需要传递参数, 需要将参数连同方法名称放入数组后再传递.
 
 ```js
 /* 无参方法. */
 detect(w, 'click'); /* i.e. w.click() */
 detect(w, 'imeEnter'); /* i.e. w.imeEnter() */
+detect(w, 'hintText'); /* i.e. w.getHintText() */
 
 /* 含参方法. */
 detect(w, [ 'child', 0 ]); /* i.e. w.child(0) */
 detect(w, [ 'setText', 'hello' ]); /* i.e. w.setText('hello') */
 detect(w, [ 'setSelection', 2, 3 ]); /* i.e. w.setSelection(2, 3) */
+detect(w, [ 'sibling', 1 ]); /* i.e. w.sibling(1) */
 ```
+
+调用规则 (**`6.8.0`**):
+
+- 名称先匹配同名方法, 再匹配 `get` 加首字母大写的方法, 如 `'hintText'` 调用 `getHintText()`.
+- 同名方法有多个重载时, 选择首个能接受所给参数的重载. 数字参数按方法声明转换为整数或浮点数, 整数参数为 `NaN` 时将抛出异常.
+- 只能调用下文列出的方法. `AccessibilityNodeInfoCompat` 的 setter 与带参数的方法 (如 `setChecked`, `getChild`, `findAccessibilityNodeInfosByText`) 不可调用, 获取子控件请使用 `child`. 未知名称将抛出 RangeError, 消息中列出至多 5 个相近的名称.
+- 在 [pickup](uiSelectorType#m-pickup) 与 [detect](uiObjectType#m-detect) 中, 方法名称与参数在筛选控件之前即完成检查. [auto.explain](automator#m-explain) 可查看结果参数解析到的方法与参数转换, 且不调用该方法.
+
+可调用方法:
+
+<!-- node-method-registry:begin -->
+
+控件自有方法 ([UiObject](uiObjectType) 与 [控件行为](uiObjectActionsType), 139 个名称; 带参数的重载列出参数类型):
+
+- `accessibilityFocus` / `accessibilityFocused` / `actionNames`
+- `bottom` / `bounds` / `boundsBottom` / `boundsCenterX` / `boundsCenterY` / `boundsExactCenterX` / `boundsExactCenterY` / `boundsHeight` / `boundsInParent` / `boundsInScreen` / `boundsLeft` / `boundsRight` / `boundsTop` / `boundsWidth` / `brother(number)`
+- `center` / `centerX` / `centerY` / `checkable` / `checked` / `child(number)` / `childCount` / `children` / `className` / `clearAccessibilityFocus` / `clearFocus` / `clearSelection` / `click` / `clickable` / `clickBounds` / `clickBounds(number)` / `clickBounds(number, number)` / `collapse` / `column` / `columnCount` / `columnSpan` / `compass(string)` / `content` / `contentInvalid` / `contextClick` / `contextClickable` / `copy` / `cut`
+- `depth` / `desc` / `dismiss` / `dismissable` / `dragCancel` / `dragDrop` / `dragStart` / `drawingOrder` / `dumpSubtree` / `dumpSubtree(any)`
+- `editable` / `enabled` / `exactCenterX` / `exactCenterY` / `expand`
+- `find` / `find(UiSelector)` / `findOne(UiSelector)` / `fingerprint` / `firstChild` / `firstSibling` / `focus` / `focusable` / `focused` / `fullId`
+- `hasAction(...any)` / `hasChildren` / `height` / `hideTooltip`
+- `id` / `idEntry` / `idHex` / `imeEnter` / `indexInParent` / `isShifted` / `isShifted(number)` / `isSimilar(any)` / `isSingleton` / `isStale`
+- `lastChild` / `lastSibling` / `left` / `longClick` / `longClickable`
+- `moveWindow(number, number)` / `multiLine`
+- `nextAtMovementGranularity(number, boolean)` / `nextHtmlElement(string)` / `nextSibling`
+- `offset(number)`
+- `packageName` / `pageDown` / `pageLeft` / `pageRight` / `pageUp` / `parent` / `parent(number)` / `password` / `paste` / `performAction(number, ...ActionArgument)` / `point` / `pressAndHold` / `previousAtMovementGranularity(number, boolean)` / `previousHtmlElement(string)` / `previousSibling`
+- `right` / `row` / `rowCount` / `rowSpan`
+- `scrollable` / `scrollBackward` / `scrollDown` / `scrollForward` / `scrollLeft` / `scrollRight` / `scrollTo(number, number)` / `scrollUp` / `select` / `selected` / `setProgress(number)` / `setSelection(number, number)` / `setText(string)` / `show` / `showTextSuggestions` / `showTooltip` / `sibling(number)` / `siblingCount` / `siblings` / `simpleId` / `size` / `snapshot` / `summary`
+- `text` / `toJSON` / `toJSON(any)` / `top`
+- `visibleToUser`
+- `waitForStable` / `waitForStable(number)` / `waitForStable(number, number)` / `waitForStable(number, number, number)` / `waitUntilGone` / `waitUntilGone(number)` / `waitUntilGone(number, number)` / `width`
+
+[AccessibilityNodeInfoCompat](https://developer.android.com/reference/androidx/core/view/accessibility/AccessibilityNodeInfoCompat) 的无参只读方法 (67 个名称; `getXyz` 也可写作 `xyz`, 与上一组同名时调用上一组的方法):
+
+- `canOpenPopup`
+- `getActionList` / `getActions` / `getAvailableExtraData` / `getChildCount` / `getClassName` / `getCollectionInfo` / `getCollectionItemInfo` / `getContainerTitle` / `getContentDescription` / `getDrawingOrder` / `getError` / `getExtraRenderingInfo` (API 30+) / `getExtras` / `getHintText` / `getInfo` / `getInputType` / `getLabeledBy` / `getLabelFor` / `getLiveRegion` / `getMaxTextLength` / `getMinDurationBetweenContentChangesMillis` / `getMovementGranularities` / `getPackageName` / `getPaneTitle` / `getParent` / `getRangeInfo` / `getRoleDescription` / `getStateDescription` / `getText` / `getTextSelectionEnd` / `getTextSelectionStart` / `getTooltipText` / `getTouchDelegateInfo` / `getTraversalAfter` / `getTraversalBefore` / `getUniqueId` / `getViewIdResourceName` / `getWindow` / `getWindowId`
+- `hasRequestInitialAccessibilityFocus`
+- `isAccessibilityDataSensitive` / `isAccessibilityFocused` / `isCheckable` / `isChecked` / `isClickable` / `isContentInvalid` / `isContextClickable` / `isDismissable` / `isEditable` / `isEnabled` / `isFieldRequired` / `isFocusable` / `isFocused` / `isGranularScrollingSupported` / `isHeading` / `isImportantForAccessibility` / `isLongClickable` / `isMultiLine` / `isPassword` / `isScreenReaderFocusable` / `isScrollable` / `isSelected` / `isShowingHintText` / `isTextEntryKey` / `isTextSelectable` / `isVisibleToUser`
+
+<!-- node-method-registry:end -->
+
+上述列表由 AutoJs6 的节点方法注册表生成. `getExtraRenderingInfo` 在 Android 11 (API 30) 以下不可用.
 
 ## RootMode
 
@@ -1670,7 +1725,7 @@ app.sendBroadcast('hierarchy'); /* 同上. */
 
 ## OcrResult
 
-OcrResult 是一个代表 OCR 识别结果的接口.
+OcrResult 是一个代表 OCR 识别结果的接口. [ocr.detect](ocr#m-detect) 以及 `ocr.mlkit` / `ocr.paddle` / `ocr.rapid` 的 `detect` 返回由它组成的数组.
 
 ---
 
@@ -1678,11 +1733,23 @@ OcrResult 是一个代表 OCR 识别结果的接口.
 
 ---
 
+### [p] text
+
+- { [string](dataTypes#string) }
+
+OCR 识别得到的文本.
+
+```js
+images.requestScreenCapture();
+let img = images.captureScreen();
+ocr.detect(img).map(o => o.text); /* 全部识别文本. */
+```
+
 ### [p] label
 
 - { [string](dataTypes#string) }
 
-OCR 识别结果的文本标签, 通常可用于最终的文字识别结果.
+OCR 识别结果的文本标签, 与 [text](#p-text) 相同, 通常可用于最终的文字识别结果.
 
 ```js
 images.requestScreenCapture();
@@ -1693,9 +1760,9 @@ results.map(o => o.label); /* 将识别结果全部映射为文本标签. */
 
 ### [p] confidence
 
-- { [string](dataTypes#string) }
+- { [number](dataTypes#number) }
 
-OCR 识别结果的置信度, 置信度越高, 意味着识别结果可能越准确.
+OCR 识别结果的置信度, 范围 0 到 1, 置信度越高, 意味着识别结果可能越准确.
 
 ```js
 images.requestScreenCapture();
@@ -1719,6 +1786,56 @@ if (!isNullish(clickToStart)) {
     /* 点击 OCR 识别结果的位置矩形. */
     click(clickToStart.bounds);
 }
+```
+
+### [p] extras
+
+**`6.8.0`** **`READONLY`**
+
+- { [object](dataTypes#object) }
+
+OCR 引擎为此结果附带的额外信息, 引擎未提供时为空对象. 可用的键取决于引擎和插件, 如 PP-OCRv3 的 ONNX Runtime 版提供:
+
+| 键 | 类型 | 说明 |
+|---|---|---|
+| `quad` | [number](dataTypes#number)[[]](dataTypes#array) | 文本框四边形的顶点坐标 `[x1, y1, x2, y2, ...]`, 指定识别区域时与 [bounds](#p-bounds) 一样已换算到完整图像 |
+| `executionProvider` | [string](dataTypes#string) | 实际使用的执行提供器, `"cpu"` 或 `"nnapi"` |
+
+插件返回的值按以下规则转换:
+
+- 布尔值和字符串保持不变, 字符转换为字符串.
+- 数字转换为 [number](dataTypes#number), 超过 2 的 53 次方的长整数会损失精度.
+- 数组和集合转换为 [Array](dataTypes#array), 嵌套的 Bundle 和字符串键的 Map 递归转换为对象.
+- `null` 保持不变.
+- 其他类型的键或数组元素被丢弃, 并在日志中记录.
+
+使用 [mergeLine](ocrOptionsType#p-mergeline) 合并同一行的结果时, 只保留各片段取值相同的键, 因此由多个片段合并的结果没有 `quad`.
+
+```js
+let results = ocr.paddle.detect(img);
+results.forEach(o => console.log(o.text, o.extras.quad));
+```
+
+Node.js 与 Bun 的 OCR 结果同样带有 `extras`, 转换规则相同, 对象及其嵌套内容不可修改. 其中无法用 JSON 表示的 `NaN` 与无穷大转换为 `null`. [mergeLine](ocrOptionsType#p-mergeline) 的合并规则也与 Rhino 相同.
+
+```js
+// Node.js 示例. Bun 使用 createHostClient() 返回对象的 ocr 属性.
+let results = await ocr.paddle.detect(img);
+results.forEach(o => console.log(o.text, o.extras.quad));
+```
+
+### [m] compareTo
+
+#### compareTo(other)
+
+- **other** { [OcrResult](#ocrresult) } - 另一个识别结果
+- <ins>**returns**</ins> { [number](dataTypes#number) } - 负数表示本结果在前, 正数表示在后, 0 表示位置相同
+
+按阅读顺序比较两个识别结果: 两个结果的垂直中心相差小于较高者高度的一半时视为同一行, 按左边界从左到右排列; 否则按下边界从上到下排列.
+
+```js
+let results = ocr.detect(img);
+results.sort((a, b) => a.compareTo(b)); /* 按阅读顺序排列. */
 ```
 
 ### [m] toString
@@ -2151,6 +2268,58 @@ let cipherB = Cipher.getInstance("DES/CBC/PKCS5Padding");
 ## ComposeRef
 
 参阅 [compose](compose) 的引用对象和 ref 方法.
+
+## ImguiSession
+
+参阅 [ImguiSession - ImGui 会话](imguiSessionType) 类型章节.
+
+## ImguiDrawList
+
+参阅 [ImguiDrawList - ImGui 绘制列表](imguiDrawListType) 类型章节.
+
+## ImguiFloatingButton
+
+参阅 [ImguiFloatingButton - ImGui 悬浮按钮](imguiFloatingButtonType) 类型章节.
+
+## ImguiComponent
+
+参阅 [ImguiComponent - ImGui 高层组件](imguiComponentType) 类型章节.
+
+## ImguiDataTable
+
+参阅 [ImguiDataTable - ImGui 数据表格](imguiDataTableType) 类型章节.
+
+## ImguiLogWindow
+
+参阅 [ImguiLogWindow - ImGui 日志窗口](imguiLogWindowType) 类型章节.
+
+## ImguiToast
+
+参阅 [ImguiToast - ImGui 短消息](imguiToastType) 类型章节.
+
+## ImguiStatsOverlay
+
+参阅 [ImguiStatsOverlay - ImGui 帧率覆盖层](imguiStatsOverlayType) 类型章节.
+
+## ImguiDialog
+
+参阅 [ImguiDialog - ImGui 对话框](imguiDialogType) 类型章节.
+
+## ImguiDialogPromise
+
+参阅 [ImguiDialogPromise - ImGui 对话框 Promise](imguiDialogPromiseType) 类型章节.
+
+## ImguiTexture
+
+参阅 [ImguiTexture - ImGui 纹理](imguiTextureType) 类型章节.
+
+## ImguiSelectionStorage
+
+参阅 [ImguiSelectionStorage - ImGui 选择存储](imguiSelectionStorageType) 类型章节.
+
+## ImguiMultiSelectIO
+
+参阅 [ImguiMultiSelectIO - ImGui 多选结果](imguiMultiSelectIOType) 类型章节.
 
 ## ComposeError
 

@@ -1,5 +1,19 @@
 # 应用枚举类 (App)
 
+<!-- runtime-support:begin App# -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `App` 对象 | - | - | - |
+| 状态 | 已支持 10 项 | 不适用 10 项 (需要 Java 对象) | 不适用 10 项 (需要 Java 对象) | 不适用 10 项 (需要 Java 对象) |
+
+各 API 在同一运行时中的入口, 状态与授权一致, 没有差异项.
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
 为便于与其他应用交互, AutoJs6 内置了部分常见应用的信息, 如下表:
 
 | 枚举实例名            | 中文名            | 英文名               | 包名                                 | 别名               |
@@ -210,11 +224,11 @@ App.FIREFOX.uninstall();
 console.log(App.FIREFOX.launch());
 ```
 
-## [m#] openSettings
+## [m#] launchSettings
 
 跳转至枚举实例应用的应用详情页面.
 
-### openSettings()
+### launchSettings()
 
 - <ins>**returns**</ins> { [boolean](dataTypes#boolean) }
 
@@ -222,7 +236,7 @@ console.log(App.FIREFOX.launch());
 
 ```js
 /* e.g. true */
-console.log(App.FIREFOX.openSettings());
+console.log(App.FIREFOX.launchSettings());
 ```
 
 ## [m#] toString

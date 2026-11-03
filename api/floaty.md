@@ -1,5 +1,32 @@
 # 悬浮窗 (Floaty)
 
+<!-- runtime-support:begin floaty -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `floaty` | `autojs6:floaty` | `autojs6:floaty` | `host.floaty` |
+| 状态 | 已支持 8 项 | 已支持 8 项 | 已支持 8 项 | 需授权 8 项 |
+| 授权 | - | - | - | `floaty.control` 6 项, `clipboard.control` 1 项, `floaty.raw` 1 项 |
+
+差异项 (2 项): 下表列出入口, 状态或授权与同列多数 API 不同的 API, 未列出的 API 与同列多数一致.
+
+| API | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- |
+| `floaty.getClip` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `clipboard.control` |
+| `floaty.rawWindow` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `floaty.raw` |
+
+返回对象 (2 个): 本页说明的对象的成员状态, 每个对象一行.
+
+| 返回对象 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| `FloatyWindow` (12 项) | 已支持 12 项 | 已支持 12 项 | 已支持 12 项 | 需授权 12 项 |
+| `RawWindow` (12 项) | 已支持 12 项 | 已支持 12 项 | 已支持 12 项 | 需授权 12 项 |
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
 ---
 
 <aside class="doc-status doc-status--incomplete" data-marked-by="SuperMonster003" data-marked-on="2022-10-22">
@@ -168,6 +195,27 @@ setTimeout(() => {
 
 使悬浮窗被关闭时自动结束脚本运行.
 
+## window.findView(id)
+
+- **id** { [string](dataTypes#string) } 控件 ID
+- <ins>**returns**</ins> { android.view.View | [null](dataTypes#null) }
+
+在悬浮窗界面中按 ID 查找控件, 与 `window.{id}` 相同.
+
+## window.requestFocus()
+
+使悬浮窗获得焦点, 以便其中的输入框接收键盘输入.
+
+## window.disableFocus()
+
+取消悬浮窗的焦点, 返回键等按键事件重新交给下层应用.
+
+```js
+let w = floaty.window(<frame><input id="input"/></frame>);
+w.requestFocus();
+setTimeout(() => w.disableFocus(), 5000);
+```
+
 # FloatyRawWindow
 
 原始悬浮窗对象, 可通过 `window.{id}` 获取悬浮窗界面上的元素. 例如, 悬浮窗 window 上一个控件的 id 为 aaa, 那么 `window.aaa` 即可获取到该控件, 类似于 ui.
@@ -250,3 +298,24 @@ setTimeout(()=>{
 ## window.exitOnClose()
 
 使悬浮窗被关闭时自动结束脚本运行.
+
+## window.findView(id)
+
+- **id** { [string](dataTypes#string) } 控件 ID
+- <ins>**returns**</ins> { android.view.View | [null](dataTypes#null) }
+
+在悬浮窗界面中按 ID 查找控件, 与 `window.{id}` 相同.
+
+## window.requestFocus()
+
+使悬浮窗获得焦点, 以便其中的输入框接收键盘输入.
+
+## window.disableFocus()
+
+取消悬浮窗的焦点, 返回键等按键事件重新交给下层应用.
+
+```js
+let w = floaty.rawWindow(<frame><input id="input"/></frame>);
+w.requestFocus();
+setTimeout(() => w.disableFocus(), 5000);
+```

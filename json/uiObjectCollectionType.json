@@ -4,7 +4,7 @@
     {
       "textRaw": "控件集合 (UiObjectCollection)",
       "name": "控件集合_(uiobjectcollection)",
-      "desc": "<p>UiObjectCollection 代表 <a href=\"uiObjectType\">控件节点 (UiObject)</a> 的对象集合.</p>\n<hr>\n<p style=\"font: bold 2em sans-serif; color: #FF7043\">UiObjectCollection</p>\n\n<hr>\n",
+      "desc": "<!-- runtime-support:begin UiObjectCollection# -->\n<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->\n<table>\n<thead>\n<tr>\n<th>运行时支持</th>\n<th>Rhino</th>\n<th>Node.js 主线程</th>\n<th>Node.js Worker</th>\n<th>Bun</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>入口</td>\n<td><code>UiObjectCollection</code> 对象</td>\n<td>-</td>\n<td>-</td>\n<td>-</td>\n</tr>\n<tr>\n<td>状态</td>\n<td>已支持 70 项</td>\n<td>不适用 70 项 (需要 Java 对象)</td>\n<td>不适用 70 项 (需要 Java 对象)</td>\n<td>不适用 70 项 (需要 Java 对象)</td>\n</tr>\n</tbody>\n</table>\n<p>各 API 在同一运行时中的入口, 状态与授权一致, 没有差异项.</p>\n<p>Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 <a href=\"runtimeApis#执行方式\">运行时 API</a>.</p>\n<!-- runtime-support:end -->\n<p>UiObjectCollection 代表 <a href=\"uiObjectType\">控件节点 (UiObject)</a> 的对象集合.</p>\n<hr>\n<p style=\"font: bold 2em sans-serif; color: #FF7043\">UiObjectCollection</p>\n\n<hr>\n",
       "modules": [
         {
           "textRaw": "[@] UiObjectCollection",
@@ -1372,6 +1372,109 @@
           ],
           "type": "module",
           "displayName": "[m#] setProgress"
+        },
+        {
+          "textRaw": "[m#] contains",
+          "name": "[m#]_contains",
+          "methods": [
+            {
+              "textRaw": "contains(o)",
+              "type": "method",
+              "name": "contains",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "textRaw": "**o** { [UiObject](uiObjectType) | [null](dataTypes#null) } ",
+                      "name": "**o**",
+                      "type": " [UiObject](uiObjectType) | [null](dataTypes#null) "
+                    },
+                    {
+                      "textRaw": "<ins>**returns**</ins> { [boolean](dataTypes#boolean) } ",
+                      "name": "<ins>**returns**</ins>",
+                      "type": " [boolean](dataTypes#boolean) "
+                    }
+                  ]
+                },
+                {
+                  "params": [
+                    {
+                      "name": "o"
+                    }
+                  ]
+                }
+              ],
+              "desc": "<p>集合是否包含控件 <code>o</code>.</p>\n<pre><code class=\"lang-js\">let list = className(&#39;TextView&#39;).find();\nconsole.log(list.contains(list.get(0))); // true\n</code></pre>\n"
+            }
+          ],
+          "type": "module",
+          "displayName": "[m#] contains"
+        },
+        {
+          "textRaw": "[m#] iterator",
+          "name": "[m#]_iterator",
+          "methods": [
+            {
+              "textRaw": "iterator()",
+              "type": "method",
+              "name": "iterator",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "textRaw": "<ins>**returns**</ins> { java.util.Iterator<[UiObject](uiObjectType)> } ",
+                      "name": "<ins>**returns**</ins>",
+                      "type": " java.util.Iterator<[UiObject](uiObjectType)> "
+                    }
+                  ]
+                },
+                {
+                  "params": []
+                }
+              ],
+              "desc": "<p>返回遍历集合中控件的 Java 迭代器.</p>\n<pre><code class=\"lang-js\">let it = className(&#39;TextView&#39;).find().iterator();\nwhile (it.hasNext()) {\n    console.log(it.next().text());\n}\n</code></pre>\n"
+            }
+          ],
+          "type": "module",
+          "displayName": "[m#] iterator"
+        },
+        {
+          "textRaw": "[m#] isSimilar",
+          "name": "[m#]_issimilar",
+          "methods": [
+            {
+              "textRaw": "isSimilar(other)",
+              "type": "method",
+              "name": "isSimilar",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "textRaw": "**other** { [any](dataTypes#any) } - 另一个控件集合 ",
+                      "name": "**other**",
+                      "type": " [any](dataTypes#any) ",
+                      "desc": "另一个控件集合"
+                    },
+                    {
+                      "textRaw": "<ins>**returns**</ins> { [boolean](dataTypes#boolean) } ",
+                      "name": "<ins>**returns**</ins>",
+                      "type": " [boolean](dataTypes#boolean) "
+                    }
+                  ]
+                },
+                {
+                  "params": [
+                    {
+                      "name": "other"
+                    }
+                  ]
+                }
+              ],
+              "desc": "<p>两个集合的控件哈希值相同时返回 <code>true</code>, 适合比较两次查找的结果.</p>\n"
+            }
+          ],
+          "type": "module",
+          "displayName": "[m#] isSimilar"
         },
         {
           "textRaw": "[m] of",

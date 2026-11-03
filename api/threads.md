@@ -1,5 +1,25 @@
 # 线程 (Threads)
 
+<!-- runtime-support:begin threads -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `threads`, 全局 1 项 | `autojs6:threads` | `autojs6:threads` | `host.threads` |
+| 状态 | 已支持 9 项 | 已支持 (本地实现) 9 项 | 已支持 (本地实现) 9 项 | 已支持 (本地实现) 9 项 |
+
+各 API 在同一运行时中的入口, 状态与授权一致, 没有差异项.
+
+返回对象 (1 个): 本页说明的对象的成员状态, 每个对象一行.
+
+| 返回对象 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| `VolatileDispose` (3 项) | 已支持 3 项 | 已支持 (本地实现) 3 项 | 已支持 (本地实现) 3 项 | 已支持 (本地实现) 3 项 |
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
 `threads` 模块在同一个 Rhino 脚本运行环境中创建和管理 Java 线程.
 由不同线程执行的函数共享脚本作用域和 Java 对象, 但普通读写, 复合运算以及
 JavaScript 容器并不会因此自动成为线程安全操作.
@@ -82,10 +102,8 @@ if (worker !== undefined) {
 而不会为了接近 `maxPoolSize` 而继续创建工作线程. 默认配置会按需创建一个工作线程
 并顺序消费队列.
 
-当前参数校验要求 `corePoolSize <= maxPoolSize` 时仍使用选项中的原始
-`maxPoolSize`. 因此显式或默认使用 `maxPoolSize: 0` 时,
-`corePoolSize` 也必须为 `0`. 若需要多个核心工作线程, 应同时指定不小于它的正数
-`maxPoolSize`.
+`maxPoolSize` 为 `0` (含默认值) 时不限制上限, `corePoolSize` 可取任意非负整数.
+指定正数 `maxPoolSize` 时, `corePoolSize` 不得大于它, 否则抛出异常.
 
 ```js
 let pool = threads.pool({

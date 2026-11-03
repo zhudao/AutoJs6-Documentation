@@ -1,5 +1,20 @@
 # 流程对象 (Flow)
 
+<!-- runtime-support:begin Flow# -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `Flow` 对象 | `autojs6:flow` | `autojs6:flow` | `host.flow` |
+| 状态 | 已支持 106 项 | 已支持 106 项 | 已支持 106 项 | 需授权 106 项 |
+| 授权 | - | - | - | `flow.control` 106 项 |
+
+各 API 在同一运行时中的入口, 状态与授权一致, 没有差异项.
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
 > Node.js/Bun/Worker 的异步链, 高级工具与事件等待参阅 [运行时 API](runtimeApis#flow-异步链与等待核心). 本页的同步终结方法, 工作线程与 Java 节点行为属于 Rhino.
 
 Flow 对象是 [流程 (Flow)](flow) API 的核心类型, 由 [flow](flow#flow) 的起点函数 (如 [flow.wait](flow#m-wait), 全局函数 [waitAsync](flow#m-wait)) 创建, 代表异步等待与动作链上的一个步骤及其结算状态.
@@ -242,6 +257,13 @@ flow.wait(className('EditText'))
 **`6.8.0`** **`A11Y`**
 
 [事件驱动等待](automator#事件驱动等待) 的四个函数可作为链式步骤: `waitForIdle` 透传链上的值, 其余以到达的事件, Toast 或通知为新值.
+
+| 步骤 | 新值 | 参数 |
+| --- | --- | --- |
+| `waitForIdle(quietFor?)` | 链上原值 | 同 [flow.waitForIdle](flow#m-waitforidle) |
+| `waitForEvent(type?, filter?, timeout?)` | 无障碍事件 | 同 [flow.waitForEvent](flow#m-waitforevent) |
+| `waitForToast(text?, timeout?)` | Toast | 同 [flow.waitForToast](flow#m-waitfortoast) |
+| `waitForNotification(filter?, timeout?)` | [Notification](events#notification) | 同 [flow.waitForNotification](flow#m-waitfornotification) |
 
 ```js
 flow.wait('提交').click()

@@ -4,7 +4,7 @@
     {
       "textRaw": "控件节点 (UiObject)",
       "name": "控件节点_(uiobject)",
-      "desc": "<p>UiObject 通常被称为 [ 控件 / 节点 / 控件节点 ], 可看做是一个通过安卓无障碍服务包装的 <a href=\"https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo\">AccessibilityNodeInfo</a> 对象, 代表一个当前活动窗口中的节点, 通过此节点可收集控件信息或执行控件行为, 进而实现一系列自动化操作.</p>\n<p>应用界面通常由控件构成, 如 <a href=\"https://developer.android.com/reference/android/widget/ImageView\">ImageView</a> 构成图像控件, <a href=\"https://developer.android.com/reference/android/widget/TextView\">TextView</a> 构成文本控件. 通过不同的布局可决定不同控件的位置, 如 <a href=\"https://developer.android.com/reference/android/widget/LinearLayout\">LinearLayout (线性布局)</a> 按水平或垂直方式排布及显示控件, <a href=\"https://developer.android.com/reference/android/widget/AbsListView\">AbsListView (列表布局)</a> 按列表方式排布及显示控件.\n不同的布局方式形成了 <a href=\"glossaries#控件层级\">控件层级</a>.</p>\n<p>控件拥有特定的属性, 可分为两种类型, 状态型及行为型.<br>\n行为型属性可参阅章节 <a href=\"uiObjectActionsType\">控件节点行为 (UiObjectActions)</a>.<br>\n状态型属性访问均被封装为方法调用的形式, 如访问控件的类名, 需使用 <code>w.className()</code> 而非 <code>w.className</code>.</p>\n<blockquote>\n<p>注: 在 AutoJs6 中, 由 <a href=\"uiObjectType\">UiObject</a> 代表一个控件节点, 它继承自 <a href=\"https://developer.android.com/reference/androidx/core/view/accessibility/AccessibilityNodeInfoCompat\">AccessibilityNodeInfoCompat</a>, 而并非一个 <a href=\"https://developer.android.com/reference/android/view/View\">View</a>.</p>\n</blockquote>\n<hr>\n<p style=\"font: bold 2em sans-serif; color: #FF7043\">UiObject</p>\n\n<hr>\n",
+      "desc": "<!-- runtime-support:begin UiObject# -->\n<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->\n<table>\n<thead>\n<tr>\n<th>运行时支持</th>\n<th>Rhino</th>\n<th>Node.js 主线程</th>\n<th>Node.js Worker</th>\n<th>Bun</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>入口</td>\n<td><code>UiObject</code> 对象</td>\n<td>-</td>\n<td>-</td>\n<td>-</td>\n</tr>\n<tr>\n<td>状态</td>\n<td>已支持 141 项</td>\n<td>不适用 141 项 (需要 Java 对象)</td>\n<td>不适用 141 项 (需要 Java 对象)</td>\n<td>不适用 141 项 (需要 Java 对象)</td>\n</tr>\n</tbody>\n</table>\n<p>各 API 在同一运行时中的入口, 状态与授权一致, 没有差异项.</p>\n<p>Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 <a href=\"runtimeApis#执行方式\">运行时 API</a>.</p>\n<!-- runtime-support:end -->\n<p>UiObject 通常被称为 [ 控件 / 节点 / 控件节点 ], 可看做是一个通过安卓无障碍服务包装的 <a href=\"https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo\">AccessibilityNodeInfo</a> 对象, 代表一个当前活动窗口中的节点, 通过此节点可收集控件信息或执行控件行为, 进而实现一系列自动化操作.</p>\n<p>应用界面通常由控件构成, 如 <a href=\"https://developer.android.com/reference/android/widget/ImageView\">ImageView</a> 构成图像控件, <a href=\"https://developer.android.com/reference/android/widget/TextView\">TextView</a> 构成文本控件. 通过不同的布局可决定不同控件的位置, 如 <a href=\"https://developer.android.com/reference/android/widget/LinearLayout\">LinearLayout (线性布局)</a> 按水平或垂直方式排布及显示控件, <a href=\"https://developer.android.com/reference/android/widget/AbsListView\">AbsListView (列表布局)</a> 按列表方式排布及显示控件.\n不同的布局方式形成了 <a href=\"glossaries#控件层级\">控件层级</a>.</p>\n<p>控件拥有特定的属性, 可分为两种类型, 状态型及行为型.<br>\n行为型属性可参阅章节 <a href=\"uiObjectActionsType\">控件节点行为 (UiObjectActions)</a>.<br>\n状态型属性访问均被封装为方法调用的形式, 如访问控件的类名, 需使用 <code>w.className()</code> 而非 <code>w.className</code>.</p>\n<blockquote>\n<p>注: 在 AutoJs6 中, 由 <a href=\"uiObjectType\">UiObject</a> 代表一个控件节点, 它继承自 <a href=\"https://developer.android.com/reference/androidx/core/view/accessibility/AccessibilityNodeInfoCompat\">AccessibilityNodeInfoCompat</a>, 而并非一个 <a href=\"https://developer.android.com/reference/android/view/View\">View</a>.</p>\n</blockquote>\n<hr>\n<p style=\"font: bold 2em sans-serif; color: #FF7043\">UiObject</p>\n\n<hr>\n",
       "modules": [
         {
           "textRaw": "[@] UiObject",
@@ -2708,6 +2708,71 @@
           "displayName": "[m#] toJSON"
         },
         {
+          "textRaw": "[m#] summary",
+          "name": "[m#]_summary",
+          "methods": [
+            {
+              "textRaw": "summary()",
+              "type": "method",
+              "name": "summary",
+              "desc": "<p><strong><code>A11Y</code></strong></p>\n<ul>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#string\">string</a> }</li>\n</ul>\n<p>返回控件属性的多行 <code>{ name=value ... }</code> 列表: 字符串加引号, 列表逐项展开, 边界写作 <code>Rect(l, t - r, b)</code>, 中心写作 <code>{x, y}</code>. 适合打印调试.</p>\n<pre><code class=\"lang-js\">console.log(text(&#39;登录&#39;).findOnce().summary());\n</code></pre>\n",
+              "signatures": [
+                {
+                  "params": []
+                }
+              ]
+            }
+          ],
+          "type": "module",
+          "displayName": "[m#] summary"
+        },
+        {
+          "textRaw": "[m#] isSimilar",
+          "name": "[m#]_issimilar",
+          "methods": [
+            {
+              "textRaw": "isSimilar(other)",
+              "type": "method",
+              "name": "isSimilar",
+              "desc": "<p><strong><code>A11Y</code></strong></p>\n<ul>\n<li><strong>other</strong> { <a href=\"dataTypes#any\">any</a> } - 另一个控件</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"dataTypes#boolean\">boolean</a> }</li>\n</ul>\n<p>判断两个控件是否 &quot;相似&quot;: 对应同一平台节点, 所列属性全部相等, 且首末兄弟控件与子控件的字符串形式相等. 适合比较两次查找得到的控件对象.</p>\n<pre><code class=\"lang-js\">let a = id(&#39;title&#39;).findOnce();\nlet b = id(&#39;title&#39;).findOnce();\nconsole.log(a.isSimilar(b)); // true\n</code></pre>\n",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "name": "other"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "type": "module",
+          "displayName": "[m#] isSimilar"
+        },
+        {
+          "textRaw": "[m#] brother",
+          "name": "[m#]_brother",
+          "methods": [
+            {
+              "textRaw": "brother(i)",
+              "type": "method",
+              "name": "brother",
+              "desc": "<p><strong><code>DEPRECATED</code></strong> <strong><code>A11Y</code></strong></p>\n<ul>\n<li><strong>i</strong> { <a href=\"dataTypes#number\">number</a> } - 索引偏移量</li>\n<li><ins><strong>returns</strong></ins> { <a href=\"uiObjectType\">UiObject</a> | <a href=\"dataTypes#null\">null</a> }</li>\n</ul>\n<p>已弃用, 等同于 <a href=\"#m-offset\">offset(i)</a>.</p>\n",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "name": "i"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "type": "module",
+          "displayName": "[m#] brother"
+        },
+        {
           "textRaw": "[m#] dumpSubtree",
           "name": "[m#]_dumpsubtree",
           "methods": [
@@ -2832,7 +2897,7 @@
         {
           "textRaw": "[m] detect",
           "name": "[m]_detect",
-          "desc": "<p>控件探测.</p>\n<p>探测相当于对控件进行一系列组合操作 (罗盘定位, 结果筛选, 参化调用, 回调处理).</p>\n<p>部分特性:</p>\n<ul>\n<li><code>detect</code> 已全局化, 支持全局使用.</li>\n<li><code>detect</code> 的首个参数固定为 <a href=\"uiObjectType\">UiObject</a> 类型.</li>\n<li><a href=\"#m-compass\">compass</a> 是 <code>detect</code> 的衍生方法.</li>\n<li><a href=\"uiSelectorType#m-pickup\">pickup</a> 的内部实现引用了 <code>detect</code> 方法.</li>\n</ul>\n",
+          "desc": "<p>控件探测.</p>\n<p>探测相当于对控件进行一系列组合操作 (罗盘定位, 结果筛选, 参化调用, 回调处理).</p>\n<p>部分特性:</p>\n<ul>\n<li><code>detect</code> 已全局化, 支持全局使用.</li>\n<li><code>detect</code> 的首个参数固定为 <a href=\"uiObjectType\">UiObject</a> 类型.</li>\n<li><a href=\"#m-compass\">compass</a> 是 <code>detect</code> 的衍生方法.</li>\n<li><a href=\"uiSelectorType#m-pickup\">pickup</a> 与 <code>detect</code> 使用同一套参数检查, 罗盘定位, 结果筛选与回调处理: <code>pickup</code> 先筛选出控件, 其余过程与 <code>detect</code> 相同.</li>\n<li>参数检查 (<strong><code>6.8.0</code></strong>): 罗盘, 结果与回调参数在探测之前全部检查完毕, 错误消息指明函数名与参数名. <a href=\"dataTypes#detectresult\">结果参数</a> 只能调用 <a href=\"dataTypes#uiobjectinvokable\">可调用方法</a> 列出的控件方法, 未知名称抛出 RangeError 并列出至多 5 个相近名称; 集合与数组形式的结果参数 (如 <code>&#39;{}&#39;</code>, <code>&#39;[]&#39;</code>) 不适用于单个控件, 将抛出异常.</li>\n<li>罗盘每一步到达的控件与结果参数解析到的方法, 可用 <a href=\"automator#m-explain\">auto.explain</a> 查看.</li>\n</ul>\n",
           "methods": [
             {
               "textRaw": "detect(w, compass)",

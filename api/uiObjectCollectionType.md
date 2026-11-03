@@ -1,5 +1,19 @@
 # 控件集合 (UiObjectCollection)
 
+<!-- runtime-support:begin UiObjectCollection# -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `UiObjectCollection` 对象 | - | - | - |
+| 状态 | 已支持 70 项 | 不适用 70 项 (需要 Java 对象) | 不适用 70 项 (需要 Java 对象) | 不适用 70 项 (需要 Java 对象) |
+
+各 API 在同一运行时中的入口, 状态与授权一致, 没有差异项.
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
 UiObjectCollection 代表 [控件节点 (UiObject)](uiObjectType) 的对象集合.
 
 ---
@@ -932,6 +946,44 @@ className('EditText').find().setTextEach('');
 - <ins>**returns**</ins> { [boolean](dataTypes#boolean) } - 是否行为已全部执行且执行过程中无异常
 
 控件集合执行 [[ 设置进度值 ] 行为](uiObjectActionsType#m-setprogress).
+
+## [m#] contains
+
+### contains(o)
+
+- **o** { [UiObject](uiObjectType) | [null](dataTypes#null) }
+- <ins>**returns**</ins> { [boolean](dataTypes#boolean) }
+
+集合是否包含控件 `o`.
+
+```js
+let list = className('TextView').find();
+console.log(list.contains(list.get(0))); // true
+```
+
+## [m#] iterator
+
+### iterator()
+
+- <ins>**returns**</ins> { java.util.Iterator<[UiObject](uiObjectType)> }
+
+返回遍历集合中控件的 Java 迭代器.
+
+```js
+let it = className('TextView').find().iterator();
+while (it.hasNext()) {
+    console.log(it.next().text());
+}
+```
+
+## [m#] isSimilar
+
+### isSimilar(other)
+
+- **other** { [any](dataTypes#any) } - 另一个控件集合
+- <ins>**returns**</ins> { [boolean](dataTypes#boolean) }
+
+两个集合的控件哈希值相同时返回 `true`, 适合比较两次查找的结果.
 
 ## [m] of
 

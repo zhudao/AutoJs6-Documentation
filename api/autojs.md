@@ -1,5 +1,36 @@
 # AutoJs6 本体应用
 
+<!-- runtime-support:begin autojs -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `autojs`, `autojs.version`, 全局 1 项 | `autojs6:autojs` | `autojs6:autojs` | `host.autojs` |
+| 状态 | 已支持 29 项 | 已支持 29 项 | 已支持 29 项 | 需授权 29 项 |
+| 授权 | - | - | - | `autojs.control` 29 项 |
+
+差异项 (7 项): 下表列出入口, 状态或授权与同列多数 API 不同的 API, 未列出的 API 与同列多数一致.
+
+| API | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- |
+| `autojs.version.code` | <span title="bridged">已支持</span>: `version.code` (`autojs6:autojs`) | <span title="bridged">已支持</span>: `version.code` (`autojs6:autojs`) | <span title="capability-gated">需授权</span> `autojs.control`: `host.autojs.version.code` |
+| `autojs.version.date` | <span title="bridged">已支持</span>: `version.date` (`autojs6:autojs`) | <span title="bridged">已支持</span>: `version.date` (`autojs6:autojs`) | <span title="capability-gated">需授权</span> `autojs.control`: `host.autojs.version.date` |
+| `autojs.version.isAtLeast` | <span title="bridged">已支持</span>: `version.isAtLeast` (`autojs6:autojs`) | <span title="bridged">已支持</span>: `version.isAtLeast` (`autojs6:autojs`) | <span title="capability-gated">需授权</span> `autojs.control`: `host.autojs.version.isAtLeast` |
+| `autojs.version.isEqual` | <span title="bridged">已支持</span>: `version.isEqual` (`autojs6:autojs`) | <span title="bridged">已支持</span>: `version.isEqual` (`autojs6:autojs`) | <span title="capability-gated">需授权</span> `autojs.control`: `host.autojs.version.isEqual` |
+| `autojs.version.isHigherThan` | <span title="bridged">已支持</span>: `version.isHigherThan` (`autojs6:autojs`) | <span title="bridged">已支持</span>: `version.isHigherThan` (`autojs6:autojs`) | <span title="capability-gated">需授权</span> `autojs.control`: `host.autojs.version.isHigherThan` |
+| `autojs.version.isLowerThan` | <span title="bridged">已支持</span>: `version.isLowerThan` (`autojs6:autojs`) | <span title="bridged">已支持</span>: `version.isLowerThan` (`autojs6:autojs`) | <span title="capability-gated">需授权</span> `autojs.control`: `host.autojs.version.isLowerThan` |
+| `autojs.version.name` | <span title="bridged">已支持</span>: `version.name` (`autojs6:autojs`) | <span title="bridged">已支持</span>: `version.name` (`autojs6:autojs`) | <span title="capability-gated">需授权</span> `autojs.control`: `host.autojs.version.name` |
+
+返回对象 (1 个): 本页说明的对象的成员状态, 每个对象一行.
+
+| 返回对象 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| `ThemeColor` (10 项) | 已支持 10 项 | 不适用 10 项 (需要 Java 对象) | 不适用 10 项 (需要 Java 对象) | 不适用 10 项 (需要 Java 对象) |
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
 autojs 全局对象主要包含与 AutoJs6 应用本身相关的属性及方法, 如获取 AutoJs6 的 [ Root 状态 / 语言标签 / 权限状态 ] 等.
 
 ---
@@ -310,6 +341,19 @@ AutoJs6 应用名称.
 ```js
 autojs.themeColor.getColorPrimary(); /* 获取 AutoJs6 主题色的主色色值. */
 ```
+
+主题颜色实例 (ThemeColor) 的成员:
+
+| 成员 | 说明 |
+| --- | --- |
+| `colorPrimary` / `getColorPrimary()` | 主色色值 |
+| `colorPrimaryDark` / `getColorPrimaryDark()` | 深色主色色值 |
+| `colorAccent` / `getColorAccent()` | 强调色色值 |
+| `colorPrimary(color)` / `colorPrimaryDark(color)` / `colorAccent(color)` | 修改实例中的对应颜色并返回实例本身, 不会写入设置 |
+| `isLuminanceLight(backgroundColorMatters?)` | AutoJs6 当前主题是否为浅色; `backgroundColorMatters` 默认为 `true` |
+| `isLuminanceDark(backgroundColorMatters?)` | 与 `isLuminanceLight` 相反 |
+| `readFrom()` | 从 AutoJs6 的外观设置重新读取三种颜色, 返回实例本身 |
+| `saveIn()` | 把三种颜色写入 AutoJs6 的外观设置, 会改变应用的主题色 |
 
 ## [p+] version
 

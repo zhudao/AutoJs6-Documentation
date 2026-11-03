@@ -1,5 +1,37 @@
 # 事件监听 (Events)
 
+<!-- runtime-support:begin events -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `events` | `autojs6:events` | `autojs6:events` | `host.events` |
+| 状态 | 已支持 37 项 | 已支持 36 项, 不适用 1 项 | 已支持 36 项, 不适用 1 项 | 需授权 36 项, 不适用 1 项 |
+| 授权 | - | - | - | `events.observe` 23 项, `events.key` 6 项, `events.notification` 2 项, `events.toast` 2 项, `events.touch` 2 项, `events.key.intercept` 1 项 |
+
+差异项 (14 项): 下表列出入口, 状态或授权与同列多数 API 不同的 API, 未列出的 API 与同列多数一致.
+
+| API | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- |
+| `events.__asEmitter__` | <span title="not-portable: rhino-only">不适用</span> (仅限 Rhino 引擎) | <span title="not-portable: rhino-only">不适用</span> (仅限 Rhino 引擎) | <span title="not-portable: rhino-only">不适用</span> (仅限 Rhino 引擎) |
+| `events.onKeyDown` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `events.key` |
+| `events.onKeyUp` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `events.key` |
+| `events.onNotification` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `events.notification` |
+| `events.onToast` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `events.toast` |
+| `events.onTouch` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `events.touch` |
+| `events.onceKeyDown` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `events.key` |
+| `events.onceKeyUp` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `events.key` |
+| `events.removeAllKeyDownListeners` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `events.key` |
+| `events.removeAllKeyUpListeners` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `events.key` |
+| `events.removeAllTouchListeners` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `events.touch` |
+| `events.removeNotificationObserver` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `events.notification` |
+| `events.removeToastObserver` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `events.toast` |
+| `events.setKeyInterceptionEnabled` | <span title="bridged">已支持</span> | <span title="bridged">已支持</span> | <span title="capability-gated">需授权</span> `events.key.intercept` |
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
 ---
 
 <aside class="doc-status doc-status--incomplete" data-marked-by="SuperMonster003" data-marked-on="2022-10-22">
@@ -283,6 +315,22 @@ events.onNotification(function(notification){
 
 Toast 监听依赖于无障碍服务, 因此此函数会确保无障碍服务运行.
 
+## events.removeToastObserver()
+
+停止 Toast 监听. 同时没有通知监听时, 脚本不再因事件监听而保持运行.
+
+## events.removeNotificationObserver()
+
+停止通知监听, 与 `events.observeNotification()` 相对. 同时没有 Toast 监听时, 脚本不再因事件监听而保持运行.
+
+```js
+events.observeToast();
+events.on('toast', (toast) => {
+    log(toast.getText());
+    events.removeToastObserver(); /* 只处理第一条 Toast. */
+});
+```
+
 ## 事件: 'toast'
 
 - **toast** { [Object](dataTypes#object) }
@@ -440,6 +488,14 @@ events.broadcast.on('message', function (text) {
     console.log(text);
 });
 ```
+
+Rhino 脚本之间传递的是同一个对象. Node.js / Bun 主脚本与 Rhino 脚本之间按 JSON 的规则传递, 接收方拿到自己的副本, 用法与原生对象相同:
+
+- 字符串, 数字, 布尔值, `null`, 对象和数组在两个方向上都保持结构.
+- 对象中的函数和 `undefined` 被省略, 数组中的函数和 `undefined` 变成 `null`, 直接作为参数的函数也是 `null`. `NaN` 和无穷大变成 `null`. 定义了 `toJSON` 的对象按其返回值传递.
+- 主脚本直接传 `undefined` 时 Rhino 收到 `null`. Rhino 脚本直接传 `undefined` 时监听器收到字符串 `undefined` (Rhino 调用 Java 方法时的转换, Rhino 监听器也一样), 需要表示空值时用 `null`.
+- Rhino 脚本发送循环引用, 或 `toJSON` 抛出异常的对象时, 该参数到主脚本是 `null`, 其他参数不受影响, 发送方不会收到异常. 这与 `JSON.stringify` 不同: 发送方不知道有哪些脚本在监听, 不应因此中断.
+- 主脚本发送循环引用时, `emit` 返回的 Promise 以 `TypeError` 拒绝, 与 `JSON.stringify` 相同, 这次广播不会发出.
 
 ## [m] unregister
 

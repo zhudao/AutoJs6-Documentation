@@ -1,5 +1,20 @@
 # ShellProcess
 
+<!-- runtime-support:begin ShellProcess# -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `ShellProcess` 对象 | `autojs6:shell` | `autojs6:shell` | `host.shell` |
+| 状态 | 已支持 25 项 | 已支持 25 项 | 已支持 25 项 | 需授权 25 项 |
+| 授权 | - | - | - | `shell.control` 25 项 |
+
+各 API 在同一运行时中的入口, 状态与授权一致, 没有差异项.
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
 由 [shell.spawn](shell#m-spawn) 和 [shizuku.spawn](shizuku#m-spawn) 返回的进程对象, 表示一条正在运行或已经结束的命令行. 属性, 文本与状态方法返回普通 JavaScript 值, 流方法返回 Java 输入/输出流. TypeScript 类型名为 `Shell.Process`, 不存在可直接调用的全局 `ShellProcess` 构造器. 进程随启动它的脚本结束而结束, 连同其启动的子进程.
 
 stdout 与 stderr 各自只能以一种方式读取, 由首次使用决定:

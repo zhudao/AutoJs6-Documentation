@@ -1,5 +1,20 @@
 # 媒体信息 (MediaInfo)
 
+<!-- runtime-support:begin mediainfo -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `mediainfo` | `mediainfo` | `mediainfo` | `host.mediainfo` |
+| 状态 | 已支持 7 项 | 已支持 7 项 | 已支持 7 项 | 需授权 7 项 |
+| 授权 | - | - | - | `mediainfo.control` 7 项 |
+
+各 API 在同一运行时中的入口, 状态与授权一致, 没有差异项.
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
 mediainfo 模块用于读取媒体文件的容器, 视频, 音频, 字幕和其他流信息.
 
 此模块自 AutoJs6 6.7.0 起提供. `mediainfo` 与 `$mediainfo` 指向同一个可调用模块对象.

@@ -1,5 +1,24 @@
 # 内存 (Memory)
 
+<!-- runtime-support:begin memory -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `memory` | `autojs6:memory` | `autojs6:memory` | `host.memory` |
+| 状态 | 已支持 5 项 | 已支持 4 项, 不适用 1 项 | 已支持 4 项, 不适用 1 项 | 需授权 4 项, 不适用 1 项 |
+| 授权 | - | - | - | `memory.control` 4 项 |
+
+差异项 (1 项): 下表列出入口, 状态或授权与同列多数 API 不同的 API, 未列出的 API 与同列多数一致.
+
+| API | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- |
+| `memory.watch` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `FinalizationRegistry (a callback once the object is collected), node:v8 writeHeapSnapshot / getHeapStatistics; in Bun bun:jsc heapStats / generateHeapSnapshot` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `FinalizationRegistry (a callback once the object is collected), node:v8 writeHeapSnapshot / getHeapStatistics; in Bun bun:jsc heapStats / generateHeapSnapshot` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `FinalizationRegistry (a callback once the object is collected), node:v8 writeHeapSnapshot / getHeapStatistics; in Bun bun:jsc heapStats / generateHeapSnapshot` |
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
 memory 模块用于在脚本中读取 AutoJs6 进程自身的内存诊断数据, 包括 Java 堆与原生堆用量, 存活的脚本引擎, 已结束但尚未被回收的脚本运行时与插件引擎桥接会话, 未释放的图像与脚本线程等, 以便检查脚本反复运行后内存是否持续增长.
 
 数据来源与 AutoJs6 "设置 > 关于 > 开发者选项 > 内存诊断" 页面相同. 此模块只读取诊断数据, 不提供释放其他脚本资源的能力.

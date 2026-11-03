@@ -1,5 +1,19 @@
 # Color (颜色类)
 
+<!-- runtime-support:begin Color# -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `Color` 对象 | `colors` | `colors` | `host.colors` |
+| 状态 | 已支持 29 项 | 已支持 (本地实现) 29 项 | 已支持 (本地实现) 29 项 | 已支持 (本地实现) 29 项 |
+
+各 API 在同一运行时中的入口, 状态与授权一致, 没有差异项.
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
 颜色类 Color 是一个全局类, 用于生成一个颜色实例:
 
 ```js
@@ -1465,6 +1479,28 @@ console.log(`H: ${h}, S: ${s}, L: ${l}`);
 let [ h, s, l, a ] = Color('#BF663399').toHsla();
 console.log(`H: ${h}, S: ${s}, L: ${l}, A: ${a}`);
 ```
+
+## [m#] argb / rgb / rgba / hsv / hsva / hsl / hsla
+
+### argb() / rgb() / rgba() / hsv() / hsva() / hsl() / hsla()
+
+- <ins>**returns**</ins> { [ColorComponents](dataTypes#colorcomponents) } - 颜色分量数组
+
+[toArgb](#m-toargb), [toRgb](#m-torgb), [toRgba](#m-torgba), [toHsv](#m-tohsv), [toHsva](#m-tohsva), [toHsl](#m-tohsl) 和 [toHsla](#m-tohsla) 的简写, 返回值相同.
+
+```js
+let c = Color('#BF663399');
+console.log(c.hsla()); /* 同 c.toHsla(). */
+console.log(c.argb()); /* 同 c.toArgb(). */
+```
+
+## [m#] toStringReadable
+
+### toStringReadable()
+
+- <ins>**returns**</ins> { [string](dataTypes#string) }
+
+返回颜色的可读文本. `console.log` 打印颜色实例时使用此文本.
 
 ## [m#] isSimilar
 

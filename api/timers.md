@@ -1,5 +1,38 @@
 # 定时器 (Timers)
 
+<!-- runtime-support:begin timers -->
+<!-- 本段由 generator/runtime-support.js 根据 AutoJs6 运行时覆盖矩阵生成, 不要手动修改; 数据源 ksp -->
+
+| 运行时支持 | Rhino | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- | --- |
+| 入口 | `timers`, 全局 8 项 | `autojs6:tasks`, `autojs6:timers` | `autojs6:tasks`, `autojs6:timers` | `host.tasks`, `host.timers` |
+| 状态 | 已支持 26 项 | 已支持 10 项, 已支持 (本地实现) 4 项, 不适用 12 项 | 已支持 10 项, 已支持 (本地实现) 4 项, 不适用 12 项 | 已支持 (本地实现) 4 项, 需授权 10 项, 不适用 12 项 |
+| 授权 | - | - | - | `tasks.control` 10 项 |
+
+差异项 (15 项): 下表列出入口, 状态或授权与同列多数 API 不同的 API, 未列出的 API 与同列多数一致.
+
+| API | Node.js 主线程 | Node.js Worker | Bun |
+| --- | --- | --- | --- |
+| `clearImmediate` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `node:timers.clearImmediate` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `node:timers.clearImmediate` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `global setTimeout / setInterval / setImmediate and their clear functions` |
+| `clearInterval` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `node:timers.clearInterval` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `node:timers.clearInterval` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `global setTimeout / setInterval / setImmediate and their clear functions` |
+| `clearTimeout` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `node:timers.clearTimeout` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `node:timers.clearTimeout` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `global setTimeout / setInterval / setImmediate and their clear functions` |
+| `timers.keepAlive`, `keepAlive` | <span title="local-shim">已支持 (本地实现)</span>: `keepAlive` (`autojs6:timers`) | <span title="local-shim">已支持 (本地实现)</span>: `keepAlive` (`autojs6:timers`) | <span title="local-shim">已支持 (本地实现)</span>: `host.timers.keepAlive` |
+| `loop` | <span title="local-shim">已支持 (本地实现)</span>: `loop` (`autojs6:timers`) | <span title="local-shim">已支持 (本地实现)</span>: `loop` (`autojs6:timers`) | <span title="local-shim">已支持 (本地实现)</span>: `host.timers.loop` |
+| `setImmediate` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `node:timers.setImmediate` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `node:timers.setImmediate` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `global setTimeout / setInterval / setImmediate and their clear functions` |
+| `setInterval` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `node:timers.setInterval` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `node:timers.setInterval` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `global setTimeout / setInterval / setImmediate and their clear functions` |
+| `setTimeout` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `node:timers.setTimeout` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `node:timers.setTimeout` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `global setTimeout / setInterval / setImmediate and their clear functions` |
+| `timers.clearImmediate` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `node:timers.clearImmediate` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `node:timers.clearImmediate` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `global setTimeout / setInterval / setImmediate and their clear functions` |
+| `timers.clearInterval` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `node:timers.clearInterval` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `node:timers.clearInterval` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `global setTimeout / setInterval / setImmediate and their clear functions` |
+| `timers.clearTimeout` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `node:timers.clearTimeout` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `node:timers.clearTimeout` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `global setTimeout / setInterval / setImmediate and their clear functions` |
+| `timers.setImmediate` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `node:timers.setImmediate` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `node:timers.setImmediate` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `global setTimeout / setInterval / setImmediate and their clear functions` |
+| `timers.setInterval` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `node:timers.setInterval` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `node:timers.setInterval` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `global setTimeout / setInterval / setImmediate and their clear functions` |
+| `timers.setIntervalExt` | <span title="local-shim">已支持 (本地实现)</span>: `setIntervalExt` (`autojs6:timers`) | <span title="local-shim">已支持 (本地实现)</span>: `setIntervalExt` (`autojs6:timers`) | <span title="local-shim">已支持 (本地实现)</span>: `host.timers.setIntervalExt` |
+| `timers.setTimeout` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `node:timers.setTimeout` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `node:timers.setTimeout` | <span title="not-portable: runtime-native">不适用</span> (运行时自带等价功能), 等价写法: `global setTimeout / setInterval / setImmediate and their clear functions` |
+
+Node.js 与 Bun 的导入方式, 异步返回值与授权检查见 [运行时 API](runtimeApis#执行方式).
+
+<!-- runtime-support:end -->
+
 `timers` 模块提供当前脚本进程内的事件循环定时器, 并提供一组与 [workManager](workManager) 兼容的持久化任务入口.
 
 脚本内定时器是单线程的. 当前脚本长时间阻塞时, 回调只能在事件循环恢复后执行.
